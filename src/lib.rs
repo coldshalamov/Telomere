@@ -1,7 +1,11 @@
 //! Core logic for the Inchworm compression system.
 
 use sha2::{Digest, Sha256};
+use serde::{Deserialize, Serialize};
+use memmap2::Mmap;
 use serde_json::json;
+use std::fs::File;
+use std::path::Path;
 use std::ops::RangeInclusive;
 
 mod sha_cache;
@@ -10,7 +14,14 @@ mod bloom;
 use sha_cache::ShaCache;
 use bloom::Bloom;
 
-/// Representation of a chain element during compression and decompression.
+/// Fixed block size in bytes.
+pub const BLOCK_SIZE: usize = 7;
+/// Size of an encoded header in bytes.
+pub const HEADER_SIZE: usize = 3;
+/// Reserved seed byte used for literal fallbacks.
+pub const FALLBACK_SEED: u8 = 0xA5;
+
+/// A single compressed or literal block.
 #[derive(Clone)]
 pub enum Region {
     Raw(Vec<u8>),
@@ -26,11 +37,7 @@ impl Region {
     }
 }
 
-pub const BLOCK_SIZE: usize = 7;
-pub const HEADER_SIZE: usize = 3;
-pub const FALLBACK_SEED: u8 = 0xA5;
-
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct Header {
     pub seed_len: u8,
     pub nest_len: u32,
@@ -130,12 +137,16 @@ fn decompress_safe(mut data: &[u8]) -> Option<Vec<u8>> {
     Some(out)
 }
 
+/// Gloss table entries for precalculated compressed blocks.
+#[derive(Serialize, Deserialize, Clone)]
 pub struct GlossEntry {
     pub seed: Vec<u8>,
     pub header: Header,
     pub decompressed: Vec<u8>,
 }
 
+/// Gloss table supporting disk I/O and optional memory-mapped load.
+#[derive(Serialize, Deserialize, Default, Clone)]
 pub struct GlossTable {
     pub entries: Vec<GlossEntry>,
 }
@@ -159,7 +170,9 @@ impl GlossTable {
                             nest_len: len as u32,
                             arity: blocks as u8 - 1,
                         };
-                        if let Some(out) = decompress_region_safe(&Region::Compressed(seed_bytes.to_vec(), header)) {
+                        if let Some(out) = decompress_region_safe(
+                            &Region::Compressed(seed_bytes.to_vec(), header),
+                        ) {
                             entries.push(GlossEntry {
                                 seed: seed_bytes.to_vec(),
                                 header,
@@ -172,10 +185,23 @@ impl GlossTable {
         }
         Self { entries }
     }
-}
 
-fn encoded_len_of_regions(regions: &[Region]) -> usize {
-    regions.iter().map(|r| r.encoded_len()).sum()
+    pub fn build() -> Self {
+        Self { entries: Vec::new() }
+    }
+
+    pub fn load<P: AsRef<Path>>(path: P) -> std::io::Result<Self> {
+        let file = File::open(path)?;
+        unsafe {
+            let mmap = Mmap::map(&file)?;
+            Ok(bincode::deserialize(&mmap).expect("invalid gloss table"))
+        }
+    }
+
+    pub fn save<P: AsRef<Path>>(&self, path: P) -> std::io::Result<()> {
+        let data = bincode::serialize(self).expect("failed to serialize gloss");
+        std::fs::write(path, data)
+    }
 }
 
 pub fn print_stats(
@@ -187,7 +213,7 @@ pub fn print_stats(
     json_out: bool,
     final_stats: bool,
 ) {
-    let encoded = encoded_len_of_regions(chain);
+    let encoded = chain.iter().map(|r| r.encoded_len()).sum::<usize>();
     let ratio = encoded as f64 * 100.0 / original_bytes as f64;
     let hashes_per_byte = if encoded == 0 {
         0.0
