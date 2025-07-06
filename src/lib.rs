@@ -265,3 +265,68 @@ pub fn decompress(mut data: &[u8]) -> Vec<u8> {
     out
 }
 
+/// Entry within the [`GlossTable`].
+pub struct GlossEntry {
+    /// Seed bytes that produced the digest.
+    pub seed: Vec<u8>,
+    /// Header describing how the digest should be interpreted.
+    pub header: Header,
+    /// Result of [`decompress_region`] for this seed/header pair.
+    pub decompressed: Vec<u8>,
+}
+
+/// Table of seed/header pairs whose digests begin with valid encoded data.
+pub struct GlossTable {
+    /// All matching entries discovered during construction.
+    pub entries: Vec<GlossEntry>,
+}
+
+impl GlossTable {
+    /// Build a table covering all one- and two-byte seeds.
+    pub fn build() -> Self {
+        use std::panic::{catch_unwind, AssertUnwindSafe};
+
+        fn try_decompress(bytes: &[u8]) -> Option<Vec<u8>> {
+            catch_unwind(AssertUnwindSafe(|| decompress(bytes))).ok()
+        }
+
+        let mut entries = Vec::new();
+
+        for seed_len in 1..=2u8 {
+            let max = 1u64 << (8 * seed_len as u64);
+            for n in 0..max {
+                let seed_bytes: Vec<u8> = n.to_be_bytes()[8 - seed_len as usize..].to_vec();
+                let digest = Sha256::digest(&seed_bytes);
+
+                for len in 0..=digest.len() {
+                    let prefix = &digest[..len];
+                    let Some(data) = try_decompress(prefix) else { continue };
+                    if data.len() % BLOCK_SIZE != 0 {
+                        continue;
+                    }
+                    let blocks = data.len() / BLOCK_SIZE;
+                    if !(2..=4).contains(&blocks) {
+                        continue;
+                    }
+
+                    let header = Header {
+                        seed_len: seed_len - 1,
+                        nest_len: len as u32,
+                        arity: (blocks as u8) - 1,
+                    };
+
+                    let decompressed = decompress_region(&Region::Compressed(seed_bytes.clone(), header));
+
+                    entries.push(GlossEntry {
+                        seed: seed_bytes.clone(),
+                        header,
+                        decompressed,
+                    });
+                }
+            }
+        }
+
+        Self { entries }
+    }
+}
+
