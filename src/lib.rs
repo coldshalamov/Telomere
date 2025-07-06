@@ -294,6 +294,7 @@ pub fn compress(
     json_out: bool,
     gloss: Option<&GlossTable>,
     verbosity: u8,
+    gloss_only: bool,
 ) -> Vec<u8> {
     let start = Instant::now();
     let mut chain: Vec<Region> = data
@@ -305,95 +306,136 @@ pub fn compress(
     let mut brute_matches = 0u64;
     let mut gloss_matches = 0u64;
 
-    loop {
-        let mut matched = false;
-
-        'outer: for start_i in 0..chain.len() {
-            for arity in (2..=4u8).rev() {
-                if start_i + arity as usize > chain.len() {
-                    continue;
-                }
-
-                let slice = &chain[start_i..start_i + arity as usize];
-                let target = decompress_regions(slice);
-
-                if let Some(table) = gloss {
-                    if let Some(entry) = table.find(&target) {
-                        if verbosity >= 2 {
-                            eprintln!(
-                                "gloss match: seed={} arity={} nest={} index={}",
-                                hex::encode(&entry.seed),
-                                arity,
-                                entry.header.nest_len,
-                                start_i
-                            );
-                        }
-                        chain.splice(
-                            start_i..start_i + arity as usize,
-                            [Region::Compressed(entry.seed.clone(), entry.header)],
-                        );
-                        gloss_matches += 1;
-                        matched = true;
-                        break 'outer;
-                    }
-                }
-
-                for seed_len in seed_len_range.clone() {
-                    let max = 1u64 << (8 * seed_len as u64);
-                    let limit = seed_limit.unwrap_or(max).min(max);
-
-                    for seed in 0..limit {
-                        *hash_counter += 1;
-                        if *hash_counter % status_interval == 0 {
-                            print_stats(
-                                &chain,
-                                original_bytes,
-                                original_regions,
-                                *hash_counter,
-                                brute_matches,
-                                gloss_matches,
-                                json_out,
-                                verbosity,
-                                start,
-                                false,
-                            );
-                        }
-
-                        let seed_bytes = &seed.to_be_bytes()[8 - seed_len as usize..];
-                        let digest = Sha256::digest(seed_bytes);
-
-                        if digest.starts_with(&target) {
-                            let nest = encoded_len_of_regions(slice) as u32;
-                            let header = Header {
-                                seed_len: seed_len - 1,
-                                nest_len: nest,
-                                arity: arity - 1,
-                            };
+    if gloss_only {
+        let mut output = Vec::new();
+        let mut i = 0;
+        while i < chain.len() {
+            let mut matched = false;
+            if let Some(table) = gloss {
+                for arity in (2..=4u8).rev() {
+                    if i + arity as usize <= chain.len() {
+                        let slice = &chain[i..i + arity as usize];
+                        let target = decompress_regions(slice);
+                        if let Some(entry) = table.find(&target) {
                             if verbosity >= 2 {
                                 eprintln!(
-                                    "match: seed={} len={} arity={} nest={} index={}",
-                                    hex::encode(seed_bytes),
-                                    seed_len,
+                                    "gloss match: seed={} arity={} nest={} index={}",
+                                    hex::encode(&entry.seed),
                                     arity,
-                                    nest,
+                                    entry.header.nest_len,
+                                    i
+                                );
+                            }
+                            output.push(Region::Compressed(entry.seed.clone(), entry.header));
+                            gloss_matches += 1;
+                            i += arity as usize;
+                            matched = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if !matched {
+                if let Region::Raw(bytes) = &chain[i] {
+                    output.push(Region::Raw(bytes.clone()));
+                } else {
+                    output.push(chain[i].clone());
+                }
+                i += 1;
+            }
+        }
+        chain = output;
+    } else {
+        loop {
+            let mut matched = false;
+
+            'outer: for start_i in 0..chain.len() {
+                for arity in (2..=4u8).rev() {
+                    if start_i + arity as usize > chain.len() {
+                        continue;
+                    }
+
+                    let slice = &chain[start_i..start_i + arity as usize];
+                    let target = decompress_regions(slice);
+
+                    if let Some(table) = gloss {
+                        if let Some(entry) = table.find(&target) {
+                            if verbosity >= 2 {
+                                eprintln!(
+                                    "gloss match: seed={} arity={} nest={} index={}",
+                                    hex::encode(&entry.seed),
+                                    arity,
+                                    entry.header.nest_len,
                                     start_i
                                 );
                             }
                             chain.splice(
                                 start_i..start_i + arity as usize,
-                                [Region::Compressed(seed_bytes.to_vec(), header)],
+                                [Region::Compressed(entry.seed.clone(), entry.header)],
                             );
+                            gloss_matches += 1;
                             matched = true;
-                            brute_matches += 1;
                             break 'outer;
+                        }
+                    }
+
+                    for seed_len in seed_len_range.clone() {
+                        let max = 1u64 << (8 * seed_len as u64);
+                        let limit = seed_limit.unwrap_or(max).min(max);
+
+                        for seed in 0..limit {
+                            *hash_counter += 1;
+                            if *hash_counter % status_interval == 0 {
+                                print_stats(
+                                    &chain,
+                                    original_bytes,
+                                    original_regions,
+                                    *hash_counter,
+                                    brute_matches,
+                                    gloss_matches,
+                                    json_out,
+                                    verbosity,
+                                    start,
+                                    false,
+                                );
+                            }
+
+                            let seed_bytes = &seed.to_be_bytes()[8 - seed_len as usize..];
+                            let digest = Sha256::digest(seed_bytes);
+
+                            if digest.starts_with(&target) {
+                                let nest = encoded_len_of_regions(slice) as u32;
+                                let header = Header {
+                                    seed_len: seed_len - 1,
+                                    nest_len: nest,
+                                    arity: arity - 1,
+                                };
+                                if verbosity >= 2 {
+                                    eprintln!(
+                                        "match: seed={} len={} arity={} nest={} index={}",
+                                        hex::encode(seed_bytes),
+                                        seed_len,
+                                        arity,
+                                        nest,
+                                        start_i
+                                    );
+                                }
+                                chain.splice(
+                                    start_i..start_i + arity as usize,
+                                    [Region::Compressed(seed_bytes.to_vec(), header)],
+                                );
+                                matched = true;
+                                brute_matches += 1;
+                                break 'outer;
+                            }
                         }
                     }
                 }
             }
-        }
 
-        if !matched {
-            break;
+            if !matched {
+                break;
+            }
         }
     }
 

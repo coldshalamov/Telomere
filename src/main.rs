@@ -8,7 +8,7 @@ use inchworm::{compress, decompress, GlossTable};
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() < 4 {
-        eprintln!("Usage: {} [c|d] <input> <output> [--max-seed-len N] [--seed-limit N] [--status N] [--json] [--verbose] [--quiet] [--gloss FILE]", args[0]);
+        eprintln!("Usage: {} [c|d] <input> <output> [--max-seed-len N] [--seed-limit N] [--status N] [--json] [--verbose] [--quiet] [--gloss FILE] [--gloss-only]", args[0]);
         return;
     }
 
@@ -19,6 +19,7 @@ fn main() {
     let mut gloss_path: Option<String> = None;
     let mut verbose = false;
     let mut quiet = false;
+    let mut gloss_only = false;
 
     let mut i = 4;
     while i < args.len() {
@@ -53,6 +54,10 @@ fn main() {
             }
             "--quiet" => {
                 quiet = true;
+                i += 1;
+            }
+            "--gloss-only" => {
+                gloss_only = true;
                 i += 1;
             }
             flag => {
@@ -93,6 +98,7 @@ fn main() {
                 json_out,
                 gloss.as_ref(),
                 verbosity,
+                gloss_only,
             );
             fs::write(&args[3], out).expect("failed to write output");
         }
