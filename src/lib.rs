@@ -2,27 +2,25 @@
 
 use sha2::{Digest, Sha256};
 use serde::{Deserialize, Serialize};
-use memmap2::Mmap;
 use serde_json::json;
-use std::fs::File;
-use std::path::Path;
 use std::ops::RangeInclusive;
 use std::time::Instant;
+use std::fs::File;
+use std::path::Path;
+use memmap2::Mmap;
 
 mod sha_cache;
 mod bloom;
+mod gloss;
+pub use gloss::{GlossEntry, GlossTable};
 
 use sha_cache::ShaCache;
 use bloom::Bloom;
 
-/// Fixed block size in bytes.
 pub const BLOCK_SIZE: usize = 7;
-/// Size of an encoded header in bytes.
 pub const HEADER_SIZE: usize = 3;
-/// Reserved seed byte used for literal fallbacks.
 pub const FALLBACK_SEED: u8 = 0xA5;
 
-/// A single compressed or literal block.
 #[derive(Clone)]
 pub enum Region {
     Raw(Vec<u8>),
@@ -109,7 +107,7 @@ fn decode_region_safe(data: &[u8]) -> Option<(Region, usize)> {
     None
 }
 
-fn decompress_region_safe(region: &Region) -> Option<Vec<u8>> {
+pub(crate) fn decompress_region_safe(region: &Region) -> Option<Vec<u8>> {
     match region {
         Region::Raw(bytes) => Some(bytes.clone()),
         Region::Compressed(seed, header) => {
@@ -127,7 +125,7 @@ fn decompress_region_safe(region: &Region) -> Option<Vec<u8>> {
     }
 }
 
-fn decompress_safe(mut data: &[u8]) -> Option<Vec<u8>> {
+pub(crate) fn decompress_safe(mut data: &[u8]) -> Option<Vec<u8>> {
     let mut out = Vec::new();
     let mut offset = 0;
     while offset < data.len() {
@@ -154,7 +152,6 @@ fn encoded_len_of_regions(regions: &[Region]) -> usize {
     regions.iter().map(|r| r.encoded_len()).sum()
 }
 
-/// Gloss table entries for precalculated compressed blocks.
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct GlossEntry {
     pub seed: Vec<u8>,
@@ -162,7 +159,6 @@ pub struct GlossEntry {
     pub decompressed: Vec<u8>,
 }
 
-/// Gloss table supporting disk I/O and optional memory-mapped load.
 #[derive(Serialize, Deserialize, Default, Clone, PartialEq, Debug)]
 pub struct GlossTable {
     pub entries: Vec<GlossEntry>,
@@ -207,7 +203,6 @@ impl GlossTable {
         Self { entries: Vec::new() }
     }
 
-    /// Find a gloss entry matching the given decompressed bytes.
     pub fn find(&self, bytes: &[u8]) -> Option<&GlossEntry> {
         self.entries.iter().find(|e| e.decompressed == bytes)
     }
@@ -244,11 +239,7 @@ pub fn print_stats(
 
     let encoded = chain.iter().map(|r| r.encoded_len()).sum::<usize>();
     let ratio = encoded as f64 * 100.0 / original_bytes as f64;
-    let hashes_per_byte = if encoded == 0 {
-        0.0
-    } else {
-        hashes as f64 / encoded as f64
-    };
+    let hashes_per_byte = if encoded == 0.0 { 0.0 } else { hashes as f64 / encoded as f64 };
     let elapsed = start.elapsed().as_secs_f64();
     let mb = original_bytes as f64 / (1024.0 * 1024.0);
     let time_per_mb = if mb == 0.0 { 0.0 } else { elapsed / mb };
@@ -347,7 +338,7 @@ pub fn compress(
                     }
                 }
 
-                'search: for seed_len in seed_len_range.clone() {
+                for seed_len in seed_len_range.clone() {
                     let max = 1u64 << (8 * seed_len as u64);
                     let limit = seed_limit.unwrap_or(max).min(max);
 
@@ -439,4 +430,59 @@ pub fn decompress(mut data: &[u8]) -> Vec<u8> {
     }
 
     out
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs;
+
+    fn simple_compress(data: &[u8]) -> Vec<u8> {
+        let mut out = Vec::new();
+        for chunk in data.chunks(BLOCK_SIZE) {
+            out.extend_from_slice(&encode_region(&Region::Raw(chunk.to_vec())));
+        }
+        out
+    }
+
+    #[test]
+    fn generate_gloss() {
+        let table = GlossTable::generate();
+        assert!(!table.entries.is_empty());
+    }
+
+    #[test]
+    fn gloss_save_load_roundtrip() {
+        let table = GlossTable::generate();
+        let path = std::env::temp_dir().join("gloss_test.bin");
+        table.save(&path).unwrap();
+        let loaded = GlossTable::load(&path).unwrap();
+        assert_eq!(table.entries.len(), loaded.entries.len());
+        let _ = fs::remove_file(path);
+    }
+
+    #[test]
+    fn roundtrip_small_buffer() {
+        let data: Vec<u8> = (0u8..14).collect();
+        let encoded = simple_compress(&data);
+        let decoded = decompress_safe(&encoded).unwrap();
+        assert_eq!(decoded, data);
+    }
+
+    #[test]
+    fn malformed_region() {
+        assert!(decode_region_safe(&[0x01]).is_none());
+        let good = encode_region(&Region::Raw(vec![0; BLOCK_SIZE]));
+        let truncated = &good[..good.len() - 1];
+        assert!(decode_region_safe(truncated).is_none());
+    }
+
+    #[test]
+    fn json_stats_output() {
+        let chain = vec![Region::Raw(vec![0; BLOCK_SIZE])];
+        let result = std::panic::catch_unwind(|| {
+            print_stats(&chain, BLOCK_SIZE, 1, 0, 0, 0, true, 1, Instant::now(), true);
+        });
+        assert!(result.is_ok());
+    }
 }
