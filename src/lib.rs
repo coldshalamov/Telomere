@@ -1,6 +1,8 @@
 //! Core logic for the Inchworm compression system.
 
 use sha2::{Digest, Sha256};
+use serde_json::json;
+use std::ops::RangeInclusive;
 
 mod sha_cache;
 mod bloom;
@@ -11,9 +13,7 @@ use bloom::Bloom;
 /// Representation of a chain element during compression and decompression.
 #[derive(Clone)]
 pub enum Region {
-    /// Literal 7-byte block that could not be compressed.
     Raw(Vec<u8>),
-    /// Compressed seed and associated header.
     Compressed(Vec<u8>, Header),
 }
 
@@ -130,7 +130,6 @@ fn decompress_safe(mut data: &[u8]) -> Option<Vec<u8>> {
     Some(out)
 }
 
-/// Gloss table entries for 1- and 2-byte seeds that decompress to valid output.
 pub struct GlossEntry {
     pub seed: Vec<u8>,
     pub header: Header,
@@ -172,5 +171,56 @@ impl GlossTable {
             }
         }
         Self { entries }
+    }
+}
+
+fn encoded_len_of_regions(regions: &[Region]) -> usize {
+    regions.iter().map(|r| r.encoded_len()).sum()
+}
+
+pub fn print_stats(
+    chain: &[Region],
+    original_bytes: usize,
+    original_regions: usize,
+    hashes: u64,
+    matches: u64,
+    json_out: bool,
+    final_stats: bool,
+) {
+    let encoded = encoded_len_of_regions(chain);
+    let ratio = encoded as f64 * 100.0 / original_bytes as f64;
+    let hashes_per_byte = if encoded == 0 {
+        0.0
+    } else {
+        hashes as f64 / encoded as f64
+    };
+
+    if final_stats && json_out {
+        let obj = json!({
+            "input_bytes": original_bytes,
+            "output_bytes": encoded,
+            "compression_ratio": ratio,
+            "total_hashes": hashes,
+            "hashes_per_byte": hashes_per_byte,
+        });
+        println!("{}", obj);
+    } else if final_stats {
+        eprintln!("Compression complete!");
+        eprintln!("Input: {} bytes", original_bytes);
+        eprintln!("Output: {} bytes", encoded);
+        eprintln!("Ratio: {:.2}%", ratio);
+        eprintln!("Total hashes: {}", hashes);
+        eprintln!("Hashes/byte: {:.1}", hashes_per_byte);
+    } else {
+        eprintln!(
+            "[{:.2}M hashes] {} matches | Chain: {} → {} regions | {} → {} bytes ({:.2}%)",
+            hashes as f64 / 1_000_000.0,
+            matches,
+            original_regions,
+            chain.len(),
+            original_bytes,
+            encoded,
+            ratio
+        );
     }
 }

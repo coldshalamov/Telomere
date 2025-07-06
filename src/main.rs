@@ -7,13 +7,14 @@ use std::ops::RangeInclusive;
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() < 4 {
-        eprintln!("Usage: {} [c|d] <input> <output> [--max-seed-len N] [--seed-limit N] [--status N]", args[0]);
+        eprintln!("Usage: {} [c|d] <input> <output> [--max-seed-len N] [--seed-limit N] [--status N] [--json]", args[0]);
         return;
     }
 
     let mut max_seed_len = 4u8;
     let mut seed_limit: Option<u64> = None;
     let mut status = 1_000_000u64;
+    let mut json_out = false;
 
     let mut i = 4;
     while i < args.len() {
@@ -33,6 +34,10 @@ fn main() {
                 status = args[i + 1].parse().expect("invalid value");
                 i += 2;
             }
+            "--json" => {
+                json_out = true;
+                i += 1;
+            }
             flag => {
                 eprintln!("Unknown flag: {}", flag);
                 return;
@@ -45,7 +50,14 @@ fn main() {
     match args[1].as_str() {
         "c" => {
             let mut hashes = 0u64;
-            let out = compress(&data, RangeInclusive::new(1, max_seed_len), seed_limit, status, &mut hashes);
+            let out = compress(
+                &data,
+                RangeInclusive::new(1, max_seed_len),
+                seed_limit,
+                status,
+                &mut hashes,
+                json_out,
+            );
             fs::write(&args[3], out).expect("failed to write output");
         }
         "d" => {
