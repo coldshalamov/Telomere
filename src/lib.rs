@@ -2,6 +2,8 @@
 
 use sha2::{Digest, Sha256};
 
+pub mod bloom;
+
 /// Representation of a chain element during compression and decompression.
 #[derive(Clone)]
 pub enum Region {
