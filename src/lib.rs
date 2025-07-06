@@ -136,6 +136,51 @@ pub(crate) fn decompress_safe(mut data: &[u8]) -> Option<Vec<u8>> {
     Some(out)
 }
 
+pub fn decompress_region_with_limit(
+    region: &Region,
+    max_bytes: usize,
+) -> Option<Vec<u8>> {
+    match region {
+        Region::Raw(bytes) => {
+            if bytes.len() > max_bytes {
+                return None;
+            }
+            Some(bytes.clone())
+        }
+        Region::Compressed(seed, header) => {
+            let digest = Sha256::digest(seed);
+            if header.arity == 0 {
+                if BLOCK_SIZE > max_bytes {
+                    return None;
+                }
+                Some(digest[..BLOCK_SIZE].to_vec())
+            } else {
+                let len = header.nest_len as usize;
+                if len > digest.len() {
+                    return None;
+                }
+                decompress_with_limit(&digest[..len], max_bytes)
+            }
+        }
+    }
+}
+
+pub fn decompress_with_limit(mut data: &[u8], max_bytes: usize) -> Option<Vec<u8>> {
+    let mut out = Vec::new();
+    let mut offset = 0;
+    while offset < data.len() {
+        let (region, consumed) = decode_region_safe(&data[offset..])?;
+        offset += consumed;
+        let remaining = max_bytes.checked_sub(out.len())?;
+        let part = decompress_region_with_limit(&region, remaining)?;
+        out.extend_from_slice(&part);
+        if out.len() > max_bytes {
+            return None;
+        }
+    }
+    Some(out)
+}
+
 fn decompress_region(region: &Region) -> Vec<u8> {
     decompress_region_safe(region).expect("invalid region")
 }
@@ -173,7 +218,7 @@ impl GlossTable {
                 let seed_bytes = &seed_val.to_be_bytes()[8 - seed_len as usize..];
                 let digest = Sha256::digest(seed_bytes);
                 for len in 0..=digest.len() {
-                    if let Some(bytes) = decompress_safe(&digest[..len]) {
+                    if let Some(bytes) = decompress_with_limit(&digest[..len], 32) {
                         let blocks = bytes.len() / BLOCK_SIZE;
                         if bytes.len() % BLOCK_SIZE != 0 || !(2..=4).contains(&blocks) {
                             continue;
@@ -183,8 +228,9 @@ impl GlossTable {
                             nest_len: len as u32,
                             arity: blocks as u8 - 1,
                         };
-                        if let Some(out) = decompress_region_safe(
+                        if let Some(out) = decompress_region_with_limit(
                             &Region::Compressed(seed_bytes.to_vec(), header),
+                            32,
                         ) {
                             entries.push(GlossEntry {
                                 seed: seed_bytes.to_vec(),
