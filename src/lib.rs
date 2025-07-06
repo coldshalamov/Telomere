@@ -144,7 +144,17 @@ fn encoded_len_of_regions(regions: &[Region]) -> usize {
 /// `seed_limit` parameter for demonstrations or testing.
 use std::ops::RangeInclusive;
 
-pub fn print_stats(chain: &[Region], original_bytes: usize, hashes: u64) {
+use serde_json::json;
+
+pub fn print_stats(
+    chain: &[Region],
+    original_bytes: usize,
+    original_regions: usize,
+    hashes: u64,
+    matches: u64,
+    json_out: bool,
+    final_stats: bool,
+) {
     let encoded = encoded_len_of_regions(chain);
     let ratio = encoded as f64 * 100.0 / original_bytes as f64;
     let hashes_per_byte = if encoded == 0 {
@@ -153,12 +163,37 @@ pub fn print_stats(chain: &[Region], original_bytes: usize, hashes: u64) {
         hashes as f64 / encoded as f64
     };
 
-    eprintln!("Compression complete!");
-    eprintln!("Input: {} bytes", original_bytes);
-    eprintln!("Output: {} bytes", encoded);
-    eprintln!("Ratio: {:.2}%", ratio);
-    eprintln!("Total hashes: {}", hashes);
-    eprintln!("Hashes/byte: {:.1}", hashes_per_byte);
+    if final_stats && json_out {
+        let obj = json!({
+            "input_bytes": original_bytes,
+            "output_bytes": encoded,
+            "compression_ratio": (ratio),
+            "total_hashes": hashes,
+            "hashes_per_byte": hashes_per_byte,
+        });
+        println!("{}", obj);
+        return;
+    }
+
+    if final_stats {
+        eprintln!("Compression complete!");
+        eprintln!("Input: {} bytes", original_bytes);
+        eprintln!("Output: {} bytes", encoded);
+        eprintln!("Ratio: {:.2}%", ratio);
+        eprintln!("Total hashes: {}", hashes);
+        eprintln!("Hashes/byte: {:.1}", hashes_per_byte);
+    } else {
+        eprintln!(
+            "[{:.2}M hashes] {} matches | Chain: {} \u2192 {} regions | {} \u2192 {} bytes ({:.2}%)",
+            hashes as f64 / 1_000_000.0,
+            matches,
+            original_regions,
+            chain.len(),
+            original_bytes,
+            encoded,
+            ratio
+        );
+    }
 }
 
 pub fn compress(
@@ -167,6 +202,7 @@ pub fn compress(
     seed_limit: Option<u64>,
     status_interval: u64,
     hash_counter: &mut u64,
+    json_out: bool,
 ) -> Vec<u8> {
     let mut chain: Vec<Region> = data
         .chunks(BLOCK_SIZE)
@@ -186,17 +222,14 @@ pub fn compress(
             for seed in 0..limit {
                 *hash_counter += 1;
                 if *hash_counter % status_interval == 0 {
-                    let enc = encoded_len_of_regions(&chain);
-                    let ratio = enc as f64 * 100.0 / original_bytes as f64;
-                    eprintln!(
-                        "[{:.2}M hashes] {} matches | Chain: {} \u2192 {} regions | {} \u2192 {} bytes ({:.2}%)",
-                        *hash_counter as f64 / 1_000_000.0,
-                        matches,
-                        original_regions,
-                        chain.len(),
+                    print_stats(
+                        &chain,
                         original_bytes,
-                        enc,
-                        ratio
+                        original_regions,
+                        *hash_counter,
+                        matches,
+                        false,
+                        false,
                     );
                 }
 
@@ -246,7 +279,15 @@ pub fn compress(
         encoded.extend_from_slice(&encode_region(r));
     }
 
-    print_stats(&chain, original_bytes, *hash_counter);
+    print_stats(
+        &chain,
+        original_bytes,
+        original_regions,
+        *hash_counter,
+        matches,
+        json_out,
+        true,
+    );
 
     encoded
 }
