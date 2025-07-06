@@ -2,6 +2,12 @@
 
 use sha2::{Digest, Sha256};
 
+mod sha_cache;
+mod bloom;
+
+use sha_cache::ShaCache;
+use bloom::Bloom;
+
 /// Representation of a chain element during compression and decompression.
 #[derive(Clone)]
 pub enum Region {
@@ -135,6 +141,47 @@ fn encoded_len_of_regions(regions: &[Region]) -> usize {
     regions.iter().map(|r| r.encoded_len()).sum()
 }
 
+fn search_match_parallel(chain: &[Region], digest: &[u8]) -> Option<(usize, u8, u32)> {
+    use std::sync::{atomic::{AtomicBool, Ordering}, Mutex};
+
+    let found = AtomicBool::new(false);
+    let result = Mutex::new(None);
+    let threads = 4;
+    let chunk = (chain.len() + threads - 1) / threads;
+
+    std::thread::scope(|s| {
+        for t in 0..threads {
+            let start_i = t * chunk;
+            let end_i = ((t + 1) * chunk).min(chain.len());
+            if start_i >= chain.len() {
+                continue;
+            }
+            s.spawn(move || {
+                for start in start_i..end_i {
+                    if found.load(Ordering::Acquire) {
+                        return;
+                    }
+                    for arity in (2..=4u8).rev() {
+                        if start + arity as usize > chain.len() {
+                            continue;
+                        }
+                        let slice = &chain[start..start + arity as usize];
+                        let target = decompress_regions(slice);
+                        if digest.starts_with(&target) {
+                            let nest = encoded_len_of_regions(slice) as u32;
+                            found.store(true, Ordering::Release);
+                            *result.lock().unwrap() = Some((start, arity, nest));
+                            return;
+                        }
+                    }
+                }
+            });
+        }
+    });
+
+    result.into_inner().unwrap()
+}
+
 /// Compress input data according to the Inchworm algorithm.
 ///
 /// This implementation performs a brute-force search over seeds of length 1..=4
@@ -176,6 +223,10 @@ pub fn compress(
     let original_bytes = data.len();
     let mut matches = 0u64;
 
+    let mut sha_cache = ShaCache::new(100 * 1024 * 1024);
+    let mut bloom3 = Bloom::new(10 * 1024 * 1024, 7);
+    let mut bloom4 = Bloom::new(10 * 1024 * 1024, 7);
+
     loop {
         let mut matched = false;
 
@@ -201,36 +252,39 @@ pub fn compress(
                 }
 
                 let seed_bytes = &seed.to_be_bytes()[8 - seed_len as usize..];
-                let digest = Sha256::digest(seed_bytes);
+                let digest = sha_cache.get_or_compute(seed_bytes);
+                let seed_hash = u64::from_be_bytes(digest[0..8].try_into().unwrap());
+                if seed_len == 3 && bloom3.contains(seed_hash) {
+                    continue;
+                }
+                if seed_len == 4 && bloom4.contains(seed_hash) {
+                    continue;
+                }
 
-                for start in 0..chain.len() {
-                    for arity in (2..=4u8).rev() {
-                        if start + arity as usize > chain.len() {
-                            continue;
-                        }
-                        let slice = &chain[start..start + arity as usize];
-                        let target = decompress_regions(slice);
-                        if digest.starts_with(&target) {
-                            let nest = encoded_len_of_regions(slice) as u32;
-                            let header = Header {
-                                seed_len: seed_len - 1,
-                                nest_len: nest,
-                                arity: arity - 1,
-                            };
-                            eprintln!(
-                                "match: seed={} len={} arity={} nest={} index={}",
-                                hex::encode(seed_bytes),
-                                seed_len,
-                                arity,
-                                nest,
-                                start
-                            );
-                            let region = Region::Compressed(seed_bytes.to_vec(), header);
-                            chain.splice(start..start + arity as usize, [region]);
-                            matched = true;
-                            matches += 1;
-                            break 'search;
-                        }
+                if let Some((start, arity, nest)) = search_match_parallel(&chain, &digest) {
+                    let header = Header {
+                        seed_len: seed_len - 1,
+                        nest_len: nest,
+                        arity: arity - 1,
+                    };
+                    eprintln!(
+                        "match: seed={} len={} arity={} nest={} index={}",
+                        hex::encode(seed_bytes),
+                        seed_len,
+                        arity,
+                        nest,
+                        start
+                    );
+                    let region = Region::Compressed(seed_bytes.to_vec(), header);
+                    chain.splice(start..start + arity as usize, [region]);
+                    matched = true;
+                    matches += 1;
+                    break 'search;
+                } else {
+                    if seed_len == 3 {
+                        bloom3.insert(seed_hash);
+                    } else if seed_len == 4 {
+                        bloom4.insert(seed_hash);
                     }
                 }
             }
