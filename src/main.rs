@@ -1,8 +1,9 @@
 use std::env;
 use std::fs;
 
-use inchworm::{compress, decompress};
+use inchworm::{compress, decompress, GlossTable};
 use std::ops::RangeInclusive;
+use std::path::Path;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -14,6 +15,7 @@ fn main() {
     let mut max_seed_len = 4u8;
     let mut seed_limit: Option<u64> = None;
     let mut status = 1_000_000u64;
+    let mut gloss_path: Option<String> = None;
 
     let mut i = 4;
     while i < args.len() {
@@ -33,6 +35,11 @@ fn main() {
                 status = args[i + 1].parse().expect("invalid value");
                 i += 2;
             }
+            "--gloss" => {
+                if i + 1 >= args.len() { break; }
+                gloss_path = Some(args[i + 1].clone());
+                i += 2;
+            }
             flag => {
                 eprintln!("Unknown flag: {}", flag);
                 return;
@@ -41,6 +48,21 @@ fn main() {
     }
 
     let data = fs::read(&args[2]).expect("failed to read input");
+    let gloss = if let Some(path) = gloss_path {
+        match GlossTable::load(Path::new(&path)) {
+            Ok(t) => {
+                eprintln!("Loaded gloss table from {} ({} entries)", path, t.entries.len());
+                Some(t)
+            }
+            Err(e) => {
+                eprintln!("Failed to load gloss table: {e}");
+                None
+            }
+        }
+    } else {
+        None
+    };
+    let _ = &gloss;
 
     match args[1].as_str() {
         "c" => {

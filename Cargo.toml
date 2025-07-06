@@ -5,3 +5,10 @@ edition = "2021"
 
 [dependencies]
 sha2 = "0.10"
+bincode = "1"
+serde = { version = "1", features = ["derive"] }
+memmap2 = "0.5"
+
+[[bin]]
+name = "gloss_tool"
+path = "src/bin/gloss_tool.rs"

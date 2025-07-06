@@ -1,6 +1,10 @@
 //! Core logic for the Inchworm compression system.
 
 use sha2::{Digest, Sha256};
+use serde::{Deserialize, Serialize};
+use memmap2::Mmap;
+use std::fs::File;
+use std::path::Path;
 
 /// Representation of a chain element during compression and decompression.
 #[derive(Clone)]
@@ -28,6 +32,36 @@ pub const BLOCK_SIZE: usize = 7;
 pub const HEADER_SIZE: usize = 3;
 /// Reserved seed byte used for literal fallbacks.
 pub const FALLBACK_SEED: u8 = 0xA5;
+
+/// Cached expansion table used to speed up compression.
+#[derive(Serialize, Deserialize, Default, Clone)]
+pub struct GlossTable {
+    /// Placeholder data for future optimisation.
+    pub entries: Vec<Vec<u8>>,
+}
+
+impl GlossTable {
+    /// Build an empty gloss table. In a full implementation this would
+    /// perform expensive analysis of training data.
+    pub fn build() -> Self {
+        Self { entries: Vec::new() }
+    }
+
+    /// Load a gloss table from disk using memory mapping.
+    pub fn load<P: AsRef<Path>>(path: P) -> std::io::Result<Self> {
+        let file = File::open(path)?;
+        unsafe {
+            let mmap = Mmap::map(&file)?;
+            Ok(bincode::deserialize(&mmap).expect("invalid gloss table"))
+        }
+    }
+
+    /// Serialize this table to disk with bincode.
+    pub fn save<P: AsRef<Path>>(&self, path: P) -> std::io::Result<()> {
+        let data = bincode::serialize(self).expect("failed to serialize gloss");
+        std::fs::write(path, data)
+    }
+}
 
 /// Header information packed into three bytes.
 #[derive(Debug, Clone, Copy)]
