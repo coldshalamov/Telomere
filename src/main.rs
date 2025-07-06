@@ -8,7 +8,7 @@ use inchworm::{compress, decompress, GlossTable};
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() < 4 {
-        eprintln!("Usage: {} [c|d] <input> <output> [--max-seed-len N] [--seed-limit N] [--status N] [--json] [--gloss FILE]", args[0]);
+        eprintln!("Usage: {} [c|d] <input> <output> [--max-seed-len N] [--seed-limit N] [--status N] [--json] [--verbose] [--quiet] [--gloss FILE]", args[0]);
         return;
     }
 
@@ -17,6 +17,8 @@ fn main() {
     let mut status = 1_000_000u64;
     let mut json_out = false;
     let mut gloss_path: Option<String> = None;
+    let mut verbose = false;
+    let mut quiet = false;
 
     let mut i = 4;
     while i < args.len() {
@@ -45,6 +47,14 @@ fn main() {
                 json_out = true;
                 i += 1;
             }
+            "--verbose" => {
+                verbose = true;
+                i += 1;
+            }
+            "--quiet" => {
+                quiet = true;
+                i += 1;
+            }
             flag => {
                 eprintln!("Unknown flag: {}", flag);
                 return;
@@ -69,6 +79,8 @@ fn main() {
         None
     };
 
+    let verbosity = if quiet { 0 } else if verbose { 2 } else { 1 };
+
     match args[1].as_str() {
         "c" => {
             let mut hashes = 0u64;
@@ -79,6 +91,8 @@ fn main() {
                 status,
                 &mut hashes,
                 json_out,
+                gloss.as_ref(),
+                verbosity,
             );
             fs::write(&args[3], out).expect("failed to write output");
         }

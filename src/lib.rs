@@ -7,6 +7,7 @@ use serde_json::json;
 use std::fs::File;
 use std::path::Path;
 use std::ops::RangeInclusive;
+use std::time::Instant;
 
 mod sha_cache;
 mod bloom;
@@ -137,6 +138,22 @@ fn decompress_safe(mut data: &[u8]) -> Option<Vec<u8>> {
     Some(out)
 }
 
+fn decompress_region(region: &Region) -> Vec<u8> {
+    decompress_region_safe(region).expect("invalid region")
+}
+
+fn decompress_regions(regions: &[Region]) -> Vec<u8> {
+    let mut out = Vec::new();
+    for r in regions {
+        out.extend_from_slice(&decompress_region(r));
+    }
+    out
+}
+
+fn encoded_len_of_regions(regions: &[Region]) -> usize {
+    regions.iter().map(|r| r.encoded_len()).sum()
+}
+
 /// Gloss table entries for precalculated compressed blocks.
 #[derive(Serialize, Deserialize, Clone)]
 pub struct GlossEntry {
@@ -209,10 +226,17 @@ pub fn print_stats(
     original_bytes: usize,
     original_regions: usize,
     hashes: u64,
-    matches: u64,
+    brute_matches: u64,
+    gloss_matches: u64,
     json_out: bool,
+    verbosity: u8,
+    start: Instant,
     final_stats: bool,
 ) {
+    if verbosity == 0 && !(final_stats && json_out) {
+        return;
+    }
+
     let encoded = chain.iter().map(|r| r.encoded_len()).sum::<usize>();
     let ratio = encoded as f64 * 100.0 / original_bytes as f64;
     let hashes_per_byte = if encoded == 0 {
@@ -220,6 +244,11 @@ pub fn print_stats(
     } else {
         hashes as f64 / encoded as f64
     };
+    let elapsed = start.elapsed().as_secs_f64();
+    let mb = original_bytes as f64 / (1024.0 * 1024.0);
+    let time_per_mb = if mb == 0.0 { 0.0 } else { elapsed / mb };
+    let hashes_per_sec = if elapsed == 0.0 { 0.0 } else { hashes as f64 / elapsed };
+    let total_matches = brute_matches + gloss_matches;
 
     if final_stats && json_out {
         let obj = json!({
@@ -228,6 +257,10 @@ pub fn print_stats(
             "compression_ratio": ratio,
             "total_hashes": hashes,
             "hashes_per_byte": hashes_per_byte,
+            "gloss_hits": gloss_matches,
+            "bruteforce_hits": brute_matches,
+            "time_per_mb": time_per_mb,
+            "hashes_per_sec": hashes_per_sec,
         });
         println!("{}", obj);
     } else if final_stats {
@@ -235,13 +268,18 @@ pub fn print_stats(
         eprintln!("Input: {} bytes", original_bytes);
         eprintln!("Output: {} bytes", encoded);
         eprintln!("Ratio: {:.2}%", ratio);
+        eprintln!("Gloss hits: {}", gloss_matches);
+        eprintln!("Brute hits: {}", brute_matches);
         eprintln!("Total hashes: {}", hashes);
+        eprintln!("Hashes/sec: {:.0}", hashes_per_sec);
+        eprintln!("Time/MB: {:.2}s", time_per_mb);
         eprintln!("Hashes/byte: {:.1}", hashes_per_byte);
-    } else {
+    } else if verbosity > 0 {
         eprintln!(
-            "[{:.2}M hashes] {} matches | Chain: {} → {} regions | {} → {} bytes ({:.2}%)",
+            "[{:.2}M hashes] {} matches ({} gloss) | Chain: {} → {} regions | {} → {} bytes ({:.2}%)",
             hashes as f64 / 1_000_000.0,
-            matches,
+            total_matches,
+            gloss_matches,
             original_regions,
             chain.len(),
             original_bytes,
@@ -249,4 +287,162 @@ pub fn print_stats(
             ratio
         );
     }
+}
+
+pub fn compress(
+    data: &[u8],
+    seed_len_range: RangeInclusive<u8>,
+    seed_limit: Option<u64>,
+    status_interval: u64,
+    hash_counter: &mut u64,
+    json_out: bool,
+    gloss: Option<&GlossTable>,
+    verbosity: u8,
+) -> Vec<u8> {
+    let start = Instant::now();
+    let mut chain: Vec<Region> = data
+        .chunks(BLOCK_SIZE)
+        .map(|b| Region::Raw(b.to_vec()))
+        .collect();
+    let original_regions = chain.len();
+    let original_bytes = data.len();
+    let mut brute_matches = 0u64;
+    let mut gloss_matches = 0u64;
+
+    loop {
+        let mut matched = false;
+
+        if let Some(table) = gloss {
+            'gloss: for entry in &table.entries {
+                let arity = entry.header.arity as usize + 1;
+                if arity > chain.len() {
+                    continue;
+                }
+                for start_i in 0..=chain.len() - arity {
+                    let slice = &chain[start_i..start_i + arity];
+                    if decompress_regions(slice) == entry.decompressed {
+                        if verbosity >= 2 {
+                            eprintln!(
+                                "gloss match: seed={} arity={} nest={} index={}",
+                                hex::encode(&entry.seed),
+                                arity,
+                                entry.header.nest_len,
+                                start_i
+                            );
+                        }
+                        chain.splice(
+                            start_i..start_i + arity,
+                            [Region::Compressed(entry.seed.clone(), entry.header)],
+                        );
+                        gloss_matches += 1;
+                        matched = true;
+                        break 'gloss;
+                    }
+                }
+            }
+        }
+
+        if matched {
+            continue;
+        }
+
+        'search: for seed_len in seed_len_range.clone() {
+            let max = 1u64 << (8 * seed_len as u64);
+            let limit = seed_limit.unwrap_or(max).min(max);
+
+            for seed in 0..limit {
+                *hash_counter += 1;
+                if *hash_counter % status_interval == 0 {
+                    print_stats(
+                        &chain,
+                        original_bytes,
+                        original_regions,
+                        *hash_counter,
+                        brute_matches,
+                        gloss_matches,
+                        json_out,
+                        verbosity,
+                        start,
+                        false,
+                    );
+                }
+
+                let seed_bytes = &seed.to_be_bytes()[8 - seed_len as usize..];
+                let digest = Sha256::digest(seed_bytes);
+
+                for start_i in 0..chain.len() {
+                    for arity in (2..=4u8).rev() {
+                        if start_i + arity as usize > chain.len() {
+                            continue;
+                        }
+                        let slice = &chain[start_i..start_i + arity as usize];
+                        let target = decompress_regions(slice);
+                        if digest.starts_with(&target) {
+                            let nest = encoded_len_of_regions(slice) as u32;
+                            let header = Header {
+                                seed_len: seed_len - 1,
+                                nest_len: nest,
+                                arity: arity - 1,
+                            };
+                            if verbosity >= 2 {
+                                eprintln!(
+                                    "match: seed={} len={} arity={} nest={} index={}",
+                                    hex::encode(seed_bytes),
+                                    seed_len,
+                                    arity,
+                                    nest,
+                                    start_i
+                                );
+                            }
+                            chain.splice(
+                                start_i..start_i + arity as usize,
+                                [Region::Compressed(seed_bytes.to_vec(), header)],
+                            );
+                            matched = true;
+                            brute_matches += 1;
+                            break 'search;
+                        }
+                    }
+                }
+            }
+        }
+
+        if !matched {
+            break;
+        }
+    }
+
+    let mut encoded = Vec::new();
+    for r in &chain {
+        encoded.extend_from_slice(&encode_region(r));
+    }
+
+    print_stats(
+        &chain,
+        original_bytes,
+        original_regions,
+        *hash_counter,
+        brute_matches,
+        gloss_matches,
+        json_out,
+        verbosity,
+        start,
+        true,
+    );
+
+    encoded
+}
+
+pub fn decompress(mut data: &[u8]) -> Vec<u8> {
+    let mut out = Vec::new();
+    let mut offset = 0;
+
+    while offset < data.len() {
+        let (region, consumed) =
+            decode_region_safe(&data[offset..]).expect("invalid compressed data");
+        offset += consumed;
+        out.extend_from_slice(&decompress_region(&region));
+    }
+
+    out
 }
