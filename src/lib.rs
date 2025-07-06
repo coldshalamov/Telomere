@@ -138,7 +138,7 @@ fn decompress_safe(mut data: &[u8]) -> Option<Vec<u8>> {
 }
 
 /// Gloss table entries for precalculated compressed blocks.
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 pub struct GlossEntry {
     pub seed: Vec<u8>,
     pub header: Header,
@@ -146,7 +146,7 @@ pub struct GlossEntry {
 }
 
 /// Gloss table supporting disk I/O and optional memory-mapped load.
-#[derive(Serialize, Deserialize, Default, Clone)]
+#[derive(Serialize, Deserialize, Default, Clone, PartialEq, Debug)]
 pub struct GlossTable {
     pub entries: Vec<GlossEntry>,
 }
