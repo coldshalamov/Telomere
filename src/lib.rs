@@ -3,6 +3,7 @@
 use sha2::{Digest, Sha256};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
+use std::collections::HashMap;
 use std::ops::RangeInclusive;
 use std::time::Instant;
 use std::fs::File;
@@ -14,7 +15,6 @@ mod bloom;
 mod gloss;
 pub use gloss::{GlossEntry, GlossTable};
 
-use sha_cache::ShaCache;
 use bloom::Bloom;
 
 pub const BLOCK_SIZE: usize = 7;
@@ -304,6 +304,7 @@ pub fn compress(
     let original_bytes = data.len();
     let mut brute_matches = 0u64;
     let mut gloss_matches = 0u64;
+    let mut sha_cache: HashMap<Vec<u8>, [u8; 32]> = HashMap::new();
 
     loop {
         let mut matched = false;
@@ -360,9 +361,19 @@ pub fn compress(
                         }
 
                         let seed_bytes = &seed.to_be_bytes()[8 - seed_len as usize..];
-                        let digest = Sha256::digest(seed_bytes);
+                        let digest: [u8; 32] = if seed_len <= 2 {
+                            if let Some(d) = sha_cache.get(seed_bytes) {
+                                *d
+                            } else {
+                                let arr: [u8; 32] = Sha256::digest(seed_bytes).into();
+                                sha_cache.insert(seed_bytes.to_vec(), arr);
+                                arr
+                            }
+                        } else {
+                            Sha256::digest(seed_bytes).into()
+                        };
 
-                        if digest.starts_with(&target) {
+                        if digest[..].starts_with(&target) {
                             let nest = encoded_len_of_regions(slice) as u32;
                             let header = Header {
                                 seed_len: seed_len - 1,
