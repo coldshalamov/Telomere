@@ -2,7 +2,11 @@
 
 use sha2::{Digest, Sha256};
 
-pub mod bloom;
+mod sha_cache;
+mod bloom;
+
+use sha_cache::ShaCache;
+use bloom::Bloom;
 
 /// Representation of a chain element during compression and decompression.
 #[derive(Clone)]
@@ -14,7 +18,6 @@ pub enum Region {
 }
 
 impl Region {
-    /// Return the encoded length of this region when written to the output stream.
     pub fn encoded_len(&self) -> usize {
         match self {
             Region::Raw(_) => 1 + HEADER_SIZE + BLOCK_SIZE,
@@ -23,27 +26,20 @@ impl Region {
     }
 }
 
-/// Fixed block size in bytes.
 pub const BLOCK_SIZE: usize = 7;
-/// Size of an encoded header in bytes.
 pub const HEADER_SIZE: usize = 3;
-/// Reserved seed byte used for literal fallbacks.
 pub const FALLBACK_SEED: u8 = 0xA5;
 
-/// Header information packed into three bytes.
 #[derive(Debug, Clone, Copy)]
 pub struct Header {
-    /// Seed length encoded as 0..3 for 1..4 bytes.
     pub seed_len: u8,
-    /// Number of bytes to recursively unpack from the hash output.
     pub nest_len: u32,
-    /// Arity encoded as 0..3 for 1..4 blocks.
     pub arity: u8,
 }
 
 impl Header {
     pub fn pack(self) -> [u8; HEADER_SIZE] {
-        let raw: u32 = ((self.seed_len as u32) << 22)
+        let raw = ((self.seed_len as u32) << 22)
             | ((self.nest_len as u32) << 2)
             | (self.arity as u32);
         raw.to_be_bytes()[1..4].try_into().unwrap()
@@ -59,12 +55,10 @@ impl Header {
     }
 }
 
-/// Check whether the given seed/header pair represents a literal fallback block.
 pub fn is_fallback(seed: &[u8], header: [u8; HEADER_SIZE]) -> bool {
     seed == [FALLBACK_SEED] && header == [0; HEADER_SIZE]
 }
 
-/// Encode a region into its byte representation.
 pub fn encode_region(region: &Region) -> Vec<u8> {
     match region {
         Region::Raw(bytes) => {
@@ -83,7 +77,6 @@ pub fn encode_region(region: &Region) -> Vec<u8> {
     }
 }
 
-/// Safe decoder: returns None instead of panicking on bad input.
 fn decode_region_safe(data: &[u8]) -> Option<(Region, usize)> {
     for n in 1..=4 {
         if data.len() < n + HEADER_SIZE {
