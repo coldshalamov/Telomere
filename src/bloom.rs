@@ -1,39 +1,48 @@
+use bloomfilter::Bloom as RawBloom;
+
+/// Simple wrapper around the `bloomfilter` crate using `u64` items.
 pub struct Bloom {
-    bits: Vec<u8>,
-    hashes: u8,
+    filter: RawBloom<u64>,
 }
 
 impl Bloom {
-    pub fn new(size_bytes: usize, hashes: u8) -> Self {
-        Bloom {
-            bits: vec![0; size_bytes],
-            hashes,
-        }
+    /// Create a new bloom filter for `items` expected entries with the given
+    /// false positive rate.
+    pub fn new(items: usize, fp_rate: f64) -> Self {
+        let filter = RawBloom::new_for_fp_rate(items, fp_rate);
+        Self { filter }
     }
 
-    fn hash(&self, mut key: u64, i: u8) -> usize {
-        key = key.wrapping_add((i as u64).wrapping_mul(0x9E3779B97F4A7C15));
-        (key as usize) % (self.bits.len() * 8)
+    /// Insert a value into the filter.
+    pub fn insert(&mut self, value: &u64) {
+        self.filter.set(value);
     }
 
-    pub fn insert(&mut self, key: u64) {
-        for i in 0..self.hashes {
-            let bit = self.hash(key, i);
-            let byte = bit / 8;
-            let mask = 1u8 << (bit % 8);
-            self.bits[byte] |= mask;
-        }
+    /// Check whether a value is possibly in the set.
+    pub fn contains(&self, value: &u64) -> bool {
+        self.filter.check(value)
     }
 
-    pub fn contains(&self, key: u64) -> bool {
-        for i in 0..self.hashes {
-            let bit = self.hash(key, i);
-            let byte = bit / 8;
-            let mask = 1u8 << (bit % 8);
-            if self.bits[byte] & mask == 0 {
-                return false;
-            }
+    /// Check if a value is in the set and insert it if not.
+    /// Returns true if the value was already present.
+    pub fn check_and_insert(&mut self, value: &u64) -> bool {
+        let present = self.filter.check(value);
+        if !present {
+            self.filter.set(value);
         }
-        true
+        present
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Bloom;
+
+    #[test]
+    fn basic_usage() {
+        let mut bloom = Bloom::new(100, 0.01);
+        assert!(!bloom.contains(&42));
+        bloom.insert(&42);
+        assert!(bloom.contains(&42));
     }
 }
