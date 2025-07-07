@@ -17,7 +17,7 @@ fn save_load_roundtrip() {
     // create a simple table with one entry
     let entry = GlossEntry {
         seed: vec![0xAA],
-        header: Header { seed_len: 0, nest_len: 0, arity: 0 },
+        header: Header { seed_len: 0, nest_len: 0x1FFFFF, arity: 0 },
         decompressed: vec![1,2,3,4,5,6,7],
     };
     let table = GlossTable { entries: vec![entry.clone()] };

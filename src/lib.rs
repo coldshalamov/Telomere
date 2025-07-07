@@ -38,6 +38,7 @@ impl Region {
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct Header {
+    /// 0 for one byte, 1 for two bytes
     pub seed_len: u8,
     pub nest_len: u32,
     pub arity: u8,
@@ -45,7 +46,7 @@ pub struct Header {
 
 impl Header {
     pub fn pack(self) -> [u8; HEADER_SIZE] {
-        let raw = ((self.seed_len as u32) << 22)
+        let raw = ((self.seed_len as u32) << 23)
             | ((self.nest_len as u32) << 2)
             | (self.arity as u32);
         raw.to_be_bytes()[1..4].try_into().unwrap()
@@ -54,8 +55,8 @@ impl Header {
     pub fn unpack(bytes: [u8; HEADER_SIZE]) -> Self {
         let raw = u32::from_be_bytes([0, bytes[0], bytes[1], bytes[2]]);
         Self {
-            seed_len: ((raw >> 22) & 0b11) as u8,
-            nest_len: ((raw >> 2) & 0x000F_FFFF) as u32,
+            seed_len: ((raw >> 23) & 0b1) as u8,
+            nest_len: ((raw >> 2) & 0x001F_FFFF) as u32,
             arity: (raw & 0b11) as u8,
         }
     }
@@ -84,7 +85,7 @@ pub fn encode_region(region: &Region) -> Vec<u8> {
 }
 
 fn decode_region_safe(data: &[u8]) -> Option<(Region, usize)> {
-    for n in 1..=4 {
+    for n in 1..=2 {
         if data.len() < n + HEADER_SIZE {
             continue;
         }
@@ -150,6 +151,48 @@ pub(crate) fn decompress_safe(mut data: &[u8]) -> Option<Vec<u8>> {
         out.extend_from_slice(&decompress_region_safe(&region)?);
     }
     Some(out)
+}
+
+pub fn decompress_with_limit(mut data: &[u8], max_bytes: usize) -> Option<Vec<u8>> {
+    let mut out = Vec::new();
+    let mut offset = 0;
+    while offset < data.len() {
+        let (region, consumed) = decode_region_safe(&data[offset..])?;
+        offset += consumed;
+        let region_out = decompress_region_with_limit(&region, max_bytes - out.len())?;
+        out.extend_from_slice(&region_out);
+        if out.len() > max_bytes {
+            return None;
+        }
+    }
+    Some(out)
+}
+
+pub fn decompress_region_with_limit(region: &Region, max_bytes: usize) -> Option<Vec<u8>> {
+    match region {
+        Region::Raw(bytes) => {
+            if bytes.len() > max_bytes {
+                None
+            } else {
+                Some(bytes.clone())
+            }
+        }
+        Region::Compressed(seed, header) => {
+            let digest = Sha256::digest(seed);
+            if header.arity == 0 {
+                if BLOCK_SIZE > max_bytes {
+                    return None;
+                }
+                Some(digest[..BLOCK_SIZE].to_vec())
+            } else {
+                let len = header.nest_len as usize;
+                if len > digest.len() {
+                    return None;
+                }
+                decompress_with_limit(&digest[..len], max_bytes)
+            }
+        }
+    }
 }
 
 pub fn decompress(mut data: &[u8]) -> Vec<u8> {
@@ -254,7 +297,7 @@ pub fn compress(
                         }
                     }
 
-                    for seed_len in seed_len_range.clone() {
+                    for seed_len in seed_len_range.clone().filter(|l| *l <= 2) {
                         let max = 1u64 << (8 * seed_len as u64);
                         let limit = seed_limit.unwrap_or(max).min(max);
 
@@ -276,12 +319,9 @@ pub fn compress(
                             }
 
                             let seed_bytes = &seed.to_be_bytes()[8 - seed_len as usize..];
-                            let digest: [u8; 32] = if seed_len <= 2 {
-                                *sha_cache.entry(seed_bytes.to_vec())
-                                    .or_insert_with(|| Sha256::digest(seed_bytes).into())
-                            } else {
-                                Sha256::digest(seed_bytes).into()
-                            };
+                            let digest: [u8; 32] = *sha_cache
+                                .entry(seed_bytes.to_vec())
+                                .or_insert_with(|| Sha256::digest(seed_bytes).into());
 
                             if digest.starts_with(&target) {
                                 let nest = encoded_len_of_regions(slice) as u32;

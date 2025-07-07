@@ -37,7 +37,7 @@ impl GlossTable {
                 let seed_bytes = &seed_val.to_be_bytes()[8 - seed_len as usize..];
                 let digest = Sha256::digest(seed_bytes);
                 for len in 0..=digest.len() {
-                    if let Some(bytes) = decompress_with_limit(&digest[..len], 32) {
+                    if let Some(bytes) = decompress_with_limit(&digest[..len], 2 * 1024 * 1024) {
                         let blocks = bytes.len() / BLOCK_SIZE;
                         if bytes.len() % BLOCK_SIZE != 0 || !(2..=4).contains(&blocks) {
                             continue;
@@ -47,7 +47,7 @@ impl GlossTable {
                             nest_len: len as u32,
                             arity: blocks as u8 - 1,
                         };
-                        if let Some(out) = unpack_with_limit(seed_bytes, header, 32) {
+                        if let Some(out) = unpack_with_limit(seed_bytes, header, 2 * 1024 * 1024) {
                             entries.push(GlossEntry {
                                 seed: seed_bytes.to_vec(),
                                 header,
