@@ -173,6 +173,7 @@ pub fn compress(
     gloss: Option<&GlossTable>,
     verbosity: u8,
     gloss_only: bool,
+    mut partials: Option<&mut Vec<(Vec<u8>, Header)>>,
 ) -> Vec<u8> {
     let start = Instant::now();
     let mut chain: Vec<Region> = data
@@ -307,6 +308,29 @@ pub fn compress(
                                 matched = true;
                                 brute_matches += 1;
                                 break 'outer;
+                            } else if let Some(storage) = partials.as_mut() {
+                                let mut prefix = BLOCK_SIZE;
+                                let mut matched_len = 0;
+                                while prefix <= target.len() {
+                                    if digest.starts_with(&target[..prefix]) {
+                                        matched_len = prefix;
+                                        prefix += BLOCK_SIZE;
+                                    } else {
+                                        break;
+                                    }
+                                }
+                                if matched_len >= BLOCK_SIZE && matched_len < target.len() {
+                                    let nest = encoded_len_of_regions(slice) as u32;
+                                    let header = Header {
+                                        seed_len: seed_len - 1,
+                                        nest_len: nest,
+                                        arity: arity - 1,
+                                    };
+                                    if storage.len() >= 10_000 {
+                                        storage.remove(0);
+                                    }
+                                    storage.push((seed_bytes.to_vec(), header));
+                                }
                             }
                         }
                     }
