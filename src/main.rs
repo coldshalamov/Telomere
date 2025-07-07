@@ -20,6 +20,7 @@ fn main() {
     let mut verbose = false;
     let mut quiet = false;
     let mut gloss_only = false;
+    let mut collect_partials = false;
 
     let mut i = 4;
     while i < args.len() {
@@ -60,6 +61,10 @@ fn main() {
                 gloss_only = true;
                 i += 1;
             }
+            "--collect-partials" => {
+                collect_partials = true;
+                i += 1;
+            }
             flag => {
                 eprintln!("Unknown flag: {}", flag);
                 return;
@@ -89,6 +94,7 @@ fn main() {
     match args[1].as_str() {
         "c" => {
             let mut hashes = 0u64;
+            let mut partials_store = Vec::new();
             let out = compress(
                 &data,
                 RangeInclusive::new(1, max_seed_len),
@@ -99,8 +105,12 @@ fn main() {
                 gloss.as_ref(),
                 verbosity,
                 gloss_only,
+                if collect_partials { Some(&mut partials_store) } else { None },
             );
             fs::write(&args[3], out).expect("failed to write output");
+            if collect_partials {
+                eprintln!("collected {} partial matches", partials_store.len());
+            }
         }
         "d" => {
             let out = decompress(&data);
