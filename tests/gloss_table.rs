@@ -35,9 +35,9 @@ fn save_load_roundtrip() {
 fn limit_enforced() {
     let region = Region::Raw(vec![0; BLOCK_SIZE]);
     let encoded = encode_region(&region);
-    assert!(decompress_with_limit(&encoded, BLOCK_SIZE).is_some());
-    assert!(decompress_with_limit(&encoded, BLOCK_SIZE - 1).is_none());
+    assert!(decompress_with_limit(&encoded, BLOCK_SIZE, 0).is_some());
+    assert!(decompress_with_limit(&encoded, BLOCK_SIZE - 1, 0).is_none());
 
     let long = Region::Raw(vec![0; 35]);
-    assert!(decompress_region_with_limit(&long, 32).is_none());
+    assert!(decompress_region_with_limit(&long, 32, 0).is_none());
 }

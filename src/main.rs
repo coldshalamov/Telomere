@@ -4,11 +4,13 @@ use std::ops::RangeInclusive;
 use std::path::Path;
 
 use inchworm::{compress, decompress, GlossTable};
+use serde_json;
+use hex;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() < 4 {
-        eprintln!("Usage: {} [c|d] <input> <output> [--max-seed-len N] [--seed-limit N] [--status N] [--json] [--verbose] [--quiet] [--gloss FILE] [--gloss-only]", args[0]);
+        eprintln!("Usage: {} [c|d] <input> <output> [--max-seed-len N] [--seed-limit N] [--status N] [--json] [--verbose] [--quiet] [--gloss FILE] [--gloss-only] [--dry-run] [--gloss-coverage FILE]", args[0]);
         return;
     }
 
@@ -20,6 +22,8 @@ fn main() {
     let mut verbose = false;
     let mut quiet = false;
     let mut gloss_only = false;
+    let mut dry_run = false;
+    let mut gloss_coverage: Option<String> = None;
 
     let mut i = 4;
     while i < args.len() {
@@ -60,6 +64,15 @@ fn main() {
                 gloss_only = true;
                 i += 1;
             }
+            "--dry-run" => {
+                dry_run = true;
+                i += 1;
+            }
+            "--gloss-coverage" => {
+                if i + 1 >= args.len() { break; }
+                gloss_coverage = Some(args[i + 1].clone());
+                i += 2;
+            }
             flag => {
                 eprintln!("Unknown flag: {}", flag);
                 return;
@@ -86,6 +99,12 @@ fn main() {
 
     let verbosity = if quiet { 0 } else if verbose { 2 } else { 1 };
 
+    let mut coverage: Option<Vec<bool>> = if gloss_only && gloss_coverage.is_some() {
+        gloss.as_ref().map(|g| vec![false; g.entries.len()])
+    } else {
+        None
+    };
+
     match args[1].as_str() {
         "c" => {
             let mut hashes = 0u64;
@@ -99,8 +118,27 @@ fn main() {
                 gloss.as_ref(),
                 verbosity,
                 gloss_only,
+                coverage.as_mut().map(|v| v.as_mut_slice()),
             );
-            fs::write(&args[3], out).expect("failed to write output");
+            if !dry_run {
+                fs::write(&args[3], out).expect("failed to write output");
+            }
+            if let (Some(path), Some(cov), Some(table)) = (gloss_coverage, coverage, gloss.as_ref()) {
+                let report: Vec<_> = table
+                    .entries
+                    .iter()
+                    .zip(cov.iter())
+                    .map(|(e, m)| serde_json::json!({
+                        "seed": hex::encode(&e.seed),
+                        "arity": e.header.arity + 1,
+                        "matched": m,
+                    }))
+                    .collect();
+                let serialized = serde_json::to_vec_pretty(&report).expect("serialize coverage");
+                if let Err(e) = fs::write(path, serialized) {
+                    eprintln!("Failed to write coverage report: {e}");
+                }
+            }
         }
         "d" => {
             let out = decompress(&data);

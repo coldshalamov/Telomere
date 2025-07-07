@@ -25,7 +25,7 @@ pub struct GlossTable {
 }
 
 fn unpack_with_limit(seed: &[u8], header: Header, max_bytes: usize) -> Option<Vec<u8>> {
-    decompress_region_with_limit(&Region::Compressed(seed.to_vec(), header), max_bytes)
+    decompress_region_with_limit(&Region::Compressed(seed.to_vec(), header), max_bytes, 0)
 }
 
 impl GlossTable {
@@ -37,7 +37,7 @@ impl GlossTable {
                 let seed_bytes = &seed_val.to_be_bytes()[8 - seed_len as usize..];
                 let digest = Sha256::digest(seed_bytes);
                 for len in 0..=digest.len() {
-                    if let Some(bytes) = decompress_with_limit(&digest[..len], 32) {
+                    if let Some(bytes) = decompress_with_limit(&digest[..len], 32, 0) {
                         let blocks = bytes.len() / BLOCK_SIZE;
                         if bytes.len() % BLOCK_SIZE != 0 || !(2..=4).contains(&blocks) {
                             continue;
@@ -76,6 +76,14 @@ impl GlossTable {
     pub fn save<P: AsRef<Path>>(&self, path: P) -> std::io::Result<()> {
         let data = bincode::serialize(self).expect("failed to serialize gloss");
         std::fs::write(path, data)
+    }
+
+    pub fn find(&self, data: &[u8]) -> Option<&GlossEntry> {
+        self.entries.iter().find(|e| e.decompressed == data)
+    }
+
+    pub fn find_with_index(&self, data: &[u8]) -> Option<(usize, &GlossEntry)> {
+        self.entries.iter().enumerate().find(|(_, e)| e.decompressed == data)
     }
 }
 

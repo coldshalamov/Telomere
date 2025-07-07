@@ -163,6 +163,65 @@ pub fn decompress(mut data: &[u8]) -> Vec<u8> {
     out
 }
 
+pub fn decompress_region_with_limit(region: &Region, max_bytes: usize, verbosity: u8) -> Option<Vec<u8>> {
+    match region {
+        Region::Raw(bytes) => {
+            if bytes.len() > max_bytes {
+                if verbosity >= 2 {
+                    eprintln!("warning: raw block dropped ({} bytes > limit {})", bytes.len(), max_bytes);
+                }
+                None
+            } else {
+                Some(bytes.clone())
+            }
+        }
+        Region::Compressed(seed, header) => {
+            let digest = Sha256::digest(seed);
+            if header.arity == 0 {
+                if BLOCK_SIZE > max_bytes {
+                    if verbosity >= 2 {
+                        eprintln!(
+                            "warning: block dropped due to limit: seed={} header={:?}",
+                            hex::encode(seed),
+                            header
+                        );
+                    }
+                    None
+                } else {
+                    Some(digest[..BLOCK_SIZE].to_vec())
+                }
+            } else {
+                let len = header.nest_len as usize;
+                if len > digest.len() {
+                    return None;
+                }
+                let res = decompress_with_limit(&digest[..len], max_bytes, verbosity);
+                if res.is_none() && verbosity >= 2 {
+                    eprintln!(
+                        "warning: nested region dropped due to limit: seed={} header={:?}",
+                        hex::encode(seed),
+                        header
+                    );
+                }
+                res
+            }
+        }
+    }
+}
+
+pub fn decompress_with_limit(mut data: &[u8], max_bytes: usize, verbosity: u8) -> Option<Vec<u8>> {
+    let mut out = Vec::new();
+    let mut offset = 0;
+    while offset < data.len() {
+        let (region, consumed) = decode_region_safe(&data[offset..])?;
+        offset += consumed;
+        let remaining = max_bytes.saturating_sub(out.len());
+        let bytes = decompress_region_with_limit(&region, remaining, verbosity)?;
+        out.extend_from_slice(&bytes);
+    }
+    Some(out)
+}
+
 pub fn compress(
     data: &[u8],
     seed_len_range: RangeInclusive<u8>,
@@ -173,6 +232,7 @@ pub fn compress(
     gloss: Option<&GlossTable>,
     verbosity: u8,
     gloss_only: bool,
+    mut coverage: Option<&mut [bool]>,
 ) -> Vec<u8> {
     let start = Instant::now();
     let mut chain: Vec<Region> = data
@@ -184,6 +244,7 @@ pub fn compress(
     let mut brute_matches = 0u64;
     let mut gloss_matches = 0u64;
     let mut sha_cache: HashMap<Vec<u8>, [u8; 32]> = HashMap::new();
+    let mut arity_counts: HashMap<u8, u64> = HashMap::new();
 
     if gloss_only {
         let mut output = Vec::new();
@@ -195,7 +256,7 @@ pub fn compress(
                     if i + arity as usize <= chain.len() {
                         let slice = &chain[i..i + arity as usize];
                         let target = decompress_regions(slice);
-                        if let Some(entry) = table.find(&target) {
+                        if let Some((idx, entry)) = table.find_with_index(&target) {
                             if verbosity >= 2 {
                                 eprintln!(
                                     "gloss match: seed={} arity={} nest={} index={}",
@@ -207,6 +268,10 @@ pub fn compress(
                             }
                             output.push(Region::Compressed(entry.seed.clone(), entry.header));
                             gloss_matches += 1;
+                            if let Some(ref mut cov) = coverage {
+                                cov[idx] = true;
+                            }
+                            *arity_counts.entry(arity).or_insert(0) += 1;
                             i += arity as usize;
                             matched = true;
                             break;
@@ -234,7 +299,7 @@ pub fn compress(
                     let target = decompress_regions(slice);
 
                     if let Some(table) = gloss {
-                        if let Some(entry) = table.find(&target) {
+                        if let Some((idx, entry)) = table.find_with_index(&target) {
                             if verbosity >= 2 {
                                 eprintln!(
                                     "gloss match: seed={} arity={} nest={} index={}",
@@ -249,6 +314,10 @@ pub fn compress(
                                 [Region::Compressed(entry.seed.clone(), entry.header)],
                             );
                             gloss_matches += 1;
+                            if let Some(ref mut cov) = coverage {
+                                cov[idx] = true;
+                            }
+                            *arity_counts.entry(arity).or_insert(0) += 1;
                             matched = true;
                             break 'outer;
                         }
@@ -268,6 +337,8 @@ pub fn compress(
                                     *hash_counter,
                                     brute_matches,
                                     gloss_matches,
+                                    chain.iter().filter(|r| matches!(r, Region::Raw(_))).count() as u64,
+                                    &arity_counts,
                                     json_out,
                                     verbosity,
                                     start,
@@ -306,6 +377,7 @@ pub fn compress(
                                 );
                                 matched = true;
                                 brute_matches += 1;
+                                *arity_counts.entry(arity).or_insert(0) += 1;
                                 break 'outer;
                             }
                         }
@@ -320,7 +392,11 @@ pub fn compress(
     }
 
     let mut encoded = Vec::new();
+    let mut fallback_count = 0u64;
     for r in &chain {
+        if matches!(r, Region::Raw(_)) {
+            fallback_count += 1;
+        }
         encoded.extend_from_slice(&encode_region(r));
     }
 
@@ -331,6 +407,8 @@ pub fn compress(
         *hash_counter,
         brute_matches,
         gloss_matches,
+        fallback_count,
+        &arity_counts,
         json_out,
         verbosity,
         start,
@@ -338,4 +416,56 @@ pub fn compress(
     );
 
     encoded
+}
+
+fn print_stats(
+    chain: &[Region],
+    input_bytes: usize,
+    input_regions: usize,
+    total_hashes: u64,
+    brute_matches: u64,
+    gloss_matches: u64,
+    fallback_literals: u64,
+    arity_counts: &HashMap<u8, u64>,
+    json_out: bool,
+    verbosity: u8,
+    start: Instant,
+    done: bool,
+) {
+    let output_bytes = encoded_len_of_regions(chain);
+    let secs = start.elapsed().as_secs_f64();
+    if json_out {
+        let obj = json!({
+            "input_bytes": input_bytes,
+            "input_regions": input_regions,
+            "output_bytes": output_bytes,
+            "output_regions": chain.len(),
+            "total_hashes": total_hashes,
+            "brute_matches": brute_matches,
+            "gloss_matches": gloss_matches,
+            "fallback_literals": fallback_literals,
+            "arity_counts": arity_counts,
+            "seconds": secs,
+            "done": done,
+        });
+        if done {
+            println!("{}", obj);
+        } else if verbosity >= 1 {
+            eprintln!("{}", obj);
+        }
+    } else if verbosity >= 1 {
+        eprintln!(
+            "[{:.2}s] {}->{} blocks ({}->{} bytes) hashes={} brute={} gloss={} fallback={} arity_counts={:?}",
+            secs,
+            input_regions,
+            chain.len(),
+            input_bytes,
+            output_bytes,
+            total_hashes,
+            brute_matches,
+            gloss_matches,
+            fallback_literals,
+            arity_counts,
+        );
+    }
 }
