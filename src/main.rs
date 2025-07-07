@@ -10,7 +10,7 @@ use hex;
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() < 4 {
-        eprintln!("Usage: {} [c|d] <input> <output> [--max-seed-len N] [--seed-limit N] [--status N] [--json] [--verbose] [--quiet] [--gloss FILE] [--gloss-only] [--dry-run] [--gloss-coverage FILE]", args[0]);
+        eprintln!("Usage: {} [c|d] <input> <output> [--max-seed-len N] [--seed-limit N] [--status N] [--json] [--verbose] [--quiet] [--gloss FILE] [--gloss-only] [--dry-run] [--gloss-coverage FILE] [--collect-partials]", args[0]);
         return;
     }
 
@@ -24,6 +24,7 @@ fn main() {
     let mut gloss_only = false;
     let mut dry_run = false;
     let mut gloss_coverage: Option<String> = None;
+    let mut collect_partials = false;
 
     let mut i = 4;
     while i < args.len() {
@@ -73,6 +74,10 @@ fn main() {
                 gloss_coverage = Some(args[i + 1].clone());
                 i += 2;
             }
+            "--collect-partials" => {
+                collect_partials = true;
+                i += 1;
+            }
             flag => {
                 eprintln!("Unknown flag: {}", flag);
                 return;
@@ -108,6 +113,7 @@ fn main() {
     match args[1].as_str() {
         "c" => {
             let mut hashes = 0u64;
+            let mut partials_store = Vec::new();
             let out = compress(
                 &data,
                 RangeInclusive::new(1, max_seed_len),
@@ -119,10 +125,13 @@ fn main() {
                 verbosity,
                 gloss_only,
                 coverage.as_mut().map(|v| v.as_mut_slice()),
+                if collect_partials { Some(&mut partials_store) } else { None },
             );
+
             if !dry_run {
                 fs::write(&args[3], out).expect("failed to write output");
             }
+
             if let (Some(path), Some(cov), Some(table)) = (gloss_coverage, coverage, gloss.as_ref()) {
                 let report: Vec<_> = table
                     .entries
@@ -138,6 +147,10 @@ fn main() {
                 if let Err(e) = fs::write(path, serialized) {
                     eprintln!("Failed to write coverage report: {e}");
                 }
+            }
+
+            if collect_partials {
+                eprintln!("collected {} partial matches", partials_store.len());
             }
         }
         "d" => {

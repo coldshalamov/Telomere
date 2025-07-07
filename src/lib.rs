@@ -1,227 +1,3 @@
-//! Core logic for the Inchworm compression system.
-
-use sha2::{Digest, Sha256};
-use serde::{Deserialize, Serialize};
-use serde_json::json;
-use std::collections::HashMap;
-use std::ops::RangeInclusive;
-use std::time::Instant;
-use std::fs::File;
-use std::path::Path;
-use memmap2::Mmap;
-
-mod sha_cache;
-mod bloom;
-mod gloss;
-pub use gloss::{GlossEntry, GlossTable};
-
-use bloom::Bloom;
-
-pub const BLOCK_SIZE: usize = 7;
-pub const HEADER_SIZE: usize = 3;
-pub const FALLBACK_SEED: u8 = 0xA5;
-
-#[derive(Clone)]
-pub enum Region {
-    Raw(Vec<u8>),
-    Compressed(Vec<u8>, Header),
-}
-
-impl Region {
-    pub fn encoded_len(&self) -> usize {
-        match self {
-            Region::Raw(_) => 1 + HEADER_SIZE + BLOCK_SIZE,
-            Region::Compressed(seed, _) => seed.len() + HEADER_SIZE,
-        }
-    }
-}
-
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
-pub struct Header {
-    pub seed_len: u8,
-    pub nest_len: u32,
-    pub arity: u8,
-}
-
-impl Header {
-    pub fn pack(self) -> [u8; HEADER_SIZE] {
-        let raw = ((self.seed_len as u32) << 22)
-            | ((self.nest_len as u32) << 2)
-            | (self.arity as u32);
-        raw.to_be_bytes()[1..4].try_into().unwrap()
-    }
-
-    pub fn unpack(bytes: [u8; HEADER_SIZE]) -> Self {
-        let raw = u32::from_be_bytes([0, bytes[0], bytes[1], bytes[2]]);
-        Self {
-            seed_len: ((raw >> 22) & 0b11) as u8,
-            nest_len: ((raw >> 2) & 0x000F_FFFF) as u32,
-            arity: (raw & 0b11) as u8,
-        }
-    }
-}
-
-pub fn is_fallback(seed: &[u8], header: [u8; HEADER_SIZE]) -> bool {
-    seed == [FALLBACK_SEED] && header == [0; HEADER_SIZE]
-}
-
-pub fn encode_region(region: &Region) -> Vec<u8> {
-    match region {
-        Region::Raw(bytes) => {
-            let mut out = Vec::with_capacity(1 + HEADER_SIZE + BLOCK_SIZE);
-            out.push(FALLBACK_SEED);
-            out.extend_from_slice(&[0; HEADER_SIZE]);
-            out.extend_from_slice(bytes);
-            out
-        }
-        Region::Compressed(seed, header) => {
-            let mut out = Vec::with_capacity(seed.len() + HEADER_SIZE);
-            out.extend_from_slice(seed);
-            out.extend_from_slice(&header.pack());
-            out
-        }
-    }
-}
-
-fn decode_region_safe(data: &[u8]) -> Option<(Region, usize)> {
-    for n in 1..=4 {
-        if data.len() < n + HEADER_SIZE {
-            continue;
-        }
-        let seed = &data[..n];
-        let header_bytes: [u8; HEADER_SIZE] = data[n..n + HEADER_SIZE].try_into().ok()?;
-        let header = Header::unpack(header_bytes);
-        if header.seed_len as usize + 1 == n {
-            let consumed = n + HEADER_SIZE;
-            if is_fallback(seed, header_bytes) {
-                if data.len() < consumed + BLOCK_SIZE {
-                    return None;
-                }
-                let block = data[consumed..consumed + BLOCK_SIZE].to_vec();
-                return Some((Region::Raw(block), consumed + BLOCK_SIZE));
-            } else {
-                return Some((Region::Compressed(seed.to_vec(), header), consumed));
-            }
-        }
-    }
-    None
-}
-
-fn decompress_region(region: &Region) -> Vec<u8> {
-    decompress_region_safe(region).expect("invalid region")
-}
-
-fn decompress_regions(regions: &[Region]) -> Vec<u8> {
-    let mut out = Vec::new();
-    for r in regions {
-        out.extend_from_slice(&decompress_region(r));
-    }
-    out
-}
-
-fn encoded_len_of_regions(regions: &[Region]) -> usize {
-    regions.iter().map(|r| r.encoded_len()).sum()
-}
-
-pub(crate) fn decompress_region_safe(region: &Region) -> Option<Vec<u8>> {
-    match region {
-        Region::Raw(bytes) => Some(bytes.clone()),
-        Region::Compressed(seed, header) => {
-            let digest = Sha256::digest(seed);
-            if header.arity == 0 {
-                Some(digest[..BLOCK_SIZE].to_vec())
-            } else {
-                let len = header.nest_len as usize;
-                if len > digest.len() {
-                    return None;
-                }
-                decompress_safe(&digest[..len])
-            }
-        }
-    }
-}
-
-pub(crate) fn decompress_safe(mut data: &[u8]) -> Option<Vec<u8>> {
-    let mut out = Vec::new();
-    let mut offset = 0;
-    while offset < data.len() {
-        let (region, consumed) = decode_region_safe(&data[offset..])?;
-        offset += consumed;
-        out.extend_from_slice(&decompress_region_safe(&region)?);
-    }
-    Some(out)
-}
-
-pub fn decompress(mut data: &[u8]) -> Vec<u8> {
-    let mut out = Vec::new();
-    let mut offset = 0;
-    while offset < data.len() {
-        let (region, consumed) = decode_region_safe(&data[offset..]).expect("invalid compressed data");
-        offset += consumed;
-        out.extend_from_slice(&decompress_region(&region));
-    }
-    out
-}
-
-pub fn decompress_region_with_limit(region: &Region, max_bytes: usize, verbosity: u8) -> Option<Vec<u8>> {
-    match region {
-        Region::Raw(bytes) => {
-            if bytes.len() > max_bytes {
-                if verbosity >= 2 {
-                    eprintln!("warning: raw block dropped ({} bytes > limit {})", bytes.len(), max_bytes);
-                }
-                None
-            } else {
-                Some(bytes.clone())
-            }
-        }
-        Region::Compressed(seed, header) => {
-            let digest = Sha256::digest(seed);
-            if header.arity == 0 {
-                if BLOCK_SIZE > max_bytes {
-                    if verbosity >= 2 {
-                        eprintln!(
-                            "warning: block dropped due to limit: seed={} header={:?}",
-                            hex::encode(seed),
-                            header
-                        );
-                    }
-                    None
-                } else {
-                    Some(digest[..BLOCK_SIZE].to_vec())
-                }
-            } else {
-                let len = header.nest_len as usize;
-                if len > digest.len() {
-                    return None;
-                }
-                let res = decompress_with_limit(&digest[..len], max_bytes, verbosity);
-                if res.is_none() && verbosity >= 2 {
-                    eprintln!(
-                        "warning: nested region dropped due to limit: seed={} header={:?}",
-                        hex::encode(seed),
-                        header
-                    );
-                }
-                res
-            }
-        }
-    }
-}
-
-pub fn decompress_with_limit(mut data: &[u8], max_bytes: usize, verbosity: u8) -> Option<Vec<u8>> {
-    let mut out = Vec::new();
-    let mut offset = 0;
-    while offset < data.len() {
-        let (region, consumed) = decode_region_safe(&data[offset..])?;
-        offset += consumed;
-        let remaining = max_bytes.saturating_sub(out.len());
-        let bytes = decompress_region_with_limit(&region, remaining, verbosity)?;
-        out.extend_from_slice(&bytes);
-    }
-    Some(out)
-}
-
 pub fn compress(
     data: &[u8],
     seed_len_range: RangeInclusive<u8>,
@@ -233,6 +9,7 @@ pub fn compress(
     verbosity: u8,
     gloss_only: bool,
     mut coverage: Option<&mut [bool]>,
+    mut partials: Option<&mut Vec<(Vec<u8>, Header)>>,
 ) -> Vec<u8> {
     let start = Instant::now();
     let mut chain: Vec<Region> = data
@@ -379,6 +156,29 @@ pub fn compress(
                                 brute_matches += 1;
                                 *arity_counts.entry(arity).or_insert(0) += 1;
                                 break 'outer;
+                            } else if let Some(storage) = partials.as_mut() {
+                                let mut prefix = BLOCK_SIZE;
+                                let mut matched_len = 0;
+                                while prefix <= target.len() {
+                                    if digest.starts_with(&target[..prefix]) {
+                                        matched_len = prefix;
+                                        prefix += BLOCK_SIZE;
+                                    } else {
+                                        break;
+                                    }
+                                }
+                                if matched_len >= BLOCK_SIZE && matched_len < target.len() {
+                                    let nest = encoded_len_of_regions(slice) as u32;
+                                    let header = Header {
+                                        seed_len: seed_len - 1,
+                                        nest_len: nest,
+                                        arity: arity - 1,
+                                    };
+                                    if storage.len() >= 10_000 {
+                                        storage.remove(0);
+                                    }
+                                    storage.push((seed_bytes.to_vec(), header));
+                                }
                             }
                         }
                     }
@@ -416,56 +216,4 @@ pub fn compress(
     );
 
     encoded
-}
-
-fn print_stats(
-    chain: &[Region],
-    input_bytes: usize,
-    input_regions: usize,
-    total_hashes: u64,
-    brute_matches: u64,
-    gloss_matches: u64,
-    fallback_literals: u64,
-    arity_counts: &HashMap<u8, u64>,
-    json_out: bool,
-    verbosity: u8,
-    start: Instant,
-    done: bool,
-) {
-    let output_bytes = encoded_len_of_regions(chain);
-    let secs = start.elapsed().as_secs_f64();
-    if json_out {
-        let obj = json!({
-            "input_bytes": input_bytes,
-            "input_regions": input_regions,
-            "output_bytes": output_bytes,
-            "output_regions": chain.len(),
-            "total_hashes": total_hashes,
-            "brute_matches": brute_matches,
-            "gloss_matches": gloss_matches,
-            "fallback_literals": fallback_literals,
-            "arity_counts": arity_counts,
-            "seconds": secs,
-            "done": done,
-        });
-        if done {
-            println!("{}", obj);
-        } else if verbosity >= 1 {
-            eprintln!("{}", obj);
-        }
-    } else if verbosity >= 1 {
-        eprintln!(
-            "[{:.2}s] {}->{} blocks ({}->{} bytes) hashes={} brute={} gloss={} fallback={} arity_counts={:?}",
-            secs,
-            input_regions,
-            chain.len(),
-            input_bytes,
-            output_bytes,
-            total_hashes,
-            brute_matches,
-            gloss_matches,
-            fallback_literals,
-            arity_counts,
-        );
-    }
 }
