@@ -11,7 +11,7 @@ mod sha_cache;
 
 pub use bloom::*;
 pub use gloss::*;
-pub use header::{Header, encode_nibbles_u32, decode_nibbles};
+pub use header::{Header, encode_header, decode_header, HeaderError};
 pub use sha_cache::*;
 
 const BLOCK_SIZE: usize = 7;
