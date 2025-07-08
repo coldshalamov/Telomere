@@ -1,3 +1,5 @@
+mod header;
+pub use header::Header;
 pub fn compress(
     data: &[u8],
     seed_len_range: RangeInclusive<u8>,
