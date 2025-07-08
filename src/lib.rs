@@ -1,3 +1,5 @@
+mod header;
+pub use header::{encode_nibbles_u32, decode_nibbles};
 pub fn compress(
     data: &[u8],
     seed_len_range: RangeInclusive<u8>,
