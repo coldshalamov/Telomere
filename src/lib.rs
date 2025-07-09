@@ -39,12 +39,14 @@ pub fn compress(
     mut partials: Option<&mut Vec<(Vec<u8>, Header)>>,
 ) -> Vec<u8> {
     let mut chain = Vec::new();
+    let mut arity_counts: HashMap<usize, usize> = HashMap::new();
     let mut i = 0usize;
     let original_len = data.len();
     let mut compressed_len = 0usize;
 
-    let emit_literal = |bytes: &[u8], arity: usize, chain: &mut Vec<Region>| {
+    let mut emit_literal = |bytes: &[u8], arity: usize, chain: &mut Vec<Region>| {
         chain.push(Region::Compressed(bytes.to_vec(), Header { seed_index: 0, arity }));
+        *arity_counts.entry(arity).or_insert(0) += 1;
     };
 
     if let Some(gloss_table) = gloss {
@@ -59,6 +61,7 @@ pub fn compress(
                     let header_bytes = encode_header(header.seed_index, header.arity);
                     if header_bytes.len() < span_len {
                         chain.push(Region::Compressed(Vec::new(), header));
+                        *arity_counts.entry(arity).or_insert(0) += 1;
                         if let Some(cov) = coverage.as_mut() {
                             if seed_index < cov.len() {
                                 cov[seed_index] = true;
@@ -113,7 +116,26 @@ pub fn compress(
         }
     }
 
+    // Final compression report
     print_compression_status(original_len, out.len());
+
+    // Arity histogram
+    if !arity_counts.is_empty() {
+        println!("Arity Usage:");
+        let mut keys: Vec<_> = arity_counts.keys().copied().collect();
+        keys.sort_unstable();
+        for k in keys {
+            let count = arity_counts[&k];
+            let label = if k == 40 {
+                "tail"
+            } else if (37..=39).contains(&k) {
+                "passthroughs"
+            } else {
+                "spans"
+            };
+            println!("  {} → {} {}", k, count, label);
+        }
+    }
 
     out
 }
