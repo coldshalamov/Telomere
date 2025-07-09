@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+use std::time::Instant;
 use std::ops::RangeInclusive;
 
 mod bloom;
@@ -31,10 +33,6 @@ pub fn compress(
     mut coverage: Option<&mut [bool]>,
     mut partials: Option<&mut Vec<(Vec<u8>, Header)>>,
 ) -> Vec<u8> {
-    // Only the parameters relevant to this simplified example are used.
-    // All others are ignored to keep the demo implementation concise.
-
-    // Build the chain of compressed or raw regions.
     let mut chain = Vec::new();
     let mut i = 0usize;
 
@@ -77,12 +75,42 @@ pub fn compress(
             .collect();
     }
 
-    // Serialize regions into a flat byte vector using VQL headers.
+    // Convert leftover Raw regions into passthrough headers (arity 38–40)
+    let mut final_chain = Vec::new();
+    let mut j = 0;
+    while j < chain.len() {
+        match &chain[j] {
+            Region::Raw(bytes) => {
+                let mut collected = bytes.clone();
+                let mut blocks = 1usize;
+                while blocks < 3 && j + blocks < chain.len() {
+                    if let Region::Raw(next) = &chain[j + blocks] {
+                        collected.extend_from_slice(next);
+                        blocks += 1;
+                    } else {
+                        break;
+                    }
+                }
+                let arity = match blocks {
+                    1 => 38,
+                    2 => 39,
+                    _ => 40,
+                };
+                final_chain.push(Region::Compressed(collected, Header { seed_index: 0, arity }));
+                j += blocks;
+            }
+            other => {
+                final_chain.push(other.clone());
+                j += 1;
+            }
+        }
+    }
+
+    // Emit headers for all compressed regions
     let mut out = Vec::new();
-    for region in chain {
-        match region {
-            Region::Raw(bytes) => out.extend(bytes),
-            Region::Compressed(_, h) => out.extend(encode_header(h.seed_index, h.arity)),
+    for region in final_chain {
+        if let Region::Compressed(_, header) = region {
+            out.extend(encode_header(header.seed_index, header.arity));
         }
     }
 
