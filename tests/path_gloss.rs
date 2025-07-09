@@ -1,4 +1,5 @@
 use inchworm::{CompressionPath, PathGloss};
+use std::time::Instant;
 
 #[test]
 fn insert_and_lookup_basic() {
@@ -8,7 +9,7 @@ fn insert_and_lookup_basic() {
         seeds: vec![vec![1], vec![2]],
         span_hashes: vec![[0; 32]],
         total_gain: 8,
-        created_at: 0,
+        created_at: Instant::now(),
         replayed: 0,
     };
     assert!(pg.try_insert(path.clone()));
@@ -24,7 +25,7 @@ fn respects_max_paths() {
         seeds: vec![vec![1], vec![2]],
         span_hashes: vec![[1; 32]],
         total_gain: 5,
-        created_at: 0,
+        created_at: Instant::now(),
         replayed: 0,
     };
     let p2 = CompressionPath {
@@ -32,7 +33,7 @@ fn respects_max_paths() {
         seeds: vec![vec![3], vec![4]],
         span_hashes: vec![[2; 32]],
         total_gain: 10,
-        created_at: 1,
+        created_at: Instant::now(),
         replayed: 0,
     };
     assert!(pg.try_insert(p1));

@@ -1,5 +1,6 @@
 use crate::header::Header;
 use crate::path::{CompressionPath, PathGloss};
+use std::time::Instant;
 use crate::BLOCK_SIZE;
 use sha2::{Digest, Sha256};
 use std::collections::HashSet;
@@ -117,6 +118,7 @@ pub fn compress_block(
         }
         let path = CompressionPath {
             id: *counter,
+            created_at: Instant::now(),
             seeds,
             span_hashes: hashes,
             total_gain: consumed as u64,

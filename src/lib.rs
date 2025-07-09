@@ -30,6 +30,8 @@ pub enum Region {
 // … FULL compress(), decompress(), decompress_with_limit(), etc.
 
 use sha2::{Digest, Sha256};
+use std::collections::HashMap;
+use std::ops::RangeInclusive;
 
 /// Compress the input using literal passthrough encoding.
 /// This trimmed example simply groups up to three blocks
