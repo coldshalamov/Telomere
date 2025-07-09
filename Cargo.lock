@@ -21,6 +21,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "bytemuck"
+version = "1.23.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5c76a5792e44e4abe34d3abf15636779261d45a7450612059293d1d2cfc63422"
+
+[[package]]
 name = "cfg-if"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -76,6 +82,7 @@ name = "inchworm"
 version = "0.1.0"
 dependencies = [
  "bincode",
+ "bytemuck",
  "hex",
  "memmap2",
  "serde",
