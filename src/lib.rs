@@ -3,12 +3,14 @@ use std::ops::RangeInclusive;
 use std::time::Instant;
 
 mod bloom;
+mod compress;
 mod gloss;
 mod header;
 mod sha_cache;
 mod path;
 
 pub use bloom::*;
+pub use compress::TruncHashTable;
 pub use gloss::*;
 pub use header::{Header, encode_header, decode_header, HeaderError};
 pub use sha_cache::*;
@@ -39,12 +41,19 @@ pub fn compress(
     gloss_only: bool,
     mut coverage: Option<&mut [bool]>,
     mut partials: Option<&mut Vec<(Vec<u8>, Header)>>,
+    mut hash_filter: Option<&mut TruncHashTable>,
 ) -> Vec<u8> {
     let mut chain = Vec::new();
     let mut arity_counts: HashMap<usize, usize> = HashMap::new();
     let mut i = 0usize;
     let original_len = data.len();
     let mut compressed_len = 0usize;
+
+    if let (Some(filter), Some(gloss_table)) = (hash_filter.as_mut(), gloss) {
+        for entry in &gloss_table.entries {
+            filter.insert_bytes(&entry.decompressed);
+        }
+    }
 
     let mut emit_literal = |bytes: &[u8], arity: usize, chain: &mut Vec<Region>| {
         chain.push(Region::Compressed(bytes.to_vec(), Header { seed_index: 0, arity }));
