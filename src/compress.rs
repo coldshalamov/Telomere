@@ -93,9 +93,10 @@ pub fn compress_block(
                 }
             }
             if matched && matched_blocks > 0 {
+                let path_id = path.id;
                 gloss.increment_replayed(idx);
                 let header = Header {
-                    seed_index: path.id as usize,
+                    seed_index: path_id as usize,
                     arity: matched_blocks,
                 };
                 return Some((header, matched_blocks * BLOCK_SIZE));
