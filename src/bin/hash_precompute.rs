@@ -1,11 +1,11 @@
-use bytemuck;
+use bytemuck::{Pod, Zeroable};
 use sha2::Sha256;
 use std::fs::File;
 use std::io::{BufWriter, Write};
 
 /// Entry written to the binary hash table file.
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Pod, Zeroable)]
 struct HashEntry {
     hash: [u8; 32],
     seed_len: u8,
