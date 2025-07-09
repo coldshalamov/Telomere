@@ -8,6 +8,7 @@ mod gloss;
 mod header;
 mod sha_cache;
 mod path;
+mod seed_logger;
 
 pub use bloom::*;
 pub use compress::TruncHashTable;
@@ -15,6 +16,7 @@ pub use gloss::*;
 pub use header::{Header, encode_header, decode_header, HeaderError};
 pub use sha_cache::*;
 pub use path::*;
+pub use seed_logger::{resume_seed_index, log_seed, HashEntry};
 
 const BLOCK_SIZE: usize = 7;
 
