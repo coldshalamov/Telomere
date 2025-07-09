@@ -1,4 +1,5 @@
 use std::collections::{HashMap, VecDeque};
+use std::time::Instant;
 
 use crate::BLOCK_SIZE;
 
@@ -8,7 +9,7 @@ pub struct CompressionPath {
     pub seeds: Vec<Vec<u8>>,        // Max 16 entries
     pub span_hashes: Vec<[u8; 32]>, // One per step
     pub total_gain: u64,            // Bits saved
-    pub created_at: u64,            // Global pass index
+    pub created_at: Instant,        // Global pass index
     pub replayed: u32,
 }
 
@@ -98,9 +99,11 @@ impl PathGloss {
     }
 
     pub fn match_span(&self, hash: &[u8; 32]) -> Option<(usize, &CompressionPath)> {
-        self.index
-            .get(hash)
-            .and_then(|&i| self.paths.get(i).map(|p| (i, p)))
+        self
+            .paths
+            .iter()
+            .enumerate()
+            .find(|(_, p)| p.span_hashes.first().map(|h| h == hash).unwrap_or(false))
     }
 
     pub fn add_path(&mut self, path: CompressionPath) {
