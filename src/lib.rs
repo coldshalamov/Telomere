@@ -14,6 +14,11 @@ pub use sha_cache::*;
 
 const BLOCK_SIZE: usize = 7;
 
+pub fn print_compression_status(original: usize, compressed: usize) {
+    let ratio = 100.0 * (1.0 - compressed as f64 / original as f64);
+    eprintln!("Compression: {} → {} bytes ({:.2}%)", original, compressed, ratio);
+}
+
 #[derive(Debug, Clone)]
 pub enum Region {
     Raw(Vec<u8>),
@@ -35,6 +40,8 @@ pub fn compress(
 ) -> Vec<u8> {
     let mut chain = Vec::new();
     let mut i = 0usize;
+    let original_len = data.len();
+    let mut compressed_len = 0usize;
 
     let emit_literal = |bytes: &[u8], arity: usize, chain: &mut Vec<Region>| {
         chain.push(Region::Compressed(bytes.to_vec(), Header { seed_index: 0, arity }));
@@ -98,8 +105,15 @@ pub fn compress(
         if let Region::Compressed(bytes, header) = region {
             out.extend(encode_header(header.seed_index, header.arity));
             out.extend(bytes);
+            compressed_len = out.len();
+            *hash_counter += 1;
+            if status_interval > 0 && *hash_counter % status_interval == 0 {
+                print_compression_status(original_len, compressed_len);
+            }
         }
     }
+
+    print_compression_status(original_len, out.len());
 
     out
 }
