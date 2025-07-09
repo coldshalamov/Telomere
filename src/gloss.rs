@@ -1,4 +1,3 @@
-use sha2::{Digest, Sha256};
 use serde::{Serialize, Deserialize};
 use memmap2::Mmap;
 use std::fs::File;
@@ -13,7 +12,6 @@ use crate::{
 #[derive(Serialize, Deserialize, Clone)]
 pub struct GlossEntry {
     pub seed: Vec<u8>,
-    pub header: Header,
     pub decompressed: Vec<u8>,
 }
 
@@ -23,6 +21,8 @@ pub struct GlossTable {
 }
 
 impl GlossTable {
+    /// Placeholder generator. In this trimmed example no automatic gloss table
+    /// creation is performed.
     pub fn generate() -> Self {
         Self { entries: Vec::new() }
     }
@@ -52,4 +52,3 @@ impl GlossTable {
         self.entries.iter().enumerate().find(|(_, e)| e.decompressed == data)
     }
 }
-

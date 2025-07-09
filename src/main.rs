@@ -139,7 +139,7 @@ fn main() {
                     .zip(cov.iter())
                     .map(|(e, m)| serde_json::json!({
                         "seed": hex::encode(&e.seed),
-                        "arity": e.header.arity + 1,
+                        "arity": e.decompressed.len() / inchworm::BLOCK_SIZE,
                         "matched": m,
                     }))
                     .collect();

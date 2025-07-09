@@ -1,8 +1,6 @@
 use std::collections::HashMap;
-use std::ops::RangeInclusive;
 use std::time::Instant;
-
-use sha2::{Digest, Sha256};
+use std::ops::RangeInclusive;
 
 mod bloom;
 mod gloss;
@@ -35,33 +33,58 @@ pub fn compress(
     mut coverage: Option<&mut [bool]>,
     mut partials: Option<&mut Vec<(Vec<u8>, Header)>>,
 ) -> Vec<u8> {
-    let start = Instant::now();
-    let mut chain: Vec<Region> = data
-        .chunks(BLOCK_SIZE)
-        .map(|b| Region::Raw(b.to_vec()))
-        .collect();
-    let original_regions = chain.len();
-    let original_bytes = data.len();
-    let mut brute_matches = 0u64;
-    let mut gloss_matches = 0u64;
-    let mut sha_cache: HashMap<Vec<u8>, [u8; 32]> = HashMap::new();
-    let mut arity_counts: HashMap<u8, u64> = HashMap::new();
+    let mut chain = Vec::new();
+    let mut i = 0usize;
 
-    // (Compression logic would normally run here and replace Raw regions with
-    // compressed seeds. The stubbed implementation skips this step.)
+    if let Some(gloss_table) = gloss {
+        while i < data.len() {
+            let mut matched = false;
 
-    // Convert any remaining Raw regions into literal passthroughs using the
-    // reserved arity codes. Consecutive raw blocks are grouped up to three
-    // blocks per passthrough.
+            for (seed_index, entry) in gloss_table.entries.iter().enumerate() {
+                if data[i..].starts_with(&entry.decompressed) {
+                    let span_len = entry.decompressed.len();
+                    let arity = span_len / BLOCK_SIZE;
+
+                    let header = Header { seed_index, arity };
+                    let header_bytes = encode_header(header.seed_index, header.arity);
+
+                    if header_bytes.len() < span_len {
+                        chain.push(Region::Compressed(Vec::new(), header));
+                        if let Some(cov) = coverage.as_mut() {
+                            if seed_index < cov.len() {
+                                cov[seed_index] = true;
+                            }
+                        }
+                        i += span_len;
+                        matched = true;
+                        break;
+                    }
+                }
+            }
+
+            if !matched {
+                let end = (i + BLOCK_SIZE).min(data.len());
+                chain.push(Region::Raw(data[i..end].to_vec()));
+                i = end;
+            }
+        }
+    } else {
+        chain = data
+            .chunks(BLOCK_SIZE)
+            .map(|b| Region::Raw(b.to_vec()))
+            .collect();
+    }
+
+    // Convert leftover Raw regions into passthrough headers (arity 38–40)
     let mut final_chain = Vec::new();
-    let mut i = 0;
-    while i < chain.len() {
-        match &chain[i] {
+    let mut j = 0;
+    while j < chain.len() {
+        match &chain[j] {
             Region::Raw(bytes) => {
                 let mut collected = bytes.clone();
                 let mut blocks = 1usize;
-                while blocks < 3 && i + blocks < chain.len() {
-                    if let Region::Raw(next) = &chain[i + blocks] {
+                while blocks < 3 && j + blocks < chain.len() {
+                    if let Region::Raw(next) = &chain[j + blocks] {
                         collected.extend_from_slice(next);
                         blocks += 1;
                     } else {
@@ -74,17 +97,16 @@ pub fn compress(
                     _ => 40,
                 };
                 final_chain.push(Region::Compressed(collected, Header { seed_index: 0, arity }));
-                i += blocks;
+                j += blocks;
             }
             other => {
                 final_chain.push(other.clone());
-                i += 1;
+                j += 1;
             }
         }
     }
 
-    // Serialize the chain by emitting headers in order. Seeds are ignored by the
-    // current decoder implementation so they are not written to the output.
+    // Emit headers for all compressed regions
     let mut out = Vec::new();
     for region in final_chain {
         if let Region::Compressed(_, header) = region {
@@ -133,10 +155,24 @@ pub fn decompress_with_limit(
         let (seed_idx, arity, bits) = decode_header(&data[offset..]).ok()?;
         let header = Header { seed_index: seed_idx, arity };
         offset += (bits + 7) / 8;
-        let region = Region::Compressed(Vec::new(), header);
-        let remaining = max_bytes.checked_sub(out.len())?;
-        let bytes = decompress_region_with_limit(&region, gloss, remaining)?;
-        out.extend_from_slice(&bytes);
+        if header.is_literal() {
+            let blocks = header.arity - 37;
+            let byte_count = blocks * BLOCK_SIZE;
+            if offset + byte_count > data.len() {
+                return None;
+            }
+            let remaining = max_bytes.checked_sub(out.len())?;
+            if byte_count > remaining {
+                return None;
+            }
+            out.extend_from_slice(&data[offset..offset + byte_count]);
+            offset += byte_count;
+        } else {
+            let region = Region::Compressed(Vec::new(), header);
+            let remaining = max_bytes.checked_sub(out.len())?;
+            let bytes = decompress_region_with_limit(&region, gloss, remaining)?;
+            out.extend_from_slice(&bytes);
+        }
     }
     Some(out)
 }
