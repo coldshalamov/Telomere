@@ -1,7 +1,3 @@
-use std::collections::HashMap;
-use std::ops::RangeInclusive;
-use std::time::Instant;
-
 mod bloom;
 mod compress;
 mod gloss;

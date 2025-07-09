@@ -75,7 +75,7 @@ pub fn compress_block(
     let span_hash: [u8; 32] = Sha256::digest(&input[..BLOCK_SIZE]).into();
 
     if let Some((idx, path)) = gloss.match_span(&span_hash) {
-        if path.total_gain >= 2 * path.seeds.len() as u32 {
+        if path.total_gain >= 2 * path.seeds.len() as u64 {
             let mut matched_blocks = 0usize;
             let mut matched = true;
             for (step, seed) in path.seeds.iter().enumerate() {
@@ -94,7 +94,7 @@ pub fn compress_block(
             if matched && matched_blocks > 0 {
                 gloss.increment_replayed(idx);
                 let header = Header {
-                    seed_index: path.path_id as usize,
+                    seed_index: path.id as usize,
                     arity: matched_blocks,
                 };
                 return Some((header, matched_blocks * BLOCK_SIZE));
@@ -116,10 +116,10 @@ pub fn compress_block(
             hashes.push(Sha256::digest(slice).into());
         }
         let path = CompressionPath {
-            path_id: *counter,
+            id: *counter,
             seeds,
             span_hashes: hashes,
-            total_gain: consumed as u32,
+            total_gain: consumed as u64,
             replayed: 0,
         };
         *counter += 1;

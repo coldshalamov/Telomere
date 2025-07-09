@@ -44,7 +44,7 @@ pub fn decode_header(input: &[u8]) -> Result<(usize, usize, usize), HeaderError>
 
 // ---- Internal utilities ----
 
-fn encode_vql(mut value: usize, out: &mut Vec<bool>) {
+fn encode_vql(value: usize, out: &mut Vec<bool>) {
     let mut width = 1usize;
     let mut n = 0usize;
     while value >= (1usize << width) {

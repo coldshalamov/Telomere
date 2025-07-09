@@ -97,6 +97,17 @@ impl PathGloss {
         self.index.get(hash).and_then(|&i| self.paths.get(i))
     }
 
+    pub fn match_span(&self, hash: &[u8; 32]) -> Option<(usize, &CompressionPath)> {
+        self.index
+            .get(hash)
+            .and_then(|&i| self.paths.get(i).map(|p| (i, p)))
+    }
+
+    pub fn add_path(&mut self, path: CompressionPath) {
+        self.paths.push_back(path);
+        self.rebuild_index();
+    }
+
     pub fn increment_replayed(&mut self, idx: usize) {
         if let Some(p) = self.paths.get_mut(idx) {
             p.replayed += 1;
