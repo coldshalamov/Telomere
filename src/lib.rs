@@ -51,6 +51,10 @@ pub fn compress(
 
     if let Some(gloss_table) = gloss {
         while i < data.len() {
+            if status_interval > 0 && *hash_counter > 0 && *hash_counter % status_interval == 0 {
+                eprintln!("processed {} hashes", *hash_counter);
+            }
+            *hash_counter += 1;
             let mut matched = false;
 
             for (seed_index, entry) in gloss_table.entries.iter().enumerate() {
@@ -89,6 +93,10 @@ pub fn compress(
         }
     } else {
         while i < data.len() {
+            if status_interval > 0 && *hash_counter > 0 && *hash_counter % status_interval == 0 {
+                eprintln!("processed {} hashes", *hash_counter);
+            }
+            *hash_counter += 1;
             let remaining = data.len() - i;
             if remaining >= BLOCK_SIZE {
                 let blocks = ((remaining / BLOCK_SIZE).min(3)).max(1);
