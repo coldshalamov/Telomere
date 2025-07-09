@@ -5,8 +5,8 @@ use inchworm::{
     Region,
     decompress_region_with_limit,
     decompress_with_limit,
-    BLOCK_SIZE,
     encode_header,
+    BLOCK_SIZE,
 };
 
 #[test]
@@ -35,7 +35,38 @@ fn region_decompress_limit_exceeded() {
 }
 
 #[test]
-fn passthrough_literals() {
+fn passthrough_decompresses() {
+    let table = GlossTable { entries: Vec::new() };
+    let header = encode_header(0, 38); // passthrough 1 block
+    let literal = vec![0x11; 1 * BLOCK_SIZE];
+    let mut data = header.clone();
+    data.extend_from_slice(&literal);
+    let out = decompress_with_limit(&data, &table, literal.len()).unwrap();
+    assert_eq!(out, literal);
+}
+
+#[test]
+fn passthrough_respects_limit() {
+    let table = GlossTable { entries: Vec::new() };
+    let header = encode_header(0, 39); // passthrough 2 blocks
+    let literal = vec![0x22; 2 * BLOCK_SIZE];
+    let mut data = header.clone();
+    data.extend_from_slice(&literal);
+    assert!(decompress_with_limit(&data, &table, literal.len() - 1).is_none());
+}
+
+#[test]
+fn passthrough_prefix_safe() {
+    let table = GlossTable { entries: Vec::new() };
+    let header = encode_header(0, 40); // passthrough 3 blocks
+    let literal = vec![0x33; 3 * BLOCK_SIZE - 1]; // intentionally 1 byte short
+    let mut data = header.clone();
+    data.extend_from_slice(&literal);
+    assert!(decompress_with_limit(&data, &table, usize::MAX).is_none());
+}
+
+#[test]
+fn passthrough_literals_basic() {
     let literals: Vec<u8> = (0u8..(BLOCK_SIZE as u8 * 2)).collect();
     let mut data = encode_header(0, 39); // passthrough 2 blocks
     data.extend_from_slice(&literals);
