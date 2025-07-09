@@ -20,6 +20,54 @@ pub struct GlossTable {
     pub entries: Vec<GlossEntry>,
 }
 
+/// Entry tracked for probabilistic fallback seeding
+pub struct BeliefSeed {
+    pub seed: Vec<u8>,
+    pub belief: f64,
+    pub last_used: u64,
+    pub bundling_hits: u32,
+    pub gloss_hits: u32,
+}
+
+/// Simplistic LRU cache storing at most `capacity` entries.
+/// The caller is responsible for trimming when exceeding limits.
+pub struct LruCache<K: std::cmp::Eq + std::hash::Hash, V> {
+    capacity: usize,
+    map: std::collections::HashMap<K, V>,
+}
+
+impl<K: std::cmp::Eq + std::hash::Hash, V> LruCache<K, V> {
+    pub fn new(capacity: usize) -> Self {
+        Self { capacity, map: std::collections::HashMap::new() }
+    }
+
+    pub fn len(&self) -> usize {
+        self.map.len()
+    }
+
+    pub fn get_mut(&mut self, key: &K) -> Option<&mut V> {
+        self.map.get_mut(key)
+    }
+
+    pub fn insert(&mut self, key: K, value: V) {
+        if self.map.len() >= self.capacity {
+            // Caller should trim externally. Oldest removal is not automatic
+        }
+        self.map.insert(key, value);
+    }
+
+    pub fn remove(&mut self, key: &K) -> Option<V> {
+        self.map.remove(key)
+    }
+
+    pub fn iter(&self) -> std::collections::hash_map::Iter<'_, K, V> {
+        self.map.iter()
+    }
+}
+
+/// Map of hashed seeds to belief entries.
+pub type BeliefMap = LruCache<[u8; 32], BeliefSeed>;
+
 impl GlossTable {
     /// Placeholder generator. In this trimmed example no automatic gloss table
     /// creation is performed.
