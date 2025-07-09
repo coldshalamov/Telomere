@@ -1,6 +1,6 @@
 use std::collections::HashMap;
-use std::time::Instant;
 use std::ops::RangeInclusive;
+use std::time::Instant;
 
 mod bloom;
 mod gloss;
@@ -132,14 +132,10 @@ pub fn decompress_region_with_limit(
         }
         Region::Compressed(_, header) => {
             let entry = gloss.entries.get(header.seed_index)?;
-            if entry.header.arity != header.arity {
+            if entry.decompressed.len() > max_bytes || entry.decompressed.len() / BLOCK_SIZE != header.arity {
                 return None;
             }
-            if entry.decompressed.len() > max_bytes {
-                None
-            } else {
-                Some(entry.decompressed.clone())
-            }
+            Some(entry.decompressed.clone())
         }
     }
 }
