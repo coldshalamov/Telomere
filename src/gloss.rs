@@ -3,11 +3,6 @@ use memmap2::Mmap;
 use std::fs::File;
 use std::path::Path;
 
-use crate::{
-    Region,
-    Header,
-    BLOCK_SIZE,
-};
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct GlossEntry {

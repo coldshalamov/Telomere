@@ -39,9 +39,10 @@ impl ShaCache {
     }
 
     pub fn get_or_compute(&mut self, seed: &[u8]) -> [u8; 32] {
-        if let Some(value) = self.map.get(seed) {
+        let found = self.map.get(seed).cloned();
+        if let Some(value) = found {
             self.touch(seed);
-            *value
+            value
         } else {
             let digest = Sha256::digest(seed);
             let arr: [u8; 32] = digest.into();
