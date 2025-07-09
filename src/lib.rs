@@ -55,3 +55,53 @@ pub fn compress(
     // Dummy return to allow compiling
     Vec::new()
 }
+
+pub fn decompress_region_with_limit(
+    region: &Region,
+    gloss: &GlossTable,
+    max_bytes: usize,
+) -> Option<Vec<u8>> {
+    match region {
+        Region::Raw(bytes) => {
+            if bytes.len() > max_bytes {
+                None
+            } else {
+                Some(bytes.clone())
+            }
+        }
+        Region::Compressed(_, header) => {
+            let entry = gloss.entries.get(header.seed_index)?;
+            if entry.header.arity != header.arity {
+                return None;
+            }
+            if entry.decompressed.len() > max_bytes {
+                None
+            } else {
+                Some(entry.decompressed.clone())
+            }
+        }
+    }
+}
+
+pub fn decompress_with_limit(
+    mut data: &[u8],
+    gloss: &GlossTable,
+    max_bytes: usize,
+) -> Option<Vec<u8>> {
+    let mut out = Vec::new();
+    let mut offset = 0usize;
+    while offset < data.len() {
+        let (seed_idx, arity, bits) = decode_header(&data[offset..]).ok()?;
+        let header = Header { seed_index: seed_idx, arity };
+        offset += (bits + 7) / 8;
+        let region = Region::Compressed(Vec::new(), header);
+        let remaining = max_bytes.checked_sub(out.len())?;
+        let bytes = decompress_region_with_limit(&region, gloss, remaining)?;
+        out.extend_from_slice(&bytes);
+    }
+    Some(out)
+}
+
+pub fn decompress(data: &[u8], gloss: &GlossTable) -> Vec<u8> {
+    decompress_with_limit(data, gloss, usize::MAX).expect("decompression failed")
+}
