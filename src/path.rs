@@ -96,5 +96,10 @@ impl PathGloss {
     pub fn lookup(&self, hash: &[u8; 32]) -> Option<&CompressionPath> {
         self.index.get(hash).and_then(|&i| self.paths.get(i))
     }
-}
 
+    pub fn increment_replayed(&mut self, idx: usize) {
+        if let Some(p) = self.paths.get_mut(idx) {
+            p.replayed += 1;
+        }
+    }
+}

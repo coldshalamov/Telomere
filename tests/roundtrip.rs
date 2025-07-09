@@ -17,6 +17,7 @@ fn compression_roundtrip_identity() {
         false,
         None,
         None,
+        None,
     );
 
     let gloss = GlossTable::default();

@@ -22,6 +22,7 @@ fn mixed_gloss_and_passthrough() {
         false,
         None,
         None,
+        None,
     );
     let output = decompress(&compressed, &gloss);
     assert_eq!(input, output);

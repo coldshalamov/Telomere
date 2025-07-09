@@ -4,14 +4,14 @@ use std::ops::RangeInclusive;
 use std::path::Path;
 use std::time::Instant;
 
-use inchworm::{compress, decompress, GlossTable};
+use inchworm::{compress, decompress, GlossTable, TruncHashTable};
 use serde_json;
 use hex;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() < 4 {
-        eprintln!("Usage: {} [c|d] <input> <output> [--max-seed-len N] [--seed-limit N] [--status] [--json] [--verbose] [--quiet] [--gloss FILE] [--gloss-only] [--dry-run] [--gloss-coverage FILE] [--collect-partials]", args[0]);
+        eprintln!("Usage: {} [c|d] <input> <output> [--max-seed-len N] [--seed-limit N] [--status] [--json] [--verbose] [--quiet] [--gloss FILE] [--gloss-only] [--dry-run] [--gloss-coverage FILE] [--collect-partials] [--hash-filter-bits N] [--filter-known-hashes]", args[0]);
         return;
     }
 
@@ -26,6 +26,8 @@ fn main() {
     let mut dry_run = false;
     let mut gloss_coverage: Option<String> = None;
     let mut collect_partials = false;
+    let mut hash_filter_bits: u8 = 24;
+    let mut filter_known_hashes = false;
 
     let mut i = 4;
     while i < args.len() {
@@ -78,6 +80,15 @@ fn main() {
                 collect_partials = true;
                 i += 1;
             }
+            "--hash-filter-bits" => {
+                if i + 1 >= args.len() { break; }
+                hash_filter_bits = args[i + 1].parse().expect("invalid value");
+                i += 2;
+            }
+            "--filter-known-hashes" => {
+                filter_known_hashes = true;
+                i += 1;
+            }
             flag => {
                 eprintln!("Unknown flag: {}", flag);
                 return;
@@ -110,6 +121,12 @@ fn main() {
         None
     };
 
+    let mut hash_filter = if filter_known_hashes {
+        Some(TruncHashTable::new(hash_filter_bits))
+    } else {
+        None
+    };
+
     match args[1].as_str() {
         "c" => {
             let start_time = Instant::now();
@@ -129,6 +146,7 @@ fn main() {
                 gloss_only,
                 coverage.as_mut().map(|v| v.as_mut_slice()),
                 if collect_partials { Some(&mut partials_store) } else { None },
+                hash_filter.as_mut(),
             );
 
             let compressed_len = out.len();
@@ -160,6 +178,10 @@ fn main() {
 
             if collect_partials {
                 eprintln!("collected {} partial matches", partials_store.len());
+            }
+            if let Some(filter) = hash_filter {
+                let skipped_percent = 0.0;
+                eprintln!("seed filter stored {} entries, skipped {:.2}% of candidates", filter.set.len(), skipped_percent);
             }
         }
         "d" => {

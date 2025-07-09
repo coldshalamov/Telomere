@@ -15,3 +15,7 @@ memmap2 = "0.5"
 [[bin]]
 name = "gloss_tool"
 path = "src/bin/gloss_tool.rs"
+
+[[bin]]
+name = "compressor"
+path = "src/bin/compressor.rs"
