@@ -185,7 +185,8 @@ fn main() {
             }
         }
         "d" => {
-            let out = decompress(&data);
+            let gloss = gloss.unwrap_or_default();
+            let out = decompress(&data, &gloss);
             fs::write(&args[3], out).expect("failed to write output");
         }
         mode => eprintln!("Unknown mode: {}", mode),
