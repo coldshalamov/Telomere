@@ -1,21 +1,11 @@
-use sha2::{Digest, Sha256};
 use serde::{Serialize, Deserialize};
 use memmap2::Mmap;
 use std::fs::File;
 use std::path::Path;
 
-use crate::{
-    Region,
-    Header,
-    BLOCK_SIZE,
-    decompress_region_with_limit,
-    decompress_with_limit,
-};
-
 #[derive(Serialize, Deserialize, Clone)]
 pub struct GlossEntry {
     pub seed: Vec<u8>,
-    pub header: Header,
     pub decompressed: Vec<u8>,
 }
 
@@ -24,41 +14,13 @@ pub struct GlossTable {
     pub entries: Vec<GlossEntry>,
 }
 
-fn unpack_with_limit(seed: &[u8], header: Header, max_bytes: usize) -> Option<Vec<u8>> {
-    decompress_region_with_limit(&Region::Compressed(seed.to_vec(), header), max_bytes, 0)
-}
+// Decompression utilities were removed in this trimmed example.
 
 impl GlossTable {
+    /// Placeholder generator. In this trimmed example no automatic gloss table
+    /// creation is performed.
     pub fn generate() -> Self {
-        let mut entries = Vec::new();
-        for seed_len in 1..=2u8 {
-            let max = 1u64 << (8 * seed_len as u64);
-            for seed_val in 0..max {
-                let seed_bytes = &seed_val.to_be_bytes()[8 - seed_len as usize..];
-                let digest = Sha256::digest(seed_bytes);
-                for len in 0..=digest.len() {
-                    if let Some(bytes) = decompress_with_limit(&digest[..len], 32, 0) {
-                        let blocks = bytes.len() / BLOCK_SIZE;
-                        if bytes.len() % BLOCK_SIZE != 0 || !(2..=4).contains(&blocks) {
-                            continue;
-                        }
-                        let header = Header {
-                            seed_len: seed_len - 1,
-                            nest_len: len as u32,
-                            arity: blocks as u8 - 1,
-                        };
-                        if let Some(out) = unpack_with_limit(seed_bytes, header, 32) {
-                            entries.push(GlossEntry {
-                                seed: seed_bytes.to_vec(),
-                                header,
-                                decompressed: out,
-                            });
-                        }
-                    }
-                }
-            }
-        }
-        Self { entries }
+        Self { entries: Vec::new() }
     }
 
     pub fn build() -> Self {

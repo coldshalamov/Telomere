@@ -1,8 +1,4 @@
-use std::collections::HashMap;
 use std::ops::RangeInclusive;
-use std::time::Instant;
-
-use sha2::{Digest, Sha256};
 
 mod bloom;
 mod gloss;
@@ -35,23 +31,60 @@ pub fn compress(
     mut coverage: Option<&mut [bool]>,
     mut partials: Option<&mut Vec<(Vec<u8>, Header)>>,
 ) -> Vec<u8> {
-    let start = Instant::now();
-    let mut chain: Vec<Region> = data
-        .chunks(BLOCK_SIZE)
-        .map(|b| Region::Raw(b.to_vec()))
-        .collect();
-    let original_regions = chain.len();
-    let original_bytes = data.len();
-    let mut brute_matches = 0u64;
-    let mut gloss_matches = 0u64;
-    let mut sha_cache: HashMap<Vec<u8>, [u8; 32]> = HashMap::new();
-    let mut arity_counts: HashMap<u8, u64> = HashMap::new();
+    // Only the parameters relevant to this simplified example are used.
+    // All others are ignored to keep the demo implementation concise.
 
-    // (Compression logic continues unchanged from the rest of your project...)
+    // Build the chain of compressed or raw regions.
+    let mut chain = Vec::new();
+    let mut i = 0usize;
 
-    // Placeholder for rest of the function
-    // (You would retain your full existing compression logic here)
+    if let Some(gloss_table) = gloss {
+        while i < data.len() {
+            let mut matched = false;
 
-    // Dummy return to allow compiling
-    Vec::new()
+            for (seed_index, entry) in gloss_table.entries.iter().enumerate() {
+                if data[i..].starts_with(&entry.decompressed) {
+                    let span_len = entry.decompressed.len();
+                    let arity = span_len / BLOCK_SIZE;
+
+                    let header = Header { seed_index, arity };
+                    let header_bytes = encode_header(header.seed_index, header.arity);
+
+                    if header_bytes.len() < span_len {
+                        chain.push(Region::Compressed(Vec::new(), header));
+                        if let Some(cov) = coverage.as_mut() {
+                            if seed_index < cov.len() {
+                                cov[seed_index] = true;
+                            }
+                        }
+                        i += span_len;
+                        matched = true;
+                        break;
+                    }
+                }
+            }
+
+            if !matched {
+                let end = (i + BLOCK_SIZE).min(data.len());
+                chain.push(Region::Raw(data[i..end].to_vec()));
+                i = end;
+            }
+        }
+    } else {
+        chain = data
+            .chunks(BLOCK_SIZE)
+            .map(|b| Region::Raw(b.to_vec()))
+            .collect();
+    }
+
+    // Serialize regions into a flat byte vector using VQL headers.
+    let mut out = Vec::new();
+    for region in chain {
+        match region {
+            Region::Raw(bytes) => out.extend(bytes),
+            Region::Compressed(_, h) => out.extend(encode_header(h.seed_index, h.arity)),
+        }
+    }
+
+    out
 }
