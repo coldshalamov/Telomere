@@ -40,7 +40,9 @@ fn main() -> std::io::Result<()> {
                 seed: padded_seed,
             };
 
-            writer.write_all(bytemuck::bytes_of(&entry))?;
+            let serialized = bincode::serialize(&entry)?;
+writer.write_all(&serialized)?;
+
         }
     }
 
