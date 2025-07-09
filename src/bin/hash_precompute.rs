@@ -1,5 +1,5 @@
-use inchworm::G;
-use sha2::{Digest, Sha256};
+use bytemuck;
+use sha2::Sha256;
 use std::fs::File;
 use std::io::{BufWriter, Write};
 
@@ -29,14 +29,14 @@ fn main() -> std::io::Result<()> {
                 _ => unreachable!(),
             };
 
-            // Use G(seed) from inchworm
-            let out = G(&seed);
+            // Compute SHA-256 of the seed
+            let out: [u8; 32] = <Sha256 as sha2::digest::Digest>::digest(&seed).into();
             let mut padded_seed = [0u8; 3];
             padded_seed[..len].copy_from_slice(&seed);
 
             let entry = HashEntry {
                 hash: out,
-                seed_len: len,
+                seed_len: len as u8,
                 seed: padded_seed,
             };
 
