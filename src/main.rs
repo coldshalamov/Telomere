@@ -2,6 +2,7 @@ use std::env;
 use std::fs;
 use std::ops::RangeInclusive;
 use std::path::Path;
+use std::time::Instant;
 
 use inchworm::{compress, decompress, GlossTable};
 use serde_json;
@@ -114,6 +115,7 @@ fn main() {
         "c" => {
             let mut hashes = 0u64;
             let mut partials_store = Vec::new();
+            let start_time = Instant::now();
             let out = compress(
                 &data,
                 RangeInclusive::new(1, max_seed_len),
@@ -128,9 +130,15 @@ fn main() {
                 if collect_partials { Some(&mut partials_store) } else { None },
             );
 
+            let compressed_len = out.len();
             if !dry_run {
-                fs::write(&args[3], out).expect("failed to write output");
+                fs::write(&args[3], &out).expect("failed to write output");
             }
+
+            let raw_len = data.len();
+            let percent = 100.0 * (1.0 - (compressed_len as f64 / raw_len as f64));
+            let elapsed = start_time.elapsed();
+            println!("Compressed {:.2}% in {:.2?}", percent, elapsed);
 
             if let (Some(path), Some(cov), Some(table)) = (gloss_coverage, coverage, gloss.as_ref()) {
                 let report: Vec<_> = table
