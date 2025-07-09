@@ -6,7 +6,6 @@ use std::path::Path;
 #[derive(Serialize, Deserialize)]
 pub struct HashEntry {
     pub seed_index: u64,
-    pub seed: Vec<u8>,
     pub hash: [u8; 32],
 }
 
@@ -30,8 +29,8 @@ pub fn resume_seed_index() -> u64 {
     }
 }
 
-pub fn log_seed(seed_index: u64, seed: Vec<u8>, hash: [u8; 32]) -> io::Result<()> {
-    let entry = HashEntry { seed_index, seed, hash };
+pub fn log_seed(seed_index: u64, hash: [u8; 32]) -> io::Result<()> {
+    let entry = HashEntry { seed_index, hash };
     let mut file = OpenOptions::new()
         .create(true)
         .append(true)

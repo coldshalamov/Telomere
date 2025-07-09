@@ -10,6 +10,7 @@ serde_json = "1"
 bincode = "1"
 serde = { version = "1", features = ["derive"] }
 memmap2 = "0.5"
+thiserror = "2.0.12"
 
 
 [[bin]]
@@ -19,3 +20,7 @@ path = "src/bin/gloss_tool.rs"
 [[bin]]
 name = "compressor"
 path = "src/bin/compressor.rs"
+
+[[bin]]
+name = "hash_precompute"
+path = "src/bin/hash_precompute.rs"
