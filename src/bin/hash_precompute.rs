@@ -1,19 +1,20 @@
-use bytemuck::{Pod, Zeroable};
-use sha2::Sha256;
+use serde::Serialize;
+use bincode;
+use sha2::{Digest, Sha256};
 use std::fs::File;
 use std::io::{BufWriter, Write};
 
 /// Entry written to the binary hash table file.
 #[repr(C)]
-#[derive(Debug, Pod, Zeroable)]
+#[derive(Debug, Serialize)]
 struct HashEntry {
     hash: [u8; 32],
     seed_len: u8,
     seed: [u8; 3],
 }
 
-fn main() -> std::io::Result<()> {
-    let file = File::create("hash_table.bin")?;
+fn main() {
+    let file = File::create("hash_table.bin").unwrap();
     let mut writer = BufWriter::new(file);
 
     // Iterate over seed lengths 1, 2, and 3
@@ -30,7 +31,7 @@ fn main() -> std::io::Result<()> {
             };
 
             // Compute SHA-256 of the seed
-            let out: [u8; 32] = <Sha256 as sha2::digest::Digest>::digest(&seed).into();
+            let out: [u8; 32] = Sha256::digest(&seed).into();
             let mut padded_seed = [0u8; 3];
             padded_seed[..len].copy_from_slice(&seed);
 
@@ -40,11 +41,11 @@ fn main() -> std::io::Result<()> {
                 seed: padded_seed,
             };
 
-            writer.write_all(bytemuck::bytes_of(&entry))?;
+            let serialized = bincode::serialize(&entry).unwrap();
+            writer.write_all(&serialized).unwrap();
         }
     }
 
-    writer.flush()?;
+    writer.flush().unwrap();
     println!("Hash table written to hash_table.bin");
-    Ok(())
 }
