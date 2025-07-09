@@ -14,7 +14,7 @@ pub use sha_cache::*;
 pub use path::*;
 pub use seed_logger::{resume_seed_index, log_seed, HashEntry};
 
-const BLOCK_SIZE: usize = 7;
+pub const BLOCK_SIZE: usize = 7;
 
 pub fn print_compression_status(original: usize, compressed: usize) {
     let ratio = 100.0 * (1.0 - compressed as f64 / original as f64);
