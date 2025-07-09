@@ -10,13 +10,13 @@ use hex;
 fn main() {
     let args: Vec<String> = env::args().collect();
     if args.len() < 4 {
-        eprintln!("Usage: {} [c|d] <input> <output> [--max-seed-len N] [--seed-limit N] [--status N] [--json] [--verbose] [--quiet] [--gloss FILE] [--gloss-only] [--dry-run] [--gloss-coverage FILE] [--collect-partials]", args[0]);
+        eprintln!("Usage: {} [c|d] <input> <output> [--max-seed-len N] [--seed-limit N] [--status] [--json] [--verbose] [--quiet] [--gloss FILE] [--gloss-only] [--dry-run] [--gloss-coverage FILE] [--collect-partials]", args[0]);
         return;
     }
 
     let mut max_seed_len = 4u8;
     let mut seed_limit: Option<u64> = None;
-    let mut status = 1_000_000u64;
+    let mut show_status = false;
     let mut json_out = false;
     let mut gloss_path: Option<String> = None;
     let mut verbose = false;
@@ -40,9 +40,8 @@ fn main() {
                 i += 2;
             }
             "--status" => {
-                if i + 1 >= args.len() { break; }
-                status = args[i + 1].parse().expect("invalid value");
-                i += 2;
+                show_status = true;
+                i += 1;
             }
             "--gloss" => {
                 if i + 1 >= args.len() { break; }
@@ -114,11 +113,12 @@ fn main() {
         "c" => {
             let mut hashes = 0u64;
             let mut partials_store = Vec::new();
+            let status_interval = if show_status { 100_000 } else { 0 };
             let out = compress(
                 &data,
                 RangeInclusive::new(1, max_seed_len),
                 seed_limit,
-                status,
+                status_interval,
                 &mut hashes,
                 json_out,
                 gloss.as_ref(),
