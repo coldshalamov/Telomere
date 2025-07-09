@@ -127,10 +127,24 @@ pub fn decompress_with_limit(
         let (seed_idx, arity, bits) = decode_header(&data[offset..]).ok()?;
         let header = Header { seed_index: seed_idx, arity };
         offset += (bits + 7) / 8;
-        let region = Region::Compressed(Vec::new(), header);
-        let remaining = max_bytes.checked_sub(out.len())?;
-        let bytes = decompress_region_with_limit(&region, gloss, remaining)?;
-        out.extend_from_slice(&bytes);
+        if header.is_literal() {
+            let blocks = header.arity - 37;
+            let byte_count = blocks * BLOCK_SIZE;
+            if offset + byte_count > data.len() {
+                return None;
+            }
+            let remaining = max_bytes.checked_sub(out.len())?;
+            if byte_count > remaining {
+                return None;
+            }
+            out.extend_from_slice(&data[offset..offset + byte_count]);
+            offset += byte_count;
+        } else {
+            let region = Region::Compressed(Vec::new(), header);
+            let remaining = max_bytes.checked_sub(out.len())?;
+            let bytes = decompress_region_with_limit(&region, gloss, remaining)?;
+            out.extend_from_slice(&bytes);
+        }
     }
     Some(out)
 }
