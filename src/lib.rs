@@ -6,11 +6,13 @@ mod bloom;
 mod gloss;
 mod header;
 mod sha_cache;
+mod path;
 
 pub use bloom::*;
 pub use gloss::*;
 pub use header::{Header, encode_header, decode_header, HeaderError};
 pub use sha_cache::*;
+pub use path::*;
 
 const BLOCK_SIZE: usize = 7;
 
