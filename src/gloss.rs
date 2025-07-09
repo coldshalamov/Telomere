@@ -3,6 +3,12 @@ use memmap2::Mmap;
 use std::fs::File;
 use std::path::Path;
 
+use crate::{
+    Region,
+    Header,
+    BLOCK_SIZE,
+};
+
 #[derive(Serialize, Deserialize, Clone)]
 pub struct GlossEntry {
     pub seed: Vec<u8>,
@@ -13,8 +19,6 @@ pub struct GlossEntry {
 pub struct GlossTable {
     pub entries: Vec<GlossEntry>,
 }
-
-// Decompression utilities were removed in this trimmed example.
 
 impl GlossTable {
     /// Placeholder generator. In this trimmed example no automatic gloss table
@@ -48,4 +52,3 @@ impl GlossTable {
         self.entries.iter().enumerate().find(|(_, e)| e.decompressed == data)
     }
 }
-
