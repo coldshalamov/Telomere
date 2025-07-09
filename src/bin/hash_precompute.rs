@@ -29,7 +29,7 @@ fn main() -> std::io::Result<()> {
                 _ => unreachable!(),
             };
 
-            // Use G(seed) if defined, fallback to SHA-256
+            // Use G(seed) from inchworm
             let out = G(&seed);
             let mut padded_seed = [0u8; 3];
             padded_seed[..len].copy_from_slice(&seed);
@@ -40,7 +40,6 @@ fn main() -> std::io::Result<()> {
                 seed: padded_seed,
             };
 
-            // Write raw bytes to file
             writer.write_all(bytemuck::bytes_of(&entry))?;
         }
     }
