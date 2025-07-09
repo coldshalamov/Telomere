@@ -1,4 +1,6 @@
+use std::collections::HashMap;
 use std::ops::RangeInclusive;
+use std::time::Instant;
 
 mod bloom;
 mod gloss;
@@ -31,10 +33,6 @@ pub fn compress(
     mut coverage: Option<&mut [bool]>,
     mut partials: Option<&mut Vec<(Vec<u8>, Header)>>,
 ) -> Vec<u8> {
-    // Only the parameters relevant to this simplified example are used.
-    // All others are ignored to keep the demo implementation concise.
-
-    // Build the chain of compressed or raw regions.
     let mut chain = Vec::new();
     let mut i = 0usize;
 
@@ -77,14 +75,104 @@ pub fn compress(
             .collect();
     }
 
-    // Serialize regions into a flat byte vector using VQL headers.
+    // Convert leftover Raw regions into passthrough headers (arity 38–40)
+    let mut final_chain = Vec::new();
+    let mut j = 0;
+    while j < chain.len() {
+        match &chain[j] {
+            Region::Raw(bytes) => {
+                let mut collected = bytes.clone();
+                let mut blocks = 1usize;
+                while blocks < 3 && j + blocks < chain.len() {
+                    if let Region::Raw(next) = &chain[j + blocks] {
+                        collected.extend_from_slice(next);
+                        blocks += 1;
+                    } else {
+                        break;
+                    }
+                }
+                let arity = match blocks {
+                    1 => 38,
+                    2 => 39,
+                    _ => 40,
+                };
+                final_chain.push(Region::Compressed(collected, Header { seed_index: 0, arity }));
+                j += blocks;
+            }
+            other => {
+                final_chain.push(other.clone());
+                j += 1;
+            }
+        }
+    }
+
+    // Emit headers for all compressed regions
     let mut out = Vec::new();
-    for region in chain {
-        match region {
-            Region::Raw(bytes) => out.extend(bytes),
-            Region::Compressed(_, h) => out.extend(encode_header(h.seed_index, h.arity)),
+    for region in final_chain {
+        if let Region::Compressed(_, header) = region {
+            out.extend(encode_header(header.seed_index, header.arity));
         }
     }
 
     out
+}
+
+pub fn decompress_region_with_limit(
+    region: &Region,
+    gloss: &GlossTable,
+    max_bytes: usize,
+) -> Option<Vec<u8>> {
+    match region {
+        Region::Raw(bytes) => {
+            if bytes.len() > max_bytes {
+                None
+            } else {
+                Some(bytes.clone())
+            }
+        }
+        Region::Compressed(_, header) => {
+            let entry = gloss.entries.get(header.seed_index)?;
+            if entry.decompressed.len() > max_bytes || entry.decompressed.len() / BLOCK_SIZE != header.arity {
+                return None;
+            }
+            Some(entry.decompressed.clone())
+        }
+    }
+}
+
+pub fn decompress_with_limit(
+    mut data: &[u8],
+    gloss: &GlossTable,
+    max_bytes: usize,
+) -> Option<Vec<u8>> {
+    let mut out = Vec::new();
+    let mut offset = 0usize;
+    while offset < data.len() {
+        let (seed_idx, arity, bits) = decode_header(&data[offset..]).ok()?;
+        let header = Header { seed_index: seed_idx, arity };
+        offset += (bits + 7) / 8;
+        if header.is_literal() {
+            let blocks = header.arity - 37;
+            let byte_count = blocks * BLOCK_SIZE;
+            if offset + byte_count > data.len() {
+                return None;
+            }
+            let remaining = max_bytes.checked_sub(out.len())?;
+            if byte_count > remaining {
+                return None;
+            }
+            out.extend_from_slice(&data[offset..offset + byte_count]);
+            offset += byte_count;
+        } else {
+            let region = Region::Compressed(Vec::new(), header);
+            let remaining = max_bytes.checked_sub(out.len())?;
+            let bytes = decompress_region_with_limit(&region, gloss, remaining)?;
+            out.extend_from_slice(&bytes);
+        }
+    }
+    Some(out)
+}
+
+pub fn decompress(data: &[u8], gloss: &GlossTable) -> Vec<u8> {
+    decompress_with_limit(data, gloss, usize::MAX).expect("decompression failed")
 }
