@@ -37,7 +37,7 @@ fn region_decompress_limit_exceeded() {
 #[test]
 fn passthrough_decompresses() {
     let table = GlossTable { entries: Vec::new() };
-    let header = encode_header(0, 38); // passthrough 1 block
+    let header = encode_header(0, 37); // passthrough 1 block
     let literal = vec![0x11; 1 * BLOCK_SIZE];
     let mut data = header.clone();
     data.extend_from_slice(&literal);
@@ -48,7 +48,7 @@ fn passthrough_decompresses() {
 #[test]
 fn passthrough_respects_limit() {
     let table = GlossTable { entries: Vec::new() };
-    let header = encode_header(0, 39); // passthrough 2 blocks
+    let header = encode_header(0, 38); // passthrough 2 blocks
     let literal = vec![0x22; 2 * BLOCK_SIZE];
     let mut data = header.clone();
     data.extend_from_slice(&literal);
@@ -58,7 +58,7 @@ fn passthrough_respects_limit() {
 #[test]
 fn passthrough_prefix_safe() {
     let table = GlossTable { entries: Vec::new() };
-    let header = encode_header(0, 40); // passthrough 3 blocks
+    let header = encode_header(0, 39); // passthrough 3 blocks
     let literal = vec![0x33; 3 * BLOCK_SIZE - 1]; // intentionally 1 byte short
     let mut data = header.clone();
     data.extend_from_slice(&literal);
@@ -68,7 +68,17 @@ fn passthrough_prefix_safe() {
 #[test]
 fn passthrough_literals_basic() {
     let literals: Vec<u8> = (0u8..(BLOCK_SIZE as u8 * 2)).collect();
-    let mut data = encode_header(0, 39); // passthrough 2 blocks
+    let mut data = encode_header(0, 38); // passthrough 2 blocks
+    data.extend_from_slice(&literals);
+    let table = GlossTable::default();
+    let out = decompress_with_limit(&data, &table, 100).unwrap();
+    assert_eq!(out, literals);
+}
+
+#[test]
+fn passthrough_final_tail() {
+    let literals: Vec<u8> = (0u8..5).collect();
+    let mut data = encode_header(0, 40); // final tail
     data.extend_from_slice(&literals);
     let table = GlossTable::default();
     let out = decompress_with_limit(&data, &table, 100).unwrap();

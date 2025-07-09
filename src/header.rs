@@ -10,7 +10,7 @@ pub struct Header {
 impl Header {
     /// Returns true if this header represents a literal passthrough region.
     pub fn is_literal(&self) -> bool {
-        matches!(self.arity, 38 | 39 | 40)
+        matches!(self.arity, 37 | 38 | 39 | 40)
     }
 }
 

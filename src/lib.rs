@@ -36,6 +36,10 @@ pub fn compress(
     let mut chain = Vec::new();
     let mut i = 0usize;
 
+    let emit_literal = |bytes: &[u8], arity: usize, chain: &mut Vec<Region>| {
+        chain.push(Region::Compressed(bytes.to_vec(), Header { seed_index: 0, arity }));
+    };
+
     if let Some(gloss_table) = gloss {
         while i < data.len() {
             let mut matched = false;
@@ -44,10 +48,8 @@ pub fn compress(
                 if data[i..].starts_with(&entry.decompressed) {
                     let span_len = entry.decompressed.len();
                     let arity = span_len / BLOCK_SIZE;
-
                     let header = Header { seed_index, arity };
                     let header_bytes = encode_header(header.seed_index, header.arity);
-
                     if header_bytes.len() < span_len {
                         chain.push(Region::Compressed(Vec::new(), header));
                         if let Some(cov) = coverage.as_mut() {
@@ -63,54 +65,39 @@ pub fn compress(
             }
 
             if !matched {
-                let end = (i + BLOCK_SIZE).min(data.len());
-                chain.push(Region::Raw(data[i..end].to_vec()));
-                i = end;
+                let remaining = data.len() - i;
+                if remaining >= BLOCK_SIZE {
+                    let blocks = ((remaining / BLOCK_SIZE).min(3)).max(1);
+                    let span_end = i + blocks * BLOCK_SIZE;
+                    emit_literal(&data[i..span_end], 36 + blocks, &mut chain);
+                    i = span_end;
+                } else {
+                    emit_literal(&data[i..], 40, &mut chain);
+                    i = data.len();
+                }
             }
         }
     } else {
-        chain = data
-            .chunks(BLOCK_SIZE)
-            .map(|b| Region::Raw(b.to_vec()))
-            .collect();
-    }
-
-    // Convert leftover Raw regions into passthrough headers (arity 38–40)
-    let mut final_chain = Vec::new();
-    let mut j = 0;
-    while j < chain.len() {
-        match &chain[j] {
-            Region::Raw(bytes) => {
-                let mut collected = bytes.clone();
-                let mut blocks = 1usize;
-                while blocks < 3 && j + blocks < chain.len() {
-                    if let Region::Raw(next) = &chain[j + blocks] {
-                        collected.extend_from_slice(next);
-                        blocks += 1;
-                    } else {
-                        break;
-                    }
-                }
-                let arity = match blocks {
-                    1 => 38,
-                    2 => 39,
-                    _ => 40,
-                };
-                final_chain.push(Region::Compressed(collected, Header { seed_index: 0, arity }));
-                j += blocks;
-            }
-            other => {
-                final_chain.push(other.clone());
-                j += 1;
+        while i < data.len() {
+            let remaining = data.len() - i;
+            if remaining >= BLOCK_SIZE {
+                let blocks = ((remaining / BLOCK_SIZE).min(3)).max(1);
+                let span_end = i + blocks * BLOCK_SIZE;
+                emit_literal(&data[i..span_end], 36 + blocks, &mut chain);
+                i = span_end;
+            } else {
+                emit_literal(&data[i..], 40, &mut chain);
+                i = data.len();
             }
         }
     }
 
-    // Emit headers for all compressed regions
+    // Encode headers and append literal or seed data
     let mut out = Vec::new();
-    for region in final_chain {
-        if let Region::Compressed(_, header) = region {
+    for region in chain {
+        if let Region::Compressed(bytes, header) = region {
             out.extend(encode_header(header.seed_index, header.arity));
+            out.extend(bytes);
         }
     }
 
@@ -152,17 +139,27 @@ pub fn decompress_with_limit(
         let header = Header { seed_index: seed_idx, arity };
         offset += (bits + 7) / 8;
         if header.is_literal() {
-            let blocks = header.arity - 37;
-            let byte_count = blocks * BLOCK_SIZE;
-            if offset + byte_count > data.len() {
-                return None;
+            if header.arity == 40 {
+                let byte_count = data.len().saturating_sub(offset);
+                let remaining = max_bytes.checked_sub(out.len())?;
+                if byte_count > remaining {
+                    return None;
+                }
+                out.extend_from_slice(&data[offset..]);
+                offset = data.len();
+            } else {
+                let blocks = header.arity - 36;
+                let byte_count = blocks * BLOCK_SIZE;
+                if offset + byte_count > data.len() {
+                    return None;
+                }
+                let remaining = max_bytes.checked_sub(out.len())?;
+                if byte_count > remaining {
+                    return None;
+                }
+                out.extend_from_slice(&data[offset..offset + byte_count]);
+                offset += byte_count;
             }
-            let remaining = max_bytes.checked_sub(out.len())?;
-            if byte_count > remaining {
-                return None;
-            }
-            out.extend_from_slice(&data[offset..offset + byte_count]);
-            offset += byte_count;
         } else {
             let region = Region::Compressed(Vec::new(), header);
             let remaining = max_bytes.checked_sub(out.len())?;
