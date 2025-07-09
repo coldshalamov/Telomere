@@ -23,6 +23,7 @@ fn compress_emits_literal_headers() {
         false,
         None,
         None,
+        None,
     );
     let table = GlossTable::default();
     let decompressed = decompress_with_limit(&out, &table, usize::MAX).unwrap();
