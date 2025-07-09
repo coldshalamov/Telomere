@@ -19,3 +19,7 @@ path = "src/bin/gloss_tool.rs"
 [[bin]]
 name = "compressor"
 path = "src/bin/compressor.rs"
+
+[[bin]]
+name = "hash_precompute"
+path = "src/bin/hash_precompute.rs"
