@@ -260,3 +260,16 @@ pub fn dump_gloss_to_csv(map: &crate::gloss::BeliefMap, path: &str) -> std::io::
     wtr.flush()?;
     Ok(())
 }
+
+/// Dump belief map entries to a pretty formatted JSON file.
+pub fn dump_beliefmap_json(map: &crate::gloss::BeliefMap, path: &str) -> std::io::Result<()> {
+    use std::fs::File;
+    use std::io::Write;
+    use serde_json;
+
+    let entries: Vec<_> = map.iter().map(|(_, e)| e).collect();
+    let json = serde_json::to_string_pretty(&entries)?;
+    let mut file = File::create(path)?;
+    file.write_all(json.as_bytes())?;
+    Ok(())
+}
