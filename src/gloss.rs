@@ -3,11 +3,10 @@ use memmap2::Mmap;
 use std::fs::File;
 use std::path::Path;
 
-
 /// Entry describing a precomputed gloss string.
 ///
 /// `score` tracks the Bayesian belief associated with this entry and `pass`
-/// optionally records the discovery pass during table generation.  These
+/// optionally records the discovery pass during table generation. These
 /// fields are currently unused by the simplified library but are preserved so
 /// that future pruning or visualisation tooling can make use of them.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -44,7 +43,10 @@ pub struct LruCache<K: std::cmp::Eq + std::hash::Hash, V> {
 
 impl<K: std::cmp::Eq + std::hash::Hash, V> LruCache<K, V> {
     pub fn new(capacity: usize) -> Self {
-        Self { capacity, map: std::collections::HashMap::new() }
+        Self {
+            capacity,
+            map: std::collections::HashMap::new(),
+        }
     }
 
     pub fn len(&self) -> usize {
@@ -104,5 +106,21 @@ impl GlossTable {
 
     pub fn find_with_index(&self, data: &[u8]) -> Option<(usize, &GlossEntry)> {
         self.entries.iter().enumerate().find(|(_, e)| e.decompressed == data)
+    }
+
+    /// Drop entries whose score falls below `min_score` and ensure the table
+    /// does not exceed `max_entries` items. When trimming by size the lowest
+    /// scoring entries are removed first.
+    pub fn prune_low_score_entries(&mut self, min_score: f64, max_entries: usize) {
+        self.entries.retain(|e| e.score >= min_score);
+
+        if self.entries.len() > max_entries {
+            self.entries.sort_by(|a, b| {
+                b.score
+                    .partial_cmp(&a.score)
+                    .unwrap_or(std::cmp::Ordering::Equal)
+            });
+            self.entries.truncate(max_entries);
+        }
     }
 }

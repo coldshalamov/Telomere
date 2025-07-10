@@ -14,7 +14,7 @@ fn region_decompresses_from_gloss() {
     let entry = GlossEntry {
         seed: vec![0xAA],
         decompressed: b"hello!!!".to_vec(),
-        score: 0.0,
+        score: 1.0,
         pass: 0,
     };
     let table = GlossTable { entries: vec![entry.clone()] };
@@ -27,8 +27,8 @@ fn region_decompresses_from_gloss() {
 fn region_decompress_limit_exceeded() {
     let entry = GlossEntry {
         seed: vec![0xBB],
-        decompressed: vec![1,2,3,4,5],
-        score: 0.0,
+        decompressed: vec![1, 2, 3, 4, 5],
+        score: 1.0,
         pass: 0,
     };
     let table = GlossTable { entries: vec![entry] };
