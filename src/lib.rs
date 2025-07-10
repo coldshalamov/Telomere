@@ -1,5 +1,6 @@
 mod bloom;
 mod compress;
+mod compress_stats;
 mod gloss;
 mod header;
 mod sha_cache;
@@ -9,6 +10,7 @@ mod gloss_prune_hook;
 
 pub use bloom::*;
 pub use compress::TruncHashTable;
+pub use compress_stats::CompressionStats;
 pub use gloss::*;
 pub use header::{Header, encode_header, decode_header, HeaderError};
 pub use sha_cache::*;
