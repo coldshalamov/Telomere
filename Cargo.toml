@@ -11,6 +11,7 @@ bincode = "1"
 serde = { version = "1", features = ["derive"] }
 memmap2 = "0.5"
 thiserror = "2.0.12"
+csv = "1"
 
 
 [[bin]]
