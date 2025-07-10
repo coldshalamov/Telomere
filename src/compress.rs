@@ -6,6 +6,9 @@ use sha2::{Digest, Sha256};
 use std::collections::HashSet;
 use csv;
 use hex;
+use std::fs::File;
+use std::io::Write;
+use serde_json;
 
 /// In-memory table storing truncated SHA-256 prefixes.
 ///
@@ -258,5 +261,14 @@ pub fn dump_gloss_to_csv(map: &crate::gloss::BeliefMap, path: &str) -> std::io::
     }
 
     wtr.flush()?;
+    Ok(())
+}
+
+/// Write the current belief map to a JSON file for debugging.
+pub fn dump_beliefmap_json(map: &crate::gloss::BeliefMap, path: &str) -> std::io::Result<()> {
+    let entries: Vec<_> = map.iter().map(|(_, e)| e).collect();
+    let json = serde_json::to_string_pretty(&entries)?;
+    let mut file = File::create(path)?;
+    file.write_all(json.as_bytes())?;
     Ok(())
 }
