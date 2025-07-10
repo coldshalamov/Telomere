@@ -10,7 +10,7 @@ use std::io::{BufWriter, Write};
 struct HashEntry {
     hash: [u8; 32],
     seed_len: u8,
-    seed: [u8; 3],
+    seed: [u8; 4],
 }
 
 fn main() {
@@ -18,21 +18,34 @@ fn main() {
     let mut writer = BufWriter::new(file);
 
     // Iterate over seed lengths 1, 2, and 3
-    for len in 1..=3 {
-        let max = 1 << (len * 8);
+    for len in 1..=4 {
+        let max = match len {
+    1 => 1 << 8,
+    2 => 1 << 16,
+    3 => 1 << 24,
+    4 => 894_784_853, // 30 GB cap
+    _ => unreachable!(),
+};
         println!("Generating {}-byte seeds ({} total)...", len, max);
 
         for i in 0..max {
             let seed = match len {
-                1 => vec![(i & 0xFF) as u8],
-                2 => vec![(i >> 8) as u8, (i & 0xFF) as u8],
-                3 => vec![(i >> 16) as u8, ((i >> 8) & 0xFF) as u8, (i & 0xFF) as u8],
-                _ => unreachable!(),
-            };
+    1 => vec![(i & 0xFF) as u8],
+    2 => vec![(i >> 8) as u8, (i & 0xFF) as u8],
+    3 => vec![(i >> 16) as u8, ((i >> 8) & 0xFF) as u8, (i & 0xFF) as u8],
+    4 => vec![
+        (i >> 24) as u8,
+        (i >> 16) as u8,
+        (i >> 8) as u8,
+        (i & 0xFF) as u8,
+    ],
+    _ => unreachable!(),
+};
+
 
             // Compute SHA-256 of the seed
             let out: [u8; 32] = Sha256::digest(&seed).into();
-            let mut padded_seed = [0u8; 3];
+            let mut padded_seed = [0u8; 4];
             padded_seed[..len].copy_from_slice(&seed);
 
             let entry = HashEntry {
