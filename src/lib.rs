@@ -43,7 +43,14 @@ use std::ops::RangeInclusive;
 use std::fs::File;
 use std::io::Write;
 
-use crate::{BLOCK_SIZE, PathGloss, FallbackSeeds, compress_block};
+use crate::{
+    BLOCK_SIZE,
+    PathGloss,
+    FallbackSeeds,
+    compress_block,
+    dump_beliefmap_json,
+    dump_gloss_to_csv,
+};
 
 /// Compress the input using seed-aware block compression.
 pub fn compress(
@@ -95,6 +102,9 @@ pub fn compress(
         out.extend_from_slice(&header);
         out.extend_from_slice(&data[offset..]);
     }
+
+    let _ = dump_beliefmap_json(&fallback.map, "belief_fallback.json");
+    let _ = dump_gloss_to_csv(&fallback.map, "belief_fallback.csv");
 
     stats.report();
     out
