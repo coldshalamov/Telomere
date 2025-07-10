@@ -1,6 +1,7 @@
 #[test]
 fn mixed_gloss_and_passthrough() {
     use inchworm::*;
+    use std::collections::HashMap;
 
     let entry = GlossEntry {
         seed: vec![0xDE],
@@ -25,6 +26,7 @@ fn mixed_gloss_and_passthrough() {
         None,
         None,
         None,
+        &HashMap::new(),
     );
     let output = decompress(&compressed, &gloss);
     assert_eq!(input, output);

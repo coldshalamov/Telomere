@@ -1,6 +1,7 @@
 #[test]
 fn compression_roundtrip_identity() {
     use inchworm::{compress, decompress, GlossTable};
+    use std::collections::HashMap;
 
     let input: Vec<u8> = (0..100u8).collect();
     let mut counter = 0u64;
@@ -18,6 +19,7 @@ fn compression_roundtrip_identity() {
         None,
         None,
         None,
+        &HashMap::new(),
     );
 
     let gloss = GlossTable::default();

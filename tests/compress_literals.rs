@@ -6,6 +6,7 @@ use inchworm::{
     Header,
     BLOCK_SIZE,
 };
+use std::collections::HashMap;
 
 #[test]
 fn compress_emits_literal_headers() {
@@ -24,6 +25,7 @@ fn compress_emits_literal_headers() {
         None,
         None,
         None,
+        &HashMap::new(),
     );
     let table = GlossTable::default();
     let decompressed = decompress_with_limit(&out, &table, usize::MAX).unwrap();

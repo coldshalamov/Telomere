@@ -36,7 +36,7 @@ impl CompressionStats {
         let elapsed = self.start_time.elapsed().as_secs_f32();
         let ratio = self.compressed_blocks as f32 / self.total_blocks.max(1) as f32;
         println!(
-            "\n\xF0\x9F\x93\x8A Compression Progress:\n  \xE2\x80\xA2 Time: {:.2}s\n  \xE2\x80\xA2 Total Blocks Seen: {}\n  \xE2\x80\xA2 Compressed Blocks: {} ({:.2}%)\n  \xE2\x80\xA2 Greedy Matches: {}\n  \xE2\x80\xA2 Fallback Matches: {}\n",
+            "\n\u{1F4CA} Compression Progress:\n  \u{2022} Time: {:.2}s\n  \u{2022} Total Blocks Seen: {}\n  \u{2022} Compressed Blocks: {} ({:.2}%)\n  \u{2022} Greedy Matches: {}\n  \u{2022} Fallback Matches: {}\n",
             elapsed,
             self.total_blocks,
             self.compressed_blocks,

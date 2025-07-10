@@ -4,7 +4,8 @@ use std::ops::RangeInclusive;
 use std::path::Path;
 use std::time::Instant;
 
-use inchworm::{compress, decompress, GlossTable, TruncHashTable};
+use inchworm::{compress, decompress, GlossTable, TruncHashTable, load_hash_table};
+use std::collections::HashMap;
 use serde_json;
 use hex;
 
@@ -97,6 +98,8 @@ fn main() {
     }
 
     let data = fs::read(&args[2]).expect("failed to read input");
+    let hash_table: HashMap<Vec<u8>, [u8; 32]> =
+        load_hash_table("hash_table.bin").unwrap_or_else(|_| HashMap::new());
 
     let gloss = if let Some(path) = gloss_path {
         match GlossTable::load(Path::new(&path)) {
@@ -147,6 +150,7 @@ fn main() {
                 coverage.as_mut().map(|v| v.as_mut_slice()),
                 if collect_partials { Some(&mut partials_store) } else { None },
                 hash_filter.as_mut(),
+                &hash_table,
             );
 
             let compressed_len = out.len();
@@ -157,7 +161,16 @@ fn main() {
             let raw_len = data.len();
             let percent = 100.0 * (1.0 - (compressed_len as f64 / raw_len as f64));
             let elapsed = start_time.elapsed();
-            println!("Compressed {:.2}% in {:.2?}", percent, elapsed);
+            if json_out {
+                let summary = serde_json::json!({
+                    "input_bytes": raw_len,
+                    "output_bytes": compressed_len,
+                    "total_hashes": hashes,
+                });
+                println!("{}", serde_json::to_string_pretty(&summary).unwrap());
+            } else {
+                println!("Compressed {:.2}% in {:.2?}", percent, elapsed);
+            }
 
             if let (Some(path), Some(cov), Some(table)) = (gloss_coverage, coverage, gloss.as_ref()) {
                 let report: Vec<_> = table

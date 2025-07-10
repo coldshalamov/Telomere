@@ -4,7 +4,7 @@ use crate::live_window::LiveStats;
 use crate::BLOCK_SIZE;
 use sha2::{Digest, Sha256};
 use std::time::Instant;
-use std::collections::HashSet;
+use std::collections::{HashSet, HashMap};
 use std::fs::File;
 use std::io::Write;
 use serde_json;
@@ -52,23 +52,29 @@ impl TruncHashTable {
     }
 }
 
+
 pub fn compress_block(
     input: &[u8],
     gloss: &mut PathGloss,
     counter: &mut u64,
     fallback: Option<&mut FallbackSeeds>,
     current_pass: u64,
-    stats: Option<&mut LiveStats>,
+    mut stats: Option<&mut LiveStats>,
+    hash_table: &HashMap<Vec<u8>, [u8; 32]>,
 ) -> Option<(Header, usize)> {
     if input.len() < BLOCK_SIZE {
         return None;
     }
 
-    if let Some(s) = stats {
+    if let Some(s) = stats.as_mut() {
         s.tick_block();
     }
 
-    let span_hash: [u8; 32] = Sha256::digest(&input[..BLOCK_SIZE]).into();
+    let key = input[..BLOCK_SIZE].to_vec();
+    let span_hash: [u8; 32] = hash_table
+        .get(&key)
+        .cloned()
+        .unwrap_or_else(|| Sha256::digest(&input[..BLOCK_SIZE]).into());
 
     if let Some((idx, path)) = gloss.match_span(&span_hash) {
         if path.total_gain >= 2 * path.seeds.len() as u64 {
@@ -94,7 +100,7 @@ pub fn compress_block(
                     seed_index: path_id as usize,
                     arity: matched_blocks,
                 };
-                if let Some(s) = stats {
+                if let Some(s) = stats.as_ref() {
                     let span_len = matched_blocks * BLOCK_SIZE;
                     let span = &input[..span_len.min(input.len())];
                     let seed = &input[..BLOCK_SIZE.min(input.len())];
@@ -116,7 +122,13 @@ pub fn compress_block(
             let end = start + BLOCK_SIZE;
             let slice = &input[start..end];
             seeds.push(slice.to_vec());
-            hashes.push(Sha256::digest(slice).into());
+            let key = slice.to_vec();
+            hashes.push(
+                hash_table
+                    .get(&key)
+                    .cloned()
+                    .unwrap_or_else(|| Sha256::digest(slice).into()),
+            );
         }
         let path = CompressionPath {
             id: *counter,
@@ -132,7 +144,11 @@ pub fn compress_block(
 
     if let Some(fb) = fallback {
         let span = &input[..consumed];
-        let digest: [u8; 32] = Sha256::digest(span).into();
+        let key = span.to_vec();
+        let digest: [u8; 32] = hash_table
+            .get(&key)
+            .cloned()
+            .unwrap_or_else(|| Sha256::digest(span).into());
         let seed = &span[..BLOCK_SIZE.min(span.len())];
         let header_bits = encode_header(0, blocks).len() * 8;
         let excess = (header_bits + seed.len() * 8) as f64 - (span.len() * 8) as f64;
@@ -161,13 +177,13 @@ pub fn compress_block(
         }
     }
 
-    if let Some(s) = stats {
+    if let Some(s) = stats.as_ref() {
         let span = &input[..consumed.min(input.len())];
         let seed = &input[..BLOCK_SIZE.min(input.len())];
         s.maybe_log(span, seed, false);
     }
 
-    Some((Header { seed_index: 0, arity: blocks }, consumed))
+    None
 }
 
 pub struct FallbackSeeds {

@@ -55,3 +55,5 @@ pub fn print_window(span: &[u8], seed: &[u8], is_greedy: bool, stats: &Stats, in
         );
     }
 }
+
+fn main() {}

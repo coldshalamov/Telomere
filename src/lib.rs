@@ -13,7 +13,7 @@ mod stats;
 pub use bloom::*;
 pub use compress::TruncHashTable;
 pub use compress::compress_block;
-pub use compress_stats::{CompressionStats, write_stats_csv};
+pub use compress_stats::CompressionStats;
 pub use gloss::*;
 pub use header::{Header, encode_header, decode_header, HeaderError};
 pub use sha_cache::*;
@@ -40,10 +40,8 @@ pub enum Region {
 use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 use std::ops::RangeInclusive;
-use std::fs::File;
-use std::io::Write;
 
-use crate::{BLOCK_SIZE, PathGloss, FallbackSeeds, compress_block};
+use crate::compress::FallbackSeeds;
 
 /// Compress the input using seed-aware block compression.
 pub fn compress(
@@ -52,20 +50,22 @@ pub fn compress(
     _limit: Option<u64>,
     _status: u64,
     _hashes: &mut u64,
-    _json: bool,
+    json_output: bool,
     _gloss: Option<&GlossTable>,
     _verbosity: u8,
     _gloss_only: bool,
     _coverage: Option<&mut [bool]>,
     _partials: Option<&mut Vec<u8>>,
     _filter: Option<&mut TruncHashTable>,
+    hash_table: &HashMap<Vec<u8>, [u8; 32]>,
 ) -> Vec<u8> {
     let mut out = Vec::new();
     let mut offset = 0usize;
     let mut counter = 0u64;
-    let mut gloss = PathGloss::default();
+    let mut gloss = crate::path::PathGloss::default();
     let mut fallback = FallbackSeeds::new(0.01, 0.001, BLOCK_SIZE);
     let mut stats = CompressionStats::new();
+    let mut live_stats = LiveStats::default();
 
     while offset + BLOCK_SIZE <= data.len() {
         let span = &data[offset..];
@@ -75,7 +75,8 @@ pub fn compress(
             &mut counter,
             Some(&mut fallback),
             0,
-            Some(&mut stats),
+            Some(&mut live_stats),
+            hash_table,
         ) {
             out.extend_from_slice(&encode_header(header.seed_index, header.arity));
             out.extend_from_slice(&span[..used]);
@@ -96,7 +97,9 @@ pub fn compress(
         out.extend_from_slice(&data[offset..]);
     }
 
-    stats.report();
+    if !json_output {
+        stats.report();
+    }
     out
 }
 
@@ -233,4 +236,25 @@ pub fn seed_first_compress(
     let header = encode_header(0, 40);
     out.extend_from_slice(&header);
     out
+}
+
+#[repr(C)]
+#[derive(serde::Deserialize)]
+struct HashEntryOnDisk {
+    hash: [u8; 32],
+    seed_len: u8,
+    seed: [u8; 3],
+}
+
+pub fn load_hash_table<P: AsRef<std::path::Path>>(path: P) -> std::io::Result<HashMap<Vec<u8>, [u8; 32]>> {
+    use std::fs::File;
+    use std::io::BufReader;
+    let file = File::open(path)?;
+    let mut reader = BufReader::new(file);
+    let mut map = HashMap::new();
+    while let Ok(entry) = bincode::deserialize_from::<_, HashEntryOnDisk>(&mut reader) {
+        let seed = entry.seed[..entry.seed_len as usize].to_vec();
+        map.insert(seed, entry.hash);
+    }
+    Ok(map)
 }
