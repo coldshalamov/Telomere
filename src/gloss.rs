@@ -157,5 +157,21 @@ impl GlossTable {
             });
             self.entries.truncate(max_entries);
         }
+
+        print_gloss_score_histogram(self);
+    }
+}
+
+/// Print a histogram of gloss entry scores.
+pub fn print_gloss_score_histogram(gloss: &GlossTable) {
+    let mut buckets = vec![0usize; 10];
+    for e in &gloss.entries {
+        let bin = ((e.score * 10.0).floor() as usize).min(9);
+        buckets[bin] += 1;
+    }
+
+    println!("\n\u{1f4ca} Gloss Score Histogram:");
+    for (i, count) in buckets.iter().enumerate() {
+        println!("  {:.1} - {:.1}: {}", i as f32 * 0.1, (i + 1) as f32 * 0.1, count);
     }
 }
