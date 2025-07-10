@@ -6,6 +6,7 @@ mod sha_cache;
 mod path;
 mod seed_logger;
 mod gloss_prune_hook;
+mod live_window;
 
 pub use bloom::*;
 pub use compress::TruncHashTable;
@@ -15,6 +16,7 @@ pub use sha_cache::*;
 pub use path::*;
 pub use seed_logger::{resume_seed_index, log_seed, HashEntry};
 pub use gloss_prune_hook::run as gloss_prune_hook;
+pub use live_window::{Stats, print_window};
 
 pub const BLOCK_SIZE: usize = 7;
 
