@@ -188,6 +188,7 @@ impl FallbackSeeds {
     /// Should be called at start of a compression pass.
     pub fn new_pass(&mut self) {
         self.trim();
+        crate::gloss_prune_hook::run(&mut self.map);
     }
 
     fn trim(&mut self) {
