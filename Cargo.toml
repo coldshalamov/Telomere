@@ -29,3 +29,7 @@ path = "src/bin/hash_precompute.rs"
 [[bin]]
 name = "gloss_debug_dump"
 path = "src/bin/gloss_debug_dump.rs"
+
+[[bin]]
+name = "gloss_by_pass_dump"
+path = "src/bin/gloss_by_pass_dump.rs"
