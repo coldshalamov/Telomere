@@ -12,6 +12,7 @@ mod stats;
 
 pub use bloom::*;
 pub use compress::TruncHashTable;
+pub use compress::compress_block;
 pub use compress_stats::{CompressionStats, write_stats_csv};
 pub use gloss::*;
 pub use header::{Header, encode_header, decode_header, HeaderError};
@@ -42,7 +43,9 @@ use std::ops::RangeInclusive;
 use std::fs::File;
 use std::io::Write;
 
-/// Compress the input using literal passthrough encoding.
+use crate::{BLOCK_SIZE, PathGloss, FallbackSeeds, compress_block};
+
+/// Compress the input using seed-aware block compression.
 pub fn compress(
     data: &[u8],
     _lens: RangeInclusive<u8>,
@@ -57,33 +60,43 @@ pub fn compress(
     _partials: Option<&mut Vec<u8>>,
     _filter: Option<&mut TruncHashTable>,
 ) -> Vec<u8> {
-    let mut stats = CompressionStats::new();
     let mut out = Vec::new();
     let mut offset = 0usize;
+    let mut counter = 0u64;
+    let mut gloss = PathGloss::default();
+    let mut fallback = FallbackSeeds::new(0.01, 0.001, BLOCK_SIZE);
+    let mut stats = CompressionStats::new();
 
     while offset + BLOCK_SIZE <= data.len() {
-        stats.tick_block();
-        if stats.total_blocks % 5000 == 0 {
-            stats.report();
+        let span = &data[offset..];
+        if let Some((header, used)) = compress_block(
+            span,
+            &mut gloss,
+            &mut counter,
+            Some(&mut fallback),
+            0,
+            Some(&mut stats),
+        ) {
+            out.extend_from_slice(&encode_header(header.seed_index, header.arity));
+            out.extend_from_slice(&span[..used]);
+            offset += used;
+        } else {
+            let blocks = ((data.len() - offset) / BLOCK_SIZE).min(3).max(1);
+            let header = encode_header(0, 36 + blocks);
+            let bytes = blocks * BLOCK_SIZE;
+            out.extend_from_slice(&header);
+            out.extend_from_slice(&data[offset..offset + bytes]);
+            offset += bytes;
         }
-        let remaining_blocks = (data.len() - offset) / BLOCK_SIZE;
-        let blocks = remaining_blocks.min(3);
-        let header = encode_header(0, 36 + blocks);
-        out.extend_from_slice(&header);
-        let bytes = blocks * BLOCK_SIZE;
-        out.extend_from_slice(&data[offset..offset + bytes]);
-        offset += bytes;
-        stats.log_match(false, blocks);
     }
 
-    let header = encode_header(0, 40);
-    out.extend_from_slice(&header);
     if offset < data.len() {
+        let header = encode_header(0, 40);
+        out.extend_from_slice(&header);
         out.extend_from_slice(&data[offset..]);
     }
 
     stats.report();
-    write_stats_csv(&stats, "stats_kolyma.csv");
     out
 }
 
