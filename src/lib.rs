@@ -35,18 +35,10 @@ pub enum Region {
     Compressed(Vec<u8>, Header),
 }
 
-use sha2::{Digest, Sha256};
-use std::collections::HashMap;
 use std::ops::RangeInclusive;
 
-use crate::{
-    BLOCK_SIZE,
-    PathGloss,
-    FallbackSeeds,
-    compress_block,
-    dump_beliefmap_json,
-    dump_gloss_to_csv,
-};
+use crate::compress::FallbackSeeds;
+use crate::path::PathGloss;
 
 /// Compress the input using seed-aware block compression.
 pub fn compress(
@@ -71,8 +63,9 @@ pub fn compress(
     let mut stats = CompressionStats::new();
 
     while offset + BLOCK_SIZE <= data.len() {
+        stats.tick_block();
         let span = &data[offset..];
-        if let Some((header, used)) = compress_block(
+        if let Some((header, used)) = crate::compress::compress_block(
             span,
             &mut gloss,
             &mut counter,
@@ -100,9 +93,9 @@ pub fn compress(
     }
 
     // Dump fallback belief scores
-    let _ = dump_beliefmap_json(&fallback.map, "belief_fallback.json");
+    let _ = crate::compress::dump_beliefmap_json(&fallback.map, "belief_fallback.json");
     if verbosity >= 2 {
-        let _ = dump_gloss_to_csv(&fallback.map, "belief_fallback.csv");
+        let _ = crate::compress::dump_gloss_to_csv(&fallback.map, "belief_fallback.csv");
     }
 
     stats.report();
