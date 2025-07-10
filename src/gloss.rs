@@ -4,10 +4,21 @@ use std::fs::File;
 use std::path::Path;
 
 
-#[derive(Serialize, Deserialize, Clone)]
+/// Entry describing a precomputed gloss string.
+///
+/// `score` tracks the Bayesian belief associated with this entry and `pass`
+/// optionally records the discovery pass during table generation.  These
+/// fields are currently unused by the simplified library but are preserved so
+/// that future pruning or visualisation tooling can make use of them.
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GlossEntry {
     pub seed: Vec<u8>,
     pub decompressed: Vec<u8>,
+
+    /// Bayesian posterior belief `P(F | E)` for this entry.
+    pub score: f64,
+    /// Optional discovery pass number.
+    pub pass: usize,
 }
 
 #[derive(Serialize, Deserialize, Default, Clone)]
