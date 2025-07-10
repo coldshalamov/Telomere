@@ -11,8 +11,7 @@ mod live_window;
 mod stats;
 
 pub use bloom::*;
-pub use compress::TruncHashTable;
-pub use compress::compress_block;
+pub use compress::{TruncHashTable, compress_block, dump_beliefmap_json, dump_gloss_to_csv};
 pub use compress_stats::{CompressionStats, write_stats_csv};
 pub use gloss::*;
 pub use header::{Header, encode_header, decode_header, HeaderError};
@@ -20,8 +19,7 @@ pub use sha_cache::*;
 pub use path::*;
 pub use seed_logger::{resume_seed_index, log_seed, HashEntry};
 pub use gloss_prune_hook::run as gloss_prune_hook;
-pub use live_window::LiveStats;
-pub use live_window::print_window;
+pub use live_window::{LiveStats, print_window};
 pub use stats::Stats;
 
 pub const BLOCK_SIZE: usize = 3;
@@ -52,7 +50,7 @@ pub fn compress(
     _hashes: &mut u64,
     json: bool,
     _gloss: Option<&GlossTable>,
-    _verbosity: u8,
+    verbosity: u8,
     _gloss_only: bool,
     _coverage: Option<&mut [bool]>,
     _partials: Option<&mut Vec<u8>>,
@@ -94,9 +92,13 @@ pub fn compress(
         out.extend_from_slice(&data[offset..]);
     }
 
-    if !json {
-        stats.report();
+    // Dump fallback seed belief map for inspection
+    let _ = dump_beliefmap_json(&fallback.map, "belief_fallback.json");
+    if verbosity >= 2 {
+        let _ = dump_gloss_to_csv(&fallback.map, "belief_fallback.csv");
     }
+
+    stats.report();
     let _ = write_stats_csv(&stats, "stats_kolyma.csv");
 
     out
