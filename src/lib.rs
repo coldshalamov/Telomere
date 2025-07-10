@@ -1,20 +1,26 @@
 mod bloom;
 mod compress;
+mod compress_stats;
 mod gloss;
 mod header;
 mod sha_cache;
 mod path;
 mod seed_logger;
 mod gloss_prune_hook;
+mod live_window;
+mod stats;
 
 pub use bloom::*;
 pub use compress::TruncHashTable;
+pub use compress_stats::{CompressionStats, write_stats_csv};
 pub use gloss::*;
 pub use header::{Header, encode_header, decode_header, HeaderError};
 pub use sha_cache::*;
 pub use path::*;
 pub use seed_logger::{resume_seed_index, log_seed, HashEntry};
 pub use gloss_prune_hook::run as gloss_prune_hook;
+pub use live_window::print_window;
+pub use stats::Stats;
 
 pub const BLOCK_SIZE: usize = 7;
 
@@ -29,15 +35,13 @@ pub enum Region {
     Compressed(Vec<u8>, Header),
 }
 
-// … FULL compress(), decompress(), decompress_with_limit(), etc.
-
 use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 use std::ops::RangeInclusive;
+use std::fs::File;
+use std::io::Write;
 
 /// Compress the input using literal passthrough encoding.
-/// This trimmed example simply groups up to three blocks
-/// of input per header and appends a final tail.
 pub fn compress(
     data: &[u8],
     _lens: RangeInclusive<u8>,
@@ -52,9 +56,15 @@ pub fn compress(
     _partials: Option<&mut Vec<u8>>,
     _filter: Option<&mut TruncHashTable>,
 ) -> Vec<u8> {
+    let mut stats = CompressionStats::new();
     let mut out = Vec::new();
     let mut offset = 0usize;
+
     while offset + BLOCK_SIZE <= data.len() {
+        stats.tick_block();
+        if stats.total_blocks % 5000 == 0 {
+            stats.report();
+        }
         let remaining_blocks = (data.len() - offset) / BLOCK_SIZE;
         let blocks = remaining_blocks.min(3);
         let header = encode_header(0, 36 + blocks);
@@ -62,12 +72,17 @@ pub fn compress(
         let bytes = blocks * BLOCK_SIZE;
         out.extend_from_slice(&data[offset..offset + bytes]);
         offset += bytes;
+        stats.log_match(false, blocks);
     }
+
     let header = encode_header(0, 40);
     out.extend_from_slice(&header);
     if offset < data.len() {
         out.extend_from_slice(&data[offset..]);
     }
+
+    stats.report();
+    write_stats_csv(&stats, "stats_kolyma.csv");
     out
 }
 

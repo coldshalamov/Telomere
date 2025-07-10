@@ -4,11 +4,6 @@ use std::fs::File;
 use std::path::Path;
 
 /// Entry describing a precomputed gloss string.
-///
-/// `score` tracks the Bayesian belief associated with this entry and `pass`
-/// optionally records the discovery pass during table generation. These
-/// fields are currently unused by the simplified library but are preserved so
-/// that future pruning or visualisation tooling can make use of them.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GlossEntry {
     pub seed: Vec<u8>,
@@ -112,8 +107,6 @@ impl BeliefMap {
 }
 
 impl GlossTable {
-    /// Placeholder generator. In this trimmed example no automatic gloss table
-    /// creation is performed.
     pub fn generate() -> Self {
         Self { entries: Vec::new() }
     }
@@ -158,14 +151,11 @@ impl GlossTable {
             self.entries.truncate(max_entries);
         }
 
-        // Display a brief score distribution summary after pruning.
         self.print_gloss_score_histogram();
     }
 
     /// Print a histogram summarizing gloss entry score distribution.
-    ///
-    /// Buckets scores in 0.1 increments from `[0.0, 0.1)` up to `[0.9, 1.0]`.
-    /// Useful for observing how pruning affects the table across passes.
+    /// Buckets scores in 0.1 increments from `[0.0, 0.1)` to `[0.9, 1.0]`.
     pub fn print_gloss_score_histogram(&self) {
         let mut buckets = vec![0usize; 10];
         for e in &self.entries {
@@ -173,9 +163,9 @@ impl GlossTable {
             buckets[bin] += 1;
         }
 
-        println!("\n\u{1F4CA} Gloss Score Histogram:");
+        println!("\n📊 Gloss Score Histogram:");
         for (i, count) in buckets.iter().enumerate() {
-            println!("  {:.1}\u{2013}{:.1}: {}", i as f32 * 0.1, (i + 1) as f32 * 0.1, count);
+            println!("  {:.1}–{:.1}: {}", i as f32 * 0.1, (i + 1) as f32 * 0.1, count);
         }
     }
 }
