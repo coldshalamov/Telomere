@@ -144,7 +144,17 @@ fn main() -> std::io::Result<()> {
             let raw_len = data.len();
             let percent = 100.0 * (1.0 - (compressed_len as f64 / raw_len as f64));
             let elapsed = start_time.elapsed();
-            println!("Compressed {:.2}% in {:.2?}", percent, elapsed);
+            if json_out {
+                let out_json = serde_json::json!({
+                    "input_bytes": raw_len,
+                    "compressed_bytes": compressed_len,
+                    "total_hashes": hashes,
+                    "elapsed_ms": elapsed.as_millis(),
+                });
+                println!("{}", serde_json::to_string_pretty(&out_json).unwrap());
+            } else {
+                println!("Compressed {:.2}% in {:.2?}", percent, elapsed);
+            }
 
             if let (Some(path), Some(cov)) = (gloss_coverage, coverage) {
                 let report: Vec<_> = gloss

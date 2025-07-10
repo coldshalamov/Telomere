@@ -90,7 +90,7 @@ impl CompressionStats {
         }
     }
 
-pub fn report(&self) {
+    pub fn report(&self) {
         let elapsed = self.start_time.elapsed().as_secs_f32();
         let ratio = self.compressed_blocks as f32 / self.total_blocks.max(1) as f32;
         println!(
@@ -108,15 +108,18 @@ pub fn report(&self) {
 
 /// Write a single CSV row summarizing the provided statistics.
 pub fn write_stats_csv(stats: &CompressionStats, path: &str) -> std::io::Result<()> {
-    let mut wtr = Writer::from_path(path)?;
-    wtr.write_record(&["total_blocks", "compressed_blocks", "greedy_matches", "fallback_matches"])?;
+    let elapsed = stats.start_time.elapsed().as_secs_f32();
+    let ratio = stats.compressed_blocks as f32 / stats.total_blocks.max(1) as f32;
+    let mut wtr = Writer::from_writer(File::create(path)?);
+    wtr.write_record(&["time_s", "total_blocks", "compressed_blocks", "ratio", "greedy", "fallback"])?;
     wtr.write_record(&[
+        format!("{:.2}", elapsed),
         stats.total_blocks.to_string(),
         stats.compressed_blocks.to_string(),
+        format!("{:.2}", ratio * 100.0),
         stats.greedy_matches.to_string(),
         stats.fallback_matches.to_string(),
     ])?;
     wtr.flush()?;
     Ok(())
 }
-
