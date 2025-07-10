@@ -1,5 +1,8 @@
 use std::collections::HashMap;
 use sha2::{Digest, Sha256};
+use std::fs::File;
+use std::io::{BufReader, Read};
+use bincode;
 
 pub struct ShaCache {
     capacity: usize,
@@ -50,4 +53,14 @@ impl ShaCache {
             arr
         }
     }
+}
+
+pub fn load_hash_table(path: &str) -> std::io::Result<HashMap<Vec<u8>, [u8; 32]>> {
+    let file = File::open(path)?;
+    let mut reader = BufReader::new(file);
+    let mut buf = Vec::new();
+    reader.read_to_end(&mut buf)?;
+    let table: HashMap<Vec<u8>, [u8; 32]> = bincode::deserialize(&buf)
+        .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))?;
+    Ok(table)
 }

@@ -98,7 +98,7 @@ fn main() -> std::io::Result<()> {
 
     let data = fs::read(&args[2])?;
 
-    let gloss = GlossTable::load("gloss.bin")?;
+    let gloss = GlossTable::load("gloss.bin").unwrap_or_else(|_| GlossTable::default());
 
     let verbosity = if quiet { 0 } else if verbose { 2 } else { 1 };
 

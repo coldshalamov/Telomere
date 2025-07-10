@@ -4,7 +4,7 @@ use crate::compress_stats::CompressionStats;
 use crate::BLOCK_SIZE;
 use sha2::{Digest, Sha256};
 use std::time::Instant;
-use std::collections::HashSet;
+use std::collections::{HashSet, HashMap};
 use std::fs::File;
 use std::io::Write;
 use serde_json;
@@ -59,6 +59,7 @@ pub fn compress_block(
     fallback: Option<&mut FallbackSeeds>,
     current_pass: u64,
     mut stats: Option<&mut CompressionStats>,
+    hash_table: Option<&HashMap<Vec<u8>, [u8; 32]>>,
 ) -> Option<(Header, usize)> {
     if input.len() < BLOCK_SIZE {
         return None;
@@ -68,7 +69,18 @@ pub fn compress_block(
         s.tick_block();
     }
 
-    let span_hash: [u8; 32] = Sha256::digest(&input[..BLOCK_SIZE]).into();
+    let first_seed = &input[..BLOCK_SIZE];
+    let span_hash: [u8; 32] = if let Some(table) = hash_table {
+        table
+            .get(first_seed)
+            .cloned()
+            .unwrap_or_else(|| {
+                eprintln!("Fallback SHA256 used for seed: {:?}", first_seed);
+                Sha256::digest(first_seed).into()
+            })
+    } else {
+        Sha256::digest(first_seed).into()
+    };
 
     if let Some((idx, path)) = gloss.match_span(&span_hash) {
         if path.total_gain >= 2 * path.seeds.len() as u64 {
@@ -117,7 +129,18 @@ pub fn compress_block(
             let end = start + BLOCK_SIZE;
             let slice = &input[start..end];
             seeds.push(slice.to_vec());
-            hashes.push(Sha256::digest(slice).into());
+            let digest = if let Some(table) = hash_table {
+                table
+                    .get(slice)
+                    .cloned()
+                    .unwrap_or_else(|| {
+                        eprintln!("Fallback SHA256 used for seed: {:?}", slice);
+                        Sha256::digest(slice).into()
+                    })
+            } else {
+                Sha256::digest(slice).into()
+            };
+            hashes.push(digest);
         }
         let path = CompressionPath {
             id: *counter,
@@ -169,7 +192,7 @@ pub fn compress_block(
         s.log_match(false, blocks);
     }
 
-    Some((Header { seed_index: 0, arity: blocks }, consumed))
+    Some((Header { seed_index: 0, arity: 36 + blocks }, consumed))
 }
 
 pub struct FallbackSeeds {
