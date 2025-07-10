@@ -1,28 +1,24 @@
 use crate::header::{Header, encode_header};
 use crate::path::{CompressionPath, PathGloss};
-use std::time::Instant;
+use crate::live_window::LiveStats;
 use crate::BLOCK_SIZE;
 use sha2::{Digest, Sha256};
+use std::time::Instant;
 use std::collections::HashSet;
+use std::fs::File;
+use std::io::Write;
+use serde_json;
 use csv;
 use hex;
-use crate::live_window::LiveStats;
 
 /// In-memory table storing truncated SHA-256 prefixes.
-///
-/// This is used to skip seed attempts that would produce a digest
-/// matching a span we have already observed. The number of bits stored
-/// for each entry is configurable via `bits`.
 #[derive(Default)]
 pub struct TruncHashTable {
-    /// Number of bits from the hash digest to store.
     pub bits: u8,
-    /// Set of truncated digests.
     pub set: HashSet<u64>,
 }
 
 impl TruncHashTable {
-    /// Create a new empty table for the given prefix width.
     pub fn new(bits: u8) -> Self {
         assert!(bits > 0 && bits <= 64, "bits must be between 1 and 64");
         Self {
@@ -41,8 +37,6 @@ impl TruncHashTable {
         val
     }
 
-    /// Insert an arbitrary byte slice into the table by hashing it and
-    /// storing the truncated prefix of the digest.
     pub fn insert_bytes(&mut self, bytes: &[u8]) {
         let digest = Sha256::digest(bytes);
         let arr: [u8; 32] = digest.into();
@@ -50,8 +44,6 @@ impl TruncHashTable {
         self.set.insert(key);
     }
 
-    /// Returns true if the hashed prefix of the provided bytes already
-    /// exists in the table.
     pub fn contains_bytes(&self, bytes: &[u8]) -> bool {
         let digest = Sha256::digest(bytes);
         let arr: [u8; 32] = digest.into();
@@ -60,13 +52,6 @@ impl TruncHashTable {
     }
 }
 
-/// Attempt to compress a block of data.
-///
-/// Returns the selected `Header` along with the number of bytes
-/// consumed if a compression opportunity is found. `None` indicates
-/// that the input should remain uncompressed.
-/// The provided `gloss` stores previously successful compression paths.
-/// `counter` is used to assign unique identifiers to new paths.
 pub fn compress_block(
     input: &[u8],
     gloss: &mut PathGloss,
@@ -77,6 +62,10 @@ pub fn compress_block(
 ) -> Option<(Header, usize)> {
     if input.len() < BLOCK_SIZE {
         return None;
+    }
+
+    if let Some(s) = stats {
+        s.tick_block();
     }
 
     let span_hash: [u8; 32] = Sha256::digest(&input[..BLOCK_SIZE]).into();
@@ -91,7 +80,7 @@ pub fn compress_block(
                 if end > input.len() || input[start..end] != seed[..] {
                     matched = false;
                     if step >= 3 {
-                        break; // stop replay after 3 mismatched steps
+                        break;
                     }
                     break;
                 } else {
@@ -106,7 +95,6 @@ pub fn compress_block(
                     arity: matched_blocks,
                 };
                 if let Some(s) = stats {
-                    s.tick_block();
                     let span_len = matched_blocks * BLOCK_SIZE;
                     let span = &input[..span_len.min(input.len())];
                     let seed = &input[..BLOCK_SIZE.min(input.len())];
@@ -142,8 +130,6 @@ pub fn compress_block(
         gloss.add_path(path);
     }
 
-    // --- Bayesian fallback logic ---
-    // Evaluate potential future reuse of this span's first block as a seed.
     if let Some(fb) = fallback {
         let span = &input[..consumed];
         let digest: [u8; 32] = Sha256::digest(span).into();
@@ -176,15 +162,14 @@ pub fn compress_block(
     }
 
     if let Some(s) = stats {
-        s.tick_block();
         let span = &input[..consumed.min(input.len())];
         let seed = &input[..BLOCK_SIZE.min(input.len())];
         s.maybe_log(span, seed, false);
     }
+
     Some((Header { seed_index: 0, arity: blocks }, consumed))
 }
 
-/// Manage probabilistic fallback seeds using Bayesian scoring.
 pub struct FallbackSeeds {
     pub map: crate::gloss::BeliefMap,
     lambda: f64,
@@ -202,7 +187,6 @@ impl FallbackSeeds {
         }
     }
 
-    /// Should be called at start of a compression pass.
     pub fn new_pass(&mut self) {
         self.trim();
         crate::gloss_prune_hook::run(&mut self.map);
@@ -228,7 +212,6 @@ impl FallbackSeeds {
         }
     }
 
-    /// Record a failed compression attempt for `seed`.
     pub fn record_failure(&mut self, digest: [u8; 32], seed: &[u8], evidence: f64, pass: u64) {
         if seed.len() > 4 {
             return;
@@ -256,7 +239,6 @@ impl FallbackSeeds {
     }
 }
 
-/// Write the current belief map to a CSV file for debugging.
 pub fn dump_gloss_to_csv(map: &crate::gloss::BeliefMap, path: &str) -> std::io::Result<()> {
     let mut wtr = csv::Writer::from_path(path)?;
     wtr.write_record(&["SeedHex", "Score", "Pass", "BundlingHits", "GlossHits"])?;
@@ -273,5 +255,13 @@ pub fn dump_gloss_to_csv(map: &crate::gloss::BeliefMap, path: &str) -> std::io::
     }
 
     wtr.flush()?;
+    Ok(())
+}
+
+pub fn dump_beliefmap_json(map: &crate::gloss::BeliefMap, path: &str) -> std::io::Result<()> {
+    let entries: Vec<_> = map.iter().map(|(_, e)| e).collect();
+    let json = serde_json::to_string_pretty(&entries)?;
+    let mut file = File::create(path)?;
+    file.write_all(json.as_bytes())?;
     Ok(())
 }
