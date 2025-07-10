@@ -11,6 +11,7 @@ bincode = "1"
 serde = { version = "1", features = ["derive"] }
 memmap2 = "0.5"
 thiserror = "2.0.12"
+csv = "1"
 
 
 [[bin]]
@@ -24,3 +25,7 @@ path = "src/bin/compressor.rs"
 [[bin]]
 name = "hash_precompute"
 path = "src/bin/hash_precompute.rs"
+
+[[bin]]
+name = "gloss_debug_dump"
+path = "src/bin/gloss_debug_dump.rs"
