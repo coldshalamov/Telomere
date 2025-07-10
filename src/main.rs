@@ -8,11 +8,11 @@ use inchworm::{compress, decompress, GlossTable, TruncHashTable};
 use serde_json;
 use hex;
 
-fn main() {
+fn main() -> std::io::Result<()> {
     let args: Vec<String> = env::args().collect();
     if args.len() < 4 {
         eprintln!("Usage: {} [c|d] <input> <output> [--max-seed-len N] [--seed-limit N] [--status] [--json] [--verbose] [--quiet] [--gloss FILE] [--gloss-only] [--dry-run] [--gloss-coverage FILE] [--collect-partials] [--hash-filter-bits N] [--filter-known-hashes]", args[0]);
-        return;
+        return Ok(());
     }
 
     let mut max_seed_len = 4u8;
@@ -96,27 +96,14 @@ fn main() {
         }
     }
 
-    let data = fs::read(&args[2]).expect("failed to read input");
+    let data = fs::read(&args[2])?;
 
-    let gloss = if let Some(path) = gloss_path {
-        match GlossTable::load(Path::new(&path)) {
-            Ok(t) => {
-                eprintln!("Loaded gloss table from {} ({} entries)", path, t.entries.len());
-                Some(t)
-            }
-            Err(e) => {
-                eprintln!("Failed to load gloss table: {e}");
-                None
-            }
-        }
-    } else {
-        None
-    };
+    let gloss = GlossTable::load("gloss.bin")?;
 
     let verbosity = if quiet { 0 } else if verbose { 2 } else { 1 };
 
     let mut coverage: Option<Vec<bool>> = if gloss_only && gloss_coverage.is_some() {
-        gloss.as_ref().map(|g| vec![false; g.entries.len()])
+        Some(vec![false; gloss.entries.len()])
     } else {
         None
     };
@@ -141,7 +128,7 @@ fn main() {
                 status_interval,
                 &mut hashes,
                 json_out,
-                gloss.as_ref(),
+                Some(&gloss),
                 verbosity,
                 gloss_only,
                 coverage.as_mut().map(|v| v.as_mut_slice()),
@@ -159,8 +146,8 @@ fn main() {
             let elapsed = start_time.elapsed();
             println!("Compressed {:.2}% in {:.2?}", percent, elapsed);
 
-            if let (Some(path), Some(cov), Some(table)) = (gloss_coverage, coverage, gloss.as_ref()) {
-                let report: Vec<_> = table
+            if let (Some(path), Some(cov)) = (gloss_coverage, coverage) {
+                let report: Vec<_> = gloss
                     .entries
                     .iter()
                     .zip(cov.iter())
@@ -185,10 +172,10 @@ fn main() {
             }
         }
         "d" => {
-            let gloss = gloss.unwrap_or_default();
             let out = decompress(&data, &gloss);
-            fs::write(&args[3], out).expect("failed to write output");
+            fs::write(&args[3], out)?;
         }
         mode => eprintln!("Unknown mode: {}", mode),
     }
+    Ok(())
 }
