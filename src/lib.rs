@@ -39,7 +39,14 @@ use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 use std::ops::RangeInclusive;
 
-use crate::{BLOCK_SIZE, PathGloss, FallbackSeeds, compress_block};
+use crate::{
+    BLOCK_SIZE,
+    PathGloss,
+    FallbackSeeds,
+    compress_block,
+    dump_beliefmap_json,
+    dump_gloss_to_csv,
+};
 
 /// Compress the input using seed-aware block compression.
 pub fn compress(
@@ -92,7 +99,7 @@ pub fn compress(
         out.extend_from_slice(&data[offset..]);
     }
 
-    // Dump fallback seed belief map for inspection
+    // Dump fallback belief scores
     let _ = dump_beliefmap_json(&fallback.map, "belief_fallback.json");
     if verbosity >= 2 {
         let _ = dump_gloss_to_csv(&fallback.map, "belief_fallback.csv");
