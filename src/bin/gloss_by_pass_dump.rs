@@ -1,51 +1,57 @@
-use inchworm::GlossTable;
-use std::env;
+/// Module for live compression stats logging
 
-fn dump_gloss_to_csv(gloss: &GlossTable, path: &str) -> std::io::Result<()> {
-    let mut wtr = csv::Writer::from_path(path)?;
-    wtr.write_record(&["Index", "SeedHex", "DataHex"])?;
-    for (idx, entry) in gloss.entries.iter().enumerate() {
-        let seed_hex = hex::encode(&entry.seed);
-        let data_hex = hex::encode(&entry.decompressed);
-        wtr.write_record(&[idx.to_string(), seed_hex, data_hex])?;
-    }
-    wtr.flush()?;
-    Ok(())
+/// A real-time compression logger triggered at block intervals.
+pub struct LiveStats {
+    pub total_blocks: u64,
+    pub interval: u64,
 }
 
-fn main() {
-    let args: Vec<String> = env::args().collect();
-    if args.len() != 3 {
-        eprintln!("Usage: {} <gloss.bin> <output_prefix>", args[0]);
-        std::process::exit(1);
+impl LiveStats {
+    pub fn new(interval: u64) -> Self {
+        Self {
+            total_blocks: 0,
+            interval,
+        }
     }
 
-    let table = match GlossTable::load(&args[1]) {
-        Ok(t) => t,
-        Err(e) => {
-            eprintln!("Failed to load gloss table: {e}");
-            std::process::exit(1);
-        }
-    };
+    /// Increment the block counter.
+    pub fn tick_block(&mut self) {
+        self.total_blocks += 1;
+    }
 
-    let max_pass = table.entries.iter().map(|e| e.pass).max().unwrap_or(0);
-    for n in 0..=max_pass {
-        let file_name = format!("{}_{n}.csv", args[2]);
-        let filtered: Vec<_> = table
-            .entries
-            .iter()
-            .filter(|e| e.pass == n)
-            .cloned()
-            .collect();
-        if filtered.is_empty() {
-            continue;
-        }
-        let t = GlossTable { entries: filtered };
-        if let Err(e) = dump_gloss_to_csv(&t, &file_name) {
-            eprintln!("Failed to write {file_name}: {e}");
-        } else {
-            println!("Written {file_name}");
+    /// Print span/seed summary every N blocks if interval is set.
+    pub fn maybe_log(&self, span: &[u8], seed: &[u8], is_greedy: bool) {
+        if self.interval > 0 && self.total_blocks % self.interval == 0 {
+            println!(
+                "[offset {:>6}] span: {:02X?}  seed: {:02X?}  method: {}",
+                self.total_blocks,
+                &span[..3.min(span.len())],
+                &seed[..3.min(seed.len())],
+                if is_greedy { "GREEDY" } else { "FALLBACK" }
+            );
         }
     }
 }
 
+/// Alternate static-printing function using shared Stats object.
+#[derive(Default)]
+pub struct Stats {
+    pub total_blocks: u64,
+}
+
+/// Alternate interface if using external `Stats` state.
+#[allow(dead_code)]
+pub fn print_window(span: &[u8], seed: &[u8], is_greedy: bool, stats: &Stats, interval: u64) {
+    if interval == 0 {
+        return;
+    }
+    if stats.total_blocks % interval == 0 {
+        println!(
+            "[{:>6}] span: {:02X?} seed: {:02X?} method: {}",
+            stats.total_blocks,
+            &span[..3.min(span.len())],
+            &seed[..3.min(seed.len())],
+            if is_greedy { "GREEDY" } else { "FALLBACK" }
+        );
+    }
+}
