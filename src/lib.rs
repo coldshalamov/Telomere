@@ -19,6 +19,7 @@ pub use sha_cache::*;
 pub use path::*;
 pub use seed_logger::{resume_seed_index, log_seed, HashEntry};
 pub use gloss_prune_hook::run as gloss_prune_hook;
+pub use live_window::LiveStats;
 pub use live_window::print_window;
 pub use stats::Stats;
 

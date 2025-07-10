@@ -1,15 +1,15 @@
 use crate::header::{Header, encode_header};
 use crate::path::{CompressionPath, PathGloss};
-use crate::CompressionStats;
-use std::time::Instant;
+use crate::live_window::LiveStats;
 use crate::BLOCK_SIZE;
 use sha2::{Digest, Sha256};
+use std::time::Instant;
 use std::collections::HashSet;
-use csv;
-use hex;
 use std::fs::File;
 use std::io::Write;
 use serde_json;
+use csv;
+use hex;
 
 /// In-memory table storing truncated SHA-256 prefixes.
 #[derive(Default)]
@@ -58,7 +58,7 @@ pub fn compress_block(
     counter: &mut u64,
     fallback: Option<&mut FallbackSeeds>,
     current_pass: u64,
-    stats: Option<&mut CompressionStats>,
+    stats: Option<&mut LiveStats>,
 ) -> Option<(Header, usize)> {
     if input.len() < BLOCK_SIZE {
         return None;
@@ -95,7 +95,10 @@ pub fn compress_block(
                     arity: matched_blocks,
                 };
                 if let Some(s) = stats {
-                    s.log_match(true, matched_blocks);
+                    let span_len = matched_blocks * BLOCK_SIZE;
+                    let span = &input[..span_len.min(input.len())];
+                    let seed = &input[..BLOCK_SIZE.min(input.len())];
+                    s.maybe_log(span, seed, true);
                 }
                 return Some((header, matched_blocks * BLOCK_SIZE));
             }
@@ -156,6 +159,12 @@ pub fn compress_block(
             *counter += 1;
             gloss.add_path(path);
         }
+    }
+
+    if let Some(s) = stats {
+        let span = &input[..consumed.min(input.len())];
+        let seed = &input[..BLOCK_SIZE.min(input.len())];
+        s.maybe_log(span, seed, false);
     }
 
     Some((Header { seed_index: 0, arity: blocks }, consumed))
