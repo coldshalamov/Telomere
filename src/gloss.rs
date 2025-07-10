@@ -76,6 +76,41 @@ impl<K: std::cmp::Eq + std::hash::Hash, V> LruCache<K, V> {
 /// Map of hashed seeds to belief entries.
 pub type BeliefMap = LruCache<[u8; 32], BeliefSeed>;
 
+impl BeliefMap {
+    /// Prune entries with belief below `min_score` and ensure the map does not
+    /// exceed `max_entries`. When trimming due to size, the lowest belief
+    /// entries are removed first and ties are broken by `last_used`.
+    pub fn prune_low_score_entries(&mut self, min_score: f64, max_entries: usize) {
+        let to_remove: Vec<[u8; 32]> = self
+            .map
+            .iter()
+            .filter(|(_, v)| v.belief < min_score)
+            .map(|(k, _)| *k)
+            .collect();
+        for k in to_remove {
+            self.map.remove(&k);
+        }
+
+        while self.map.len() > max_entries {
+            if let Some((&key, _)) = self
+                .map
+                .iter()
+                .min_by(|a, b| {
+                    let ba = a.1.belief;
+                    let bb = b.1.belief;
+                    ba.partial_cmp(&bb)
+                        .unwrap_or(std::cmp::Ordering::Equal)
+                        .then_with(|| a.1.last_used.cmp(&b.1.last_used))
+                })
+            {
+                self.map.remove(&key);
+            } else {
+                break;
+            }
+        }
+    }
+}
+
 impl GlossTable {
     /// Placeholder generator. In this trimmed example no automatic gloss table
     /// creation is performed.
