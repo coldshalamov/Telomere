@@ -1,5 +1,6 @@
 use crate::header::{Header, encode_header};
 use crate::path::{CompressionPath, PathGloss};
+use crate::CompressionStats;
 use std::time::Instant;
 use crate::BLOCK_SIZE;
 use sha2::{Digest, Sha256};
@@ -72,9 +73,14 @@ pub fn compress_block(
     counter: &mut u64,
     fallback: Option<&mut FallbackSeeds>,
     current_pass: u64,
+    stats: Option<&mut CompressionStats>,
 ) -> Option<(Header, usize)> {
     if input.len() < BLOCK_SIZE {
         return None;
+    }
+
+    if let Some(s) = stats {
+        s.tick_block();
     }
 
     let span_hash: [u8; 32] = Sha256::digest(&input[..BLOCK_SIZE]).into();
@@ -103,6 +109,9 @@ pub fn compress_block(
                     seed_index: path_id as usize,
                     arity: matched_blocks,
                 };
+                if let Some(s) = stats {
+                    s.log_match(true, matched_blocks);
+                }
                 return Some((header, matched_blocks * BLOCK_SIZE));
             }
         }

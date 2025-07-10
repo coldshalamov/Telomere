@@ -1,75 +1,26 @@
 mod bloom;
 mod compress;
+mod compress_stats;
 mod gloss;
 mod header;
 mod sha_cache;
 mod path;
 mod seed_logger;
 mod gloss_prune_hook;
+mod stats;
 
 pub use bloom::*;
 pub use compress::TruncHashTable;
+pub use compress_stats::{CompressionStats, write_stats_csv};
 pub use gloss::*;
 pub use header::{Header, encode_header, decode_header, HeaderError};
 pub use sha_cache::*;
 pub use path::*;
 pub use seed_logger::{resume_seed_index, log_seed, HashEntry};
 pub use gloss_prune_hook::run as gloss_prune_hook;
+pub use stats::Stats;
 
 pub const BLOCK_SIZE: usize = 7;
-
-/// Tracks high level compression statistics.
-pub struct CompressionStats {
-    pub start_time: std::time::Instant,
-    pub total_blocks: u64,
-    pub compressed_blocks: u64,
-    pub greedy_matches: u64,
-    pub fallback_matches: u64,
-}
-
-impl CompressionStats {
-    /// Create a new stats object with zeroed counters.
-    pub fn new() -> Self {
-        Self {
-            start_time: std::time::Instant::now(),
-            total_blocks: 0,
-            compressed_blocks: 0,
-            greedy_matches: 0,
-            fallback_matches: 0,
-        }
-    }
-
-    /// Print a summary line of the current stats.
-    pub fn report(&self) {
-        println!(
-            "time {:.2}s, total {}, compressed {}, greedy {}, fallback {}",
-            self.start_time.elapsed().as_secs_f32(),
-            self.total_blocks,
-            self.compressed_blocks,
-            self.greedy_matches,
-            self.fallback_matches
-        );
-    }
-}
-
-use std::fs::File;
-use std::io::Write;
-
-/// Write statistics to a CSV file at `path`.
-pub fn write_stats_csv(stats: &CompressionStats, path: &str) {
-    let mut file = File::create(path).unwrap();
-    writeln!(file, "time_s,total_blocks,compressed_blocks,greedy,fallback").unwrap();
-    writeln!(
-        file,
-        "{:.2},{},{},{},{}",
-        stats.start_time.elapsed().as_secs_f32(),
-        stats.total_blocks,
-        stats.compressed_blocks,
-        stats.greedy_matches,
-        stats.fallback_matches
-    )
-    .unwrap();
-}
 
 pub fn print_compression_status(original: usize, compressed: usize) {
     let ratio = 100.0 * (1.0 - compressed as f64 / original as f64);
@@ -89,8 +40,6 @@ use std::collections::HashMap;
 use std::ops::RangeInclusive;
 
 /// Compress the input using literal passthrough encoding.
-/// This trimmed example simply groups up to three blocks
-/// of input per header and appends a final tail.
 pub fn compress(
     data: &[u8],
     _lens: RangeInclusive<u8>,
@@ -108,7 +57,12 @@ pub fn compress(
     let mut stats = CompressionStats::new();
     let mut out = Vec::new();
     let mut offset = 0usize;
+
     while offset + BLOCK_SIZE <= data.len() {
+        stats.tick_block();
+        if stats.total_blocks % 5000 == 0 {
+            stats.report();
+        }
         let remaining_blocks = (data.len() - offset) / BLOCK_SIZE;
         let blocks = remaining_blocks.min(3);
         let header = encode_header(0, 36 + blocks);
@@ -116,14 +70,15 @@ pub fn compress(
         let bytes = blocks * BLOCK_SIZE;
         out.extend_from_slice(&data[offset..offset + bytes]);
         offset += bytes;
-        stats.total_blocks += blocks as u64;
-        stats.compressed_blocks += blocks as u64;
+        stats.log_match(false, blocks);
     }
+
     let header = encode_header(0, 40);
     out.extend_from_slice(&header);
     if offset < data.len() {
         out.extend_from_slice(&data[offset..]);
     }
+
     stats.report();
     write_stats_csv(&stats, "stats_kolyma.csv");
     out
