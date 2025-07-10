@@ -5,6 +5,7 @@ fn mixed_gloss_and_passthrough() {
     let entry = GlossEntry {
         seed: vec![0xDE],
         decompressed: b"hello!!!".to_vec(),
+        score: 1.0,
     };
     let gloss = GlossTable { entries: vec![entry] };
 

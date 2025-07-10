@@ -8,6 +8,8 @@ use std::path::Path;
 pub struct GlossEntry {
     pub seed: Vec<u8>,
     pub decompressed: Vec<u8>,
+    /// Relative confidence or usefulness of this entry
+    pub score: f64,
 }
 
 #[derive(Serialize, Deserialize, Default, Clone)]
@@ -93,5 +95,21 @@ impl GlossTable {
 
     pub fn find_with_index(&self, data: &[u8]) -> Option<(usize, &GlossEntry)> {
         self.entries.iter().enumerate().find(|(_, e)| e.decompressed == data)
+    }
+
+    /// Drop entries whose score falls below `min_score` and ensure the table
+    /// does not exceed `max_entries` items. When trimming by size the lowest
+    /// scoring entries are removed first.
+    pub fn prune_low_score_entries(&mut self, min_score: f64, max_entries: usize) {
+        self.entries.retain(|e| e.score >= min_score);
+
+        if self.entries.len() > max_entries {
+            self.entries.sort_by(|a, b| {
+                b.score
+                    .partial_cmp(&a.score)
+                    .unwrap_or(std::cmp::Ordering::Equal)
+            });
+            self.entries.truncate(max_entries);
+        }
     }
 }
