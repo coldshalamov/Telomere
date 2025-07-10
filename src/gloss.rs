@@ -157,5 +157,25 @@ impl GlossTable {
             });
             self.entries.truncate(max_entries);
         }
+
+        // Display a brief score distribution summary after pruning.
+        self.print_gloss_score_histogram();
+    }
+
+    /// Print a histogram summarizing gloss entry score distribution.
+    ///
+    /// Buckets scores in 0.1 increments from `[0.0, 0.1)` up to `[0.9, 1.0]`.
+    /// Useful for observing how pruning affects the table across passes.
+    pub fn print_gloss_score_histogram(&self) {
+        let mut buckets = vec![0usize; 10];
+        for e in &self.entries {
+            let bin = ((e.score * 10.0).floor() as usize).min(9);
+            buckets[bin] += 1;
+        }
+
+        println!("\n\u{1F4CA} Gloss Score Histogram:");
+        for (i, count) in buckets.iter().enumerate() {
+            println!("  {:.1}\u{2013}{:.1}: {}", i as f32 * 0.1, (i + 1) as f32 * 0.1, count);
+        }
     }
 }
