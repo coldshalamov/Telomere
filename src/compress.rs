@@ -4,6 +4,8 @@ use std::time::Instant;
 use crate::BLOCK_SIZE;
 use sha2::{Digest, Sha256};
 use std::collections::HashSet;
+use csv;
+use hex;
 
 /// In-memory table storing truncated SHA-256 prefixes.
 ///
@@ -236,4 +238,24 @@ impl FallbackSeeds {
             }
         }
     }
+}
+
+/// Write the current belief map to a CSV file for debugging.
+pub fn dump_gloss_to_csv(map: &crate::gloss::BeliefMap, path: &str) -> std::io::Result<()> {
+    let mut wtr = csv::Writer::from_path(path)?;
+    wtr.write_record(&["SeedHex", "Score", "Pass", "BundlingHits", "GlossHits"])?;
+
+    for entry in map.iter().map(|(_, e)| e) {
+        let seed_hex = hex::encode(&entry.seed);
+        wtr.write_record(&[
+            seed_hex,
+            format!("{:.4}", entry.belief),
+            entry.last_used.to_string(),
+            entry.bundling_hits.to_string(),
+            entry.gloss_hits.to_string(),
+        ])?;
+    }
+
+    wtr.flush()?;
+    Ok(())
 }
