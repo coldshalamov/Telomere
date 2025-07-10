@@ -13,6 +13,7 @@ mod stats;
 pub use bloom::*;
 pub use compress::TruncHashTable;
 pub use compress::compress_block;
+pub use compress::{dump_beliefmap_json, dump_gloss_to_csv};
 pub use compress_stats::{CompressionStats, write_stats_csv};
 pub use gloss::*;
 pub use header::{Header, encode_header, decode_header, HeaderError};
@@ -97,6 +98,13 @@ pub fn compress(
     }
 
     stats.report();
+
+    use crate::{dump_beliefmap_json, dump_gloss_to_csv};
+    let _ = dump_beliefmap_json(&fallback.map, "belief_fallback.json");
+    if _verbosity >= 2 {
+        let _ = dump_gloss_to_csv(&fallback.map, "belief_fallback.csv");
+    }
+
     out
 }
 
