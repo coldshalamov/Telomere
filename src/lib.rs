@@ -24,7 +24,7 @@ pub use live_window::LiveStats;
 pub use live_window::print_window;
 pub use stats::Stats;
 
-pub const BLOCK_SIZE: usize = 7;
+pub const BLOCK_SIZE: usize = 3;
 
 pub fn print_compression_status(original: usize, compressed: usize) {
     let ratio = 100.0 * (1.0 - compressed as f64 / original as f64);
