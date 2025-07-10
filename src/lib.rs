@@ -7,6 +7,7 @@ mod sha_cache;
 mod path;
 mod seed_logger;
 mod gloss_prune_hook;
+mod live_window;
 mod stats;
 
 pub use bloom::*;
@@ -18,6 +19,7 @@ pub use sha_cache::*;
 pub use path::*;
 pub use seed_logger::{resume_seed_index, log_seed, HashEntry};
 pub use gloss_prune_hook::run as gloss_prune_hook;
+pub use live_window::print_window;
 pub use stats::Stats;
 
 pub const BLOCK_SIZE: usize = 7;
@@ -33,11 +35,11 @@ pub enum Region {
     Compressed(Vec<u8>, Header),
 }
 
-// … FULL compress(), decompress(), decompress_with_limit(), etc.
-
 use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 use std::ops::RangeInclusive;
+use std::fs::File;
+use std::io::Write;
 
 /// Compress the input using literal passthrough encoding.
 pub fn compress(
