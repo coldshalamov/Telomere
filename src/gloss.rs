@@ -21,6 +21,7 @@ pub struct GlossTable {
 }
 
 /// Entry tracked for probabilistic fallback seeding
+#[derive(Serialize, Deserialize, Clone)]
 pub struct BeliefSeed {
     pub seed: Vec<u8>,
     pub belief: f64,
