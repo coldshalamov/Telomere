@@ -40,10 +40,8 @@ pub enum Region {
 use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 use std::ops::RangeInclusive;
-use std::fs::File;
-use std::io::Write;
 
-use crate::{BLOCK_SIZE, PathGloss, FallbackSeeds, compress_block};
+use crate::compress::FallbackSeeds;
 
 /// Compress the input using seed-aware block compression.
 pub fn compress(
