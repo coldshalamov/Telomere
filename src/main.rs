@@ -91,7 +91,7 @@ fn main() -> std::io::Result<()> {
             }
             flag => {
                 eprintln!("Unknown flag: {}", flag);
-                return;
+                return Ok(());
             }
         }
     }

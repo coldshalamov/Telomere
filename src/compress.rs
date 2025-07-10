@@ -1,6 +1,6 @@
 use crate::header::{Header, encode_header};
 use crate::path::{CompressionPath, PathGloss};
-use crate::live_window::LiveStats;
+use crate::compress_stats::CompressionStats;
 use crate::BLOCK_SIZE;
 use sha2::{Digest, Sha256};
 use std::time::Instant;
@@ -58,7 +58,7 @@ pub fn compress_block(
     counter: &mut u64,
     fallback: Option<&mut FallbackSeeds>,
     current_pass: u64,
-    mut stats: Option<&mut LiveStats>,
+    mut stats: Option<&mut CompressionStats>,
 ) -> Option<(Header, usize)> {
     if input.len() < BLOCK_SIZE {
         return None;
@@ -99,6 +99,7 @@ pub fn compress_block(
                     let span = &input[..span_len.min(input.len())];
                     let seed = &input[..BLOCK_SIZE.min(input.len())];
                     s.maybe_log(span, seed, true);
+                    s.log_match(true, matched_blocks);
                 }
                 return Some((header, matched_blocks * BLOCK_SIZE));
             }
@@ -165,6 +166,7 @@ pub fn compress_block(
         let span = &input[..consumed.min(input.len())];
         let seed = &input[..BLOCK_SIZE.min(input.len())];
         s.maybe_log(span, seed, false);
+        s.log_match(false, blocks);
     }
 
     Some((Header { seed_index: 0, arity: blocks }, consumed))
