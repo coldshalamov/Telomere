@@ -58,13 +58,13 @@ pub fn compress_block(
     counter: &mut u64,
     fallback: Option<&mut FallbackSeeds>,
     current_pass: u64,
-    stats: Option<&mut LiveStats>,
+    mut stats: Option<&mut LiveStats>,
 ) -> Option<(Header, usize)> {
     if input.len() < BLOCK_SIZE {
         return None;
     }
 
-    if let Some(s) = stats {
+    if let Some(s) = stats.as_mut() {
         s.tick_block();
     }
 
@@ -94,7 +94,7 @@ pub fn compress_block(
                     seed_index: path_id as usize,
                     arity: matched_blocks,
                 };
-                if let Some(s) = stats {
+                if let Some(s) = stats.as_mut() {
                     let span_len = matched_blocks * BLOCK_SIZE;
                     let span = &input[..span_len.min(input.len())];
                     let seed = &input[..BLOCK_SIZE.min(input.len())];
@@ -161,7 +161,7 @@ pub fn compress_block(
         }
     }
 
-    if let Some(s) = stats {
+    if let Some(s) = stats.as_mut() {
         let span = &input[..consumed.min(input.len())];
         let seed = &input[..BLOCK_SIZE.min(input.len())];
         s.maybe_log(span, seed, false);
