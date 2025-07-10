@@ -39,8 +39,6 @@ pub enum Region {
 use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 use std::ops::RangeInclusive;
-use std::fs::File;
-use std::io::Write;
 
 /// Compress the input using literal passthrough encoding.
 pub fn compress(
@@ -49,7 +47,7 @@ pub fn compress(
     _limit: Option<u64>,
     _status: u64,
     _hashes: &mut u64,
-    _json: bool,
+    json: bool,
     _gloss: Option<&GlossTable>,
     _verbosity: u8,
     _gloss_only: bool,
@@ -63,7 +61,7 @@ pub fn compress(
 
     while offset + BLOCK_SIZE <= data.len() {
         stats.tick_block();
-        if stats.total_blocks % 5000 == 0 {
+        if !json && stats.total_blocks % 5000 == 0 {
             stats.report();
         }
         let remaining_blocks = (data.len() - offset) / BLOCK_SIZE;
@@ -82,8 +80,10 @@ pub fn compress(
         out.extend_from_slice(&data[offset..]);
     }
 
-    stats.report();
-    write_stats_csv(&stats, "stats_kolyma.csv");
+    if !json {
+        stats.report();
+    }
+    let _ = write_stats_csv(&stats, "stats_kolyma.csv");
     out
 }
 

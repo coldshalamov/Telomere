@@ -44,7 +44,7 @@ pub fn print_window(span: &[u8], seed: &[u8], is_greedy: bool, stats: &Stats, in
     }
     if stats.total_blocks % interval == 0 {
         println!(
-            "[{:\>6}] span: {:02X?} seed: {:02X?} method: {}",
+            "[{:>6}] span: {:02X?} seed: {:02X?} method: {}",
             stats.total_blocks,
             &span[..3.min(span.len())],
             &seed[..3.min(seed.len())],

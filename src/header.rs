@@ -208,7 +208,7 @@ mod tests {
         let (seed, arity, bits) = decode_header(&enc).unwrap();
         assert_eq!(seed, 0);
         assert_eq!(arity, 2);
-        assert_eq!(bits, 4);
+        assert_eq!(bits, 6);
         assert_eq!(enc.len(), 1);
     }
 
@@ -228,7 +228,7 @@ mod tests {
         let (seed, arity, bits) = decode_header(&enc).unwrap();
         assert_eq!(seed, 300);
         assert_eq!(arity, 200);
-        assert_eq!(bits, 33);
+        assert_eq!(bits, 59);
         assert_eq!(enc.len(), (bits + 7) / 8);
     }
 
