@@ -1,4 +1,4 @@
-use crate::header::Header;
+use crate::header::{Header, encode_header};
 use crate::path::{CompressionPath, PathGloss};
 use std::time::Instant;
 use crate::BLOCK_SIZE;
@@ -68,6 +68,8 @@ pub fn compress_block(
     input: &[u8],
     gloss: &mut PathGloss,
     counter: &mut u64,
+    fallback: Option<&mut FallbackSeeds>,
+    current_pass: u64,
 ) -> Option<(Header, usize)> {
     if input.len() < BLOCK_SIZE {
         return None;
@@ -127,6 +129,39 @@ pub fn compress_block(
         };
         *counter += 1;
         gloss.add_path(path);
+    }
+
+    // --- Bayesian fallback logic ---
+    // Evaluate potential future reuse of this span's first block as a seed.
+    if let Some(fb) = fallback {
+        let span = &input[..consumed];
+        let digest: [u8; 32] = Sha256::digest(span).into();
+        let seed = &span[..BLOCK_SIZE.min(span.len())];
+        let header_bits = encode_header(0, blocks).len() * 8;
+        let excess = (header_bits + seed.len() * 8) as f64 - (span.len() * 8) as f64;
+        let belief = (-fb.lambda * excess).exp();
+        if belief > fb.theta {
+            let entry = crate::gloss::BeliefSeed {
+                seed: seed.to_vec(),
+                belief,
+                last_used: current_pass,
+                bundling_hits: 0,
+                gloss_hits: 0,
+            };
+            fb.map.insert(digest, entry);
+            fb.trim();
+
+            let path = CompressionPath {
+                id: *counter,
+                created_at: Instant::now(),
+                seeds: vec![seed.to_vec()],
+                span_hashes: vec![digest],
+                total_gain: 0,
+                replayed: 0,
+            };
+            *counter += 1;
+            gloss.add_path(path);
+        }
     }
 
     Some((Header { seed_index: 0, arity: blocks }, consumed))
