@@ -11,7 +11,7 @@ mod stats;
 
 pub use bloom::*;
 pub use compress::TruncHashTable;
-pub use compress_stats::CompressionStats;
+pub use compress_stats::{CompressionStats, write_stats_csv};
 pub use gloss::*;
 pub use header::{Header, encode_header, decode_header, HeaderError};
 pub use sha_cache::*;
@@ -40,8 +40,6 @@ use std::collections::HashMap;
 use std::ops::RangeInclusive;
 
 /// Compress the input using literal passthrough encoding.
-/// This trimmed example simply groups up to three blocks
-/// of input per header and appends a final tail.
 pub fn compress(
     data: &[u8],
     _lens: RangeInclusive<u8>,
@@ -56,9 +54,10 @@ pub fn compress(
     _partials: Option<&mut Vec<u8>>,
     _filter: Option<&mut TruncHashTable>,
 ) -> Vec<u8> {
+    let mut stats = CompressionStats::new();
     let mut out = Vec::new();
     let mut offset = 0usize;
-    let mut stats = crate::Stats::new();
+
     while offset + BLOCK_SIZE <= data.len() {
         stats.tick_block();
         if stats.total_blocks % 5000 == 0 {
@@ -73,12 +72,15 @@ pub fn compress(
         offset += bytes;
         stats.log_match(false, blocks);
     }
+
     let header = encode_header(0, 40);
     out.extend_from_slice(&header);
     if offset < data.len() {
         out.extend_from_slice(&data[offset..]);
     }
+
     stats.report();
+    write_stats_csv(&stats, "stats_kolyma.csv");
     out
 }
 
