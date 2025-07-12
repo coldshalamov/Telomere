@@ -38,11 +38,14 @@ pub struct Stats {
 
 /// Alternative logging method for cases not using `LiveStats`.
 #[allow(dead_code)]
-pub fn print_window(span: &[u8], seed: &[u8], is_greedy: bool, stats: &Stats, interval: u64) {
+use crate::compress_stats::CompressionStats;
+
+pub fn print_window(span: &[u8], seed: &[u8], is_greedy: bool, stats: &CompressionStats, interval: u64) {
     if interval == 0 {
         return;
     }
-    if stats.total_blocks % interval == 0 {
+    let interval_usize = interval as usize;
+    if stats.total_blocks % interval_usize == 0 {
         println!(
             "[{:>6}] span: {:02X?} seed: {:02X?} method: {}",
             stats.total_blocks,

@@ -66,8 +66,10 @@ pub fn compress_block(
     }
 
     if let Some(s) = stats.as_mut() {
-        s.tick_block();
-    }
+    println!("⏳ compress_block hit! block = {}", s.total_blocks);
+    s.tick_block();
+}
+
 
     let first_seed = &input[..BLOCK_SIZE];
     let span_hash: [u8; 32] = if let Some(table) = hash_table {
@@ -163,12 +165,15 @@ pub fn compress_block(
         let belief = (-fb.lambda * excess).exp();
         if belief > fb.theta {
             let entry = crate::gloss::BeliefSeed {
-                seed: seed.to_vec(),
-                belief,
-                last_used: current_pass,
-                bundling_hits: 0,
-                gloss_hits: 0,
-            };
+    id: *counter as usize,
+    seed: seed.to_vec(),
+    belief,
+    last_used: current_pass,
+    bundling_hits: 0,
+    gloss_hits: 0,
+};
+
+
             fb.map.insert(digest, entry);
             fb.trim();
 
@@ -250,18 +255,30 @@ impl FallbackSeeds {
         } else {
             let prior = (-self.lambda * ((seed.len() as isize - self.block_len as isize) as f64)).exp();
             let s = crate::gloss::BeliefSeed {
-                seed: seed.to_vec(),
-                belief: prior,
-                last_used: pass,
-                bundling_hits: 1,
-                gloss_hits: 0,
-            };
+    id: 0, // not used for record_failure-based entries
+    seed: seed.to_vec(),
+    belief: prior,
+    last_used: pass,
+    bundling_hits: 1,
+    gloss_hits: 0,
+};
+
             if prior > self.theta {
                 self.map.insert(digest, s);
                 self.trim();
             }
         }
     }
+    pub fn reverse_index(&self, index: usize) -> Option<Vec<u8>> {
+        self.map.iter().find_map(|(_, entry)| {
+            if entry.id == index {
+                Some(entry.seed.clone())
+            } else {
+                None
+            }
+        })
+    }
+
 }
 
 pub fn dump_gloss_to_csv(map: &crate::gloss::BeliefMap, path: &str) -> std::io::Result<()> {

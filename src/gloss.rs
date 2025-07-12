@@ -23,6 +23,7 @@ pub struct GlossTable {
 /// Entry tracked for probabilistic fallback seeding
 #[derive(Serialize, Deserialize, Clone)]
 pub struct BeliefSeed {
+    pub id: usize,
     pub seed: Vec<u8>,
     pub belief: f64,
     pub last_used: u64,
@@ -137,9 +138,6 @@ impl GlossTable {
         self.entries.iter().enumerate().find(|(_, e)| e.decompressed == data)
     }
 
-    /// Drop entries whose score falls below `min_score` and ensure the table
-    /// does not exceed `max_entries` items. When trimming by size the lowest
-    /// scoring entries are removed first.
     pub fn prune_low_score_entries(&mut self, min_score: f64, max_entries: usize) {
         self.entries.retain(|e| e.score >= min_score);
 
@@ -155,8 +153,6 @@ impl GlossTable {
         self.print_gloss_score_histogram();
     }
 
-    /// Print a histogram summarizing gloss entry score distribution.
-    /// Buckets scores in 0.1 increments from `[0.0, 0.1)` to `[0.9, 1.0]`.
     pub fn print_gloss_score_histogram(&self) {
         let mut buckets = vec![0usize; 10];
         for e in &self.entries {
@@ -169,4 +165,16 @@ impl GlossTable {
             println!("  {:.1}–{:.1}: {}", i as f32 * 0.1, (i + 1) as f32 * 0.1, count);
         }
     }
+
+    /// Add a new entry to the gloss table.
+    pub fn add_entry(&mut self, seed: Vec<u8>, decompressed: Vec<u8>, score: f64, pass: usize) {
+        self.entries.push(GlossEntry {
+            seed,
+            decompressed,
+            score,
+            pass,
+        });
+    }
 }
+
+    
