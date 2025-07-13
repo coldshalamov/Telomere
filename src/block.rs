@@ -17,6 +17,19 @@ use std::collections::HashMap;
 /// BlockTable groups blocks by their bit length
 pub type BlockTable = HashMap<usize, Vec<Block>>;
 
+/// Given a flat list of [`Block`]s, return a [`BlockTable`]
+/// where blocks are grouped by their bit length.
+///
+/// This is primarily used when simulating the compression pipeline
+/// after splitting raw input into blocks.
+pub fn group_by_bit_length(blocks: Vec<Block>) -> BlockTable {
+    let mut table: BlockTable = HashMap::new();
+    for block in blocks {
+        table.entry(block.bit_length).or_default().push(block);
+    }
+    table
+}
+
 /// Split raw input into fixed-sized blocks measured in bits.
 ///
 /// Each returned [`Block`] will have `bit_length` equal to `block_size_bits`
@@ -71,7 +84,10 @@ mod tests {
             arity: None,
             seed_index: None,
         };
-        table.entry(block.bit_length).or_default().push(block.clone());
+        table
+            .entry(block.bit_length)
+            .or_default()
+            .push(block.clone());
         assert_eq!(table.get(&8).unwrap()[0].global_index, 0);
     }
 
