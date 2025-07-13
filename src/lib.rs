@@ -1,47 +1,47 @@
+mod block;
 mod bloom;
 mod compress;
 mod compress_stats;
 mod gloss;
-mod header;
-mod sha_cache;
-mod path;
-mod seed_logger;
 mod gloss_prune_hook;
+mod header;
 mod live_window;
+mod path;
+mod seed_detect;
+mod seed_logger;
+mod sha_cache;
 mod stats;
-mod block;
 
-pub use bloom::*;
-pub use compress::{TruncHashTable, compress_block, dump_beliefmap_json, dump_gloss_to_csv};
-pub use compress_stats::{CompressionStats, write_stats_csv};
-pub use gloss::*;
-pub use header::{Header, encode_header, decode_header, HeaderError};
-pub use sha_cache::*;
-pub use path::*;
-pub use seed_logger::{resume_seed_index, log_seed, HashEntry};
-pub use gloss_prune_hook::run as gloss_prune_hook;
-pub use live_window::{LiveStats, print_window};
-pub use stats::Stats;
 pub use block::{
-    Block,
-    BlockTable,
-    BlockChange,
-    detect_bundles,
-    split_into_blocks,
-    group_by_bit_length,
-    apply_block_changes,
+    apply_block_changes, detect_bundles, group_by_bit_length, split_into_blocks, Block,
+    BlockChange, BlockTable,
 };
+pub use bloom::*;
+pub use compress::{compress_block, dump_beliefmap_json, dump_gloss_to_csv, TruncHashTable};
+pub use compress_stats::{write_stats_csv, CompressionStats};
+pub use gloss::*;
+pub use gloss_prune_hook::run as gloss_prune_hook;
+pub use header::{decode_header, encode_header, Header, HeaderError};
+pub use live_window::{print_window, LiveStats};
+pub use path::*;
+pub use seed_detect::{detect_seed_matches, BlockStatus, MatchRecord, MutableBlock};
+pub use seed_logger::{log_seed, resume_seed_index, HashEntry};
+pub use sha_cache::*;
+pub use stats::Stats;
 
+use crate::compress::FallbackSeeds;
 use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 use std::ops::RangeInclusive;
-use crate::compress::FallbackSeeds;
 
 pub const BLOCK_SIZE: usize = 3;
 
 pub fn print_compression_status(original: usize, compressed: usize) {
     let ratio = 100.0 * (1.0 - compressed as f64 / original as f64);
-    eprintln!("Compression: {} → {} bytes ({:.2}%)", original, compressed, ratio);
+    eprintln!(
+        "Compression: {} → {} bytes ({:.2}%)",
+        original, compressed, ratio
+    );
 }
 
 #[derive(Debug, Clone)]
@@ -136,7 +136,11 @@ pub fn decompress_region_with_limit(
 ) -> Option<Vec<u8>> {
     match region {
         Region::Raw(bytes) => {
-            if bytes.len() <= limit { Some(bytes.clone()) } else { None }
+            if bytes.len() <= limit {
+                Some(bytes.clone())
+            } else {
+                None
+            }
         }
         Region::Compressed(data, header) => {
             if header.is_literal() {
@@ -164,11 +168,7 @@ pub fn decompress_region_with_limit(
 }
 
 /// Decompress a full byte stream with an optional limit.
-pub fn decompress_with_limit(
-    input: &[u8],
-    table: &GlossTable,
-    limit: usize,
-) -> Option<Vec<u8>> {
+pub fn decompress_with_limit(input: &[u8], table: &GlossTable, limit: usize) -> Option<Vec<u8>> {
     let mut offset = 0usize;
     let mut out = Vec::new();
     while offset < input.len() {
@@ -210,7 +210,10 @@ pub fn decompress(input: &[u8], table: &GlossTable) -> Vec<u8> {
 }
 
 /// Reconstruct a region of data from a compressed form (seed + header).
-pub fn unpack_region(header_bytes: &[u8], seed: &[u8]) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
+pub fn unpack_region(
+    header_bytes: &[u8],
+    seed: &[u8],
+) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
     let (seed_index, arity, _extra) = decode_header(header_bytes)?;
     let hash_output = sha2::Sha256::digest(seed);
     let span_len = arity_to_span_len(arity as u32)?;
