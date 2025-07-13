@@ -12,7 +12,9 @@ use csv;
 use hex;
 
 /// In-memory table storing truncated SHA-256 prefixes.
-#[derive(Default)]
+use serde::{Serialize, Deserialize};
+
+#[derive(Default, Serialize, Deserialize)]
 pub struct TruncHashTable {
     pub bits: u8,
     pub set: HashSet<u64>,
@@ -50,6 +52,20 @@ impl TruncHashTable {
         let key = self.prefix(&arr);
         self.set.contains(&key)
     }
+
+    /// Load a serialized table from disk using bincode encoding.
+    pub fn load<P: AsRef<std::path::Path>>(path: P) -> std::io::Result<Self> {
+        let bytes = std::fs::read(path)?;
+        bincode::deserialize(&bytes)
+            .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))
+    }
+
+    /// Persist the table to disk using bincode encoding.
+    pub fn save<P: AsRef<std::path::Path>>(&self, path: P) -> std::io::Result<()> {
+        let bytes = bincode::serialize(self)
+            .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))?;
+        std::fs::write(path, bytes)
+    }
 }
 
 pub fn compress_block(
@@ -66,9 +82,8 @@ pub fn compress_block(
     }
 
     if let Some(s) = stats.as_mut() {
-    println!("⏳ compress_block hit! block = {}", s.total_blocks);
-    s.tick_block();
-}
+        s.tick_block();
+    }
 
 
     let first_seed = &input[..BLOCK_SIZE];

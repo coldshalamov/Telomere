@@ -1,3 +1,6 @@
+use sha2::{Digest, Sha256};
+use std::collections::HashMap;
+
 #[derive(Debug, Clone)]
 pub struct Block {
     /// Original order in the stream
@@ -12,24 +15,32 @@ pub struct Block {
     pub seed_index: Option<usize>,
 }
 
-use std::collections::HashMap;
+/// Represents an update to a specific block in the table.
+#[derive(Debug, Clone)]
+pub struct BlockChange {
+    /// Global index of the block being replaced
+    pub original_index: usize,
+    /// Replacement block (bit length determines new group)
+    pub new_block: Block,
+}
 
 /// BlockTable groups blocks by their bit length
 pub type BlockTable = HashMap<usize, Vec<Block>>;
 
+/// Given a flat list of [`Block`]s, return a [`BlockTable`]
+pub fn group_by_bit_length(blocks: Vec<Block>) -> BlockTable {
+    let mut table: BlockTable = HashMap::new();
+    for block in blocks {
+        table.entry(block.bit_length).or_default().push(block);
+    }
+    table
+}
+
 /// Split raw input into fixed-sized blocks measured in bits.
-///
-/// Each returned [`Block`] will have `bit_length` equal to `block_size_bits`
-/// except for the final block which may be shorter when the input length is not
-/// perfectly divisible by the requested block size. The raw byte data of each
-/// block is stored directly without any bit-level slicing or padding.
 pub fn split_into_blocks(input: &[u8], block_size_bits: usize) -> Vec<Block> {
     assert!(block_size_bits > 0, "block size must be non-zero");
 
-    // Number of whole bytes that contain the requested number of bits. We round
-    // up so blocks always contain enough data even when not byte aligned.
     let block_size_bytes = (block_size_bits + 7) / 8;
-
     let mut blocks = Vec::new();
     let mut offset = 0usize;
     let mut index = 0usize;
@@ -58,9 +69,92 @@ pub fn split_into_blocks(input: &[u8], block_size_bits: usize) -> Vec<Block> {
     blocks
 }
 
+/// Simulate a compression pass using a prebuilt seed table.
+pub fn simulate_pass(table: &mut BlockTable, seed_table: &HashMap<String, usize>) -> usize {
+    let mut lengths: Vec<usize> = table.keys().cloned().collect();
+    lengths.sort_unstable_by(|a, b| b.cmp(a));
+
+    let mut matches = 0usize;
+
+    for len in lengths {
+        if let Some(mut group) = table.remove(&len) {
+            let mut remaining = Vec::new();
+            for mut block in group.into_iter() {
+                let digest = Sha256::digest(&block.data);
+                let hex = hex::encode(digest);
+                if let Some(&seed_idx) = seed_table.get(&hex) {
+                    block.seed_index = Some(seed_idx);
+                    block.arity = Some(1);
+                    block.bit_length = 16;
+                    table.entry(16).or_default().push(block);
+                    matches += 1;
+                } else {
+                    remaining.push(block);
+                }
+            }
+            if !remaining.is_empty() {
+                table.insert(len, remaining);
+            }
+        }
+    }
+
+    matches
+}
+
+/// Apply a batch of block modifications to the table.
+pub fn apply_block_changes(table: &mut BlockTable, changes: Vec<BlockChange>) {
+    for mut change in changes {
+        // Remove the old block
+        let mut empty_key: Option<usize> = None;
+        for (len, group) in table.iter_mut() {
+            if let Some(pos) = group.iter().position(|b| b.global_index == change.original_index) {
+                group.remove(pos);
+                if group.is_empty() {
+                    empty_key = Some(*len);
+                }
+                break;
+            }
+        }
+        if let Some(k) = empty_key {
+            table.remove(&k);
+        }
+
+        change.new_block.global_index = change.original_index;
+        table.entry(change.new_block.bit_length).or_default().push(change.new_block);
+    }
+}
+
+/// Print a short summary of how many blocks exist for each bit length.
+pub fn print_table_summary(table: &BlockTable) {
+    let mut lengths: Vec<_> = table.keys().cloned().collect();
+    lengths.sort_unstable();
+    for len in lengths {
+        if let Some(group) = table.get(&len) {
+            println!("{}: {} blocks", len, group.len());
+        }
+    }
+}
+
+/// Detect potential bundled blocks after a pass (stub).
+pub fn detect_bundles(_table: &mut BlockTable) {}
+
+/// Run compression passes until no additional matches are found.
+pub fn run_all_passes(mut table: BlockTable, seed_table: &HashMap<String, usize>) -> BlockTable {
+    loop {
+        let matches = simulate_pass(&mut table, seed_table);
+        if matches == 0 {
+            break;
+        }
+        detect_bundles(&mut table);
+        apply_block_changes(&mut table, vec![]);
+    }
+    table
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
     #[test]
     fn table_groups_by_length() {
         let mut table: BlockTable = HashMap::new();
@@ -97,5 +191,60 @@ mod tests {
         let blocks = split_into_blocks(&input, 16);
         assert_eq!(blocks.len(), 2);
         assert!(blocks.iter().all(|b| b.bit_length == 16));
+    }
+
+    #[test]
+    fn group_blocks() {
+        let blocks = vec![
+            Block {
+                global_index: 0,
+                bit_length: 8,
+                data: vec![0],
+                arity: None,
+                seed_index: None,
+            },
+            Block {
+                global_index: 1,
+                bit_length: 16,
+                data: vec![1, 2],
+                arity: None,
+                seed_index: None,
+            },
+            Block {
+                global_index: 2,
+                bit_length: 8,
+                data: vec![3],
+                arity: None,
+                seed_index: None,
+            },
+        ];
+        let table = group_by_bit_length(blocks);
+        assert_eq!(table.get(&8).unwrap().len(), 2);
+        assert_eq!(table.get(&16).unwrap().len(), 1);
+    }
+
+    #[test]
+    fn run_all_passes_no_matches() {
+        let blocks = vec![
+            Block {
+                global_index: 0,
+                bit_length: 8,
+                data: vec![1],
+                arity: None,
+                seed_index: None,
+            },
+            Block {
+                global_index: 1,
+                bit_length: 8,
+                data: vec![2],
+                arity: None,
+                seed_index: None,
+            },
+        ];
+        let table = group_by_bit_length(blocks.clone());
+        let seed_table: HashMap<String, usize> = HashMap::new();
+        let out = run_all_passes(table, &seed_table);
+        assert_eq!(out.get(&8).unwrap().len(), blocks.len());
+        assert!(out.get(&16).is_none());
     }
 }
