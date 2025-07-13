@@ -36,7 +36,6 @@ use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 use std::ops::RangeInclusive;
 use crate::compress::FallbackSeeds;
-use crate::path::PathGloss;
 
 pub const BLOCK_SIZE: usize = 3;
 
