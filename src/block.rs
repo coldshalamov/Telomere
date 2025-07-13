@@ -71,6 +71,15 @@ pub fn split_into_blocks(input: &[u8], block_size_bits: usize) -> Vec<Block> {
     blocks
 }
 
+/// Group blocks by their bit length into a [`BlockTable`].
+pub fn group_by_bit_length(blocks: Vec<Block>) -> BlockTable {
+    let mut table: BlockTable = HashMap::new();
+    for block in blocks {
+        table.entry(block.bit_length).or_default().push(block);
+    }
+    table
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -113,5 +122,17 @@ mod tests {
         let blocks = split_into_blocks(&input, 16);
         assert_eq!(blocks.len(), 2);
         assert!(blocks.iter().all(|b| b.bit_length == 16));
+    }
+
+    #[test]
+    fn group_blocks() {
+        let blocks = vec![
+            Block { global_index: 0, bit_length: 8, data: vec![0], arity: None, seed_index: None },
+            Block { global_index: 1, bit_length: 16, data: vec![1, 2], arity: None, seed_index: None },
+            Block { global_index: 2, bit_length: 8, data: vec![3], arity: None, seed_index: None },
+        ];
+        let table = group_by_bit_length(blocks);
+        assert_eq!(table.get(&8).unwrap().len(), 2);
+        assert_eq!(table.get(&16).unwrap().len(), 1);
     }
 }

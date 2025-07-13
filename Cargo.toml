@@ -38,3 +38,7 @@ path = "src/bin/gloss_by_pass_dump.rs"
 [[bin]]
 name = "seed_table"
 path = "src/bin/seed_table.rs"
+
+[[bin]]
+name = "block_summary"
+path = "src/bin/block_summary.rs"
