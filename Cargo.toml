@@ -12,6 +12,7 @@ serde = { version = "1", features = ["derive"] }
 memmap2 = "0.5"
 thiserror = "2.0.12"
 csv = "1"
+clap = { version = "4", features = ["derive"] }
 
 
 [[bin]]
@@ -33,3 +34,7 @@ path = "src/bin/gloss_debug_dump.rs"
 [[bin]]
 name = "gloss_by_pass_dump"
 path = "src/bin/gloss_by_pass_dump.rs"
+
+[[bin]]
+name = "seed_table"
+path = "src/bin/seed_table.rs"
