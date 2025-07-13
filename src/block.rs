@@ -15,24 +15,19 @@ pub struct Block {
     pub seed_index: Option<usize>,
 }
 
-/// Extend BlockTable with table mutations
-/// Each bit length gets a vector of Blocks
-pub type BlockTable = HashMap<usize, Vec<Block>>;
-
-/// BlockChange captures updates to a block during simulation
+/// Represents an update to a specific block in the table.
 #[derive(Debug, Clone)]
 pub struct BlockChange {
-    /// Index of the block in its original order
+    /// Global index of the block being replaced
     pub original_index: usize,
-    /// Replacement block after mutation
+    /// Replacement block (bit length determines new group)
     pub new_block: Block,
 }
 
+/// BlockTable groups blocks by their bit length
+pub type BlockTable = HashMap<usize, Vec<Block>>;
+
 /// Given a flat list of [`Block`]s, return a [`BlockTable`]
-/// where blocks are grouped by their bit length.
-///
-/// This is primarily used when simulating the compression pipeline
-/// after splitting raw input into blocks.
 pub fn group_by_bit_length(blocks: Vec<Block>) -> BlockTable {
     let mut table: BlockTable = HashMap::new();
     for block in blocks {
@@ -42,16 +37,10 @@ pub fn group_by_bit_length(blocks: Vec<Block>) -> BlockTable {
 }
 
 /// Split raw input into fixed-sized blocks measured in bits.
-///
-/// Each returned [`Block`] will have `bit_length` equal to `block_size_bits`
-/// except for the final block which may be shorter when the input length is not
-/// perfectly divisible by the requested block size. The raw byte data of each
-/// block is stored directly without any bit-level slicing or padding.
 pub fn split_into_blocks(input: &[u8], block_size_bits: usize) -> Vec<Block> {
     assert!(block_size_bits > 0, "block size must be non-zero");
 
     let block_size_bytes = (block_size_bits + 7) / 8;
-
     let mut blocks = Vec::new();
     let mut offset = 0usize;
     let mut index = 0usize;
@@ -81,11 +70,6 @@ pub fn split_into_blocks(input: &[u8], block_size_bits: usize) -> Vec<Block> {
 }
 
 /// Simulate a compression pass using a prebuilt seed table.
-///
-/// Each block is hashed and looked up in `seed_table`. When a match is found the
-/// block is marked as compressed by setting `seed_index` and `arity`, its
-/// `bit_length` is updated to 16 bits and it is moved into the `16` bit group.
-/// Returns the total number of blocks that were successfully matched.
 pub fn simulate_pass(table: &mut BlockTable, seed_table: &HashMap<String, usize>) -> usize {
     let mut lengths: Vec<usize> = table.keys().cloned().collect();
     lengths.sort_unstable_by(|a, b| b.cmp(a));
@@ -117,9 +101,30 @@ pub fn simulate_pass(table: &mut BlockTable, seed_table: &HashMap<String, usize>
     matches
 }
 
+/// Apply a batch of block modifications to the table.
+pub fn apply_block_changes(table: &mut BlockTable, changes: Vec<BlockChange>) {
+    for mut change in changes {
+        // Remove the old block
+        let mut empty_key: Option<usize> = None;
+        for (len, group) in table.iter_mut() {
+            if let Some(pos) = group.iter().position(|b| b.global_index == change.original_index) {
+                group.remove(pos);
+                if group.is_empty() {
+                    empty_key = Some(*len);
+                }
+                break;
+            }
+        }
+        if let Some(k) = empty_key {
+            table.remove(&k);
+        }
+
+        change.new_block.global_index = change.original_index;
+        table.entry(change.new_block.bit_length).or_default().push(change.new_block);
+    }
+}
+
 /// Print a short summary of how many blocks exist for each bit length.
-///
-/// The output format is "<bits>: N blocks" sorted by ascending bit length.
 pub fn print_table_summary(table: &BlockTable) {
     let mut lengths: Vec<_> = table.keys().cloned().collect();
     lengths.sort_unstable();
@@ -130,11 +135,8 @@ pub fn print_table_summary(table: &BlockTable) {
     }
 }
 
-/// Detect potential bundled blocks after a pass.
+/// Detect potential bundled blocks after a pass (stub).
 pub fn detect_bundles(_table: &mut BlockTable) {}
-
-/// Apply any changes discovered during bundle detection.
-pub fn apply_block_changes(_table: &mut BlockTable) {}
 
 /// Run compression passes until no additional matches are found.
 pub fn run_all_passes(mut table: BlockTable, seed_table: &HashMap<String, usize>) -> BlockTable {
@@ -144,7 +146,7 @@ pub fn run_all_passes(mut table: BlockTable, seed_table: &HashMap<String, usize>
             break;
         }
         detect_bundles(&mut table);
-        apply_block_changes(&mut table);
+        apply_block_changes(&mut table, vec![]);
     }
     table
 }
