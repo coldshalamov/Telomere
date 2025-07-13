@@ -15,8 +15,18 @@ pub struct Block {
 use std::collections::HashMap;
 use sha2::{Digest, Sha256};
 
-/// BlockTable groups blocks by their bit length
+/// Extend BlockTable with table mutations
+/// Each bit length gets a vector of Blocks
 pub type BlockTable = HashMap<usize, Vec<Block>>;
+
+/// BlockChange captures updates to a block during simulation
+#[derive(Debug, Clone)]
+pub struct BlockChange {
+    /// Index of the block in its original order
+    pub original_index: usize,
+    /// Replacement block after mutation
+    pub new_block: Block,
+}
 
 /// Given a flat list of [`Block`]s, return a [`BlockTable`]
 /// where blocks are grouped by their bit length.
