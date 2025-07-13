@@ -22,7 +22,7 @@ pub use seed_logger::{resume_seed_index, log_seed, HashEntry};
 pub use gloss_prune_hook::run as gloss_prune_hook;
 pub use live_window::{LiveStats, print_window};
 pub use stats::Stats;
-pub use block::{Block, BlockTable};
+pub use block::{Block, BlockTable, split_into_blocks};
 
 use sha2::Digest;
 
