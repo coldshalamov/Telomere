@@ -114,6 +114,19 @@ pub fn simulate_pass(table: &mut BlockTable, seed_table: &HashMap<String, usize>
     matches
 }
 
+/// Print a short summary of how many blocks exist for each bit length.
+///
+/// The output format is "<bits>: N blocks" sorted by ascending bit length.
+pub fn print_table_summary(table: &BlockTable) {
+    let mut lengths: Vec<_> = table.keys().cloned().collect();
+    lengths.sort_unstable();
+    for len in lengths {
+        if let Some(group) = table.get(&len) {
+            println!("{}: {} blocks", len, group.len());
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
