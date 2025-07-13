@@ -12,8 +12,8 @@ pub struct Block {
     pub seed_index: Option<usize>,
 }
 
-use std::collections::HashMap;
 use sha2::{Digest, Sha256};
+use std::collections::HashMap;
 
 /// BlockTable groups blocks by their bit length
 pub type BlockTable = HashMap<usize, Vec<Block>>;
@@ -72,7 +72,6 @@ pub fn split_into_blocks(input: &[u8], block_size_bits: usize) -> Vec<Block> {
     blocks
 }
 
-
 /// Simulate a compression pass using a prebuilt seed table.
 ///
 /// Each block is hashed and looked up in `seed_table`. When a match is found the
@@ -112,6 +111,35 @@ pub fn simulate_pass(table: &mut BlockTable, seed_table: &HashMap<String, usize>
     }
 
     matches
+}
+
+/// Detect potential bundled blocks after a pass.
+///
+/// This function is currently a stub that does nothing. It exists so future
+/// improvements can analyze the `BlockTable` for bundle opportunities between
+/// simulation passes.
+pub fn detect_bundles(_table: &mut BlockTable) {}
+
+/// Apply any changes discovered during bundle detection.
+///
+/// The default implementation is a no-op until bundling logic is implemented.
+pub fn apply_block_changes(_table: &mut BlockTable) {}
+
+/// Run compression passes until no additional matches are found.
+///
+/// After each call to [`simulate_pass`], this function runs `detect_bundles`
+/// followed by `apply_block_changes`. The resulting [`BlockTable`] is returned
+/// once a pass yields zero matches.
+pub fn run_all_passes(mut table: BlockTable, seed_table: &HashMap<String, usize>) -> BlockTable {
+    loop {
+        let matches = simulate_pass(&mut table, seed_table);
+        if matches == 0 {
+            break;
+        }
+        detect_bundles(&mut table);
+        apply_block_changes(&mut table);
+    }
+    table
 }
 
 #[cfg(test)]
@@ -161,12 +189,55 @@ mod tests {
     #[test]
     fn group_blocks() {
         let blocks = vec![
-            Block { global_index: 0, bit_length: 8, data: vec![0], arity: None, seed_index: None },
-            Block { global_index: 1, bit_length: 16, data: vec![1, 2], arity: None, seed_index: None },
-            Block { global_index: 2, bit_length: 8, data: vec![3], arity: None, seed_index: None },
+            Block {
+                global_index: 0,
+                bit_length: 8,
+                data: vec![0],
+                arity: None,
+                seed_index: None,
+            },
+            Block {
+                global_index: 1,
+                bit_length: 16,
+                data: vec![1, 2],
+                arity: None,
+                seed_index: None,
+            },
+            Block {
+                global_index: 2,
+                bit_length: 8,
+                data: vec![3],
+                arity: None,
+                seed_index: None,
+            },
         ];
         let table = group_by_bit_length(blocks);
         assert_eq!(table.get(&8).unwrap().len(), 2);
         assert_eq!(table.get(&16).unwrap().len(), 1);
+    }
+
+    #[test]
+    fn run_all_passes_no_matches() {
+        let blocks = vec![
+            Block {
+                global_index: 0,
+                bit_length: 8,
+                data: vec![1],
+                arity: None,
+                seed_index: None,
+            },
+            Block {
+                global_index: 1,
+                bit_length: 8,
+                data: vec![2],
+                arity: None,
+                seed_index: None,
+            },
+        ];
+        let table = group_by_bit_length(blocks.clone());
+        let seed_table: HashMap<String, usize> = HashMap::new();
+        let out = run_all_passes(table, &seed_table);
+        assert_eq!(out.get(&8).unwrap().len(), blocks.len());
+        assert!(out.get(&16).is_none());
     }
 }
