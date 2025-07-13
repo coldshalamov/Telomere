@@ -13,6 +13,7 @@ pub struct Block {
 }
 
 use std::collections::HashMap;
+use sha2::{Digest, Sha256};
 
 /// BlockTable groups blocks by their bit length
 pub type BlockTable = HashMap<usize, Vec<Block>>;
@@ -71,13 +72,46 @@ pub fn split_into_blocks(input: &[u8], block_size_bits: usize) -> Vec<Block> {
     blocks
 }
 
-/// Group blocks by their bit length into a [`BlockTable`].
-pub fn group_by_bit_length(blocks: Vec<Block>) -> BlockTable {
-    let mut table: BlockTable = HashMap::new();
-    for block in blocks {
-        table.entry(block.bit_length).or_default().push(block);
+
+/// Simulate a compression pass using a prebuilt seed table.
+///
+/// Each block is hashed and looked up in `seed_table`. When a match is found the
+/// block is marked as compressed by setting `seed_index` and `arity`, its
+/// `bit_length` is updated to 16 bits and it is moved into the `16` bit group.
+/// Returns the total number of blocks that were successfully matched.
+pub fn simulate_pass(table: &mut BlockTable, seed_table: &HashMap<String, usize>) -> usize {
+    // Collect the keys so we can iterate in descending order without holding
+    // mutable borrows while inserting into the table.
+    let mut lengths: Vec<usize> = table.keys().cloned().collect();
+    lengths.sort_unstable_by(|a, b| b.cmp(a));
+
+    let mut matches = 0usize;
+
+    for len in lengths {
+        // Take the current group to avoid double borrowing of `table` when we
+        // insert matched blocks into other groups.
+        if let Some(mut group) = table.remove(&len) {
+            let mut remaining = Vec::new();
+            for mut block in group.into_iter() {
+                let digest = Sha256::digest(&block.data);
+                let hex = hex::encode(digest);
+                if let Some(&seed_idx) = seed_table.get(&hex) {
+                    block.seed_index = Some(seed_idx);
+                    block.arity = Some(1);
+                    block.bit_length = 16;
+                    table.entry(16).or_default().push(block);
+                    matches += 1;
+                } else {
+                    remaining.push(block);
+                }
+            }
+            if !remaining.is_empty() {
+                table.insert(len, remaining);
+            }
+        }
     }
-    table
+
+    matches
 }
 
 #[cfg(test)]
