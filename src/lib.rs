@@ -22,7 +22,14 @@ pub use seed_logger::{resume_seed_index, log_seed, HashEntry};
 pub use gloss_prune_hook::run as gloss_prune_hook;
 pub use live_window::{LiveStats, print_window};
 pub use stats::Stats;
-pub use block::{Block, BlockTable, split_into_blocks, group_by_bit_length};
+pub use block::{
+    Block,
+    BlockTable,
+    BlockChange,
+    split_into_blocks,
+    group_by_bit_length,
+    apply_block_changes,
+};
 
 use sha2::Digest;
 
@@ -46,14 +53,13 @@ use sha2::Sha256;
 
 
 use crate::compress::FallbackSeeds;
-use crate::path::PathGloss;
 
 /// Compress the input using seed-aware block compression.
 pub fn compress(
     data: &[u8],
     _lens: RangeInclusive<u8>,
     _limit: Option<u64>,
-    mut live: LiveStats,
+    _status: u64,
     _hashes: &mut u64,
     json: bool,
     _gloss: Option<&GlossTable>,
@@ -76,10 +82,6 @@ pub fn compress(
                 stats.tick_block();
         let span = &data[offset..];
 
-        live.maybe_log(span, &[], false);
-
-
-
         let span = &data[offset..];
         if let Some((header, used)) = crate::compress::compress_block(
     span,
@@ -93,8 +95,6 @@ pub fn compress(
     let seed_bytes = fallback
         .reverse_index(header.seed_index)
         .unwrap_or_else(|| b"<unknown>".to_vec());
-
-    live.maybe_log(span, &seed_bytes, true);
 
     if header.seed_index == 0 && header.arity <= 3 {
         // It's a fallback — treat as literal passthrough
@@ -138,6 +138,87 @@ pub fn compress(
     let _ = write_stats_csv(&stats, "stats_kolyma.csv");
 
     out
+}
+
+/// Decompress a single region respecting a byte limit.
+pub fn decompress_region_with_limit(
+    region: &Region,
+    table: &GlossTable,
+    limit: usize,
+) -> Option<Vec<u8>> {
+    match region {
+        Region::Raw(bytes) => {
+            if bytes.len() <= limit { Some(bytes.clone()) } else { None }
+        }
+        Region::Compressed(data, header) => {
+            if header.is_literal() {
+                let expected = if header.arity == 40 {
+                    data.len()
+                } else {
+                    (header.arity - 36) * BLOCK_SIZE
+                };
+                if data.len() != expected || data.len() > limit {
+                    return None;
+                }
+                Some(data.clone())
+            } else {
+                if header.seed_index >= table.entries.len() {
+                    return None;
+                }
+                let entry = &table.entries[header.seed_index];
+                if entry.decompressed.len() > limit {
+                    return None;
+                }
+                Some(entry.decompressed.clone())
+            }
+        }
+    }
+}
+
+/// Decompress a full byte stream with an optional limit.
+pub fn decompress_with_limit(
+    input: &[u8],
+    table: &GlossTable,
+    limit: usize,
+) -> Option<Vec<u8>> {
+    let mut offset = 0usize;
+    let mut out = Vec::new();
+    while offset < input.len() {
+        let (seed, arity, bits) = decode_header(&input[offset..]).ok()?;
+        offset += (bits + 7) / 8;
+        if arity >= 37 && arity <= 39 {
+            let blocks = arity - 36;
+            let bytes = blocks * BLOCK_SIZE;
+            if offset + bytes > input.len() || out.len() + bytes > limit {
+                return None;
+            }
+            out.extend_from_slice(&input[offset..offset + bytes]);
+            offset += bytes;
+        } else if arity == 40 {
+            let tail = &input[offset..];
+            if out.len() + tail.len() > limit {
+                return None;
+            }
+            out.extend_from_slice(tail);
+            offset = input.len();
+            break;
+        } else {
+            if seed >= table.entries.len() {
+                return None;
+            }
+            let entry = &table.entries[seed];
+            if out.len() + entry.decompressed.len() > limit {
+                return None;
+            }
+            out.extend_from_slice(&entry.decompressed);
+        }
+    }
+    Some(out)
+}
+
+/// Convenience wrapper without a limit.
+pub fn decompress(input: &[u8], table: &GlossTable) -> Vec<u8> {
+    decompress_with_limit(input, table, usize::MAX).unwrap_or_default()
 }
 
 

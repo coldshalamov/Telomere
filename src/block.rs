@@ -12,6 +12,15 @@ pub struct Block {
     pub seed_index: Option<usize>,
 }
 
+/// Represents an update to a specific block in the table.
+#[derive(Debug, Clone)]
+pub struct BlockChange {
+    /// Global index of the block being replaced
+    pub original_index: usize,
+    /// Replacement block (bit length determines new group)
+    pub new_block: Block,
+}
+
 use std::collections::HashMap;
 use sha2::{Digest, Sha256};
 
@@ -112,6 +121,39 @@ pub fn simulate_pass(table: &mut BlockTable, seed_table: &HashMap<String, usize>
     }
 
     matches
+}
+
+/// Apply a batch of block modifications to the table.
+///
+/// Each change removes the block with `original_index` from whatever
+/// group currently holds it and inserts `new_block` into the group
+/// matching its `bit_length`. The `global_index` of the inserted block
+/// is updated to match `original_index` so that overall ordering is
+/// preserved.
+pub fn apply_block_changes(table: &mut BlockTable, changes: Vec<BlockChange>) {
+    for mut change in changes {
+        // Remove the old block from whichever list contains it
+        let mut empty_key: Option<usize> = None;
+        for (len, group) in table.iter_mut() {
+            if let Some(pos) = group.iter().position(|b| b.global_index == change.original_index) {
+                group.remove(pos);
+                if group.is_empty() {
+                    empty_key = Some(*len);
+                }
+                break;
+            }
+        }
+        if let Some(k) = empty_key {
+            table.remove(&k);
+        }
+
+        // Preserve the original global index for the new block
+        change.new_block.global_index = change.original_index;
+        table
+            .entry(change.new_block.bit_length)
+            .or_default()
+            .push(change.new_block);
+    }
 }
 
 #[cfg(test)]

@@ -1,19 +1,16 @@
 use std::env;
 use std::fs;
 use std::ops::RangeInclusive;
-use std::path::Path;
 use std::time::Instant;
 
-use inchworm::{compress, GlossTable, TruncHashTable, BLOCK_SIZE, LiveStats};
+use inchworm::{compress, decompress, GlossTable, TruncHashTable, BLOCK_SIZE, LiveStats};
 
-use inchworm::{encode_header, unpack_region};
 
 
 use serde_json;
 use hex;
 
 fn main() -> std::io::Result<()> {
-    println!("✅ Running updated binary build");
 
     let args: Vec<String> = env::args().collect();
     if args.len() < 4 {
@@ -81,14 +78,14 @@ fn main() -> std::io::Result<()> {
 
             // Load precomputed hash table (full up to 3 bytes)
             let mut table = TruncHashTable::load("hash_table.bin")
-                .expect("failed to load hash_table.bin");
+                .unwrap_or_else(|_| TruncHashTable::new(hash_filter_bits));
 
             // Compress using hash table only, skipping gloss and greedy
             let out = compress(
                 &data,
                 1..=max_seed_len,
                 seed_limit,
-                stats,
+                0,
                 &mut hashes,
                 json_out,
                 None, // No gloss
@@ -99,7 +96,7 @@ fn main() -> std::io::Result<()> {
                 Some(&mut table),
             );
 
-            println!("🧪 compress() returned buffer with length: {}", out.len());
+            eprintln!("🧪 compress() returned buffer with length: {}", out.len());
             if out.is_empty() {
                 eprintln!("❌ compress() returned an empty buffer — nothing to write!");
                 return Ok(());
@@ -108,13 +105,13 @@ fn main() -> std::io::Result<()> {
             let compressed_len = out.len();
             if !dry_run {
                 let output_path = &args[3];
-                println!("💾 Writing {} bytes to {}", out.len(), output_path);
+                eprintln!("💾 Writing {} bytes to {}", out.len(), output_path);
                 match fs::write(output_path, &out) {
                     Ok(_) => eprintln!("✅ Wrote compressed output to {:?}", output_path),
                     Err(e) => eprintln!("❌ Failed to write output: {:?}", e),
                 }
             } else {
-                println!("(dry run) skipping file write");
+                eprintln!("(dry run) skipping file write");
             }
 
             let raw_len = data.len();
@@ -130,24 +127,13 @@ fn main() -> std::io::Result<()> {
                 });
                 println!("{}", serde_json::to_string_pretty(&out_json).unwrap());
             } else {
-                println!("Compressed {:.2}% in {:.2?}", percent, elapsed);
+                eprintln!("Compressed {:.2}% in {:.2?}", percent, elapsed);
             }
         }
 
         "d" => {
-            println!("🔎 Running unpack_region() test...");
-
-            let seed = b"abc"; // 3-byte seed
-            let header = encode_header(0, 0); // seed_index = 0, arity = 0
-
-            match unpack_region(&header, seed) {
-                Ok(span) => {
-                    println!("✅ Unpacked span: {:?}", span);
-                }
-                Err(e) => {
-                    eprintln!("❌ Unpacking failed: {}", e);
-                }
-            }
+            let out = decompress(&data, &gloss);
+            fs::write(&args[3], out)?;
         }
 
                 mode => eprintln!("Unknown mode: {}", mode),
