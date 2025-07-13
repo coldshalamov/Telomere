@@ -9,6 +9,7 @@ mod seed_logger;
 mod gloss_prune_hook;
 mod live_window;
 mod stats;
+mod block;
 
 pub use bloom::*;
 pub use compress::{TruncHashTable, compress_block, dump_beliefmap_json, dump_gloss_to_csv};
@@ -21,6 +22,7 @@ pub use seed_logger::{resume_seed_index, log_seed, HashEntry};
 pub use gloss_prune_hook::run as gloss_prune_hook;
 pub use live_window::{LiveStats, print_window};
 pub use stats::Stats;
+pub use block::{Block, BlockTable};
 
 use sha2::Digest;
 
