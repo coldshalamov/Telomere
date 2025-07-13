@@ -18,6 +18,19 @@ use sha2::{Digest, Sha256};
 /// BlockTable groups blocks by their bit length
 pub type BlockTable = HashMap<usize, Vec<Block>>;
 
+/// Represents a change to the block table discovered during bundling
+/// detection. This may describe how several adjacent blocks are combined
+/// into a compressed bundle.
+#[derive(Debug, Clone)]
+pub struct BlockChange {
+    /// Global index of the first block in the bundle
+    pub start_index: usize,
+    /// Number of blocks encompassed by this bundle
+    pub count: usize,
+    /// New size in bits after bundling
+    pub new_bit_length: usize,
+}
+
 /// Given a flat list of [`Block`]s, return a [`BlockTable`]
 /// where blocks are grouped by their bit length.
 ///
@@ -112,6 +125,15 @@ pub fn simulate_pass(table: &mut BlockTable, seed_table: &HashMap<String, usize>
     }
 
     matches
+}
+
+/// Detect adjacent blocks that match a compressible pattern.
+///
+/// This stub will eventually examine the [`BlockTable`] for opportunities
+/// to bundle neighboring blocks together. For now it simply returns an empty
+/// vector of [`BlockChange`].
+pub fn detect_bundles(_table: &BlockTable) -> Vec<BlockChange> {
+    Vec::new()
 }
 
 #[cfg(test)]
