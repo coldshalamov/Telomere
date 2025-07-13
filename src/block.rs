@@ -15,7 +15,7 @@ pub struct Block {
     pub seed_index: Option<usize>,
 }
 
-/// BlockTable groups blocks by their bit length
+/// Each bit length gets a vector of Blocks
 pub type BlockTable = HashMap<usize, Vec<Block>>;
 
 /// Represents a change to the block table discovered during compression or bundling.
@@ -34,8 +34,7 @@ pub enum BlockChange {
     },
 }
 
-/// Given a flat list of [`Block`]s, return a [`BlockTable`]
-/// where blocks are grouped by their bit length.
+/// Given a flat list of [`Block`]s, return a [`BlockTable`] grouped by bit length.
 pub fn group_by_bit_length(blocks: Vec<Block>) -> BlockTable {
     let mut table: BlockTable = HashMap::new();
     for block in blocks {
@@ -114,6 +113,24 @@ pub fn detect_bundles(_table: &BlockTable) -> Vec<BlockChange> {
     Vec::new()
 }
 
+/// Apply any changes discovered during bundle detection.
+pub fn apply_block_changes(_table: &mut BlockTable) {
+    // Stub – no-op for now
+}
+
+/// Run compression passes until no additional matches are found.
+pub fn run_all_passes(mut table: BlockTable, seed_table: &HashMap<String, usize>) -> BlockTable {
+    loop {
+        let matches = simulate_pass(&mut table, seed_table);
+        if matches == 0 {
+            break;
+        }
+        detect_bundles(&table);
+        apply_block_changes(&mut table);
+    }
+    table
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -159,12 +176,55 @@ mod tests {
     #[test]
     fn group_blocks() {
         let blocks = vec![
-            Block { global_index: 0, bit_length: 8, data: vec![0], arity: None, seed_index: None },
-            Block { global_index: 1, bit_length: 16, data: vec![1, 2], arity: None, seed_index: None },
-            Block { global_index: 2, bit_length: 8, data: vec![3], arity: None, seed_index: None },
+            Block {
+                global_index: 0,
+                bit_length: 8,
+                data: vec![0],
+                arity: None,
+                seed_index: None,
+            },
+            Block {
+                global_index: 1,
+                bit_length: 16,
+                data: vec![1, 2],
+                arity: None,
+                seed_index: None,
+            },
+            Block {
+                global_index: 2,
+                bit_length: 8,
+                data: vec![3],
+                arity: None,
+                seed_index: None,
+            },
         ];
         let table = group_by_bit_length(blocks);
         assert_eq!(table.get(&8).unwrap().len(), 2);
         assert_eq!(table.get(&16).unwrap().len(), 1);
+    }
+
+    #[test]
+    fn run_all_passes_no_matches() {
+        let blocks = vec![
+            Block {
+                global_index: 0,
+                bit_length: 8,
+                data: vec![1],
+                arity: None,
+                seed_index: None,
+            },
+            Block {
+                global_index: 1,
+                bit_length: 8,
+                data: vec![2],
+                arity: None,
+                seed_index: None,
+            },
+        ];
+        let table = group_by_bit_length(blocks.clone());
+        let seed_table: HashMap<String, usize> = HashMap::new();
+        let out = run_all_passes(table, &seed_table);
+        assert_eq!(out.get(&8).unwrap().len(), blocks.len());
+        assert!(out.get(&16).is_none());
     }
 }
