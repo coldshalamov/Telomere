@@ -32,7 +32,11 @@ pub use block::{
 };
 
 use sha2::Digest;
-
+use std::collections::HashMap;
+use std::ops::RangeInclusive;
+use sha2::Sha256;
+use crate::compress::FallbackSeeds;
+use crate::path::PathGloss;
 
 pub const BLOCK_SIZE: usize = 3;
 
@@ -46,14 +50,6 @@ pub enum Region {
     Raw(Vec<u8>),
     Compressed(Vec<u8>, Header),
 }
-
-use std::collections::HashMap;
-use std::ops::RangeInclusive;
-use sha2::Sha256;
-
-
-use crate::compress::FallbackSeeds;
-use crate::path::PathGloss;
 
 /// Compress the input using seed-aware block compression.
 pub fn compress(
@@ -77,54 +73,45 @@ pub fn compress(
     let mut fallback = FallbackSeeds::new(0.01, 0.001, BLOCK_SIZE);
     let mut stats = CompressionStats::new();
 
-
-
     while offset + BLOCK_SIZE <= data.len() {
-                stats.tick_block();
+        stats.tick_block();
         let span = &data[offset..];
-
         live.maybe_log(span, &[], false);
-
-
 
         let span = &data[offset..];
         if let Some((header, used)) = crate::compress::compress_block(
-    span,
-    &mut gloss,
-    &mut counter,
-    Some(&mut fallback),
-    0,
-    Some(&mut stats),
-    None,
-) {
-    let seed_bytes = fallback
-        .reverse_index(header.seed_index)
-        .unwrap_or_else(|| b"<unknown>".to_vec());
+            span,
+            &mut gloss,
+            &mut counter,
+            Some(&mut fallback),
+            0,
+            Some(&mut stats),
+            None,
+        ) {
+            let seed_bytes = fallback
+                .reverse_index(header.seed_index)
+                .unwrap_or_else(|| b"<unknown>".to_vec());
 
-    live.maybe_log(span, &seed_bytes, true);
+            live.maybe_log(span, &seed_bytes, true);
 
-    if header.seed_index == 0 && header.arity <= 3 {
-        // It's a fallback — treat as literal passthrough
-        let passthrough_header = encode_header(0, 36 + header.arity); // 37/38/39
-        out.extend_from_slice(&passthrough_header);
-        out.extend_from_slice(&span[..used]);
-    } else {
-        // Valid compression match
-        out.extend_from_slice(&encode_header(header.seed_index, header.arity));
-        out.extend_from_slice(&span[..used]);
-    }
+            if header.seed_index == 0 && header.arity <= 3 {
+                let passthrough_header = encode_header(0, 36 + header.arity);
+                out.extend_from_slice(&passthrough_header);
+                out.extend_from_slice(&span[..used]);
+            } else {
+                out.extend_from_slice(&encode_header(header.seed_index, header.arity));
+                out.extend_from_slice(&span[..used]);
+            }
 
-    offset += used;
-} else {
-    // Fully failed to compress — fallback to literal
-    let blocks = ((data.len() - offset) / BLOCK_SIZE).min(3).max(1);
-    let bytes = blocks * BLOCK_SIZE;
-    let passthrough_header = encode_header(0, 36 + blocks); // 37–39
-    out.extend_from_slice(&passthrough_header);
-    out.extend_from_slice(&data[offset..offset + bytes]);
-    offset += bytes;
-}
- 
+            offset += used;
+        } else {
+            let blocks = ((data.len() - offset) / BLOCK_SIZE).min(3).max(1);
+            let bytes = blocks * BLOCK_SIZE;
+            let passthrough_header = encode_header(0, 36 + blocks);
+            out.extend_from_slice(&passthrough_header);
+            out.extend_from_slice(&data[offset..offset + bytes]);
+            offset += bytes;
+        }
     }
 
     if offset < data.len() {
@@ -133,7 +120,6 @@ pub fn compress(
         out.extend_from_slice(&data[offset..]);
     }
 
-    // Dump fallback belief scores
     let _ = crate::compress::dump_beliefmap_json(&fallback.map, "belief_fallback.json");
     if verbosity >= 2 {
         let _ = crate::compress::dump_gloss_to_csv(&fallback.map, "belief_fallback.csv");
@@ -147,16 +133,11 @@ pub fn compress(
     out
 }
 
-
 /// Reconstruct a region of data from a compressed form (seed + header).
-/// No gloss is used — full stateless unpacking.
 pub fn unpack_region(header_bytes: &[u8], seed: &[u8]) -> Result<Vec<u8>, Box<dyn std::error::Error>> {
     let (seed_index, arity, _extra) = decode_header(header_bytes)?;
-
-
     let hash_output = sha2::Sha256::digest(seed);
     let span_len = arity_to_span_len(arity as u32)?;
-
 
     if span_len > hash_output.len() {
         return Err("Arity too large for available hash output".into());
@@ -166,10 +147,6 @@ pub fn unpack_region(header_bytes: &[u8], seed: &[u8]) -> Result<Vec<u8>, Box<dy
 }
 
 /// Map arity value to span length in bytes.
-/// You may update this to follow your dynamic toggle spec.
 pub fn arity_to_span_len(arity: u32) -> Result<usize, Box<dyn std::error::Error>> {
-    // Placeholder: arity 0 = 3 bytes, grows by 3 each step
     Ok(3 * (arity as usize + 1))
 }
-
-

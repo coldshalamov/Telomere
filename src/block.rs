@@ -1,3 +1,6 @@
+use std::collections::HashMap;
+use sha2::{Digest, Sha256};
+
 #[derive(Debug, Clone)]
 pub struct Block {
     /// Original order in the stream
@@ -12,30 +15,27 @@ pub struct Block {
     pub seed_index: Option<usize>,
 }
 
-use std::collections::HashMap;
-use sha2::{Digest, Sha256};
-
 /// BlockTable groups blocks by their bit length
 pub type BlockTable = HashMap<usize, Vec<Block>>;
 
-/// Represents a change to the block table discovered during bundling
-/// detection. This may describe how several adjacent blocks are combined
-/// into a compressed bundle.
+/// Represents a change to the block table discovered during compression or bundling.
 #[derive(Debug, Clone)]
-pub struct BlockChange {
-    /// Global index of the first block in the bundle
-    pub start_index: usize,
-    /// Number of blocks encompassed by this bundle
-    pub count: usize,
-    /// New size in bits after bundling
-    pub new_bit_length: usize,
+pub enum BlockChange {
+    /// Replaces a single block with a new version (used in hashing matches).
+    Replace {
+        original_index: usize,
+        new_block: Block,
+    },
+    /// Compresses a group of adjacent blocks into one (used in bundling).
+    Bundle {
+        start_index: usize,
+        count: usize,
+        new_bit_length: usize,
+    },
 }
 
 /// Given a flat list of [`Block`]s, return a [`BlockTable`]
 /// where blocks are grouped by their bit length.
-///
-/// This is primarily used when simulating the compression pipeline
-/// after splitting raw input into blocks.
 pub fn group_by_bit_length(blocks: Vec<Block>) -> BlockTable {
     let mut table: BlockTable = HashMap::new();
     for block in blocks {
@@ -45,18 +45,10 @@ pub fn group_by_bit_length(blocks: Vec<Block>) -> BlockTable {
 }
 
 /// Split raw input into fixed-sized blocks measured in bits.
-///
-/// Each returned [`Block`] will have `bit_length` equal to `block_size_bits`
-/// except for the final block which may be shorter when the input length is not
-/// perfectly divisible by the requested block size. The raw byte data of each
-/// block is stored directly without any bit-level slicing or padding.
 pub fn split_into_blocks(input: &[u8], block_size_bits: usize) -> Vec<Block> {
     assert!(block_size_bits > 0, "block size must be non-zero");
 
-    // Number of whole bytes that contain the requested number of bits. We round
-    // up so blocks always contain enough data even when not byte aligned.
     let block_size_bytes = (block_size_bits + 7) / 8;
-
     let mut blocks = Vec::new();
     let mut offset = 0usize;
     let mut index = 0usize;
@@ -85,24 +77,14 @@ pub fn split_into_blocks(input: &[u8], block_size_bits: usize) -> Vec<Block> {
     blocks
 }
 
-
 /// Simulate a compression pass using a prebuilt seed table.
-///
-/// Each block is hashed and looked up in `seed_table`. When a match is found the
-/// block is marked as compressed by setting `seed_index` and `arity`, its
-/// `bit_length` is updated to 16 bits and it is moved into the `16` bit group.
-/// Returns the total number of blocks that were successfully matched.
 pub fn simulate_pass(table: &mut BlockTable, seed_table: &HashMap<String, usize>) -> usize {
-    // Collect the keys so we can iterate in descending order without holding
-    // mutable borrows while inserting into the table.
     let mut lengths: Vec<usize> = table.keys().cloned().collect();
     lengths.sort_unstable_by(|a, b| b.cmp(a));
 
     let mut matches = 0usize;
 
     for len in lengths {
-        // Take the current group to avoid double borrowing of `table` when we
-        // insert matched blocks into other groups.
         if let Some(mut group) = table.remove(&len) {
             let mut remaining = Vec::new();
             for mut block in group.into_iter() {
@@ -127,11 +109,7 @@ pub fn simulate_pass(table: &mut BlockTable, seed_table: &HashMap<String, usize>
     matches
 }
 
-/// Detect adjacent blocks that match a compressible pattern.
-///
-/// This stub will eventually examine the [`BlockTable`] for opportunities
-/// to bundle neighboring blocks together. For now it simply returns an empty
-/// vector of [`BlockChange`].
+/// Detect adjacent blocks that match a compressible pattern (stub for now).
 pub fn detect_bundles(_table: &BlockTable) -> Vec<BlockChange> {
     Vec::new()
 }
@@ -139,6 +117,7 @@ pub fn detect_bundles(_table: &BlockTable) -> Vec<BlockChange> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
     #[test]
     fn table_groups_by_length() {
         let mut table: BlockTable = HashMap::new();
@@ -149,10 +128,7 @@ mod tests {
             arity: None,
             seed_index: None,
         };
-        table
-            .entry(block.bit_length)
-            .or_default()
-            .push(block.clone());
+        table.entry(block.bit_length).or_default().push(block.clone());
         assert_eq!(table.get(&8).unwrap()[0].global_index, 0);
     }
 
