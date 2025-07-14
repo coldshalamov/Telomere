@@ -1,10 +1,11 @@
-use inchworm::{compress, decompress_with_limit, decode_header, Header, BLOCK_SIZE};
+use inchworm::{compress, decompress_with_limit, decode_header, Header};
 
 #[test]
 fn compress_emits_literal_headers() {
+    let block_size = 3; // Or whatever you want to test!
     let data: Vec<u8> = (0u8..50).collect();
-    let out = compress(&data);
-    let decompressed = decompress_with_limit(&out, usize::MAX).unwrap();
+    let out = compress(&data, block_size);
+    let decompressed = decompress_with_limit(&out, block_size, usize::MAX).unwrap();
     assert_eq!(decompressed, data);
 
     let mut offset = 0usize;
@@ -22,7 +23,7 @@ fn compress_emits_literal_headers() {
         } else {
             assert!(header.arity >= 37 && header.arity <= 39);
             let blocks = header.arity - 36;
-            let byte_count = blocks * BLOCK_SIZE;
+            let byte_count = blocks * block_size;
             assert_eq!(&out[offset..offset + byte_count], &data[idx..idx + byte_count]);
             offset += byte_count;
             idx += byte_count;
