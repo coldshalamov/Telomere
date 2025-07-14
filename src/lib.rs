@@ -3,8 +3,6 @@ mod bloom;
 mod bundle;
 mod compress;
 mod compress_stats;
-mod gloss;
-mod gloss_prune_hook;
 mod header;
 mod live_window;
 mod path;
@@ -19,12 +17,8 @@ pub use block::{
 };
 pub use bloom::*;
 pub use bundle::{apply_bundle, BlockStatus, MutableBlock};
-pub use compress::{
-    compress, compress_block, dump_beliefmap_json, dump_gloss_to_csv, TruncHashTable,
-};
+pub use compress::{compress, compress_block, dump_beliefmap_json, dump_gloss_to_csv, TruncHashTable};
 pub use compress_stats::{write_stats_csv, CompressionStats};
-pub use gloss::*;
-pub use gloss_prune_hook::run as gloss_prune_hook;
 pub use header::{decode_header, encode_header, Header, HeaderError};
 pub use live_window::{print_window, LiveStats};
 pub use path::*;
@@ -95,7 +89,11 @@ pub fn decompress_region_with_limit(
 }
 
 /// Decompress a full byte stream with an optional limit.
-pub fn decompress_with_limit(input: &[u8], table: &GlossTable, limit: usize) -> Option<Vec<u8>> {
+pub fn decompress_with_limit(
+    input: &[u8],
+    table: &GlossTable,
+    limit: usize,
+) -> Option<Vec<u8>> {
     let mut offset = 0usize;
     let mut out = Vec::new();
     while offset < input.len() {

@@ -32,3 +32,27 @@ fn apply_bundle_marks_and_inserts() {
     assert_eq!(new_block.seed_index, Some(1));
     assert_eq!(new_block.status, BlockStatus::Active);
 }
+
+#[test]
+fn test_bundle_applies_and_marks_removed() {
+    let mut table: Vec<MutableBlock> = (0..4)
+        .map(|i| MutableBlock {
+            origin_index: i,
+            position: i,
+            bit_length: 8,
+            data: vec![i as u8],
+            arity: None,
+            seed_index: None,
+            status: BlockStatus::Active,
+        })
+        .collect();
+
+    apply_bundle(&mut table, &[1, 2], 42, 2, 16);
+
+    assert_eq!(table[1].status, BlockStatus::Removed);
+    assert_eq!(table[2].status, BlockStatus::Removed);
+    let new_block = table.last().unwrap();
+    assert_eq!(new_block.seed_index, Some(42));
+    assert_eq!(new_block.arity, Some(2));
+    assert_eq!(new_block.bit_length, 16);
+}
