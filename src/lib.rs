@@ -30,6 +30,7 @@ pub use sha_cache::*;
 pub use stats::Stats;
 
 use crate::compress::FallbackSeeds;
+use crate::path::PathGloss as PathGlossPrivate;
 use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 use std::ops::RangeInclusive;
@@ -68,7 +69,7 @@ pub fn compress(
     let mut out = Vec::new();
     let mut offset = 0usize;
     let mut counter = 0u64;
-    let mut gloss = PathGloss::default();
+    let mut gloss = PathGlossPrivate::default();
     let mut fallback = FallbackSeeds::new(0.01, 0.001, BLOCK_SIZE);
     let mut stats = CompressionStats::new();
 
