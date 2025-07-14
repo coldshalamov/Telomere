@@ -57,5 +57,6 @@ pub fn print_window(span: &[u8], seed: &[u8], is_greedy: bool, stats: &Stats, in
 }
 
 fn main() {
-    eprintln!("gloss_by_pass_dump tool not yet implemented");
+    eprintln!("gloss_by_pass_dump has been disabled.\n\
+It originally visualized gloss evolution across compression passes.");
 }
