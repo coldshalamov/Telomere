@@ -64,20 +64,7 @@ impl TruncHashTable {
 /// Compress the input using literal passthrough encoding.
 /// Each chunk of up to 3 blocks is emitted with a header.
 /// Remaining bytes are stored as a literal tail with arity 40.
-pub fn compress(
-    data: &[u8],
-    _lens: RangeInclusive<u8>,
-    _limit: Option<u64>,
-    _status: u64,
-    _hashes: &mut u64,
-    _json: bool,
-    _gloss: Option<()>, // Placeholder to match signature
-    _verbosity: u8,
-    _gloss_only: bool,
-    _coverage: Option<&mut [bool]>,
-    _partials: Option<&mut Vec<u8>>,
-    _filter: Option<&mut TruncHashTable>,
-) -> Vec<u8> {
+pub fn compress(data: &[u8]) -> Vec<u8> {
     let mut out = Vec::new();
     let mut offset = 0usize;
     while offset + BLOCK_SIZE <= data.len() {
@@ -101,12 +88,7 @@ pub fn compress(
 /// Only passthrough matching supported in MVP.
 pub fn compress_block(
     input: &[u8],
-    _unused: &mut (), // Placeholder to satisfy legacy interface
-    _counter: &mut u64,
-    _fallback: Option<&mut ()>,
-    _current_pass: u64,
     mut stats: Option<&mut CompressionStats>,
-    _hash_table: Option<&HashMap<Vec<u8>, [u8; 32]>>,
 ) -> Option<(Header, usize)> {
     if input.len() < BLOCK_SIZE {
         return None;

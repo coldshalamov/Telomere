@@ -5,11 +5,11 @@ mod compress_stats;
 mod header;
 mod live_window;
 mod path;
-mod decompress;
 mod seed_detect;
 mod seed_logger;
 mod sha_cache;
 mod stats;
+pub mod gloss;
 
 pub use block::{
     apply_block_changes, detect_bundles, group_by_bit_length, split_into_blocks, Block,
