@@ -10,6 +10,7 @@ mod gloss_prune_hook;
 mod live_window;
 mod stats;
 mod block;
+mod bundle;
 
 pub use bloom::*;
 pub use compress::{TruncHashTable, compress_block, dump_beliefmap_json, dump_gloss_to_csv};
@@ -22,6 +23,7 @@ pub use seed_logger::{resume_seed_index, log_seed, HashEntry};
 pub use gloss_prune_hook::run as gloss_prune_hook;
 pub use live_window::{LiveStats, print_window};
 pub use stats::Stats;
+pub use bundle::{BlockStatus, MutableBlock, apply_bundle};
 pub use block::{
     Block,
     BlockTable,
@@ -36,7 +38,6 @@ use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 use std::ops::RangeInclusive;
 use crate::compress::FallbackSeeds;
-use crate::path::PathGloss;
 
 pub const BLOCK_SIZE: usize = 3;
 
