@@ -1,4 +1,4 @@
-use inchworm::{GlossEntry, GlossTable};
+use inchworm::gloss::{GlossEntry, GlossTable};
 
 #[test]
 fn prune_by_score_and_size() {

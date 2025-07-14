@@ -1,4 +1,4 @@
-use inchworm::GlossTable;
+use inchworm::gloss::GlossTable;
 use std::env;
 
 fn main() {

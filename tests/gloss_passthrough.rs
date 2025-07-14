@@ -1,6 +1,7 @@
 #[test]
 fn mixed_gloss_and_passthrough() {
-    use inchworm::*;
+    use inchworm::{compress, decompress};
+    use inchworm::gloss::{GlossEntry, GlossTable};
 
     let entry = GlossEntry {
         seed: vec![0xDE],
@@ -19,7 +20,6 @@ fn mixed_gloss_and_passthrough() {
         1000,
         &mut counter,
         false,
-        Some(&gloss),
         0,
         false,
         None,

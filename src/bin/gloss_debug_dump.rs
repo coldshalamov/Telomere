@@ -1,4 +1,4 @@
-use inchworm::GlossTable;
+use inchworm::gloss::GlossTable;
 use std::env;
 
 pub fn dump_gloss_to_csv(gloss: &GlossTable, path: &str) -> std::io::Result<()> {
