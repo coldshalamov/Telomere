@@ -18,7 +18,6 @@ fn main() -> std::io::Result<()> {
     let mut show_status = false;
     let mut json_out = false;
     let mut dry_run = false;
-    let mut gloss_only = false;
 
     let mut i = 4;
     while i < args.len() {
@@ -30,10 +29,6 @@ fn main() -> std::io::Result<()> {
             "--seed-limit" => {
                 // seed-limit is ignored in this simplified implementation
                 i += 2;
-            }
-            "--gloss-only" => {
-                gloss_only = true;
-                i += 1;
             }
             "--status" => {
                 show_status = true;
@@ -87,18 +82,11 @@ fn main() -> std::io::Result<()> {
             let elapsed = start_time.elapsed();
 
             if json_out {
-                let out_json = if gloss_only {
-                    serde_json::json!({
-                        "total_hashes": 0u64,
-                        "elapsed_ms": elapsed.as_millis(),
-                    })
-                } else {
-                    serde_json::json!({
-                        "input_bytes": raw_len,
-                        "compressed_bytes": compressed_len,
-                        "elapsed_ms": elapsed.as_millis(),
-                    })
-                };
+                let out_json = serde_json::json!({
+                    "input_bytes": raw_len,
+                    "compressed_bytes": compressed_len,
+                    "elapsed_ms": elapsed.as_millis(),
+                });
                 println!("{}", serde_json::to_string_pretty(&out_json).unwrap());
             } else {
                 eprintln!("Compressed {:.2}% in {:.2?}", percent, elapsed);

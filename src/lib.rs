@@ -3,7 +3,9 @@ mod bundle;
 mod compress;
 mod compress_stats;
 mod file_header;
-pub mod gloss;
+/// Gloss table support has been removed for the MVP.  The original
+/// implementation used precomputed decompressed strings to accelerate
+/// seed matching.  Future versions may reintroduce a `gloss` module.
 mod header;
 mod live_window;
 mod path;

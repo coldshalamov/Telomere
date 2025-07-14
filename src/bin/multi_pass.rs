@@ -14,8 +14,6 @@ fn main() {
                 &output,
                 "--status",
                 "--json",
-                "--gloss",
-                "gloss.bin",
             ])
             .status()
             .expect("Pass compression failed");
