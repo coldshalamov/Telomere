@@ -3,8 +3,7 @@ use std::fs;
 use std::time::Instant;
 
 use inchworm::{compress, decompress, BLOCK_SIZE, LiveStats};
-use inchworm::gloss::GlossTable;
-use inchworm::compress::TruncHashTable;
+use inchworm::TruncHashTable;
 
 
 
@@ -56,15 +55,7 @@ fn main() -> std::io::Result<()> {
     }
 
     let data = fs::read(&args[2])?;
-    let gloss = GlossTable::load("gloss.bin").unwrap_or_else(|_| GlossTable::default());
-
-    let mut coverage: Option<Vec<bool>> = if gloss_only && gloss_coverage.is_some() {
-        Some(vec![false; gloss.entries.len()])
-    } else {
-        None
-    };
-
-        let mut hash_filter = if filter_known_hashes {
+    let mut hash_filter = if filter_known_hashes {
         Some(TruncHashTable::new(hash_filter_bits))
     } else {
         None
@@ -81,19 +72,7 @@ fn main() -> std::io::Result<()> {
                 .unwrap_or_else(|_| TruncHashTable::new(hash_filter_bits));
 
             // Compress using hash table only, skipping gloss and greedy
-            let out = compress(
-                &data,
-                1..=max_seed_len,
-                seed_limit,
-                0,
-                &mut hashes,
-                json_out,
-                if verbose { 2 } else if quiet { 0 } else { 1 },
-                false, // gloss_only = false
-                None,  // No coverage
-                None,  // No partials
-                Some(&mut table),
-            );
+            let out = compress(&data);
 
             eprintln!("🧪 compress() returned buffer with length: {}", out.len());
             if out.is_empty() {
@@ -131,7 +110,7 @@ fn main() -> std::io::Result<()> {
         }
 
         "d" => {
-            let out = decompress(&data, &gloss);
+            let out = decompress(&data);
             fs::write(&args[3], out)?;
         }
 

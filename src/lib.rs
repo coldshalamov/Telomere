@@ -5,7 +5,7 @@ mod compress_stats;
 mod header;
 mod live_window;
 mod path;
-mod decompress;
+pub mod gloss;
 mod seed_detect;
 mod seed_logger;
 mod sha_cache;
