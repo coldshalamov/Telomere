@@ -1,18 +1,20 @@
-use crate::header::{Header, encode_header};
-use crate::path::{CompressionPath, PathGloss};
 use crate::compress_stats::CompressionStats;
+use crate::gloss::GlossTable;
+use crate::header::{encode_header, Header};
+use crate::path::{CompressionPath, PathGloss};
 use crate::BLOCK_SIZE;
-use sha2::{Digest, Sha256};
-use std::time::Instant;
-use std::collections::{HashSet, HashMap};
-use std::fs::File;
-use std::io::Write;
-use serde_json;
 use csv;
 use hex;
+use serde_json;
+use sha2::{Digest, Sha256};
+use std::collections::{HashMap, HashSet};
+use std::fs::File;
+use std::io::Write;
+use std::ops::RangeInclusive;
+use std::time::Instant;
 
 /// In-memory table storing truncated SHA-256 prefixes.
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Default, Serialize, Deserialize)]
 pub struct TruncHashTable {
@@ -85,16 +87,12 @@ pub fn compress_block(
         s.tick_block();
     }
 
-
     let first_seed = &input[..BLOCK_SIZE];
     let span_hash: [u8; 32] = if let Some(table) = hash_table {
-        table
-            .get(first_seed)
-            .cloned()
-            .unwrap_or_else(|| {
-                eprintln!("Fallback SHA256 used for seed: {:?}", first_seed);
-                Sha256::digest(first_seed).into()
-            })
+        table.get(first_seed).cloned().unwrap_or_else(|| {
+            eprintln!("Fallback SHA256 used for seed: {:?}", first_seed);
+            Sha256::digest(first_seed).into()
+        })
     } else {
         Sha256::digest(first_seed).into()
     };
@@ -147,13 +145,10 @@ pub fn compress_block(
             let slice = &input[start..end];
             seeds.push(slice.to_vec());
             let digest = if let Some(table) = hash_table {
-                table
-                    .get(slice)
-                    .cloned()
-                    .unwrap_or_else(|| {
-                        eprintln!("Fallback SHA256 used for seed: {:?}", slice);
-                        Sha256::digest(slice).into()
-                    })
+                table.get(slice).cloned().unwrap_or_else(|| {
+                    eprintln!("Fallback SHA256 used for seed: {:?}", slice);
+                    Sha256::digest(slice).into()
+                })
             } else {
                 Sha256::digest(slice).into()
             };
@@ -180,14 +175,13 @@ pub fn compress_block(
         let belief = (-fb.lambda * excess).exp();
         if belief > fb.theta {
             let entry = crate::gloss::BeliefSeed {
-    id: *counter as usize,
-    seed: seed.to_vec(),
-    belief,
-    last_used: current_pass,
-    bundling_hits: 0,
-    gloss_hits: 0,
-};
-
+                id: *counter as usize,
+                seed: seed.to_vec(),
+                belief,
+                last_used: current_pass,
+                bundling_hits: 0,
+                gloss_hits: 0,
+            };
 
             fb.map.insert(digest, entry);
             fb.trim();
@@ -212,7 +206,13 @@ pub fn compress_block(
         s.log_match(false, blocks);
     }
 
-    Some((Header { seed_index: 0, arity: 36 + blocks }, consumed))
+    Some((
+        Header {
+            seed_index: 0,
+            arity: 36 + blocks,
+        },
+        consumed,
+    ))
 }
 
 pub struct FallbackSeeds {
@@ -239,17 +239,13 @@ impl FallbackSeeds {
 
     fn trim(&mut self) {
         while self.map.len() > 10_000 {
-            if let Some((&key, _)) = self
-                .map
-                .iter()
-                .min_by(|a, b| {
-                    let ba = a.1.belief;
-                    let bb = b.1.belief;
-                    ba.partial_cmp(&bb)
-                        .unwrap_or(std::cmp::Ordering::Equal)
-                        .then_with(|| a.1.last_used.cmp(&b.1.last_used))
-                })
-            {
+            if let Some((&key, _)) = self.map.iter().min_by(|a, b| {
+                let ba = a.1.belief;
+                let bb = b.1.belief;
+                ba.partial_cmp(&bb)
+                    .unwrap_or(std::cmp::Ordering::Equal)
+                    .then_with(|| a.1.last_used.cmp(&b.1.last_used))
+            }) {
                 self.map.remove(&key);
             } else {
                 break;
@@ -268,15 +264,16 @@ impl FallbackSeeds {
             entry.last_used = pass;
             entry.bundling_hits += 1;
         } else {
-            let prior = (-self.lambda * ((seed.len() as isize - self.block_len as isize) as f64)).exp();
+            let prior =
+                (-self.lambda * ((seed.len() as isize - self.block_len as isize) as f64)).exp();
             let s = crate::gloss::BeliefSeed {
-    id: 0, // not used for record_failure-based entries
-    seed: seed.to_vec(),
-    belief: prior,
-    last_used: pass,
-    bundling_hits: 1,
-    gloss_hits: 0,
-};
+                id: 0, // not used for record_failure-based entries
+                seed: seed.to_vec(),
+                belief: prior,
+                last_used: pass,
+                bundling_hits: 1,
+                gloss_hits: 0,
+            };
 
             if prior > self.theta {
                 self.map.insert(digest, s);
@@ -293,7 +290,6 @@ impl FallbackSeeds {
             }
         })
     }
-
 }
 
 pub fn dump_gloss_to_csv(map: &crate::gloss::BeliefMap, path: &str) -> std::io::Result<()> {
@@ -321,4 +317,38 @@ pub fn dump_beliefmap_json(map: &crate::gloss::BeliefMap, path: &str) -> std::io
     let mut file = File::create(path)?;
     file.write_all(json.as_bytes())?;
     Ok(())
+}
+
+/// Compress the input using literal passthrough encoding.
+pub fn compress(
+    data: &[u8],
+    _lens: RangeInclusive<u8>,
+    _limit: Option<u64>,
+    _status: u64,
+    _hashes: &mut u64,
+    _json: bool,
+    _gloss: Option<&GlossTable>,
+    _verbosity: u8,
+    _gloss_only: bool,
+    _coverage: Option<&mut [bool]>,
+    _partials: Option<&mut Vec<u8>>,
+    _filter: Option<&mut TruncHashTable>,
+) -> Vec<u8> {
+    let mut out = Vec::new();
+    let mut offset = 0usize;
+    while offset + BLOCK_SIZE <= data.len() {
+        let remaining_blocks = (data.len() - offset) / BLOCK_SIZE;
+        let blocks = remaining_blocks.min(3).max(1);
+        let header = encode_header(0, 36 + blocks);
+        out.extend_from_slice(&header);
+        let bytes = blocks * BLOCK_SIZE;
+        out.extend_from_slice(&data[offset..offset + bytes]);
+        offset += bytes;
+    }
+    let header = encode_header(0, 40);
+    out.extend_from_slice(&header);
+    if offset < data.len() {
+        out.extend_from_slice(&data[offset..]);
+    }
+    out
 }

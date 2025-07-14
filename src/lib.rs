@@ -1,9 +1,8 @@
 mod block;
 mod bloom;
+mod bundle;
 mod compress;
 mod compress_stats;
-mod gloss;
-mod gloss_prune_hook;
 mod header;
 mod live_window;
 mod path;
@@ -11,30 +10,22 @@ mod seed_detect;
 mod seed_logger;
 mod sha_cache;
 mod stats;
-mod bundle;
 
 pub use block::{
     apply_block_changes, detect_bundles, group_by_bit_length, split_into_blocks, Block,
     BlockChange, BlockTable,
 };
 pub use bloom::*;
-pub use compress::{compress_block, dump_beliefmap_json, dump_gloss_to_csv, TruncHashTable};
+pub use bundle::{apply_bundle, BlockStatus, MutableBlock};
+pub use compress::{compress, compress_block, dump_beliefmap_json, dump_gloss_to_csv, TruncHashTable};
 pub use compress_stats::{write_stats_csv, CompressionStats};
-pub use gloss::*;
-pub use gloss_prune_hook::run as gloss_prune_hook;
 pub use header::{decode_header, encode_header, Header, HeaderError};
 pub use live_window::{print_window, LiveStats};
 pub use path::*;
-pub use seed_detect::{
-    detect_seed_matches,
-    BlockStatus as SeedBlockStatus,
-    MatchRecord,
-    MutableBlock as SeedMutableBlock,
-};
+pub use seed_detect::{detect_seed_matches, MatchRecord};
 pub use seed_logger::{log_seed, resume_seed_index, HashEntry};
 pub use sha_cache::*;
 pub use stats::Stats;
-pub use bundle::{BlockStatus, MutableBlock, apply_bundle};
 
 use crate::compress::FallbackSeeds;
 use crate::path::PathGloss as PathGlossPrivate;
@@ -58,40 +49,6 @@ pub enum Region {
     Compressed(Vec<u8>, Header),
 }
 
-/// Compress the input using a simple literal passthrough format.
-pub fn compress(
-    data: &[u8],
-    _lens: RangeInclusive<u8>,
-    _limit: Option<u64>,
-    _status: u64,
-    _hashes: &mut u64,
-    _json: bool,
-    _gloss: Option<&GlossTable>,
-    _verbosity: u8,
-    _gloss_only: bool,
-    _coverage: Option<&mut [bool]>,
-    _partials: Option<&mut Vec<u8>>,
-    _filter: Option<&mut TruncHashTable>,
-) -> Vec<u8> {
-    let mut out = Vec::new();
-    let mut offset = 0usize;
-    while offset + BLOCK_SIZE <= data.len() {
-        let remaining_blocks = (data.len() - offset) / BLOCK_SIZE;
-        let blocks = remaining_blocks.min(3);
-        let header = encode_header(0, 36 + blocks);
-        out.extend_from_slice(&header);
-        let bytes = blocks * BLOCK_SIZE;
-        out.extend_from_slice(&data[offset..offset + bytes]);
-        offset += bytes;
-    }
-    let header = encode_header(0, 40);
-    out.extend_from_slice(&header);
-    if offset < data.len() {
-        out.extend_from_slice(&data[offset..]);
-    }
-    out
-}
-
 /// Decompress a single region respecting a byte limit.
 pub fn decompress_region_with_limit(
     region: &Region,
@@ -100,7 +57,11 @@ pub fn decompress_region_with_limit(
 ) -> Option<Vec<u8>> {
     match region {
         Region::Raw(bytes) => {
-            if bytes.len() <= limit { Some(bytes.clone()) } else { None }
+            if bytes.len() <= limit {
+                Some(bytes.clone())
+            } else {
+                None
+            }
         }
         Region::Compressed(data, header) => {
             if header.is_literal() {
