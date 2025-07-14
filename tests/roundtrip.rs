@@ -6,6 +6,6 @@ fn compression_roundtrip_identity() {
     let input: Vec<u8> = (0..100u8).collect();
 
     let output = compress(&input, block_size);
-    let reconstructed = decompress(&output, block_size);
+    let reconstructed = decompress(&output);
     assert_eq!(input, reconstructed);
 }
