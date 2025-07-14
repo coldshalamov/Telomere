@@ -1,14 +1,14 @@
 use std::env;
 use std::fs;
-use std::ops::RangeInclusive;
 use std::time::Instant;
 
-use inchworm::{compress, decompress, GlossTable, TruncHashTable, BLOCK_SIZE, LiveStats};
+use inchworm::{compress, decompress, BLOCK_SIZE, LiveStats};
+use inchworm::gloss::GlossTable;
+use inchworm::compress::TruncHashTable;
 
 
 
 use serde_json;
-use hex;
 
 fn main() -> std::io::Result<()> {
 
@@ -88,7 +88,6 @@ fn main() -> std::io::Result<()> {
                 0,
                 &mut hashes,
                 json_out,
-                None, // No gloss
                 if verbose { 2 } else if quiet { 0 } else { 1 },
                 false, // gloss_only = false
                 None,  // No coverage

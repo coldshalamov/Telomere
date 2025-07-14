@@ -1,11 +1,5 @@
-use inchworm::{
-    compress,
-    decompress_with_limit,
-    decode_header,
-    GlossTable,
-    Header,
-    BLOCK_SIZE,
-};
+use inchworm::{compress, decompress_with_limit, decode_header, Header, BLOCK_SIZE};
+use inchworm::gloss::GlossTable;
 
 #[test]
 fn compress_emits_literal_headers() {
@@ -18,7 +12,6 @@ fn compress_emits_literal_headers() {
         0,
         &mut hashes,
         false,
-        None,
         0,
         false,
         None,

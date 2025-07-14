@@ -1,6 +1,4 @@
 use inchworm::{
-    GlossEntry,
-    GlossTable,
     Header,
     Region,
     decompress_region_with_limit,
@@ -8,6 +6,7 @@ use inchworm::{
     encode_header,
     BLOCK_SIZE,
 };
+use inchworm::gloss::{GlossEntry, GlossTable};
 
 #[test]
 fn region_decompresses_from_gloss() {

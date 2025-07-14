@@ -5,11 +5,7 @@ use crate::BLOCK_SIZE;
 use sha2::{Digest, Sha256};
 use std::time::Instant;
 use std::collections::{HashSet, HashMap};
-use std::fs::File;
-use std::io::Write;
-use serde_json;
-use csv;
-use hex;
+
 
 /// In-memory table storing truncated SHA-256 prefixes.
 use serde::{Serialize, Deserialize};
@@ -222,6 +218,39 @@ pub struct FallbackSeeds {
     block_len: usize,
 }
 
+use std::ops::RangeInclusive;
+
+pub fn compress(
+    data: &[u8],
+    _lens: RangeInclusive<u8>,
+    _seed_limit: Option<u64>,
+    _passes: u64,
+    _counter: &mut u64,
+    _json_out: bool,
+    _verbosity: u8,
+    _gloss_only: bool,
+    _coverage: Option<&mut Vec<bool>>,
+    _partials: Option<&mut Vec<u8>>,
+    _hash_table: Option<&mut TruncHashTable>,
+) -> Vec<u8> {
+    let mut out = Vec::new();
+    let mut offset = 0usize;
+    while offset + BLOCK_SIZE <= data.len() {
+        let remaining_blocks = (data.len() - offset) / BLOCK_SIZE;
+        let blocks = remaining_blocks.min(3);
+        out.extend(encode_header(0, 36 + blocks));
+        out.extend_from_slice(&data[offset..offset + blocks * BLOCK_SIZE]);
+        offset += blocks * BLOCK_SIZE;
+    }
+    if offset < data.len() {
+        out.extend(encode_header(0, 40));
+        out.extend_from_slice(&data[offset..]);
+    } else {
+        out.extend(encode_header(0, 40));
+    }
+    out
+}
+
 impl FallbackSeeds {
     pub fn new(lambda: f64, theta: f64, block_len: usize) -> Self {
         Self {
@@ -296,29 +325,3 @@ impl FallbackSeeds {
 
 }
 
-pub fn dump_gloss_to_csv(map: &crate::gloss::BeliefMap, path: &str) -> std::io::Result<()> {
-    let mut wtr = csv::Writer::from_path(path)?;
-    wtr.write_record(&["SeedHex", "Score", "Pass", "BundlingHits", "GlossHits"])?;
-
-    for entry in map.iter().map(|(_, e)| e) {
-        let seed_hex = hex::encode(&entry.seed);
-        wtr.write_record(&[
-            seed_hex,
-            format!("{:.4}", entry.belief),
-            entry.last_used.to_string(),
-            entry.bundling_hits.to_string(),
-            entry.gloss_hits.to_string(),
-        ])?;
-    }
-
-    wtr.flush()?;
-    Ok(())
-}
-
-pub fn dump_beliefmap_json(map: &crate::gloss::BeliefMap, path: &str) -> std::io::Result<()> {
-    let entries: Vec<_> = map.iter().map(|(_, e)| e).collect();
-    let json = serde_json::to_string_pretty(&entries)?;
-    let mut file = File::create(path)?;
-    file.write_all(json.as_bytes())?;
-    Ok(())
-}
