@@ -19,7 +19,7 @@ pub use block::{
 pub use bundle::{apply_bundle, BlockStatus, MutableBlock};
 pub use compress::{compress, compress_block, TruncHashTable};
 pub use compress_stats::{write_stats_csv, CompressionStats};
-pub use file_header::{encode_file_header, parse_file_header};
+pub use file_header::{decode_file_header, encode_file_header};
 pub use header::{decode_header, encode_header, Header, HeaderError};
 pub use live_window::{print_window, LiveStats};
 pub use path::*;
@@ -90,7 +90,7 @@ pub fn decompress_with_limit(input: &[u8], limit: usize) -> Option<Vec<u8>> {
     if input.is_empty() {
         return Some(Vec::new());
     }
-    let (mut offset, orig_size, block_size, _hash) = parse_file_header(input)?;
+    let (mut offset, orig_size, block_size) = decode_file_header(input)?;
     let mut out = Vec::new();
     while offset < input.len() {
         // Fast path for reserved single-byte literals and terminal blocks.

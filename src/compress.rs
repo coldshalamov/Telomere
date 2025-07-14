@@ -65,7 +65,7 @@ impl TruncHashTable {
 /// Remaining bytes are stored as a literal tail with arity 40.
 
 pub fn compress(data: &[u8], block_size: usize) -> Vec<u8> {
-    let mut out = encode_file_header(data, block_size);
+    let mut out = encode_file_header(data.len(), block_size);
     let mut offset = 0usize;
     while offset + block_size <= data.len() {
         let remaining_blocks = (data.len() - offset) / block_size;
