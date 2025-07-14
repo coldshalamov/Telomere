@@ -9,6 +9,7 @@ mod seed_detect;
 mod seed_logger;
 mod sha_cache;
 mod stats;
+pub mod gloss;
 
 pub use block::{
     apply_block_changes, detect_bundles, group_by_bit_length, split_into_blocks, Block,
@@ -24,9 +25,6 @@ pub use seed_detect::{detect_seed_matches, MatchRecord};
 pub use seed_logger::{log_seed, resume_seed_index, HashEntry};
 pub use sha_cache::*;
 pub use stats::Stats;
-
-// REMOVE the constant
-// pub const BLOCK_SIZE: usize = 3;
 
 pub fn print_compression_status(original: usize, compressed: usize) {
     let ratio = 100.0 * (1.0 - compressed as f64 / original as f64);
@@ -78,16 +76,15 @@ pub fn decompress_region_with_limit(
 
 /// Decompress a full byte stream with an optional limit.
 /// MVP: Only supports literal headers.
-/// Expects the *first byte* of the file to be block_size.
 pub fn decompress_with_limit(
     input: &[u8],
+    block_size: usize,
     limit: usize,
 ) -> Option<Vec<u8>> {
     if input.is_empty() {
         return Some(Vec::new());
     }
-    let block_size = input[0] as usize;
-    let mut offset = 1;
+    let mut offset = 0;
     let mut out = Vec::new();
     while offset < input.len() {
         let (seed, arity, bits) = decode_header(&input[offset..]).ok()?;
@@ -117,6 +114,6 @@ pub fn decompress_with_limit(
 }
 
 /// Convenience wrapper without a limit.
-pub fn decompress(input: &[u8]) -> Vec<u8> {
-    decompress_with_limit(input, usize::MAX).unwrap_or_default()
+pub fn decompress(input: &[u8], block_size: usize) -> Vec<u8> {
+    decompress_with_limit(input, block_size, usize::MAX).unwrap_or_default()
 }

@@ -1,6 +1,5 @@
 use crate::compress_stats::CompressionStats;
 use crate::header::{encode_header, Header};
-use crate::BLOCK_SIZE;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::collections::HashSet;
@@ -63,15 +62,15 @@ impl TruncHashTable {
 /// Compress the input using literal passthrough encoding.
 /// Each chunk of up to 3 blocks is emitted with a header.
 /// Remaining bytes are stored as a literal tail with arity 40.
-pub fn compress(data: &[u8]) -> Vec<u8> {
+pub fn compress(data: &[u8], block_size: usize) -> Vec<u8> {
     let mut out = Vec::new();
     let mut offset = 0usize;
-    while offset + BLOCK_SIZE <= data.len() {
-        let remaining_blocks = (data.len() - offset) / BLOCK_SIZE;
+    while offset + block_size <= data.len() {
+        let remaining_blocks = (data.len() - offset) / block_size;
         let blocks = remaining_blocks.min(3).max(1);
         let header = encode_header(0, 36 + blocks);
         out.extend_from_slice(&header);
-        let bytes = blocks * BLOCK_SIZE;
+        let bytes = blocks * block_size;
         out.extend_from_slice(&data[offset..offset + bytes]);
         offset += bytes;
     }
@@ -87,15 +86,16 @@ pub fn compress(data: &[u8]) -> Vec<u8> {
 /// Only passthrough matching supported in MVP.
 pub fn compress_block(
     input: &[u8],
+    block_size: usize,
     mut stats: Option<&mut CompressionStats>,
 ) -> Option<(Header, usize)> {
-    if input.len() < BLOCK_SIZE {
+    if input.len() < block_size {
         return None;
     }
 
     if let Some(s) = stats.as_mut() {
         s.tick_block();
-        let span = &input[..BLOCK_SIZE.min(input.len())];
+        let span = &input[..block_size.min(input.len())];
         s.maybe_log(span, span, false);
         s.log_match(false, 1);
     }
@@ -105,6 +105,6 @@ pub fn compress_block(
             seed_index: 0,
             arity: 36 + 1,
         },
-        BLOCK_SIZE,
+        block_size,
     ))
 }
