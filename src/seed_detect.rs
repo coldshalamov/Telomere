@@ -1,25 +1,7 @@
 use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 
-/// Status of a mutable block during compression.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum BlockStatus {
-    Active,
-    Inactive,
-}
-
-/// Mutable version of a block used during seed scanning.
-#[derive(Debug, Clone)]
-pub struct MutableBlock {
-    /// Position within the mutable table
-    pub position: usize,
-    /// Reference back to the original immutable block list
-    pub origin_index: usize,
-    /// Raw block bytes
-    pub data: Vec<u8>,
-    /// Whether this block is currently active
-    pub status: BlockStatus,
-}
+use crate::bundle::{BlockStatus, MutableBlock};
 
 /// A record of a block that matched a known seed prefix.
 #[derive(Debug, Clone)]
