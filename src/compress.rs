@@ -1,4 +1,5 @@
 use crate::compress_stats::CompressionStats;
+use crate::file_header::encode_file_header;
 use crate::header::{encode_header, Header};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
@@ -62,8 +63,9 @@ impl TruncHashTable {
 /// Compress the input using literal passthrough encoding.
 /// Each chunk of up to 3 blocks is emitted with a header.
 /// Remaining bytes are stored as a literal tail with arity 40.
+
 pub fn compress(data: &[u8], block_size: usize) -> Vec<u8> {
-    let mut out = Vec::new();
+    let mut out = encode_file_header(data, block_size);
     let mut offset = 0usize;
     while offset + block_size <= data.len() {
         let remaining_blocks = (data.len() - offset) / block_size;

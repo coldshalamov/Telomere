@@ -5,6 +5,6 @@ fn mixed_gloss_and_passthrough() {
     let block_size = 3;
     let input = b"hello!!!abcxyz!".to_vec(); // "hello!!!" is glossed, rest is passthrough
     let compressed = compress(&input, block_size);
-    let output = decompress(&compressed, block_size);
+    let output = decompress(&compressed);
     assert_eq!(input, output);
 }

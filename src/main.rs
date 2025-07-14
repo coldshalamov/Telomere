@@ -7,7 +7,10 @@ use inchworm::{compress, decompress, LiveStats};
 fn main() -> std::io::Result<()> {
     let args: Vec<String> = env::args().collect();
     if args.len() < 4 {
-        eprintln!("Usage: {} [c|d] <input> <output> [--block-size N] [--status] [--json] [--dry-run]", args[0]);
+        eprintln!(
+            "Usage: {} [c|d] <input> <output> [--block-size N] [--status] [--json] [--dry-run]",
+            args[0]
+        );
         return Ok(());
     }
 
@@ -32,9 +35,18 @@ fn main() -> std::io::Result<()> {
                 gloss_only = true;
                 i += 1;
             }
-            "--status" => { show_status = true; i += 1; }
-            "--json" => { json_out = true; i += 1; }
-            "--dry-run" => { dry_run = true; i += 1; }
+            "--status" => {
+                show_status = true;
+                i += 1;
+            }
+            "--json" => {
+                json_out = true;
+                i += 1;
+            }
+            "--dry-run" => {
+                dry_run = true;
+                i += 1;
+            }
             flag => {
                 eprintln!("Unknown flag: {}", flag);
                 return Ok(());
@@ -94,7 +106,7 @@ fn main() -> std::io::Result<()> {
         }
 
         "d" => {
-            let decompressed = decompress(&data, block_size);
+            let decompressed = decompress(&data);
             fs::write(&args[3], decompressed)?;
         }
 
