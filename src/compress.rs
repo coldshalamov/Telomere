@@ -3,8 +3,7 @@ use crate::header::{encode_header, Header};
 use crate::BLOCK_SIZE;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
-use std::collections::{HashMap, HashSet};
-use std::ops::RangeInclusive;
+use std::collections::HashSet;
 
 /// In-memory table storing truncated SHA-256 prefixes.
 #[derive(Default, Serialize, Deserialize)]
