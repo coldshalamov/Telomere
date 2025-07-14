@@ -43,7 +43,9 @@ pub enum Region {
 }
 
 /// Decompress a single region respecting a byte limit.
-/// MVP: Only supports literal decompression, no gloss/seed paths.
+///
+/// Only literal passthrough data is supported. Headers may use the
+/// single-byte arity codes 29–32 or the standard encoded headers.
 pub fn decompress_region_with_limit(
     region: &Region,
     block_size: usize,
@@ -59,8 +61,10 @@ pub fn decompress_region_with_limit(
         }
         Region::Compressed(data, header) => {
             if header.is_literal() {
-                let expected = if header.arity == 40 {
+                let expected = if header.arity == 32 || header.arity == 40 {
                     data.len()
+                } else if header.arity >= 29 && header.arity <= 31 {
+                    (header.arity - 28) * block_size
                 } else {
                     (header.arity - 36) * block_size
                 };
@@ -77,7 +81,11 @@ pub fn decompress_region_with_limit(
 }
 
 /// Decompress a full byte stream with an optional limit.
-/// MVP: Only supports literal headers.
+///
+/// Literal passthrough blocks may use either the variable-length header
+/// scheme (arities 37–40) or the reserved single-byte codes 29–32.
+/// Codes 29–31 represent one to three literal blocks while code 32
+/// marks a terminal tail smaller than `block_size` bytes.
 pub fn decompress_with_limit(input: &[u8], limit: usize) -> Option<Vec<u8>> {
     if input.is_empty() {
         return Some(Vec::new());
@@ -85,6 +93,30 @@ pub fn decompress_with_limit(input: &[u8], limit: usize) -> Option<Vec<u8>> {
     let (mut offset, orig_size, block_size, _hash) = parse_file_header(input)?;
     let mut out = Vec::new();
     while offset < input.len() {
+        // Fast path for reserved single-byte literals and terminal blocks.
+        if matches!(input[offset], 29..=32) {
+            let code = input[offset];
+            offset += 1;
+            if code == 32 {
+                let tail = &input[offset..];
+                if out.len() + tail.len() > limit {
+                    return None;
+                }
+                out.extend_from_slice(tail);
+                offset = input.len();
+                break;
+            } else {
+                let blocks = (code as usize) - 28;
+                let bytes = blocks * block_size;
+                if offset + bytes > input.len() || out.len() + bytes > limit {
+                    return None;
+                }
+                out.extend_from_slice(&input[offset..offset + bytes]);
+                offset += bytes;
+                continue;
+            }
+        }
+
         let (_, arity, bits) = decode_header(&input[offset..]).ok()?;
         offset += (bits + 7) / 8;
         if arity >= 37 && arity <= 39 {
