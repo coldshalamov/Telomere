@@ -1,4 +1,4 @@
-use inchworm::{compress, decode_header, decompress_with_limit, parse_file_header, Header};
+use inchworm::{compress, decode_file_header, decode_header, decompress_with_limit, Header};
 
 #[test]
 fn compress_emits_literal_headers() {
@@ -8,7 +8,7 @@ fn compress_emits_literal_headers() {
     let decompressed = decompress_with_limit(&out, usize::MAX).unwrap();
     assert_eq!(decompressed, data);
 
-    let (mut offset, _, _, _) = parse_file_header(&out).unwrap();
+    let (mut offset, _, _) = decode_file_header(&out).unwrap();
     let mut idx = 0usize;
     while offset < out.len() {
         let (seed, arity, bits) = decode_header(&out[offset..]).unwrap();
