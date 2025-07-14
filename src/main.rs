@@ -2,9 +2,7 @@ use std::env;
 use std::fs;
 use std::time::Instant;
 
-use inchworm::{compress, decompress, BLOCK_SIZE, LiveStats};
-use inchworm::gloss::GlossTable;
-use inchworm::compress::TruncHashTable;
+use inchworm::{compress, decompress, LiveStats, TruncHashTable};
 
 
 
@@ -14,7 +12,7 @@ fn main() -> std::io::Result<()> {
 
     let args: Vec<String> = env::args().collect();
     if args.len() < 4 {
-        eprintln!("Usage: {} [c|d] <input> <output> [--max-seed-len N] [--seed-limit N] [--status] [--json] [--verbose] [--quiet] [--gloss FILE] [--gloss-only] [--dry-run] [--gloss-coverage FILE] [--collect-partials] [--hash-filter-bits N] [--filter-known-hashes]", args[0]);
+        eprintln!("Usage: {} [c|d] <input> <output> [--max-seed-len N] [--seed-limit N] [--status] [--json] [--verbose] [--quiet] [--dry-run] [--hash-filter-bits N] [--filter-known-hashes]", args[0]);
         return Ok(());
     }
 
@@ -22,13 +20,9 @@ fn main() -> std::io::Result<()> {
     let mut seed_limit: Option<u64> = None;
     let mut show_status = false;
     let mut json_out = false;
-    let mut gloss_path: Option<String> = None;
     let mut verbose = false;
     let mut quiet = false;
-    let mut gloss_only = false;
     let mut dry_run = false;
-    let mut gloss_coverage: Option<String> = None;
-    let mut collect_partials = false;
     let mut hash_filter_bits: u8 = 24;
     let mut filter_known_hashes = false;
 
@@ -38,14 +32,10 @@ fn main() -> std::io::Result<()> {
             "--max-seed-len" => { max_seed_len = args[i + 1].parse().expect("invalid value"); i += 2; }
             "--seed-limit" => { seed_limit = Some(args[i + 1].parse().expect("invalid value")); i += 2; }
             "--status" => { show_status = true; i += 1; }
-            "--gloss" => { gloss_path = Some(args[i + 1].clone()); i += 2; }
             "--json" => { json_out = true; i += 1; }
             "--verbose" => { verbose = true; i += 1; }
             "--quiet" => { quiet = true; i += 1; }
-            "--gloss-only" => { gloss_only = true; i += 1; }
             "--dry-run" => { dry_run = true; i += 1; }
-            "--gloss-coverage" => { gloss_coverage = Some(args[i + 1].clone()); i += 2; }
-            "--collect-partials" => { collect_partials = true; i += 1; }
             "--hash-filter-bits" => { hash_filter_bits = args[i + 1].parse().expect("invalid value"); i += 2; }
             "--filter-known-hashes" => { filter_known_hashes = true; i += 1; }
             flag => {
@@ -56,15 +46,8 @@ fn main() -> std::io::Result<()> {
     }
 
     let data = fs::read(&args[2])?;
-    let gloss = GlossTable::load("gloss.bin").unwrap_or_else(|_| GlossTable::default());
 
-    let mut coverage: Option<Vec<bool>> = if gloss_only && gloss_coverage.is_some() {
-        Some(vec![false; gloss.entries.len()])
-    } else {
-        None
-    };
-
-        let mut hash_filter = if filter_known_hashes {
+    let mut hash_filter = if filter_known_hashes {
         Some(TruncHashTable::new(hash_filter_bits))
     } else {
         None
@@ -88,10 +71,11 @@ fn main() -> std::io::Result<()> {
                 0,
                 &mut hashes,
                 json_out,
+                None,
                 if verbose { 2 } else if quiet { 0 } else { 1 },
-                false, // gloss_only = false
-                None,  // No coverage
-                None,  // No partials
+                false,
+                None,
+                None,
                 Some(&mut table),
             );
 
@@ -131,7 +115,7 @@ fn main() -> std::io::Result<()> {
         }
 
         "d" => {
-            let out = decompress(&data, &gloss);
+            let out = decompress(&data);
             fs::write(&args[3], out)?;
         }
 

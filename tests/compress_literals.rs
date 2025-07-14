@@ -1,5 +1,4 @@
 use inchworm::{compress, decompress_with_limit, decode_header, Header, BLOCK_SIZE};
-use inchworm::gloss::GlossTable;
 
 #[test]
 fn compress_emits_literal_headers() {
@@ -12,14 +11,14 @@ fn compress_emits_literal_headers() {
         0,
         &mut hashes,
         false,
+        None,
         0,
         false,
         None,
         None,
         None,
     );
-    let table = GlossTable::default();
-    let decompressed = decompress_with_limit(&out, &table, usize::MAX).unwrap();
+    let decompressed = decompress_with_limit(&out, usize::MAX).unwrap();
     assert_eq!(decompressed, data);
 
     let mut offset = 0usize;

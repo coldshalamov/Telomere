@@ -1,7 +1,6 @@
 #[test]
 fn compression_roundtrip_identity() {
     use inchworm::{compress, decompress};
-    use inchworm::gloss::GlossTable;
 
     let input: Vec<u8> = (0..100u8).collect();
     let mut counter = 0u64;
@@ -13,6 +12,7 @@ fn compression_roundtrip_identity() {
         1000,
         &mut counter,
         false,
+        None,
         0,
         false,
         None,
@@ -20,7 +20,6 @@ fn compression_roundtrip_identity() {
         None,
     );
 
-    let gloss = GlossTable::default();
-    let reconstructed = decompress(&output, &gloss);
+    let reconstructed = decompress(&output);
     assert_eq!(input, reconstructed);
 }
