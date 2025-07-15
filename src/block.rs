@@ -1,6 +1,14 @@
 use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 
+/// Status of a candidate branch within a [`Block`].
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum BranchStatus {
+    Active,
+    Pruned,
+    Collapsed,
+}
+
 #[derive(Debug, Clone)]
 pub struct Block {
     /// Original order in the stream
@@ -9,10 +17,16 @@ pub struct Block {
     pub bit_length: usize,
     /// Raw bytes making up this block
     pub data: Vec<u8>,
+    /// SHA-256 digest of the raw data
+    pub digest: [u8; 32],
     /// Optional arity if this block was compressed later
     pub arity: Option<usize>,
     /// Optional seed index associated with compressed form
     pub seed_index: Option<usize>,
+    /// Branch label when multiple candidates exist for the same index
+    pub branch_label: char,
+    /// Current status of this branch
+    pub status: BranchStatus,
 }
 
 /// Represents an update to a specific block in the table.
@@ -70,6 +84,30 @@ impl BlockTable {
         self.groups.iter_mut()
     }
 
+    /// Return all candidate branches for a given global index sorted by label.
+    pub fn branches_for(&self, index: usize) -> Vec<&Block> {
+        let mut branches: Vec<&Block> = Vec::new();
+        for group in self.groups.values() {
+            for block in group.iter().filter(|b| b.global_index == index) {
+                branches.push(block);
+            }
+        }
+        branches.sort_by(|a, b| a.branch_label.cmp(&b.branch_label));
+        branches
+    }
+
+    /// Calculate difference in bit length between longest and shortest branch.
+    pub fn bit_length_delta(&self, index: usize) -> Option<usize> {
+        let branches = self.branches_for(index);
+        if branches.is_empty() {
+            None
+        } else {
+            let min = branches.iter().map(|b| b.bit_length).min().unwrap();
+            let max = branches.iter().map(|b| b.bit_length).max().unwrap();
+            Some(max - min)
+        }
+    }
+
     /// Clear empty groups of allocated memory without removing them.
     pub fn clear_empty(&mut self) {
         for vec in self.groups.values_mut() {
@@ -111,8 +149,11 @@ pub fn split_into_blocks(input: &[u8], block_size_bits: usize) -> Vec<Block> {
             global_index: index,
             bit_length: bits,
             data: slice.to_vec(),
+            digest: Sha256::digest(slice).into(),
             arity: None,
             seed_index: None,
+            branch_label: 'A',
+            status: BranchStatus::Active,
         });
 
         offset += block_size_bytes;
@@ -139,6 +180,9 @@ pub fn simulate_pass(table: &mut BlockTable, seed_table: &HashMap<String, usize>
                 block.seed_index = Some(seed_idx);
                 block.arity = Some(1);
                 block.bit_length = 16;
+                block.digest = digest.into();
+                block.branch_label = 'A';
+                block.status = BranchStatus::Active;
                 table.group_mut(16).push(block);
                 matches += 1;
             } else {
@@ -158,12 +202,11 @@ pub fn apply_block_changes(table: &mut BlockTable, changes: Vec<BlockChange>) {
     for mut change in changes {
         // Remove the old block
         for (_, group) in table.iter_mut() {
-            if let Some(pos) = group
+            while let Some(pos) = group
                 .iter()
                 .position(|b| b.global_index == change.original_index)
             {
                 group.remove(pos);
-                break;
             }
         }
 
@@ -176,12 +219,16 @@ pub fn apply_block_changes(table: &mut BlockTable, changes: Vec<BlockChange>) {
 
 /// Print a short summary of how many blocks exist for each bit length.
 pub fn print_table_summary(table: &BlockTable) {
-    let mut lengths: Vec<_> = table.iter().map(|(k, _)| *k).collect();
-    lengths.sort_unstable();
-    for len in lengths {
-        if let Some(group) = table.get(&len) {
-            println!("{}: {} blocks", len, group.len());
-        }
+    let mut blocks: Vec<&Block> = table.iter().flat_map(|(_, g)| g.iter()).collect();
+    blocks.sort_by(|a, b| match a.global_index.cmp(&b.global_index) {
+        std::cmp::Ordering::Equal => a.branch_label.cmp(&b.branch_label),
+        other => other,
+    });
+    for b in blocks {
+        println!(
+            "{}{}: {} bits ({:?})",
+            b.global_index, b.branch_label, b.bit_length, b.status
+        );
     }
 }
 
@@ -315,8 +362,11 @@ mod tests {
             global_index: 0,
             bit_length: 8,
             data: vec![0xAB],
+            digest: [0u8; 32],
             arity: None,
             seed_index: None,
+            branch_label: 'A',
+            status: BranchStatus::Active,
         };
         table.group_mut(block.bit_length).push(block.clone());
         assert_eq!(table.get(&8).unwrap()[0].global_index, 0);
@@ -353,22 +403,31 @@ mod tests {
                 global_index: 0,
                 bit_length: 8,
                 data: vec![0],
+                digest: [0u8; 32],
                 arity: None,
                 seed_index: None,
+                branch_label: 'A',
+                status: BranchStatus::Active,
             },
             Block {
                 global_index: 1,
                 bit_length: 16,
                 data: vec![1, 2],
+                digest: [0u8; 32],
                 arity: None,
                 seed_index: None,
+                branch_label: 'A',
+                status: BranchStatus::Active,
             },
             Block {
                 global_index: 2,
                 bit_length: 8,
                 data: vec![3],
+                digest: [0u8; 32],
                 arity: None,
                 seed_index: None,
+                branch_label: 'A',
+                status: BranchStatus::Active,
             },
         ];
         let table = group_by_bit_length(blocks);
@@ -383,15 +442,21 @@ mod tests {
                 global_index: 0,
                 bit_length: 8,
                 data: vec![1],
+                digest: [0u8; 32],
                 arity: None,
                 seed_index: None,
+                branch_label: 'A',
+                status: BranchStatus::Active,
             },
             Block {
                 global_index: 1,
                 bit_length: 8,
                 data: vec![2],
+                digest: [0u8; 32],
                 arity: None,
                 seed_index: None,
+                branch_label: 'A',
+                status: BranchStatus::Active,
             },
         ];
         let table = group_by_bit_length(blocks.clone());

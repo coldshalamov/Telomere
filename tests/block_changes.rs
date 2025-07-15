@@ -7,15 +7,21 @@ fn apply_single_change() {
             global_index: 0,
             bit_length: 8,
             data: vec![1],
+            digest: [0u8; 32],
             arity: None,
             seed_index: None,
+            branch_label: 'A',
+            status: inchworm::BranchStatus::Active,
         },
         Block {
             global_index: 1,
             bit_length: 8,
             data: vec![2],
+            digest: [0u8; 32],
             arity: None,
             seed_index: None,
+            branch_label: 'A',
+            status: inchworm::BranchStatus::Active,
         },
     ];
     let mut table = group_by_bit_length(blocks);
@@ -25,8 +31,11 @@ fn apply_single_change() {
         global_index: 0,
         bit_length: 16,
         data: vec![3, 4],
+        digest: [0u8; 32],
         arity: None,
         seed_index: Some(0),
+        branch_label: 'A',
+        status: inchworm::BranchStatus::Active,
     };
     let change = BlockChange {
         original_index: 1,
