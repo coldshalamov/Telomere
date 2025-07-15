@@ -15,8 +15,8 @@ mod sha_cache;
 mod stats;
 
 pub use block::{
-    apply_block_changes, detect_bundles, group_by_bit_length, split_into_blocks, Block,
-    BlockChange, BlockTable,
+    apply_block_changes, detect_bundles, group_by_bit_length, run_all_passes, split_into_blocks,
+    Block, BlockChange, BlockTable,
 };
 pub use bundle::{apply_bundle, BlockStatus, MutableBlock};
 pub use compress::{compress, compress_block, TruncHashTable};

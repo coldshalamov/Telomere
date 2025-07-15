@@ -24,14 +24,67 @@ pub struct BlockChange {
     pub new_block: Block,
 }
 
-/// BlockTable groups blocks by their bit length
-pub type BlockTable = HashMap<usize, Vec<Block>>;
+/// BlockTable groups blocks by their bit length.
+///
+/// A table exists for every even-numbered bit length encountered during
+/// compression. Tables persist for the lifetime of a run and are only
+/// cleared when empty. Practical block sizes range from 8 to 512 bits
+/// which yields at most 256 individual tables.
+#[derive(Debug, Clone, Default)]
+pub struct BlockTable {
+    groups: HashMap<usize, Vec<Block>>,
+}
+
+impl BlockTable {
+    /// Create a new empty table
+    pub fn new() -> Self {
+        Self {
+            groups: HashMap::new(),
+        }
+    }
+
+    /// Return the number of active groups
+    pub fn group_count(&self) -> usize {
+        self.groups.len()
+    }
+
+    /// Access a mutable group for the provided even bit length,
+    /// creating it if necessary.
+    pub fn group_mut(&mut self, len: usize) -> &mut Vec<Block> {
+        assert!(len % 2 == 0, "bit length must be even");
+        self.groups.entry(len).or_default()
+    }
+
+    /// Iterate over all groups
+    pub fn iter(&self) -> impl Iterator<Item = (&usize, &Vec<Block>)> {
+        self.groups.iter()
+    }
+
+    /// Get a reference to a specific group
+    pub fn get(&self, len: &usize) -> Option<&Vec<Block>> {
+        self.groups.get(len)
+    }
+
+    /// Iterate mutably over all groups
+    pub fn iter_mut(&mut self) -> impl Iterator<Item = (&usize, &mut Vec<Block>)> {
+        self.groups.iter_mut()
+    }
+
+    /// Clear empty groups of allocated memory without removing them.
+    pub fn clear_empty(&mut self) {
+        for vec in self.groups.values_mut() {
+            if vec.is_empty() {
+                vec.shrink_to_fit();
+            }
+        }
+    }
+}
 
 /// Given a flat list of [`Block`]s, return a [`BlockTable`]
 pub fn group_by_bit_length(blocks: Vec<Block>) -> BlockTable {
-    let mut table: BlockTable = HashMap::new();
+    let mut table = BlockTable::new();
     for block in blocks {
-        table.entry(block.bit_length).or_default().push(block);
+        table.group_mut(block.bit_length).push(block);
     }
     table
 }
@@ -71,30 +124,29 @@ pub fn split_into_blocks(input: &[u8], block_size_bits: usize) -> Vec<Block> {
 
 /// Simulate a compression pass using a prebuilt seed table.
 pub fn simulate_pass(table: &mut BlockTable, seed_table: &HashMap<String, usize>) -> usize {
-    let mut lengths: Vec<usize> = table.keys().cloned().collect();
+    let mut lengths: Vec<usize> = table.iter().map(|(k, _)| *k).collect();
     lengths.sort_unstable_by(|a, b| b.cmp(a));
 
     let mut matches = 0usize;
 
     for len in lengths {
-        if let Some(mut group) = table.remove(&len) {
-            let mut remaining = Vec::new();
-            for mut block in group.into_iter() {
-                let digest = Sha256::digest(&block.data);
-                let hex = hex::encode(digest);
-                if let Some(&seed_idx) = seed_table.get(&hex) {
-                    block.seed_index = Some(seed_idx);
-                    block.arity = Some(1);
-                    block.bit_length = 16;
-                    table.entry(16).or_default().push(block);
-                    matches += 1;
-                } else {
-                    remaining.push(block);
-                }
+        let mut group = std::mem::take(table.group_mut(len));
+        let mut remaining = Vec::new();
+        for mut block in group.into_iter() {
+            let digest = Sha256::digest(&block.data);
+            let hex = hex::encode(digest);
+            if let Some(&seed_idx) = seed_table.get(&hex) {
+                block.seed_index = Some(seed_idx);
+                block.arity = Some(1);
+                block.bit_length = 16;
+                table.group_mut(16).push(block);
+                matches += 1;
+            } else {
+                remaining.push(block);
             }
-            if !remaining.is_empty() {
-                table.insert(len, remaining);
-            }
+        }
+        if !remaining.is_empty() {
+            *table.group_mut(len) = remaining;
         }
     }
 
@@ -105,28 +157,26 @@ pub fn simulate_pass(table: &mut BlockTable, seed_table: &HashMap<String, usize>
 pub fn apply_block_changes(table: &mut BlockTable, changes: Vec<BlockChange>) {
     for mut change in changes {
         // Remove the old block
-        let mut empty_key: Option<usize> = None;
-        for (len, group) in table.iter_mut() {
-            if let Some(pos) = group.iter().position(|b| b.global_index == change.original_index) {
+        for (_, group) in table.iter_mut() {
+            if let Some(pos) = group
+                .iter()
+                .position(|b| b.global_index == change.original_index)
+            {
                 group.remove(pos);
-                if group.is_empty() {
-                    empty_key = Some(*len);
-                }
                 break;
             }
         }
-        if let Some(k) = empty_key {
-            table.remove(&k);
-        }
 
         change.new_block.global_index = change.original_index;
-        table.entry(change.new_block.bit_length).or_default().push(change.new_block);
+        table
+            .group_mut(change.new_block.bit_length)
+            .push(change.new_block);
     }
 }
 
 /// Print a short summary of how many blocks exist for each bit length.
 pub fn print_table_summary(table: &BlockTable) {
-    let mut lengths: Vec<_> = table.keys().cloned().collect();
+    let mut lengths: Vec<_> = table.iter().map(|(k, _)| *k).collect();
     lengths.sort_unstable();
     for len in lengths {
         if let Some(group) = table.get(&len) {
@@ -147,6 +197,7 @@ pub fn run_all_passes(mut table: BlockTable, seed_table: &HashMap<String, usize>
         }
         detect_bundles(&mut table);
         apply_block_changes(&mut table, vec![]);
+        table.clear_empty();
     }
     table
 }
@@ -157,7 +208,7 @@ mod tests {
 
     #[test]
     fn table_groups_by_length() {
-        let mut table: BlockTable = HashMap::new();
+        let mut table = BlockTable::new();
         let block = Block {
             global_index: 0,
             bit_length: 8,
@@ -165,7 +216,7 @@ mod tests {
             arity: None,
             seed_index: None,
         };
-        table.entry(block.bit_length).or_default().push(block.clone());
+        table.group_mut(block.bit_length).push(block.clone());
         assert_eq!(table.get(&8).unwrap()[0].global_index, 0);
     }
 
@@ -245,6 +296,6 @@ mod tests {
         let seed_table: HashMap<String, usize> = HashMap::new();
         let out = run_all_passes(table, &seed_table);
         assert_eq!(out.get(&8).unwrap().len(), blocks.len());
-        assert!(out.get(&16).is_none());
+        assert!(out.get(&16).map_or(true, |v| v.is_empty()));
     }
 }
