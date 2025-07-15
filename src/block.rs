@@ -232,6 +232,108 @@ pub fn print_table_summary(table: &BlockTable) {
     }
 }
 
+/// Prune superposed branches whose bit-length delta exceeds eight bits.
+pub fn prune_branches(table: &mut BlockTable) {
+    use std::collections::HashMap;
+
+    let mut by_index: HashMap<usize, Vec<(usize, usize)>> = HashMap::new();
+    for (len, group) in table.iter() {
+        for (idx, block) in group.iter().enumerate() {
+            by_index
+                .entry(block.global_index)
+                .or_default()
+                .push((*len, idx));
+        }
+    }
+
+    let mut remove_map: HashMap<usize, Vec<usize>> = HashMap::new();
+    for (_idx, branches) in by_index {
+        if branches.len() <= 1 {
+            continue;
+        }
+        let min_len = branches.iter().map(|b| b.0).min().unwrap();
+        let max_len = branches.iter().map(|b| b.0).max().unwrap();
+        if max_len - min_len > 8 {
+            for (len, pos) in branches.iter().filter(|b| b.0 == max_len) {
+                remove_map.entry(*len).or_default().push(*pos);
+            }
+        }
+    }
+
+    for (len, mut positions) in remove_map {
+        if let Some(group) = table.groups.get_mut(&len) {
+            positions.sort_unstable_by(|a, b| b.cmp(a));
+            positions.dedup();
+            for pos in positions {
+                if pos < group.len() {
+                    group.remove(pos);
+                }
+            }
+        }
+    }
+}
+
+/// Collapse all branches from the given index onward, keeping the shortest.
+pub fn collapse_branches(table: &mut BlockTable, start_index: usize) {
+    use std::collections::HashMap;
+
+    let mut by_index: HashMap<usize, Vec<(usize, usize)>> = HashMap::new();
+    for (len, group) in table.iter() {
+        for (idx, block) in group.iter().enumerate() {
+            if block.global_index >= start_index {
+                by_index
+                    .entry(block.global_index)
+                    .or_default()
+                    .push((*len, idx));
+            }
+        }
+    }
+
+    let mut remove_map: HashMap<usize, Vec<usize>> = HashMap::new();
+    for (_idx, branches) in by_index {
+        if branches.len() <= 1 {
+            continue;
+        }
+        let min_len = branches.iter().map(|b| b.0).min().unwrap();
+        for (len, pos) in branches.into_iter().filter(|b| b.0 != min_len) {
+            remove_map.entry(len).or_default().push(pos);
+        }
+    }
+
+    for (len, mut positions) in remove_map {
+        if let Some(group) = table.groups.get_mut(&len) {
+            positions.sort_unstable_by(|a, b| b.cmp(a));
+            positions.dedup();
+            for pos in positions {
+                if pos < group.len() {
+                    group.remove(pos);
+                }
+            }
+        }
+    }
+}
+
+/// Finalize the table into a single block per global index.
+pub fn finalize_table(mut table: BlockTable) -> Vec<Block> {
+    use std::collections::HashMap;
+
+    let mut map: HashMap<usize, Block> = HashMap::new();
+    for (_, group) in table.groups.drain() {
+        for block in group.into_iter() {
+            map.entry(block.global_index)
+                .and_modify(|b| {
+                    if block.bit_length < b.bit_length {
+                        *b = block.clone();
+                    }
+                })
+                .or_insert(block);
+        }
+    }
+    let mut out: Vec<Block> = map.into_iter().map(|(_, b)| b).collect();
+    out.sort_by_key(|b| b.global_index);
+    out
+}
+
 /// Detect potential bundled blocks after a pass (stub).
 pub fn detect_bundles(_table: &mut BlockTable) {}
 
