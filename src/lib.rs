@@ -16,7 +16,7 @@ mod stats;
 
 pub use block::{
     apply_block_changes, detect_bundles, group_by_bit_length, run_all_passes, split_into_blocks,
-    Block, BlockChange, BlockTable,
+    Block, BlockChange, BlockTable, BranchStatus,
 };
 pub use bundle::{apply_bundle, BlockStatus, MutableBlock};
 pub use compress::{compress, compress_block, TruncHashTable};
