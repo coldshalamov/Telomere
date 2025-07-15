@@ -60,26 +60,29 @@ impl TruncHashTable {
     }
 }
 
-/// Compress the input using literal passthrough encoding.
-/// Each chunk of up to 3 blocks is emitted with a header.
-/// Remaining bytes are stored as a literal tail with arity 40.
-
+/// Compress the input using literal passthrough headers.
+///
+/// Literal data is grouped into runs of up to three blocks. Each run is
+/// emitted with a header whose arity is 29, 30 or 31. If the final region is
+/// shorter than one block, a header with arity 32 precedes the remaining bytes.
 pub fn compress(data: &[u8], block_size: usize) -> Vec<u8> {
     let mut out = encode_file_header(data.len(), block_size);
     let mut offset = 0usize;
     while offset + block_size <= data.len() {
         let remaining_blocks = (data.len() - offset) / block_size;
         let blocks = remaining_blocks.min(3).max(1);
-        let header = encode_header(0, 36 + blocks);
+        let header = encode_header(0, 28 + blocks);
         out.extend_from_slice(&header);
         let bytes = blocks * block_size;
         out.extend_from_slice(&data[offset..offset + bytes]);
         offset += bytes;
     }
-    out.push(32u8);
+
     if offset < data.len() {
+        out.extend_from_slice(&encode_header(0, 32));
         out.extend_from_slice(&data[offset..]);
     }
+
     out
 }
 
@@ -104,7 +107,7 @@ pub fn compress_block(
     Some((
         Header {
             seed_index: 0,
-            arity: 36 + 1,
+            arity: 29,
         },
         block_size,
     ))

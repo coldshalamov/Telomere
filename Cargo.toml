@@ -13,6 +13,11 @@ memmap2 = "0.5"
 thiserror = "2.0.12"
 csv = "1"
 clap = { version = "4", features = ["derive"] }
+sysinfo = "0.29"
+tempfile = { version = "3", optional = true }
+
+[dev-dependencies]
+tempfile = "3"
 
 
 [[bin]]
