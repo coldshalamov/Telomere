@@ -1,13 +1,13 @@
-use std::cmp;
 
-/// Encode a usize using EVQL (Exponentially Variable Quantity Length).
-/// The value width is a power of two in bytes. The prefix is encoded as
-/// `n` one bits followed by a zero bit where `2^n` is the number of bytes
-/// used to store the value. The bits are packed big endian.
-pub fn encode_evql(mut value: usize) -> Vec<u8> {
-    let mut width = 1usize;
+/// Encode a usize using EVQL (Exponentially Variable Quantization Length).
+///
+/// The payload width is `2^N` **bits** where `N` is chosen such that
+/// `value < 2^(2^N)`. The prefix is encoded as `N` consecutive one bits
+/// followed by a zero stop bit. All bits are packed big endian.
+pub fn encode_evql(value: usize) -> Vec<u8> {
+    let mut width = 1usize; // number of bits
     let mut n = 0usize;
-    while value >= (1usize << (width * 8)) {
+    while width < usize::BITS as usize && value >= (1usize << width) {
         width <<= 1;
         n += 1;
     }
@@ -16,7 +16,7 @@ pub fn encode_evql(mut value: usize) -> Vec<u8> {
         bits.push(true);
     }
     bits.push(false);
-    for i in (0..(width * 8)).rev() {
+    for i in (0..width).rev() {
         bits.push(((value >> i) & 1) != 0);
     }
     pack_bits(&bits)
@@ -41,7 +41,7 @@ pub fn decode_evql(data: &[u8]) -> Option<(usize, usize)> {
     }
     let width = 1usize << n;
     let mut value = 0usize;
-    for _ in 0..(width * 8) {
+    for _ in 0..width {
         match get_bit(data, pos) {
             Some(bit) => {
                 value = (value << 1) | (bit as usize);
@@ -99,4 +99,20 @@ fn pack_bits(bits: &[bool]) -> Vec<u8> {
         out.push(0);
     }
     out
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn evql_roundtrip_examples() {
+        let values = [0usize, 3, 4, 5, 15, 16, 255, 256, 65_535, 65_536];
+        for &v in &values {
+            let enc = encode_evql(v);
+            let (val, used) = decode_evql(&enc).expect("decode failed");
+            assert_eq!(val, v);
+            assert_eq!(used, enc.len());
+        }
+    }
 }
