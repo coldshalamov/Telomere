@@ -11,6 +11,14 @@ fn compress_emits_literal_headers() {
     let (mut offset, _, _) = decode_file_header(&out).unwrap();
     let mut idx = 0usize;
     while offset < out.len() {
+        if out[offset] == 32 {
+            offset += 1;
+            assert_eq!(&out[offset..], &data[idx..]);
+            idx = data.len();
+            offset = out.len();
+            break;
+        }
+
         let (seed, arity, bits) = decode_header(&out[offset..]).unwrap();
         let header = Header {
             seed_index: seed,
@@ -18,22 +26,15 @@ fn compress_emits_literal_headers() {
         };
         offset += (bits + 7) / 8;
         assert_eq!(header.seed_index, 0);
-        if header.arity == 40 {
-            assert_eq!(&out[offset..], &data[idx..]);
-            offset = out.len();
-            idx = data.len();
-            break;
-        } else {
-            assert!(header.arity >= 37 && header.arity <= 39);
-            let blocks = header.arity - 36;
-            let byte_count = blocks * block_size;
-            assert_eq!(
-                &out[offset..offset + byte_count],
-                &data[idx..idx + byte_count]
-            );
-            offset += byte_count;
-            idx += byte_count;
-        }
+        assert!(header.arity >= 37 && header.arity <= 39);
+        let blocks = header.arity - 36;
+        let byte_count = blocks * block_size;
+        assert_eq!(
+            &out[offset..offset + byte_count],
+            &data[idx..idx + byte_count]
+        );
+        offset += byte_count;
+        idx += byte_count;
     }
     assert_eq!(idx, data.len());
     assert_eq!(offset, out.len());

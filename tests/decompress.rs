@@ -50,7 +50,7 @@ fn passthrough_final_tail() {
     let block_size = 3;
     let literals: Vec<u8> = (0u8..5).collect();
     let mut data = encode_file_header(literals.len(), block_size);
-    data.extend_from_slice(&encode_header(0, 40)); // final tail
+    data.push(32u8); // terminal tail marker
     data.extend_from_slice(&literals);
     let out = decompress_with_limit(&data, 100).unwrap();
     assert_eq!(out, literals);
