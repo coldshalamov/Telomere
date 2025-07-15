@@ -72,6 +72,7 @@ fn passthrough_final_tail() {
     let out = decompress_with_limit(&data, 100).unwrap();
     assert_eq!(out, literals);
 }
+
 #[test]
 fn unsupported_header_fails() {
     let block_size = 3;

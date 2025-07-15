@@ -12,6 +12,7 @@ fn compress_writes_header_then_data() {
     assert_eq!(len, data.len());
     assert_eq!(bs, block_size);
     let mut idx = 0usize;
+
     while offset < out.len() {
         let (seed, arity, bits) = decode_header(&out[offset..]).unwrap();
         let header = Header {
@@ -20,20 +21,27 @@ fn compress_writes_header_then_data() {
         };
         offset += (bits + 7) / 8;
         assert_eq!(header.seed_index, 0);
-        if header.arity == 32 {
-            assert_eq!(&out[offset..], &data[idx..]);
-            idx = data.len();
-            offset = out.len();
-            break;
-        } else {
-            assert!(header.arity >= 29 && header.arity <= 31);
-            let blocks = header.arity - 28;
-            let bytes = blocks * block_size;
-            assert_eq!(&out[offset..offset + bytes], &data[idx..idx + bytes]);
-            offset += bytes;
-            idx += bytes;
+
+        match header.arity {
+            29..=31 => {
+                let blocks = header.arity - 28;
+                let byte_count = blocks * block_size;
+                assert_eq!(
+                    &out[offset..offset + byte_count],
+                    &data[idx..idx + byte_count]
+                );
+                offset += byte_count;
+                idx += byte_count;
+            }
+            32 => {
+                assert_eq!(&out[offset..], &data[idx..]);
+                idx = data.len();
+                offset = out.len();
+            }
+            _ => panic!("unexpected arity {}", header.arity),
         }
     }
+
     assert_eq!(idx, data.len());
     assert_eq!(offset, out.len());
 }

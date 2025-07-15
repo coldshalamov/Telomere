@@ -1,6 +1,14 @@
 use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 
+/// Status of a candidate branch within a [`Block`].
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum BranchStatus {
+    Active,
+    Pruned,
+    Collapsed,
+}
+
 #[derive(Debug, Clone)]
 pub struct Block {
     /// Original order in the stream
@@ -9,10 +17,16 @@ pub struct Block {
     pub bit_length: usize,
     /// Raw bytes making up this block
     pub data: Vec<u8>,
+    /// SHA-256 digest of the raw data
+    pub digest: [u8; 32],
     /// Optional arity if this block was compressed later
     pub arity: Option<usize>,
     /// Optional seed index associated with compressed form
     pub seed_index: Option<usize>,
+    /// Branch label when multiple candidates exist for the same index
+    pub branch_label: char,
+    /// Current status of this branch
+    pub status: BranchStatus,
 }
 
 /// Represents an update to a specific block in the table.
@@ -70,6 +84,30 @@ impl BlockTable {
         self.groups.iter_mut()
     }
 
+    /// Return all candidate branches for a given global index sorted by label.
+    pub fn branches_for(&self, index: usize) -> Vec<&Block> {
+        let mut branches: Vec<&Block> = Vec::new();
+        for group in self.groups.values() {
+            for block in group.iter().filter(|b| b.global_index == index) {
+                branches.push(block);
+            }
+        }
+        branches.sort_by(|a, b| a.branch_label.cmp(&b.branch_label));
+        branches
+    }
+
+    /// Calculate difference in bit length between longest and shortest branch.
+    pub fn bit_length_delta(&self, index: usize) -> Option<usize> {
+        let branches = self.branches_for(index);
+        if branches.is_empty() {
+            None
+        } else {
+            let min = branches.iter().map(|b| b.bit_length).min().unwrap();
+            let max = branches.iter().map(|b| b.bit_length).max().unwrap();
+            Some(max - min)
+        }
+    }
+
     /// Clear empty groups of allocated memory without removing them.
     pub fn clear_empty(&mut self) {
         for vec in self.groups.values_mut() {
@@ -111,8 +149,11 @@ pub fn split_into_blocks(input: &[u8], block_size_bits: usize) -> Vec<Block> {
             global_index: index,
             bit_length: bits,
             data: slice.to_vec(),
+            digest: Sha256::digest(slice).into(),
             arity: None,
             seed_index: None,
+            branch_label: 'A',
+            status: BranchStatus::Active,
         });
 
         offset += block_size_bytes;
@@ -139,6 +180,9 @@ pub fn simulate_pass(table: &mut BlockTable, seed_table: &HashMap<String, usize>
                 block.seed_index = Some(seed_idx);
                 block.arity = Some(1);
                 block.bit_length = 16;
+                block.digest = digest.into();
+                block.branch_label = 'A';
+                block.status = BranchStatus::Active;
                 table.group_mut(16).push(block);
                 matches += 1;
             } else {
@@ -158,12 +202,11 @@ pub fn apply_block_changes(table: &mut BlockTable, changes: Vec<BlockChange>) {
     for mut change in changes {
         // Remove the old block
         for (_, group) in table.iter_mut() {
-            if let Some(pos) = group
+            while let Some(pos) = group
                 .iter()
                 .position(|b| b.global_index == change.original_index)
             {
                 group.remove(pos);
-                break;
             }
         }
 
@@ -176,13 +219,119 @@ pub fn apply_block_changes(table: &mut BlockTable, changes: Vec<BlockChange>) {
 
 /// Print a short summary of how many blocks exist for each bit length.
 pub fn print_table_summary(table: &BlockTable) {
-    let mut lengths: Vec<_> = table.iter().map(|(k, _)| *k).collect();
-    lengths.sort_unstable();
-    for len in lengths {
-        if let Some(group) = table.get(&len) {
-            println!("{}: {} blocks", len, group.len());
+    let mut blocks: Vec<&Block> = table.iter().flat_map(|(_, g)| g.iter()).collect();
+    blocks.sort_by(|a, b| match a.global_index.cmp(&b.global_index) {
+        std::cmp::Ordering::Equal => a.branch_label.cmp(&b.branch_label),
+        other => other,
+    });
+    for b in blocks {
+        println!(
+            "{}{}: {} bits ({:?})",
+            b.global_index, b.branch_label, b.bit_length, b.status
+        );
+    }
+}
+
+/// Prune superposed branches whose bit-length delta exceeds eight bits.
+pub fn prune_branches(table: &mut BlockTable) {
+    use std::collections::HashMap;
+
+    let mut by_index: HashMap<usize, Vec<(usize, usize)>> = HashMap::new();
+    for (len, group) in table.iter() {
+        for (idx, block) in group.iter().enumerate() {
+            by_index
+                .entry(block.global_index)
+                .or_default()
+                .push((*len, idx));
         }
     }
+
+    let mut remove_map: HashMap<usize, Vec<usize>> = HashMap::new();
+    for (_idx, branches) in by_index {
+        if branches.len() <= 1 {
+            continue;
+        }
+        let min_len = branches.iter().map(|b| b.0).min().unwrap();
+        let max_len = branches.iter().map(|b| b.0).max().unwrap();
+        if max_len - min_len > 8 {
+            for (len, pos) in branches.iter().filter(|b| b.0 == max_len) {
+                remove_map.entry(*len).or_default().push(*pos);
+            }
+        }
+    }
+
+    for (len, mut positions) in remove_map {
+        if let Some(group) = table.groups.get_mut(&len) {
+            positions.sort_unstable_by(|a, b| b.cmp(a));
+            positions.dedup();
+            for pos in positions {
+                if pos < group.len() {
+                    group.remove(pos);
+                }
+            }
+        }
+    }
+}
+
+/// Collapse all branches from the given index onward, keeping the shortest.
+pub fn collapse_branches(table: &mut BlockTable, start_index: usize) {
+    use std::collections::HashMap;
+
+    let mut by_index: HashMap<usize, Vec<(usize, usize)>> = HashMap::new();
+    for (len, group) in table.iter() {
+        for (idx, block) in group.iter().enumerate() {
+            if block.global_index >= start_index {
+                by_index
+                    .entry(block.global_index)
+                    .or_default()
+                    .push((*len, idx));
+            }
+        }
+    }
+
+    let mut remove_map: HashMap<usize, Vec<usize>> = HashMap::new();
+    for (_idx, branches) in by_index {
+        if branches.len() <= 1 {
+            continue;
+        }
+        let min_len = branches.iter().map(|b| b.0).min().unwrap();
+        for (len, pos) in branches.into_iter().filter(|b| b.0 != min_len) {
+            remove_map.entry(len).or_default().push(pos);
+        }
+    }
+
+    for (len, mut positions) in remove_map {
+        if let Some(group) = table.groups.get_mut(&len) {
+            positions.sort_unstable_by(|a, b| b.cmp(a));
+            positions.dedup();
+            for pos in positions {
+                if pos < group.len() {
+                    group.remove(pos);
+                }
+            }
+        }
+    }
+}
+
+/// Finalize the table into a single block per global index.
+pub fn finalize_table(mut table: BlockTable) -> Vec<Block> {
+    use std::collections::HashMap;
+
+    let mut map: HashMap<usize, Block> = HashMap::new();
+    for (_, group) in table.groups.drain() {
+        for block in group.into_iter() {
+            map.entry(block.global_index)
+                .and_modify(|b| {
+                    if block.bit_length < b.bit_length {
+                        *b = block.clone();
+                    }
+                })
+                .or_insert(block);
+        }
+    }
+    let mut out: Vec<Block> = map.into_iter().map(|(_, b)| b).collect();
+    out.sort_by_key(|b| b.global_index);
+    out
 }
 
 /// Detect potential bundled blocks after a pass (stub).
@@ -213,8 +362,11 @@ mod tests {
             global_index: 0,
             bit_length: 8,
             data: vec![0xAB],
+            digest: [0u8; 32],
             arity: None,
             seed_index: None,
+            branch_label: 'A',
+            status: BranchStatus::Active,
         };
         table.group_mut(block.bit_length).push(block.clone());
         assert_eq!(table.get(&8).unwrap()[0].global_index, 0);
@@ -251,22 +403,31 @@ mod tests {
                 global_index: 0,
                 bit_length: 8,
                 data: vec![0],
+                digest: [0u8; 32],
                 arity: None,
                 seed_index: None,
+                branch_label: 'A',
+                status: BranchStatus::Active,
             },
             Block {
                 global_index: 1,
                 bit_length: 16,
                 data: vec![1, 2],
+                digest: [0u8; 32],
                 arity: None,
                 seed_index: None,
+                branch_label: 'A',
+                status: BranchStatus::Active,
             },
             Block {
                 global_index: 2,
                 bit_length: 8,
                 data: vec![3],
+                digest: [0u8; 32],
                 arity: None,
                 seed_index: None,
+                branch_label: 'A',
+                status: BranchStatus::Active,
             },
         ];
         let table = group_by_bit_length(blocks);
@@ -281,15 +442,21 @@ mod tests {
                 global_index: 0,
                 bit_length: 8,
                 data: vec![1],
+                digest: [0u8; 32],
                 arity: None,
                 seed_index: None,
+                branch_label: 'A',
+                status: BranchStatus::Active,
             },
             Block {
                 global_index: 1,
                 bit_length: 8,
                 data: vec![2],
+                digest: [0u8; 32],
                 arity: None,
                 seed_index: None,
+                branch_label: 'A',
+                status: BranchStatus::Active,
             },
         ];
         let table = group_by_bit_length(blocks.clone());

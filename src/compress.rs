@@ -77,10 +77,12 @@ pub fn compress(data: &[u8], block_size: usize) -> Vec<u8> {
         out.extend_from_slice(&data[offset..offset + bytes]);
         offset += bytes;
     }
+
     if offset < data.len() {
         out.extend_from_slice(&encode_header(0, 32));
         out.extend_from_slice(&data[offset..]);
     }
+
     out
 }
 
