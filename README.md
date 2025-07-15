@@ -12,13 +12,13 @@ Run `cargo run -- c <input> <output>` to compress a file or `cargo run -- d
 
 ## Arity Codes
 
-The decompressor recognizes special 8‑bit codes for literal and terminal data:
+The decompressor recognizes several reserved 8‑bit codes:
 
-* **29** – one literal block
-* **30** – two literal blocks
-* **31** – three literal blocks
+* **29** – reserved for one literal block (not currently emitted)
+* **30** – reserved for two literal blocks (not currently emitted)
+* **31** – reserved for three literal blocks (not currently emitted)
 * **32** – terminal tail of less than one block
 
-These codes bypass the variable length header parser and are followed
-immediately by the indicated bytes. Blocks outside this range continue
-using the normal header scheme.
+Only code `32` is produced by the encoder. It marks the final partial
+block and is immediately followed by the remaining bytes. All other data
+use standard headers.
