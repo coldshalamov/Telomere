@@ -1,104 +1,112 @@
-use std::env;
 use std::fs;
-use std::time::Instant;
+use std::path::Path;
 
-use inchworm::{compress, decompress, LiveStats};
+use clap::{Parser, Subcommand};
+use inchworm::{compress, decompress};
+
+/// Telomere command line interface.
+///
+/// Run with `--help` to see full usage information.
+#[derive(Parser)]
+#[command(
+    author,
+    version,
+    about = "Telomere generative compression utilities",
+    long_about = "Telomere compression CLI.\n\nEXAMPLES:\n  telomere compress --block-size 4 --input sample.txt --output sample.tlmr\n  telomere decompress --input sample.tlmr --output sample.txt\n"
+)]
+struct Cli {
+    #[command(subcommand)]
+    command: Commands,
+}
+
+#[derive(Subcommand)]
+enum Commands {
+    /// Compress an input file
+    Compress {
+        /// Block size to use (1-32)
+        #[arg(long, value_name = "N")]
+        block_size: u8,
+        /// Input file path
+        #[arg(long, value_name = "PATH")]
+        input: String,
+        /// Output file path
+        #[arg(long, value_name = "PATH")]
+        output: String,
+        /// Overwrite existing output
+        #[arg(long)]
+        force: bool,
+    },
+    /// Decompress an input file
+    Decompress {
+        /// Input file path
+        #[arg(long, value_name = "PATH")]
+        input: String,
+        /// Output file path
+        #[arg(long, value_name = "PATH")]
+        output: String,
+        /// Overwrite existing output
+        #[arg(long)]
+        force: bool,
+    },
+}
 
 fn main() -> std::io::Result<()> {
-    let args: Vec<String> = env::args().collect();
-    if args.len() < 4 {
-        eprintln!(
-            "Usage: {} [c|d] <input> <output> [--block-size N] [--status] [--json] [--dry-run]",
-            args[0]
-        );
-        return Ok(());
-    }
+    let cli = Cli::parse();
 
-    let mut block_size = 3_usize;
-    let mut show_status = false;
-    let mut json_out = false;
-    let mut dry_run = false;
-
-    let mut i = 4;
-    while i < args.len() {
-        match args[i].as_str() {
-            "--block-size" => {
-                block_size = args[i + 1].parse().expect("invalid block size");
-                i += 2;
+    match cli.command {
+        Commands::Compress {
+            block_size,
+            input,
+            output,
+            force,
+        } => {
+            if !(1..=32).contains(&block_size) {
+                eprintln!("Error: --block-size must be between 1 and 32");
+                std::process::exit(1);
             }
-            "--seed-limit" => {
-                // seed-limit is ignored in this simplified implementation
-                i += 2;
+            let input_path = Path::new(&input);
+            let data = fs::read(input_path).map_err(|e| {
+                eprintln!("Failed to read {}: {e}", input);
+                e
+            })?;
+            let out_path = Path::new(&output);
+            if out_path.exists() && !force {
+                eprintln!(
+                    "Error: output file {} already exists (use --force to overwrite)",
+                    output
+                );
+                std::process::exit(1);
             }
-            "--status" => {
-                show_status = true;
-                i += 1;
-            }
-            "--json" => {
-                json_out = true;
-                i += 1;
-            }
-            "--dry-run" => {
-                dry_run = true;
-                i += 1;
-            }
-            flag => {
-                eprintln!("Unknown flag: {}", flag);
-                return Ok(());
-            }
+            let compressed = compress(&data, block_size as usize);
+            fs::write(out_path, compressed).map_err(|e| {
+                eprintln!("Failed to write {}: {e}", output);
+                e
+            })?;
         }
-    }
-
-    let data = fs::read(&args[2])?;
-
-    match args[1].as_str() {
-        "c" => {
-            let start_time = Instant::now();
-            let mut stats = LiveStats::new(if show_status { 1 } else { 0 });
-
-            // Compress using selected block size
-            let out = compress(&data, block_size);
-
-            eprintln!("🧪 compress() returned buffer with length: {}", out.len());
-            if out.is_empty() {
-                eprintln!("❌ compress() returned an empty buffer — nothing to write!");
-                return Ok(());
+        Commands::Decompress {
+            input,
+            output,
+            force,
+        } => {
+            let input_path = Path::new(&input);
+            let data = fs::read(input_path).map_err(|e| {
+                eprintln!("Failed to read {}: {e}", input);
+                e
+            })?;
+            let out_path = Path::new(&output);
+            if out_path.exists() && !force {
+                eprintln!(
+                    "Error: output file {} already exists (use --force to overwrite)",
+                    output
+                );
+                std::process::exit(1);
             }
-
-            let compressed_len = out.len();
-            if !dry_run {
-                let output_path = &args[3];
-                eprintln!("💾 Writing {} bytes to {}", out.len(), output_path);
-                match fs::write(output_path, &out) {
-                    Ok(_) => eprintln!("✅ Wrote compressed output to {:?}", output_path),
-                    Err(e) => eprintln!("❌ Failed to write output: {:?}", e),
-                }
-            } else {
-                eprintln!("(dry run) skipping file write");
-            }
-
-            let raw_len = data.len();
-            let percent = 100.0 * (1.0 - (compressed_len as f64 / raw_len as f64));
-            let elapsed = start_time.elapsed();
-
-            if json_out {
-                let out_json = serde_json::json!({
-                    "input_bytes": raw_len,
-                    "compressed_bytes": compressed_len,
-                    "elapsed_ms": elapsed.as_millis(),
-                });
-                println!("{}", serde_json::to_string_pretty(&out_json).unwrap());
-            } else {
-                eprintln!("Compressed {:.2}% in {:.2?}", percent, elapsed);
-            }
-        }
-
-        "d" => {
             let decompressed = decompress(&data);
-            fs::write(&args[3], decompressed)?;
+            fs::write(out_path, decompressed).map_err(|e| {
+                eprintln!("Failed to write {}: {e}", output);
+                e
+            })?;
         }
-
-        mode => eprintln!("Unknown mode: {}", mode),
     }
 
     Ok(())
