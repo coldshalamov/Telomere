@@ -1,3 +1,9 @@
+//! Telomere compression library exposing low level building blocks.
+//!
+//! The crate is intentionally minimal and only supports literal
+//! passthrough compression at the moment.  APIs may evolve as the
+//! generative search is implemented.
+
 mod block;
 mod bundle;
 mod compress;
@@ -8,6 +14,7 @@ mod tlmr;
 // implementation used precomputed decompressed strings to accelerate
 // seed matching.  Future versions may reintroduce a `gloss` module.
 mod header;
+pub mod io_utils;
 mod live_window;
 mod path;
 mod seed_detect;
@@ -17,13 +24,15 @@ mod stats;
 
 pub use block::{
     apply_block_changes, collapse_branches, detect_bundles, finalize_table, group_by_bit_length,
-    prune_branches, run_all_passes, split_into_blocks, Block, BlockChange, BlockTable, BranchStatus,
+    prune_branches, run_all_passes, split_into_blocks, Block, BlockChange, BlockTable,
+    BranchStatus,
 };
 pub use bundle::{apply_bundle, BlockStatus, MutableBlock};
 pub use compress::{compress, compress_block, TruncHashTable};
 pub use compress_stats::{write_stats_csv, CompressionStats};
 pub use file_header::{decode_file_header, encode_file_header};
 pub use header::{decode_header, encode_header, Header, HeaderError};
+pub use io_utils::*;
 pub use tlmr::{decode_tlmr_header, encode_tlmr_header, truncated_hash, TlmrError, TlmrHeader};
 pub use live_window::{print_window, LiveStats};
 pub use path::*;

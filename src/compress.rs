@@ -47,16 +47,20 @@ impl TruncHashTable {
 
     /// Load a serialized table from disk using bincode encoding.
     pub fn load<P: AsRef<std::path::Path>>(path: P) -> std::io::Result<Self> {
-        let bytes = std::fs::read(path)?;
+        use crate::io_utils::io_error;
+        let p = path.as_ref();
+        let bytes = std::fs::read(p).map_err(|e| io_error("reading table file", p, e))?;
         bincode::deserialize(&bytes)
             .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))
     }
 
     /// Persist the table to disk using bincode encoding.
     pub fn save<P: AsRef<std::path::Path>>(&self, path: P) -> std::io::Result<()> {
+        use crate::io_utils::io_error;
+        let p = path.as_ref();
         let bytes = bincode::serialize(self)
             .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))?;
-        std::fs::write(path, bytes)
+        std::fs::write(p, bytes).map_err(|e| io_error("writing table file", p, e))
     }
 }
 

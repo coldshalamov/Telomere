@@ -1,4 +1,5 @@
 use clap::Parser;
+use inchworm::io_utils::io_cli_error;
 use sha2::{Digest, Sha256};
 use std::{
     collections::HashSet,
@@ -14,7 +15,14 @@ struct Args {
     bits: u32,
 }
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() {
+    if let Err(e) = run() {
+        eprintln!("{e}");
+        std::process::exit(1);
+    }
+}
+
+fn run() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
     let max_bits = args.bits;
     let filename = "seed_table.csv";
@@ -23,7 +31,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Read existing file if it exists
     if Path::new(filename).exists() {
-        let file = std::fs::File::open(filename)?;
+        let file = std::fs::File::open(filename)
+            .map_err(|e| io_cli_error("opening input file", Path::new(filename), e))?;
         let reader = BufReader::new(file);
         for line in reader.lines() {
             if let Ok(line) = line {
@@ -37,11 +46,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
-    let file = OpenOptions::new().append(true).create(true).open(filename)?;
+    let file = OpenOptions::new()
+        .append(true)
+        .create(true)
+        .open(filename)
+        .map_err(|e| io_cli_error("opening output file", Path::new(filename), e))?;
     let mut writer = BufWriter::new(file);
 
     for bits in 1..=max_bits {
-        let max_index = if bits >= 64 { u64::MAX } else { (1u64 << bits) - 1 };
+        let max_index = if bits >= 64 {
+            u64::MAX
+        } else {
+            (1u64 << bits) - 1
+        };
         let num_bytes = ((bits + 7) / 8) as usize;
 
         for i in 0..=max_index {
@@ -55,15 +72,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             hasher.update(seed_bytes);
             let result = hasher.finalize();
             let hash_hex = hex::encode(result);
-            writeln!(writer, "{},{},{}", i, bits, hash_hex)?;
+            writeln!(writer, "{},{},{}", i, bits, hash_hex)
+                .map_err(|e| io_cli_error("writing output file", Path::new(filename), e))?;
 
             if i % 100_000 == 0 {
-                writer.flush()?;
+                writer
+                    .flush()
+                    .map_err(|e| io_cli_error("writing output file", Path::new(filename), e))?;
                 println!("Progress: bits = {}, index = {}", bits, i);
             }
         }
     }
 
-    writer.flush()?;
+    writer
+        .flush()
+        .map_err(|e| io_cli_error("writing output file", Path::new(filename), e))?;
     Ok(())
 }
