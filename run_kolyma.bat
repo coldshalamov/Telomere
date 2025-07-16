@@ -3,13 +3,13 @@ setlocal
 
 REM === CONFIGURATION ===
 set INPUT=kolyma.pdf
-set OUTPUT=kolyma.inchworm
+set OUTPUT=kolyma.tlmr
 
-echo 🔧 Building Inchworm in release mode...
+echo 🔧 Building Telomere in release mode...
 cargo build --release
 
 echo 🚀 Running compression...
-target\release\inchworm.exe c %INPUT% %OUTPUT% --status --collect-partials
+target\release\telomere.exe c %INPUT% %OUTPUT% --status --collect-partials
 
 echo ✅ Done!
 echo   • Compressed: %OUTPUT%

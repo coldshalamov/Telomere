@@ -2,7 +2,7 @@ use std::env;
 use std::fs;
 use std::time::Instant;
 
-use inchworm::{compress, decompress, LiveStats};
+use telomere::{compress, decompress, LiveStats};
 
 fn main() -> std::io::Result<()> {
     let args: Vec<String> = env::args().collect();

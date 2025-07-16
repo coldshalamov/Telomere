@@ -82,28 +82,32 @@ pub fn decompress_with_limit(input: &[u8], limit: usize) -> Option<Vec<u8>> {
     let mut out = Vec::new();
     while out.len() < orig_size {
         let slice = input.get(offset..)?;
-        let (_, arity, bits) = decode_header(slice).ok()?;
+        let (header, bits) = decode_header(slice).ok()?;
         offset += (bits + 7) / 8;
-        if arity == 32 {
-            let bytes = orig_size - out.len();
-            if offset + bytes > input.len() || out.len() + bytes > limit {
+        match header {
+            Header::Literal => {
+                let bytes = block_size;
+                if out.len() + bytes > orig_size
+                    || offset + bytes > input.len()
+                    || out.len() + bytes > limit
+                {
+                    return None;
+                }
+                out.extend_from_slice(&input[offset..offset + bytes]);
+                offset += bytes;
+            }
+            Header::LiteralLast => {
+                let bytes = orig_size - out.len();
+                if offset + bytes > input.len() || out.len() + bytes > limit {
+                    return None;
+                }
+                out.extend_from_slice(&input[offset..offset + bytes]);
+                offset += bytes;
+                break;
+            }
+            _ => {
                 return None;
             }
-            out.extend_from_slice(&input[offset..offset + bytes]);
-            offset += bytes;
-        } else if (29..=31).contains(&arity) {
-            let blocks = arity - 28;
-            let bytes = blocks * block_size;
-            if out.len() + bytes > orig_size
-                || offset + bytes > input.len()
-                || out.len() + bytes > limit
-            {
-                return None;
-            }
-            out.extend_from_slice(&input[offset..offset + bytes]);
-            offset += bytes;
-        } else {
-            return None;
         }
     }
     if out.len() == orig_size {

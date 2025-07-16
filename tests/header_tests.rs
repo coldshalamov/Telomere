@@ -1,14 +1,24 @@
-use inchworm::{Header, encode_header, decode_header};
+use telomere::{Header, encode_header, decode_header};
 
 #[test]
 fn header_roundtrip_across_ranges() {
-    for seed_idx in [0usize, 1, 64, 12345, 1_000_000] {
-        for arity in 1..50 {
-            let h = Header { seed_index: seed_idx, arity };
-            let enc = encode_header(h.seed_index, h.arity);
-            let (sid2, arity2, _) = decode_header(&enc).expect("decode failed");
-            assert_eq!(seed_idx, sid2);
-            assert_eq!(arity, arity2);
-        }
+    let cases = vec![
+        Header::Standard { seed_index: 0, arity: 1 },
+        Header::Standard { seed_index: 1, arity: 2 },
+        Header::Standard { seed_index: 2, arity: 3 },
+        Header::Standard { seed_index: 3, arity: 4 },
+        Header::Standard { seed_index: 4, arity: 5 },
+        Header::Standard { seed_index: 5, arity: 6 },
+        Header::Standard { seed_index: 6, arity: 7 },
+        Header::Penultimate { seed_index: 7, arity: 1 },
+        Header::Penultimate { seed_index: 8, arity: 2 },
+        Header::Penultimate { seed_index: 9, arity: 3 },
+        Header::Literal,
+        Header::LiteralLast,
+    ];
+    for h in cases {
+        let enc = encode_header(&h);
+        let (decoded, _) = decode_header(&enc).expect("decode failed");
+        assert_eq!(h, decoded);
     }
 }

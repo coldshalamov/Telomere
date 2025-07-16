@@ -1,4 +1,4 @@
-use inchworm::{split_into_blocks, group_by_bit_length};
+use telomere::{split_into_blocks, group_by_bit_length};
 use std::{env, fs};
 
 fn main() {

@@ -5,11 +5,11 @@ use serde_json::Value;
 
 #[test]
 fn cli_roundtrip() {
-    let exe = env!("CARGO_BIN_EXE_inchworm");
+    let exe = env!("CARGO_BIN_EXE_telomere");
     let dir = std::env::temp_dir();
-    let input = dir.join("inchworm_input.bin");
-    let compressed = dir.join("inchworm_compressed.bin");
-    let output = dir.join("inchworm_output.bin");
+    let input = dir.join("telomere_input.bin");
+    let compressed = dir.join("telomere_compressed.tlmr");
+    let output = dir.join("telomere_output.bin");
 
     fs::write(&input, (0u8..14).collect::<Vec<_>>()).unwrap();
 

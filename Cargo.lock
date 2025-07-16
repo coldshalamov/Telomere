@@ -266,23 +266,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
 
 [[package]]
-name = "inchworm"
-version = "0.1.0"
-dependencies = [
- "bincode",
- "clap",
- "csv",
- "hex",
- "memmap2",
- "serde",
- "serde_json",
- "sha2",
- "sysinfo",
- "tempfile",
- "thiserror",
-]
-
-[[package]]
 name = "is_terminal_polyfill"
 version = "1.70.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -478,6 +461,23 @@ dependencies = [
  "once_cell",
  "rayon",
  "winapi",
+]
+
+[[package]]
+name = "telomere"
+version = "0.1.0"
+dependencies = [
+ "bincode",
+ "clap",
+ "csv",
+ "hex",
+ "memmap2",
+ "serde",
+ "serde_json",
+ "sha2",
+ "sysinfo",
+ "tempfile",
+ "thiserror",
 ]
 
 [[package]]
