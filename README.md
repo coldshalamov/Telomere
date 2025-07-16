@@ -8,12 +8,15 @@ compressed units, enabling recursive compaction. Unmatched blocks are emitted as
 literal passthroughs, using reserved header codes—never as raw bytes.
 
 Telomere exposes a simple command line interface built on top of these
-primitives.  The binary is invoked with a mode (`c` for compress or `d` for
-decompress) followed by input and output file paths.  Additional flags tweak
-runtime behaviour:
+primitives. Compression and decompression are invoked via subcommands –
+`compress` (alias `c`) and `decompress` (alias `d`). Input and output paths may
+be provided positionally or with the `--input`/`--output` flags. Additional
+flags tweak runtime behaviour:
 
 ```
-USAGE: telomere [c|d] <input> <output> [--block-size N] [--status] [--json] [--dry-run]
+USAGE:
+    telomere compress [OPTIONS] [INPUT] [OUTPUT]
+    telomere decompress [OPTIONS] [INPUT] [OUTPUT]
 
 FLAGS:
     --block-size N   size of each compression block (default 3)
@@ -28,10 +31,10 @@ The following demonstrates a typical round‑trip using default settings:
 
 ```
 # Compress a file
-cargo run --release -- c input.bin output.tlmr --block-size 4 --status
+cargo run --release -- compress -i input.bin -o output.tlmr --block-size 4 --status
 
 # Decompress back to the original bytes
-cargo run --release -- d output.tlmr restored.bin
+cargo run --release -- decompress output.tlmr restored.bin
 ```
 
 ---
