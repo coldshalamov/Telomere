@@ -1,21 +1,38 @@
 use thiserror::Error;
 
-/// Simple header representation used by higher level APIs.
+/**
+Telomere header encoding uses dynamic toggles (dToggles) for the arity field and
+exponential VQL (eVQL) for the seed index. The table below enumerates every
+valid header pattern. Marker headers never include a seed index.
+
+Bits (first–third window) | Meaning                                 | Action
+0                           | arity 1                                 | use seed index, 1 block
+1 00                        | arity 2                                 | use seed index, 2 blocks
+1 01                        | arity 3                                 | use seed index, 3 blocks
+1 10                        | arity 4                                 | use seed index, 4 blocks
+1 11 000                    | arity 5                                 | use seed index, 5 blocks
+1 11 001                    | arity 6                                 | use seed index, 6 blocks
+1 11 010                    | arity 7                                 | use seed index, 7 blocks
+1 11 011                    | penultimate, arity 1 (marker)           | use seed index, 1 block
+1 11 100                    | penultimate, arity 2 (marker)           | use seed index, 2 blocks
+1 11 101                    | penultimate, arity 3 (marker)           | use seed index, 3 blocks
+1 11 110                    | literal block (marker)                  | NO seed index, skip 1 block
+1 11 111                    | literal last block (marker)             | NO seed index, skip 1 block and END
+*/
+
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Header {
-    pub seed_index: usize,
-    pub arity: usize,
+pub enum Header {
+    /// Standard compressed span of N blocks using the provided seed index.
+    Standard { seed_index: usize, arity: usize },
+    /// Marks the penultimate compressed span. The following header must be a
+    /// literal or literal last block. See table above.
+    Penultimate { seed_index: usize, arity: usize },
+    /// Skip the next block literally.
+    Literal,
+    /// Skip the next block literally and finish decoding.
+    LiteralLast,
 }
 
-impl Header {
-    /// Returns true if this header represents a literal passthrough region.
-    #[allow(dead_code)]
-    pub fn is_literal(&self) -> bool {
-        matches!(self.arity, 29 | 30 | 31 | 32)
-    }
-}
-
-/// Errors that can occur while decoding a header
 #[derive(Debug, Error, PartialEq, Eq)]
 pub enum HeaderError {
     #[error("unexpected end of input")]
@@ -24,44 +41,124 @@ pub enum HeaderError {
     InvalidArity,
 }
 
-/// Encode a compressed header using Inchworm's VQL scheme.
-/// Returns a big-endian bit packed byte vector.
-pub fn encode_header(seed_index: usize, arity: usize) -> Vec<u8> {
-    assert!(arity >= 1, "arity must be at least 1");
+/// Encode a Telomere header and return packed bytes.
+pub fn encode_header(h: &Header) -> Vec<u8> {
     let mut bits = Vec::new();
-    encode_vql(seed_index, &mut bits);
-    bits.extend(encode_arity_bits(arity));
+    match *h {
+        Header::Standard { seed_index, arity } => {
+            bits.extend(encode_arity_bits(arity, false).expect("arity out of range"));
+            bits.extend(encode_evql_bits(seed_index));
+        }
+        Header::Penultimate { seed_index, arity } => {
+            bits.extend(encode_arity_bits(arity, true).expect("arity out of range"));
+            bits.extend(encode_evql_bits(seed_index));
+        }
+        Header::Literal => bits.extend([true, true, true, true, true, false]),
+        Header::LiteralLast => bits.extend([true, true, true, true, true, true]),
+    }
     pack_bits(&bits)
 }
 
-/// Decode a compressed header from a bitstream.
-/// Returns the seed index, arity and the number of bits consumed.
-pub fn decode_header(input: &[u8]) -> Result<(usize, usize, usize), HeaderError> {
+/// Decode a Telomere header from a bitstream. Returns the header and number of
+/// bits consumed.
+pub fn decode_header(data: &[u8]) -> Result<(Header, usize), HeaderError> {
     let mut pos = 0usize;
-    let seed = decode_vql(input, &mut pos)?;
-    let arity = decode_arity_stream(input, &mut pos)?;
-    Ok((seed, arity, pos))
+    let variant = decode_arity_stream(data, &mut pos)?;
+    let header = match variant {
+        ArityVariant::Standard(arity) => {
+            let seed = decode_evql(data, &mut pos)?;
+            Header::Standard { seed_index: seed, arity }
+        }
+        ArityVariant::Penultimate(arity) => {
+            let seed = decode_evql(data, &mut pos)?;
+            Header::Penultimate { seed_index: seed, arity }
+        }
+        ArityVariant::Literal => Header::Literal,
+        ArityVariant::LiteralLast => Header::LiteralLast,
+    };
+    Ok((header, pos))
 }
 
-// ---- Internal utilities ----
+// --- internal encoding helpers ---
 
-fn encode_vql(value: usize, out: &mut Vec<bool>) {
+#[derive(Debug)]
+enum ArityVariant {
+    Standard(usize),
+    Penultimate(usize),
+    Literal,
+    LiteralLast,
+}
+
+/// Encode arity bits according to the table. `penultimate` toggles the marker
+/// window.
+fn encode_arity_bits(arity: usize, penultimate: bool) -> Option<Vec<bool>> {
+    let bits = match (penultimate, arity) {
+        (false, 1) => vec![false],
+        (false, 2) => vec![true, false, false],
+        (false, 3) => vec![true, false, true],
+        (false, 4) => vec![true, true, false],
+        (false, 5) => vec![true, true, true, false, false, false],
+        (false, 6) => vec![true, true, true, false, false, true],
+        (false, 7) => vec![true, true, true, false, true, false],
+        (true, 1) => vec![true, true, true, false, true, true],
+        (true, 2) => vec![true, true, true, true, false, false],
+        (true, 3) => vec![true, true, true, true, false, true],
+        _ => return None,
+    };
+    Some(bits)
+}
+
+fn decode_arity_stream(data: &[u8], pos: &mut usize) -> Result<ArityVariant, HeaderError> {
+    let first = get_bit(data, *pos).ok_or(HeaderError::UnexpectedEof)?;
+    *pos += 1;
+    if !first {
+        return Ok(ArityVariant::Standard(1));
+    }
+    let b1 = get_bit(data, *pos).ok_or(HeaderError::UnexpectedEof)?;
+    *pos += 1;
+    let b2 = get_bit(data, *pos).ok_or(HeaderError::UnexpectedEof)?;
+    *pos += 1;
+    match (b1, b2) {
+        (false, false) => Ok(ArityVariant::Standard(2)),
+        (false, true) => Ok(ArityVariant::Standard(3)),
+        (true, false) => Ok(ArityVariant::Standard(4)),
+        (true, true) => {
+            let c1 = get_bit(data, *pos).ok_or(HeaderError::UnexpectedEof)?;
+            *pos += 1;
+            let c2 = get_bit(data, *pos).ok_or(HeaderError::UnexpectedEof)?;
+            *pos += 1;
+            let c3 = get_bit(data, *pos).ok_or(HeaderError::UnexpectedEof)?;
+            *pos += 1;
+            match (c1, c2, c3) {
+                (false, false, false) => Ok(ArityVariant::Standard(5)),
+                (false, false, true) => Ok(ArityVariant::Standard(6)),
+                (false, true, false) => Ok(ArityVariant::Standard(7)),
+                (false, true, true) => Ok(ArityVariant::Penultimate(1)),
+                (true, false, false) => Ok(ArityVariant::Penultimate(2)),
+                (true, false, true) => Ok(ArityVariant::Penultimate(3)),
+                (true, true, false) => Ok(ArityVariant::Literal),
+                (true, true, true) => Ok(ArityVariant::LiteralLast),
+            }
+        }
+    }
+}
+
+fn encode_evql_bits(mut value: usize) -> Vec<bool> {
     let mut width = 1usize;
     let mut n = 0usize;
     while value >= (1usize << width) {
         width <<= 1;
         n += 1;
     }
-    for _ in 0..n {
-        out.push(true);
-    }
-    out.push(false);
+    let mut bits = vec![true; n];
+    bits.push(false);
     for i in (0..width).rev() {
-        out.push(((value >> i) & 1) != 0);
+        bits.push(((value >> i) & 1) != 0);
     }
+    bits
 }
 
-fn decode_vql(input: &[u8], pos: &mut usize) -> Result<usize, HeaderError> {
+fn decode_evql(input: &[u8], pos: &mut usize) -> Result<usize, HeaderError> {
     let mut n = 0usize;
     loop {
         match get_bit(input, *pos) {
@@ -90,11 +187,11 @@ fn decode_vql(input: &[u8], pos: &mut usize) -> Result<usize, HeaderError> {
     Ok(value)
 }
 
-fn get_bit(input: &[u8], pos: usize) -> Option<bool> {
-    if pos / 8 >= input.len() {
+fn get_bit(data: &[u8], pos: usize) -> Option<bool> {
+    if pos / 8 >= data.len() {
         None
     } else {
-        Some(((input[pos / 8] >> (7 - (pos % 8))) & 1) != 0)
+        Some(((data[pos / 8] >> (7 - (pos % 8))) & 1) != 0)
     }
 }
 
@@ -103,7 +200,7 @@ fn pack_bits(bits: &[bool]) -> Vec<u8> {
     let mut byte = 0u8;
     let mut used = 0u8;
     for &b in bits {
-        byte = (byte << 1) | (b as u8);
+        byte = (byte << 1) | b as u8;
         used += 1;
         if used == 8 {
             out.push(byte);
@@ -121,123 +218,32 @@ fn pack_bits(bits: &[bool]) -> Vec<u8> {
     out
 }
 
-/// Encode an arity into dynamic toggle bits (unpacked).
-pub fn encode_arity(arity: usize) -> Vec<u8> {
-    pack_bits(&encode_arity_bits(arity))
-}
-
-/// Decode an arity from a packed bitstream starting at bit 0.
-/// Returns the decoded arity and number of bits consumed.
-pub fn decode_arity(bits: &[u8]) -> Result<(usize, usize), HeaderError> {
-    let mut pos = 0usize;
-    let val = decode_arity_stream(bits, &mut pos)?;
-    Ok((val, pos))
-}
-
-// ---- arity helpers ----
-
-fn encode_arity_bits(arity: usize) -> Vec<bool> {
-    assert!(arity >= 1, "arity must be at least 1");
-    let mut level = 1usize;
-    let mut start = 1usize;
-    loop {
-        let window = 3usize.pow((level - 1) as u32);
-        if arity < start + window {
-            break;
-        }
-        start += window;
-        level += 1;
-    }
-    let index = arity - start;
-    let width = if level == 1 { 0 } else { 1usize << (level - 1) };
-    let mut out = Vec::new();
-    for _ in 0..(level - 1) {
-        out.push(true);
-    }
-    out.push(false);
-    for i in (0..width).rev() {
-        out.push(((index >> i) & 1) != 0);
-    }
-    out
-}
-
-fn decode_arity_stream(input: &[u8], pos: &mut usize) -> Result<usize, HeaderError> {
-    let mut ones = 0usize;
-    loop {
-        match get_bit(input, *pos) {
-            Some(true) => {
-                ones += 1;
-                *pos += 1;
-            }
-            Some(false) => {
-                *pos += 1;
-                break;
-            }
-            None => return Err(HeaderError::UnexpectedEof),
-        }
-    }
-    let level = ones + 1;
-    let width = if level == 1 { 0 } else { 1usize << (level - 1) };
-    let mut index = 0usize;
-    for _ in 0..width {
-        match get_bit(input, *pos) {
-            Some(bit) => {
-                index = (index << 1) | (bit as usize);
-                *pos += 1;
-            }
-            None => return Err(HeaderError::UnexpectedEof),
-        }
-    }
-    let mut start = 1usize;
-    for i in 1..level {
-        start += 3usize.pow((i - 1) as u32);
-    }
-    let window = 3usize.pow((level - 1) as u32);
-    if index >= window {
-        return Err(HeaderError::InvalidArity);
-    }
-    Ok(start + index)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn vql_small() {
-        let enc = encode_header(0, 2);
-        let (seed, arity, bits) = decode_header(&enc).unwrap();
-        assert_eq!(seed, 0);
-        assert_eq!(arity, 2);
-        assert_eq!(bits, 6);
-        assert_eq!(enc.len(), 1);
-    }
+    fn all_headers_roundtrip() {
+        let cases = vec![
+            Header::Standard { seed_index: 0, arity: 1 },
+            Header::Standard { seed_index: 3, arity: 2 },
+            Header::Standard { seed_index: 7, arity: 3 },
+            Header::Standard { seed_index: 1, arity: 4 },
+            Header::Standard { seed_index: 2, arity: 5 },
+            Header::Standard { seed_index: 3, arity: 6 },
+            Header::Standard { seed_index: 4, arity: 7 },
+            Header::Penultimate { seed_index: 5, arity: 1 },
+            Header::Penultimate { seed_index: 6, arity: 2 },
+            Header::Penultimate { seed_index: 7, arity: 3 },
+            Header::Literal,
+            Header::LiteralLast,
+        ];
 
-    #[test]
-    fn vql_mid() {
-        let enc = encode_header(3, 6);
-        let (seed, arity, bits) = decode_header(&enc).unwrap();
-        assert_eq!(seed, 3);
-        assert_eq!(arity, 6);
-        assert_eq!(bits, 11);
-        assert_eq!(enc.len(), (bits + 7) / 8);
-    }
-
-    #[test]
-    fn vql_large() {
-        let enc = encode_header(300, 200);
-        let (seed, arity, bits) = decode_header(&enc).unwrap();
-        assert_eq!(seed, 300);
-        assert_eq!(arity, 200);
-        assert_eq!(bits, 59);
-        assert_eq!(enc.len(), (bits + 7) / 8);
-    }
-
-    #[test]
-    fn arity_roundtrip() {
-        for &a in &[1usize, 4, 13, 40, 100] {
-            let enc = encode_arity(a);
-            assert_eq!(decode_arity(&enc).unwrap().0, a);
+        for h in cases {
+            let enc = encode_header(&h);
+            let (decoded, bits) = decode_header(&enc).unwrap();
+            assert_eq!(decoded, h);
+            assert!(bits <= enc.len() * 8);
         }
     }
 }

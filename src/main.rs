@@ -2,7 +2,7 @@ use std::fs;
 use std::path::Path;
 
 use clap::{Parser, Subcommand};
-use inchworm::{compress, decompress};
+use telomere::{compress, decompress};
 
 /// Telomere command line interface.
 ///

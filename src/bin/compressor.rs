@@ -1,4 +1,4 @@
-use inchworm::{log_seed, resume_seed_index};
+use telomere::{log_seed, resume_seed_index};
 use sha2::{Digest, Sha256};
 
 fn main() {

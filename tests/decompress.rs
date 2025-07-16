@@ -1,4 +1,6 @@
-use inchworm::{compress, decompress_with_limit, encode_header, encode_tlmr_header, TlmrHeader, truncated_hash};
+use telomere::{
+    compress, decompress_with_limit, encode_tlmr_header, encode_header, Header, TlmrHeader, truncated_hash,
+};
 
 #[test]
 fn basic_roundtrip() {
@@ -20,7 +22,7 @@ fn limit_enforced() {
 #[test]
 fn passthrough_decompresses() {
     let block_size = 3;
-    let header = encode_header(0, 29);
+    let header = encode_header(&Header::Literal);
     let literal = vec![0x11; block_size];
     let tlmr = encode_tlmr_header(&TlmrHeader {
         version: 0,
@@ -38,8 +40,8 @@ fn passthrough_decompresses() {
 #[test]
 fn passthrough_respects_limit() {
     let block_size = 3;
-    let header = encode_header(0, 30);
-    let literal = vec![0x22; 2 * block_size];
+    let header = encode_header(&Header::Literal);
+    let literal = vec![0x22; block_size];
     let tlmr = encode_tlmr_header(&TlmrHeader {
         version: 0,
         block_size,
@@ -55,7 +57,7 @@ fn passthrough_respects_limit() {
 #[test]
 fn passthrough_prefix_safe() {
     let block_size = 3;
-    let header = encode_header(0, 31);
+    let header = encode_header(&Header::Literal);
     let literal = vec![0x33; 3 * block_size - 1];
     let tlmr = encode_tlmr_header(&TlmrHeader {
         version: 0,
@@ -80,8 +82,10 @@ fn passthrough_literals_basic() {
         output_hash: truncated_hash(&literals),
     });
     let mut data = tlmr.to_vec();
-    data.extend_from_slice(&encode_header(0, 30));
-    data.extend_from_slice(&literals);
+    data.extend_from_slice(&encode_header(&Header::Literal));
+    data.extend_from_slice(&literals[..block_size]);
+    data.extend_from_slice(&encode_header(&Header::LiteralLast));
+    data.extend_from_slice(&literals[block_size..]);
     let out = decompress_with_limit(&data, 100).unwrap();
     assert_eq!(out, literals);
 }
@@ -97,7 +101,7 @@ fn passthrough_final_tail() {
         output_hash: truncated_hash(&literals),
     });
     let mut data = tlmr.to_vec();
-    data.extend_from_slice(&encode_header(0, 32));
+    data.extend_from_slice(&encode_header(&Header::LiteralLast));
     data.extend_from_slice(&literals);
     let out = decompress_with_limit(&data, 100).unwrap();
     assert_eq!(out, literals);
@@ -106,8 +110,8 @@ fn passthrough_final_tail() {
 #[test]
 fn unsupported_header_fails() {
     let block_size = 3;
-    // Use a non-literal arity that the decoder does not handle
-    let header = encode_header(1, 5);
+    // Use a non-literal header (standard compressed, not supported here)
+    let header = encode_header(&Header::Standard { seed_index: 1, arity: 2 });
     let literal = vec![0u8; block_size];
     let tlmr = encode_tlmr_header(&TlmrHeader {
         version: 0,

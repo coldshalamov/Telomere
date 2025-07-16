@@ -76,19 +76,21 @@ pub fn compress(data: &[u8], block_size: usize) -> Vec<u8> {
     });
     let mut out = header_bytes.to_vec();
     let mut offset = 0usize;
-    while offset + block_size <= data.len() {
-        let remaining_blocks = (data.len() - offset) / block_size;
-        let blocks = remaining_blocks.min(3).max(1);
-        let header = encode_header(0, 28 + blocks);
-        out.extend_from_slice(&header);
-        let bytes = blocks * block_size;
-        out.extend_from_slice(&data[offset..offset + bytes]);
-        offset += bytes;
+    if data.is_empty() {
+        return out;
     }
 
-    if offset < data.len() {
-        out.extend_from_slice(&encode_header(0, 32));
-        out.extend_from_slice(&data[offset..]);
+    while offset < data.len() {
+        let remaining = data.len() - offset;
+        if remaining <= block_size {
+            out.extend_from_slice(&encode_header(&Header::LiteralLast));
+            out.extend_from_slice(&data[offset..]);
+            break;
+        } else {
+            out.extend_from_slice(&encode_header(&Header::Literal));
+            out.extend_from_slice(&data[offset..offset + block_size]);
+            offset += block_size;
+        }
     }
 
     out
@@ -112,11 +114,5 @@ pub fn compress_block(
         s.log_match(false, 1);
     }
 
-    Some((
-        Header {
-            seed_index: 0,
-            arity: 29,
-        },
-        block_size,
-    ))
+    Some((Header::Literal, block_size))
 }

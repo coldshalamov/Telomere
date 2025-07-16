@@ -4,9 +4,9 @@ mod compress;
 mod compress_stats;
 mod file_header;
 mod tlmr;
-/// Gloss table support has been removed for the MVP.  The original
-/// implementation used precomputed decompressed strings to accelerate
-/// seed matching.  Future versions may reintroduce a `gloss` module.
+// Gloss table support has been removed for the MVP.  The original
+// implementation used precomputed decompressed strings to accelerate
+// seed matching.  Future versions may reintroduce a `gloss` module.
 mod header;
 mod live_window;
 mod path;
@@ -73,10 +73,7 @@ pub fn decompress_region_with_limit(
 ///
 /// Files begin with a 3-byte Telomere header describing protocol version,
 /// block size, last block size and a truncated output hash. Each subsequent
-/// region is prefixed with a normal header. Arity values
-/// `29`–`32` denote literal passthrough data and are followed by one to three
-/// full blocks or a final tail. All other arities would require seed-based
-/// decoding which is not implemented here.
+/// region is prefixed with a normal header. 
 pub fn decompress_with_limit(input: &[u8], limit: usize) -> Result<Vec<u8>, TlmrError> {
     if input.len() < 3 {
         return Err(TlmrError::TooShort);
@@ -88,35 +85,35 @@ pub fn decompress_with_limit(input: &[u8], limit: usize) -> Result<Vec<u8>, Tlmr
     let mut out = Vec::new();
     loop {
         let slice = input.get(offset..).ok_or(TlmrError::InvalidField)?;
-        let (_, arity, bits) = decode_header(slice).map_err(|_| TlmrError::InvalidField)?;
+        let (header, bits) = decode_header(slice).map_err(|_| TlmrError::InvalidField)?;
         offset += (bits + 7) / 8;
-        if arity == 32 {
-            if offset + last_block_size > input.len() || out.len() + last_block_size > limit {
+        match header {
+            Header::Literal => {
+                let bytes = block_size;
+                if out.len() + bytes > limit || offset + bytes > input.len() {
+                    return Err(TlmrError::InvalidField);
+                }
+                out.extend_from_slice(&input[offset..offset + bytes]);
+                offset += bytes;
+            }
+            Header::LiteralLast => {
+                let bytes = last_block_size;
+                if out.len() + bytes > limit || offset + bytes > input.len() {
+                    return Err(TlmrError::InvalidField);
+                }
+                out.extend_from_slice(&input[offset..offset + bytes]);
+                offset += bytes;
+                break;
+            }
+            _ => {
+                // Only passthrough literal blocks supported in this MVP
                 return Err(TlmrError::InvalidField);
             }
-            out.extend_from_slice(&input[offset..offset + last_block_size]);
-            offset += last_block_size;
-            break;
-        } else if (29..=31).contains(&arity) {
-            let blocks = arity - 28;
-            let bytes = blocks * block_size;
-            if offset + bytes > input.len() || out.len() + bytes > limit {
-                return Err(TlmrError::InvalidField);
-            }
-            out.extend_from_slice(&input[offset..offset + bytes]);
-            offset += bytes;
-        } else {
-            return Err(TlmrError::InvalidField);
         }
         if offset == input.len() {
-            if last_block_size != block_size {
-                return Err(TlmrError::InvalidField);
-            }
+            // No more data left to decode.
             break;
         }
-    }
-    if offset != input.len() {
-        return Err(TlmrError::InvalidField);
     }
     let hash = truncated_hash(&out);
     if hash != header.output_hash {
