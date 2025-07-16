@@ -44,8 +44,9 @@ to disk. When a seed is persisted, the library checks disk and memory
 consumption before appending the new entry. If the file would exceed configured
 limits or the system is low on memory, the operation aborts with an error.
 
-The default table path is `hash_table.bin` and entries are encoded with
-`bincode`.
+The default table path is `hash_table.bin` and entries are stored as fixed
+8-byte records. Precomputing 1-, 2-, and 3-byte seeds produces roughly 16.8
+million entries (~135 MB).
 
 ---
 
