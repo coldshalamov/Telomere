@@ -48,3 +48,6 @@ path = "src/bin/seed_table.rs"
 [[bin]]
 name = "block_summary"
 path = "src/bin/block_summary.rs"
+[[bin]]
+name = "hash_dump"
+path = "src/bin/hash_dump.rs"
