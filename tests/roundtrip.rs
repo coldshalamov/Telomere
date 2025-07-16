@@ -1,6 +1,6 @@
 #[test]
 fn compression_roundtrip_identity() {
-    use inchworm::{compress, decompress};
+    use telomere::{compress, decompress};
 
     let block_size = 3; // or any size you want to test
     let input: Vec<u8> = (0..100u8).collect();

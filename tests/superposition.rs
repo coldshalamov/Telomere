@@ -1,4 +1,4 @@
-use inchworm::{apply_block_changes, group_by_bit_length, Block, BlockChange, BranchStatus};
+use telomere::{apply_block_changes, group_by_bit_length, Block, BlockChange, BranchStatus};
 
 #[test]
 fn branches_sorted_and_delta() {

@@ -1,4 +1,4 @@
-use inchworm::{apply_bundle, BlockStatus, MutableBlock};
+use telomere::{apply_bundle, BlockStatus, MutableBlock};
 
 #[test]
 fn apply_bundle_marks_and_inserts() {

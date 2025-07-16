@@ -1,4 +1,4 @@
-# Inchworm Compression
+# Telomere Compression
 
 Demonstration of the generative compression scheme described in the project
 documentation. The encoder brute‑forces short seeds whose SHA‑256 output

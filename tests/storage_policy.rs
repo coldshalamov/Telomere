@@ -1,4 +1,4 @@
-use inchworm::{log_seed_to, resume_seed_index_from, HashEntry, ResourceLimits};
+use telomere::{log_seed_to, resume_seed_index_from, HashEntry, ResourceLimits};
 use std::fs;
 use tempfile::NamedTempFile;
 

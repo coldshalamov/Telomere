@@ -1,11 +1,38 @@
-use inchworm::{group_by_bit_length, Block, prune_branches, collapse_branches, finalize_table};
+use telomere::{group_by_bit_length, Block, prune_branches, collapse_branches, finalize_table};
 
 #[test]
 fn prune_removes_longest() {
     let blocks = vec![
-        Block { global_index: 0, bit_length: 8, data: vec![0], arity: None, seed_index: None },
-        Block { global_index: 0, bit_length: 24, data: vec![1,2,3], arity: None, seed_index: None },
-        Block { global_index: 1, bit_length: 8, data: vec![4], arity: None, seed_index: None },
+        Block {
+            global_index: 0,
+            bit_length: 8,
+            data: vec![0],
+            digest: [0u8; 32],
+            arity: None,
+            seed_index: None,
+            branch_label: 'A',
+            status: telomere::BranchStatus::Active,
+        },
+        Block {
+            global_index: 0,
+            bit_length: 24,
+            data: vec![1, 2, 3],
+            digest: [0u8; 32],
+            arity: None,
+            seed_index: None,
+            branch_label: 'A',
+            status: telomere::BranchStatus::Active,
+        },
+        Block {
+            global_index: 1,
+            bit_length: 8,
+            data: vec![4],
+            digest: [0u8; 32],
+            arity: None,
+            seed_index: None,
+            branch_label: 'B',
+            status: telomere::BranchStatus::Active,
+        },
     ];
     let mut table = group_by_bit_length(blocks);
     prune_branches(&mut table);
@@ -17,10 +44,46 @@ fn prune_removes_longest() {
 #[test]
 fn collapse_from_index() {
     let blocks = vec![
-        Block { global_index: 0, bit_length: 8, data: vec![0], arity: None, seed_index: None },
-        Block { global_index: 0, bit_length: 16, data: vec![1,2], arity: None, seed_index: None },
-        Block { global_index: 1, bit_length: 8, data: vec![3], arity: None, seed_index: None },
-        Block { global_index: 1, bit_length: 16, data: vec![4,5], arity: None, seed_index: None },
+        Block {
+            global_index: 0,
+            bit_length: 8,
+            data: vec![0],
+            digest: [0u8; 32],
+            arity: None,
+            seed_index: None,
+            branch_label: 'A',
+            status: telomere::BranchStatus::Active,
+        },
+        Block {
+            global_index: 0,
+            bit_length: 16,
+            data: vec![1, 2],
+            digest: [0u8; 32],
+            arity: None,
+            seed_index: None,
+            branch_label: 'B',
+            status: telomere::BranchStatus::Active,
+        },
+        Block {
+            global_index: 1,
+            bit_length: 8,
+            data: vec![3],
+            digest: [0u8; 32],
+            arity: None,
+            seed_index: None,
+            branch_label: 'A',
+            status: telomere::BranchStatus::Active,
+        },
+        Block {
+            global_index: 1,
+            bit_length: 16,
+            data: vec![4, 5],
+            digest: [0u8; 32],
+            arity: None,
+            seed_index: None,
+            branch_label: 'B',
+            status: telomere::BranchStatus::Active,
+        },
     ];
     let mut table = group_by_bit_length(blocks);
     collapse_branches(&mut table, 0);
@@ -32,9 +95,36 @@ fn collapse_from_index() {
 #[test]
 fn finalize_unique_blocks() {
     let blocks = vec![
-        Block { global_index: 0, bit_length: 16, data: vec![0,1], arity: None, seed_index: None },
-        Block { global_index: 0, bit_length: 8, data: vec![2], arity: None, seed_index: None },
-        Block { global_index: 1, bit_length: 8, data: vec![3], arity: None, seed_index: None },
+        Block {
+            global_index: 0,
+            bit_length: 16,
+            data: vec![0, 1],
+            digest: [0u8; 32],
+            arity: None,
+            seed_index: None,
+            branch_label: 'A',
+            status: telomere::BranchStatus::Active,
+        },
+        Block {
+            global_index: 0,
+            bit_length: 8,
+            data: vec![2],
+            digest: [0u8; 32],
+            arity: None,
+            seed_index: None,
+            branch_label: 'B',
+            status: telomere::BranchStatus::Active,
+        },
+        Block {
+            global_index: 1,
+            bit_length: 8,
+            data: vec![3],
+            digest: [0u8; 32],
+            arity: None,
+            seed_index: None,
+            branch_label: 'A',
+            status: telomere::BranchStatus::Active,
+        },
     ];
     let table = group_by_bit_length(blocks);
     let final_blocks = finalize_table(table);

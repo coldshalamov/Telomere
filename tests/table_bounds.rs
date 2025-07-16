@@ -1,4 +1,4 @@
-use inchworm::{group_by_bit_length, run_all_passes, split_into_blocks};
+use telomere::{group_by_bit_length, run_all_passes, split_into_blocks};
 use std::collections::HashMap;
 
 #[test]
