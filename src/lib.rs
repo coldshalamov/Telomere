@@ -13,6 +13,7 @@ mod tlmr;
 // Gloss table support has been removed for the MVP.  The original
 // implementation used precomputed decompressed strings to accelerate
 // seed matching.  Future versions may reintroduce a `gloss` module.
+mod candidate;
 mod hash_reader;
 mod header;
 pub mod io_utils;
@@ -29,6 +30,7 @@ pub use block::{
     BranchStatus,
 };
 pub use bundle::{apply_bundle, BlockStatus, MutableBlock};
+pub use candidate::{prune_candidates, Block as CandidateBlock, Candidate};
 pub use compress::{compress, compress_block, TruncHashTable};
 pub use compress_stats::{write_stats_csv, CompressionStats};
 pub use file_header::{decode_file_header, encode_file_header};
