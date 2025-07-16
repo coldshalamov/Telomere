@@ -1,3 +1,9 @@
+//! Telomere command line entry point.
+//!
+//! Compression and decompression are selected via the first positional
+//! argument.  This binary is intentionally thin and merely forwards to the
+//! library APIs found in this crate.
+
 use std::env;
 use std::fs;
 use std::time::Instant;

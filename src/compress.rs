@@ -1,3 +1,10 @@
+//! High level compression routines used by the Telomere CLI.
+//!
+//! The main entry point is [`compress`] which performs a very small
+//! subset of the eventual algorithm: literal passthrough of blocks.
+//! Helper utilities maintain a truncated hash table used when scanning
+//! for seed matches in future iterations.
+
 use crate::compress_stats::CompressionStats;
 use crate::file_header::encode_file_header;
 use crate::header::{encode_header, Header};

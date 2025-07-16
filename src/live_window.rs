@@ -1,4 +1,4 @@
-/// Real-time compression progress logging utility.
+//! Real-time compression progress logging utility.
 
 #[derive(Default)]
 pub struct LiveStats {

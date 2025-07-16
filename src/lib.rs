@@ -1,3 +1,9 @@
+//! Telomere compression library exposing low level building blocks.
+//!
+//! The crate is intentionally minimal and only supports literal
+//! passthrough compression at the moment.  APIs may evolve as the
+//! generative search is implemented.
+
 mod block;
 mod bundle;
 mod compress;

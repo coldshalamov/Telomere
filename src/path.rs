@@ -1,4 +1,10 @@
 
+//! Representation of a candidate compression path across multiple blocks.
+//!
+//! A [`CompressionPath`] collects the seeds and SHA‑256 hashes used when
+//! exploring more advanced compression strategies.  The structure is not
+//! heavily used in the MVP but remains for future experimentation.
+
 use std::time::Instant;
 
 
