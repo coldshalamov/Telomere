@@ -43,6 +43,7 @@ pub use seed_logger::{
     log_seed, log_seed_to, resume_seed_index, resume_seed_index_from, HashEntry, ResourceLimits,
 };
 pub use sha_cache::*;
+pub use hash_reader::lookup_seed;
 pub use stats::Stats;
 
 pub fn print_compression_status(original: usize, compressed: usize) {

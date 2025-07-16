@@ -1,61 +1,72 @@
+use bincode;
+use serde::Serialize;
 use sha2::{Digest, Sha256};
 use std::fs::File;
 use std::io::{BufWriter, Write};
 use std::path::Path;
+use telomere::io_utils::{io_cli_error, simple_cli_error};
 
-// Each entry: [3 bytes hash prefix][1 byte seed length][4 bytes seed (padded to 4 bytes)]
-#[derive(Clone)]
-struct Entry {
-    prefix: [u8; 3],
-    len: u8,
+/// 8-byte record stored in the hash table.
+///
+/// Each entry stores the first three bytes of the seed's SHA-256 digest,
+/// the seed length, and the zero-padded seed bytes.
+#[repr(C)]
+#[derive(Clone, Copy, Debug, Serialize)]
+struct HashEntry {
+    hash_prefix: [u8; 3],
+    seed_len: u8,
     seed: [u8; 4],
 }
 
 fn main() {
-    let mut entries = Vec::new();
-
-    // 1-byte seeds
-    for i in 0u8..=255 {
-        let seed = [i];
-        let digest = Sha256::digest(&seed);
-        let prefix = [digest[0], digest[1], digest[2]];
-        let mut padded = [0u8; 4];
-        padded[0] = i;
-        entries.push(Entry {
-            prefix,
-            len: 1,
-            seed: padded,
-        });
+    if let Err(e) = run() {
+        eprintln!("Error: {e}");
+        std::process::exit(1);
     }
+}
 
-    // 2-byte seeds
-    for hi in 0u8..=255 {
-        for lo in 0u8..=255 {
-            let seed = [hi, lo];
-            let digest = Sha256::digest(&seed);
-            let prefix = [digest[0], digest[1], digest[2]];
-            let mut padded = [0u8; 4];
-            padded[0] = hi;
-            padded[1] = lo;
-            entries.push(Entry {
-                prefix,
-                len: 2,
-                seed: padded,
+fn run() -> Result<(), Box<dyn std::error::Error>> {
+    let mut entries = Vec::<HashEntry>::new();
+
+    // Only 1- and 2-byte seeds as requested
+    for len in 1u8..=2 {
+        let count: u64 = 1u64 << (len * 8);
+        for i in 0..count {
+            let mut seed = [0u8; 4];
+            for b in 0..len {
+                seed[(len - 1 - b) as usize] = ((i >> (8 * b)) & 0xFF) as u8;
+            }
+
+            let digest = Sha256::digest(&seed[..len as usize]);
+            let mut prefix = [0u8; 3];
+            prefix.copy_from_slice(&digest[..3]);
+
+            entries.push(HashEntry {
+                hash_prefix: prefix,
+                seed_len: len,
+                seed,
             });
         }
     }
 
-    // Sort by prefix
-    entries.sort_by(|a, b| a.prefix.cmp(&b.prefix));
+    // Sort entries by hash prefix ascending
+    entries.sort_unstable_by(|a, b| a.hash_prefix.cmp(&b.hash_prefix));
 
-    // Write to file
     let path = Path::new("hash_table.bin");
-    let file = File::create(path).unwrap();
+    let file = File::create(path).map_err(|e| io_cli_error("creating output file", path, e))?;
     let mut writer = BufWriter::new(file);
-    for entry in &entries {
-        writer.write_all(&entry.prefix).unwrap();
-        writer.write_all(&[entry.len]).unwrap();
-        writer.write_all(&entry.seed).unwrap();
+
+    for entry in entries {
+        let serialized = bincode::serialize(&entry)
+            .map_err(|e| simple_cli_error(&format!("serialization failed: {e}")))?;
+        writer
+            .write_all(&serialized)
+            .map_err(|e| io_cli_error("writing output file", path, e))?;
     }
+
+    writer.flush().map_err(|e| io_cli_error("flushing output file", path, e))?;
+
     println!("Done writing 1- and 2-byte seed hash table.");
+
+    Ok(())
 }

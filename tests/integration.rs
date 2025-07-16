@@ -14,26 +14,18 @@ fn cli_roundtrip() {
 
     let compress = Command::new(exe)
         .args([
-            "compress",
+            "c",
+            input.to_str().unwrap(),
+            compressed.to_str().unwrap(),
             "--block-size",
             "3",
-            "--input",
-            input.to_str().unwrap(),
-            "--output",
-            compressed.to_str().unwrap(),
         ])
         .output()
         .expect("failed to run compress");
     assert!(compress.status.success());
 
     let decompress = Command::new(exe)
-        .args([
-            "decompress",
-            "--input",
-            compressed.to_str().unwrap(),
-            "--output",
-            output.to_str().unwrap(),
-        ])
+        .args(["d", compressed.to_str().unwrap(), output.to_str().unwrap()])
         .output()
         .expect("failed to run decompress");
     assert!(decompress.status.success());
