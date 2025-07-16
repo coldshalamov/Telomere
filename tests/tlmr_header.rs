@@ -1,4 +1,4 @@
-use inchworm::{
+use telomere::{
     decode_tlmr_header, encode_header, encode_tlmr_header, decompress_with_limit,
     truncated_hash, TlmrHeader, compress,
 };

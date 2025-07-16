@@ -1,5 +1,5 @@
 use bincode;
-use inchworm::io_utils::{io_cli_error, simple_cli_error};
+use telomere::io_utils::{io_cli_error, simple_cli_error};
 use serde::Serialize;
 use sha2::{Digest, Sha256};
 use std::fs::File;
