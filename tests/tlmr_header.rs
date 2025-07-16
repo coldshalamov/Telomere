@@ -1,6 +1,6 @@
-use inchworm::{
-    decode_tlmr_header, encode_header, encode_tlmr_header, decompress_with_limit,
-    truncated_hash, TlmrHeader, compress,
+use telomere::{
+    compress, decode_tlmr_header, decompress_with_limit, encode_header, encode_tlmr_header,
+    truncated_hash, Header, TlmrHeader,
 };
 
 #[test]
@@ -23,18 +23,26 @@ fn header_bit_roundtrip() {
 }
 
 fn build_data(bytes: &[u8], bs: usize) -> Vec<u8> {
-    let last = if bytes.is_empty() { bs } else { (bytes.len() - 1) % bs + 1 };
-    let hdr = encode_tlmr_header(&TlmrHeader { version: 0, block_size: bs, last_block_size: last, output_hash: truncated_hash(bytes) });
+    let last = if bytes.is_empty() {
+        bs
+    } else {
+        (bytes.len() - 1) % bs + 1
+    };
+    let hdr = encode_tlmr_header(&TlmrHeader {
+        version: 0,
+        block_size: bs,
+        last_block_size: last,
+        output_hash: truncated_hash(bytes),
+    });
     let mut out = hdr.to_vec();
     let mut offset = 0usize;
     while offset + bs <= bytes.len() {
-        let blocks = 1usize;
-        out.extend_from_slice(&encode_header(0, 28 + blocks));
+        out.extend_from_slice(&encode_header(&Header::Literal));
         out.extend_from_slice(&bytes[offset..offset + bs]);
         offset += bs;
     }
     if offset < bytes.len() {
-        out.extend_from_slice(&encode_header(0, 32));
+        out.extend_from_slice(&encode_header(&Header::LiteralLast));
         out.extend_from_slice(&bytes[offset..]);
     }
     out
