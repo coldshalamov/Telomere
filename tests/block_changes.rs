@@ -1,4 +1,4 @@
-use inchworm::{apply_block_changes, group_by_bit_length, Block, BlockChange};
+use telomere::{apply_block_changes, group_by_bit_length, Block, BlockChange, BranchStatus};
 
 #[test]
 fn apply_single_change() {
@@ -11,7 +11,7 @@ fn apply_single_change() {
             arity: None,
             seed_index: None,
             branch_label: 'A',
-            status: inchworm::BranchStatus::Active,
+            status: BranchStatus::Active,
         },
         Block {
             global_index: 1,
@@ -21,7 +21,7 @@ fn apply_single_change() {
             arity: None,
             seed_index: None,
             branch_label: 'A',
-            status: inchworm::BranchStatus::Active,
+            status: BranchStatus::Active,
         },
     ];
     let mut table = group_by_bit_length(blocks);
@@ -35,7 +35,7 @@ fn apply_single_change() {
         arity: None,
         seed_index: Some(0),
         branch_label: 'A',
-        status: inchworm::BranchStatus::Active,
+        status: BranchStatus::Active,
     };
     let change = BlockChange {
         original_index: 1,

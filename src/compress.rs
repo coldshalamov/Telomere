@@ -1,5 +1,5 @@
 use crate::compress_stats::CompressionStats;
-use crate::file_header::encode_file_header;
+use crate::tlmr::{encode_tlmr_header, truncated_hash, TlmrHeader};
 use crate::header::{encode_header, Header};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
@@ -70,21 +70,31 @@ impl TruncHashTable {
 /// emitted with a header whose arity is 29, 30 or 31. If the final region is
 /// shorter than one block, a header with arity 32 precedes the remaining bytes.
 pub fn compress(data: &[u8], block_size: usize) -> Vec<u8> {
-    let mut out = encode_file_header(data.len(), block_size);
+    let last_block = if data.is_empty() { 0 } else { (data.len() - 1) % block_size + 1 };
+    let hash = truncated_hash(data);
+    let header_bytes = encode_tlmr_header(&TlmrHeader {
+        version: 0,
+        block_size,
+        last_block_size: if last_block == 0 { block_size } else { last_block },
+        output_hash: hash,
+    });
+    let mut out = header_bytes.to_vec();
     let mut offset = 0usize;
-    while offset + block_size <= data.len() {
-        let remaining_blocks = (data.len() - offset) / block_size;
-        let blocks = remaining_blocks.min(3).max(1);
-        let header = encode_header(0, 28 + blocks);
-        out.extend_from_slice(&header);
-        let bytes = blocks * block_size;
-        out.extend_from_slice(&data[offset..offset + bytes]);
-        offset += bytes;
+    if data.is_empty() {
+        return out;
     }
 
-    if offset < data.len() {
-        out.extend_from_slice(&encode_header(0, 32));
-        out.extend_from_slice(&data[offset..]);
+    while offset < data.len() {
+        let remaining = data.len() - offset;
+        if remaining <= block_size {
+            out.extend_from_slice(&encode_header(&Header::LiteralLast));
+            out.extend_from_slice(&data[offset..]);
+            break;
+        } else {
+            out.extend_from_slice(&encode_header(&Header::Literal));
+            out.extend_from_slice(&data[offset..offset + block_size]);
+            offset += block_size;
+        }
     }
 
     out
@@ -108,11 +118,5 @@ pub fn compress_block(
         s.log_match(false, 1);
     }
 
-    Some((
-        Header {
-            seed_index: 0,
-            arity: 29,
-        },
-        block_size,
-    ))
+    Some((Header::Literal, block_size))
 }

@@ -1,5 +1,10 @@
-use inchworm::io_utils::{io_cli_error, simple_cli_error};
-use inchworm::{group_by_bit_length, split_into_blocks};
+//! Block table summary utility for Telomere.
+//!
+//! This CLI tool prints the count of blocks by bit length for a given file
+//! and block size. Used for debugging and exploratory analysis.
+
+use telomere::{split_into_blocks, group_by_bit_length};
+use telomere::io_utils::{io_cli_error, simple_cli_error};
 use std::{env, fs, path::Path};
 
 fn main() {

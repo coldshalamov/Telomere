@@ -1,11 +1,18 @@
+//! Telomere compression library exposing low level building blocks.
+//!
+//! The crate is intentionally minimal and only supports literal
+//! passthrough compression at the moment.  APIs may evolve as the
+//! generative search is implemented.
+
 mod block;
 mod bundle;
 mod compress;
 mod compress_stats;
 mod file_header;
-/// Gloss table support has been removed for the MVP.  The original
-/// implementation used precomputed decompressed strings to accelerate
-/// seed matching.  Future versions may reintroduce a `gloss` module.
+mod tlmr;
+// Gloss table support has been removed for the MVP.  The original
+// implementation used precomputed decompressed strings to accelerate
+// seed matching.  Future versions may reintroduce a `gloss` module.
 mod header;
 pub mod io_utils;
 mod live_window;
@@ -26,6 +33,7 @@ pub use compress_stats::{write_stats_csv, CompressionStats};
 pub use file_header::{decode_file_header, encode_file_header};
 pub use header::{decode_header, encode_header, Header, HeaderError};
 pub use io_utils::*;
+pub use tlmr::{decode_tlmr_header, encode_tlmr_header, truncated_hash, TlmrError, TlmrHeader};
 pub use live_window::{print_window, LiveStats};
 pub use path::*;
 pub use seed_detect::{detect_seed_matches, MatchRecord};
@@ -72,48 +80,55 @@ pub fn decompress_region_with_limit(
 
 /// Decompress a full byte stream with an optional limit.
 ///
-/// Files begin with an EVQL header describing the original length and block
-/// size. Each subsequent region is prefixed with a normal header. Arity values
-/// `29`–`32` denote literal passthrough data and are followed by one to three
-/// full blocks or a final tail. All other arities would require seed-based
-/// decoding which is not implemented here.
-pub fn decompress_with_limit(input: &[u8], limit: usize) -> Option<Vec<u8>> {
-    if input.is_empty() {
-        return Some(Vec::new());
+/// Files begin with a 3-byte Telomere header describing protocol version,
+/// block size, last block size and a truncated output hash. Each subsequent
+/// region is prefixed with a normal header. 
+pub fn decompress_with_limit(input: &[u8], limit: usize) -> Result<Vec<u8>, TlmrError> {
+    if input.len() < 3 {
+        return Err(TlmrError::TooShort);
     }
-    let (mut offset, orig_size, block_size) = decode_file_header(input)?;
+    let header = decode_tlmr_header(input)?;
+    let mut offset = 3usize;
+    let block_size = header.block_size;
+    let last_block_size = header.last_block_size;
     let mut out = Vec::new();
-    while out.len() < orig_size {
-        let slice = input.get(offset..)?;
-        let (_, arity, bits) = decode_header(slice).ok()?;
+    loop {
+        let slice = input.get(offset..).ok_or(TlmrError::InvalidField)?;
+        let (header, bits) = decode_header(slice).map_err(|_| TlmrError::InvalidField)?;
         offset += (bits + 7) / 8;
-        if arity == 32 {
-            let bytes = orig_size - out.len();
-            if offset + bytes > input.len() || out.len() + bytes > limit {
-                return None;
+        match header {
+            Header::Literal => {
+                let bytes = block_size;
+                if out.len() + bytes > limit || offset + bytes > input.len() {
+                    return Err(TlmrError::InvalidField);
+                }
+                out.extend_from_slice(&input[offset..offset + bytes]);
+                offset += bytes;
             }
-            out.extend_from_slice(&input[offset..offset + bytes]);
-            offset += bytes;
-        } else if (29..=31).contains(&arity) {
-            let blocks = arity - 28;
-            let bytes = blocks * block_size;
-            if out.len() + bytes > orig_size
-                || offset + bytes > input.len()
-                || out.len() + bytes > limit
-            {
-                return None;
+            Header::LiteralLast => {
+                let bytes = last_block_size;
+                if out.len() + bytes > limit || offset + bytes > input.len() {
+                    return Err(TlmrError::InvalidField);
+                }
+                out.extend_from_slice(&input[offset..offset + bytes]);
+                offset += bytes;
+                break;
             }
-            out.extend_from_slice(&input[offset..offset + bytes]);
-            offset += bytes;
-        } else {
-            return None;
+            _ => {
+                // Only passthrough literal blocks supported in this MVP
+                return Err(TlmrError::InvalidField);
+            }
+        }
+        if offset == input.len() {
+            // No more data left to decode.
+            break;
         }
     }
-    if out.len() == orig_size {
-        Some(out)
-    } else {
-        None
+    let hash = truncated_hash(&out);
+    if hash != header.output_hash {
+        return Err(TlmrError::OutputHashMismatch);
     }
+    Ok(out)
 }
 
 /// Convenience wrapper without a limit.
