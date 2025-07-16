@@ -7,8 +7,32 @@ seed and a three-byte header. Compressed regions may themselves contain nested
 compressed units, enabling recursive compaction. Unmatched blocks are emitted as
 literal passthroughs, using reserved header codes—never as raw bytes.
 
-Run `cargo run -- c <input> <output>` to compress a file or `cargo run -- d
-<input> <output>` to decompress.
+Telomere exposes a simple command line interface built on top of these
+primitives.  The binary is invoked with a mode (`c` for compress or `d` for
+decompress) followed by input and output file paths.  Additional flags tweak
+runtime behaviour:
+
+```
+USAGE: telomere [c|d] <input> <output> [--block-size N] [--status] [--json] [--dry-run]
+
+FLAGS:
+    --block-size N   size of each compression block (default 3)
+    --status         print a short progress line for every block
+    --json           emit a JSON summary after completion
+    --dry-run        perform compression but skip writing the output file
+```
+
+### Usage Example
+
+The following demonstrates a typical round‑trip using default settings:
+
+```
+# Compress a file
+cargo run --release -- c input.bin output.tlmr --block-size 4 --status
+
+# Decompress back to the original bytes
+cargo run --release -- d output.tlmr restored.bin
+```
 
 ---
 
@@ -52,6 +76,33 @@ These literal codes are used in place of escape markers or raw bytes:
 - Otherwise, it uses `G(seed)` for normal reconstruction.
 
 No additional marker bytes or prefix codes are ever emitted.
+
+### `.tlmr` File Layout
+
+Telomere files are organized into small batches of up to three blocks.  Each
+batch starts with a fixed three‑byte header followed by one or more standard
+block headers and the associated data.  Conceptually this looks as follows:
+
+```
+┌──────────────┬───────────────────────────────────┐
+│ 3‑byte batch │ block header → block data → ...   │
+│ header       │                                   │
+└──────────────┴───────────────────────────────────┘
+```
+
+The outer file header (encoded with EVQL) still records the original length and
+block size.  Batches merely group subsequent blocks together for streaming
+purposes.
+
+### Batch Header Format
+
+The batch header packs a small amount of metadata into three bytes:
+
+- **Bits 0‑3** – format version (currently `0`)
+- **Bits 4‑7** – number of block headers that follow (1‑3)
+- **Bits 8‑23** – truncated SHA‑256 of the batch output for quick sanity checks
+
+Decoders verify the hash after reconstructing a batch to detect corruption.
 
 ---
 

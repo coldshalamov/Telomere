@@ -1,3 +1,8 @@
+//! Functions for grouping blocks into bundles for replacement.
+//!
+//! Bundling inserts a new compressed block while marking the original
+//! span as removed.  This module defines the [`MutableBlock`] type used
+//! during these transformations and utilities for applying a bundle.
 
 /// Status of a mutable block during bundling operations.
 #[derive(Debug, Clone, PartialEq, Eq)]

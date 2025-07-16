@@ -1,3 +1,10 @@
+//! Block table management and associated utilities.
+//!
+//! A [`Block`] represents a candidate span of bytes along with metadata
+//! used during compression.  The table groups blocks by bit length and
+//! tracks alternative branches.  High level APIs expose functions for
+//! grouping, pruning and collapsing branches as the search progresses.
+
 use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 

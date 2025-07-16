@@ -1,3 +1,8 @@
+//! Minimal statistics container used by some experiments.
+//!
+//! `Stats` simply tracks block and match counts without any logging or
+//! persistence.  It is mainly used by test helpers.
+
 pub struct Stats {
     pub total_blocks: u64,
     pub greedy_matches: u64,

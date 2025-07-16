@@ -6,7 +6,8 @@
 
 use std::{env, fs, path::Path, time::Instant};
 use telomere::{
-    compress, decompress_with_limit, io_utils::{extension_error, io_cli_error, simple_cli_error},
+    compress, decompress_with_limit,
+    io_utils::{extension_error, io_cli_error, simple_cli_error},
 };
 
 fn main() {
@@ -72,7 +73,6 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     match args[1].as_str() {
         "c" => {
             let start_time = Instant::now();
-
             let out = compress(&data, block_size);
 
             if out.is_empty() {

@@ -1,3 +1,9 @@
+//! Simple in-memory cache of SHA-256 hashes used during seed search.
+//!
+//! The cache keeps a configurable number of entries and evicts the least
+//! recently used value when full.  It can also persist and reload a hash
+//! table from disk for testing purposes.
+
 use std::collections::HashMap;
 use sha2::{Digest, Sha256};
 use std::fs::File;

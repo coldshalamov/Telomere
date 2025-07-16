@@ -1,3 +1,9 @@
+//! Helpers for collecting compression statistics at runtime.
+//!
+//! [`CompressionStats`] tracks block counts and optional progress
+//! snapshots that are written to CSV.  The structure can be queried at
+//! the end of a run to produce user facing summaries.
+
 use std::time::Instant;
 use std::fs::File;
 use csv::Writer;

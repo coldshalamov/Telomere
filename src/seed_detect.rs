@@ -1,3 +1,9 @@
+//! Utilities for matching truncated seed hashes against table blocks.
+//!
+//! The [`detect_seed_matches`] function scans a mutable block table and
+//! returns all regions that correspond to a precomputed seed prefix.  It
+//! is a stepping stone toward a fully generative compressor.
+
 use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 

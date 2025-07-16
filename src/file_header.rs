@@ -1,3 +1,9 @@
+//! Encoding and decoding of the EVQL based file header.
+//!
+//! The file header stores the original length and block size using
+//! Exponentially Variable Quantization Length (EVQL) encoding.  Helper
+//! functions are provided to round‑trip values and to build the initial
+//! byte stream consumed by the decoder.
 
 /// Encode a usize using EVQL (Exponentially Variable Quantization Length).
 ///
