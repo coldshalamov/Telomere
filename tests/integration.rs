@@ -1,7 +1,6 @@
 use std::fs;
-use std::process::Command;
 use std::path::PathBuf;
-use serde_json::Value;
+use std::process::Command;
 
 #[test]
 fn cli_roundtrip() {
@@ -15,23 +14,24 @@ fn cli_roundtrip() {
 
     let compress = Command::new(exe)
         .args([
-            "c",
+            "compress",
+            "--block-size",
+            "3",
+            "--input",
             input.to_str().unwrap(),
+            "--output",
             compressed.to_str().unwrap(),
-            "--seed-limit",
-            "100",
-            "--json",
         ])
         .output()
         .expect("failed to run compress");
     assert!(compress.status.success());
-    let json: Value = serde_json::from_slice(&compress.stdout).unwrap();
-    assert_eq!(json["input_bytes"].as_u64().unwrap(), 14);
 
     let decompress = Command::new(exe)
         .args([
-            "d",
+            "decompress",
+            "--input",
             compressed.to_str().unwrap(),
+            "--output",
             output.to_str().unwrap(),
         ])
         .output()
@@ -46,4 +46,3 @@ fn cli_roundtrip() {
     let _ = fs::remove_file(compressed);
     let _ = fs::remove_file(output);
 }
-
