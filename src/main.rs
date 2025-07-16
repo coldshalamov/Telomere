@@ -1,10 +1,18 @@
-use std::env;
-use std::fs;
-use std::time::Instant;
+use std::{env, fs, path::Path, time::Instant};
 
-use inchworm::{compress, decompress, LiveStats};
+use inchworm::{
+    compress, decompress_with_limit,
+    io_utils::{extension_error, io_cli_error, simple_cli_error},
+};
 
-fn main() -> std::io::Result<()> {
+fn main() {
+    if let Err(e) = run() {
+        eprintln!("{e}");
+        std::process::exit(1);
+    }
+}
+
+fn run() -> Result<(), Box<dyn std::error::Error>> {
     let args: Vec<String> = env::args().collect();
     if args.len() < 4 {
         eprintln!(
@@ -23,12 +31,13 @@ fn main() -> std::io::Result<()> {
     while i < args.len() {
         match args[i].as_str() {
             "--block-size" => {
-                block_size = args[i + 1].parse().expect("invalid block size");
+                block_size = args[i + 1]
+                    .parse()
+                    .map_err(|_| simple_cli_error("invalid block size"))?;
                 i += 2;
             }
             "--seed-limit" => {
-                // seed-limit is ignored in this simplified implementation
-                i += 2;
+                i += 2; // ignored
             }
             "--status" => {
                 show_status = true;
@@ -43,38 +52,29 @@ fn main() -> std::io::Result<()> {
                 i += 1;
             }
             flag => {
-                eprintln!("Unknown flag: {}", flag);
-                return Ok(());
+                return Err(simple_cli_error(&format!("Unknown flag: {}", flag)).into());
             }
         }
     }
 
-    let data = fs::read(&args[2])?;
+    let input_path = Path::new(&args[2]);
+    let output_path = Path::new(&args[3]);
+    let data =
+        fs::read(input_path).map_err(|e| io_cli_error("opening input file", input_path, e))?;
 
     match args[1].as_str() {
         "c" => {
             let start_time = Instant::now();
-            let mut stats = LiveStats::new(if show_status { 1 } else { 0 });
 
-            // Compress using selected block size
             let out = compress(&data, block_size);
-
-            eprintln!("🧪 compress() returned buffer with length: {}", out.len());
             if out.is_empty() {
-                eprintln!("❌ compress() returned an empty buffer — nothing to write!");
-                return Ok(());
+                return Err(simple_cli_error("compress() returned no data").into());
             }
 
             let compressed_len = out.len();
             if !dry_run {
-                let output_path = &args[3];
-                eprintln!("💾 Writing {} bytes to {}", out.len(), output_path);
-                match fs::write(output_path, &out) {
-                    Ok(_) => eprintln!("✅ Wrote compressed output to {:?}", output_path),
-                    Err(e) => eprintln!("❌ Failed to write output: {:?}", e),
-                }
-            } else {
-                eprintln!("(dry run) skipping file write");
+                fs::write(output_path, &out)
+                    .map_err(|e| io_cli_error("writing output file", output_path, e))?;
             }
 
             let raw_len = data.len();
@@ -88,17 +88,26 @@ fn main() -> std::io::Result<()> {
                     "elapsed_ms": elapsed.as_millis(),
                 });
                 println!("{}", serde_json::to_string_pretty(&out_json).unwrap());
-            } else {
+            } else if show_status {
                 eprintln!("Compressed {:.2}% in {:.2?}", percent, elapsed);
             }
         }
-
         "d" => {
-            let decompressed = decompress(&data);
-            fs::write(&args[3], decompressed)?;
+            if input_path
+                .extension()
+                .and_then(|s| s.to_str())
+                .map_or(true, |ext| ext.to_ascii_lowercase() != "tlmr")
+            {
+                return Err(extension_error(input_path).into());
+            }
+            let decompressed = decompress_with_limit(&data, usize::MAX)
+                .ok_or_else(|| simple_cli_error("truncated or corrupted input file"))?;
+            fs::write(output_path, decompressed)
+                .map_err(|e| io_cli_error("writing output file", output_path, e))?;
         }
-
-        mode => eprintln!("Unknown mode: {}", mode),
+        mode => {
+            return Err(simple_cli_error(&format!("Unknown mode: {}", mode)).into());
+        }
     }
 
     Ok(())
