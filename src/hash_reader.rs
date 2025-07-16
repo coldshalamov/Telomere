@@ -19,27 +19,50 @@ unsafe impl Pod for Entry {}
 /// found or the mapping is malformed.
 pub fn lookup_seed(mmap: &Mmap, prefix: [u8; 3]) -> Option<Vec<u8>> {
     let entry_size = std::mem::size_of::<Entry>();
+
+    if mmap.len() % entry_size != 0 {
+        return None;
+    }
+
+    // SAFETY: Entry is `Pod` and the length check above ensures the slice
+    // length is a multiple of the item size.
+    let entries: &[Entry] = bytemuck::cast_slice(&mmap[..]);
+
     let mut left = 0usize;
-    let mut right = mmap.len() / entry_size;
+    let mut right = entries.len();
 
     while left < right {
         let mid = (left + right) / 2;
-        let start = mid * entry_size;
-        let end = start + entry_size;
-        let slice = mmap.get(start..end)?;
-        let entry = bytemuck::from_bytes::<Entry>(slice);
-        match entry.prefix.cmp(&prefix) {
+        match entries[mid].prefix.cmp(&prefix) {
             Ordering::Less => left = mid + 1,
             Ordering::Greater => right = mid,
             Ordering::Equal => {
-                let len = entry.len as usize;
+                // Walk outward to gather all entries with the same prefix
+                let mut best = entries[mid];
+                let mut idx = mid;
+                while idx > 0 && entries[idx - 1].prefix == prefix {
+                    idx -= 1;
+                    if entries[idx].len < best.len {
+                        best = entries[idx];
+                    }
+                }
+                idx = mid;
+                while idx + 1 < entries.len() && entries[idx + 1].prefix == prefix {
+                    idx += 1;
+                    if entries[idx].len < best.len {
+                        best = entries[idx];
+                    }
+                }
+
+                let len = best.len as usize;
                 if len > 4 {
                     return None;
                 }
-                return Some(entry.seed[..len].to_vec());
+                return Some(best.seed[..len].to_vec());
             }
         }
     }
+
     None
 }
 
