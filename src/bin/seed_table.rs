@@ -1,5 +1,5 @@
 use clap::Parser;
-use inchworm::io_utils::io_cli_error;
+use telomere:io_utils::io_cli_error;
 use sha2::{Digest, Sha256};
 use std::{
     collections::HashSet,

@@ -15,6 +15,7 @@ csv = "1"
 clap = { version = "4", features = ["derive"] }
 sysinfo = "0.29"
 tempfile = { version = "3", optional = true }
+bytemuck = "1.23.1"
 
 [dev-dependencies]
 tempfile = "3"

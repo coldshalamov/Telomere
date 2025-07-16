@@ -20,6 +20,7 @@ mod path;
 mod seed_detect;
 mod seed_logger;
 mod sha_cache;
+mod hash_reader;
 mod stats;
 
 pub use block::{
@@ -27,6 +28,7 @@ pub use block::{
     prune_branches, run_all_passes, split_into_blocks, Block, BlockChange, BlockTable,
     BranchStatus,
 };
+pub use hash_reader::lookup_seed;
 pub use bundle::{apply_bundle, BlockStatus, MutableBlock};
 pub use compress::{compress, compress_block, TruncHashTable};
 pub use compress_stats::{write_stats_csv, CompressionStats};
