@@ -13,7 +13,7 @@ primitives. Compression and decompression are invoked via subcommands –
 be provided positionally or with the `--input`/`--output` flags. Additional
 flags tweak runtime behaviour:
 
-```
+```text
 USAGE:
     telomere compress [OPTIONS] [INPUT] [OUTPUT]
     telomere decompress [OPTIONS] [INPUT] [OUTPUT]
@@ -26,11 +26,11 @@ FLAGS:
     --dry-run        perform compression but skip writing the output file
 ```
 
-### Usage Example
+## Usage Example
 
 The following demonstrates a typical round‑trip using default settings:
 
-```
+```bash
 # Compress a file
 cargo run --release -- compress -i input.bin -o output.tlmr --block-size 4 --status
 
@@ -62,12 +62,13 @@ All files begin with an EVQL-encoded file header describing:
 - The fixed block size
 
 Every block after that is preceded by a standard compressed block header:
+
 - **Seed index**
 - **Arity**
 
 The `arity` field encodes both compression span and literal passthrough signals:
 
-### Reserved Arity Values for Literal Passthrough:
+### Reserved Arity Values for Literal Passthrough
 
 - `29` → one literal block  
 - `30` → two literal blocks  
@@ -75,6 +76,7 @@ The `arity` field encodes both compression span and literal passthrough signals:
 - `32` → final tail (shorter than full block)
 
 These literal codes are used in place of escape markers or raw bytes:
+
 - The decoder reads the arity.
 - If it is `29`–`31`, it copies that number of literal blocks directly.
 - If it is `32`, it copies the remaining tail bytes (less than `block_size`).
@@ -88,7 +90,7 @@ Telomere files are organized into small batches of up to three blocks.  Each
 batch starts with a fixed three‑byte header followed by one or more standard
 block headers and the associated data.  Conceptually this looks as follows:
 
-```
+```text
 ┌──────────────┬───────────────────────────────────┐
 │ 3‑byte batch │ block header → block data → ...   │
 │ header       │                                   │
@@ -108,6 +110,18 @@ The batch header packs a small amount of metadata into three bytes:
 - **Bits 8‑23** – truncated SHA‑256 of the batch output for quick sanity checks
 
 Decoders verify the hash after reconstructing a batch to detect corruption.
+
+---
+
+## Telomere Protocol Compliance Notes
+
+Telomere maintains a **stateless** design aside from the optional seed table.
+The format never emits **raw data** directly; literal regions use reserved arity
+codes as a **literal fallback** path. Every file header records the format
+**version** and fixed **block size**. There is no entropy or statistical coding
+involved—compression relies purely on search. The **literal header logic** is
+intentionally simple, and recursive batching ensures eventual **convergence** of
+nested segments as a recursive convergence goal.
 
 ---
 
