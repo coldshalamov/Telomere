@@ -19,6 +19,7 @@ bytemuck = "1.23.1"
 
 [dev-dependencies]
 tempfile = "3"
+quickcheck = "1"
 
 [[bin]]
 name = "gloss_tool"
