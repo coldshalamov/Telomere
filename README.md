@@ -8,30 +8,34 @@ compressed units, enabling recursive compaction. Unmatched blocks are emitted as
 literal passthroughs, using reserved header codes—never as raw bytes.
 
 Telomere exposes a simple command line interface built on top of these
-primitives.  The binary is invoked with a mode (`c` for compress or `d` for
-decompress) followed by input and output file paths.  Additional flags tweak
-runtime behaviour:
+primitives. Compression and decompression are invoked via subcommands –
+`compress` (alias `c`) and `decompress` (alias `d`). Input and output paths may
+be provided positionally or with the `--input`/`--output` flags. Additional
+flags tweak runtime behaviour:
 
-```
-USAGE: telomere [c|d] <input> <output> [--block-size N] [--status] [--json] [--dry-run]
+```text
+USAGE:
+    telomere compress [OPTIONS] [INPUT] [OUTPUT]
+    telomere decompress [OPTIONS] [INPUT] [OUTPUT]
 
 FLAGS:
     --block-size N   size of each compression block (default 3)
+    --passes N       maximum compression passes (default 10)
     --status         print a short progress line for every block
     --json           emit a JSON summary after completion
     --dry-run        perform compression but skip writing the output file
 ```
 
-### Usage Example
+## Usage Example
 
 The following demonstrates a typical round‑trip using default settings:
 
-```
+```bash
 # Compress a file
-cargo run --release -- c input.bin output.tlmr --block-size 4 --status
+cargo run --release -- compress -i input.bin -o output.tlmr --block-size 4 --status
 
 # Decompress back to the original bytes
-cargo run --release -- d output.tlmr restored.bin
+cargo run --release -- decompress output.tlmr restored.bin
 ```
 
 ---
@@ -44,8 +48,9 @@ to disk. When a seed is persisted, the library checks disk and memory
 consumption before appending the new entry. If the file would exceed configured
 limits or the system is low on memory, the operation aborts with an error.
 
-The default table path is `hash_table.bin` and entries are encoded with
-`bincode`.
+The default table path is `hash_table.bin` and entries are stored as fixed
+8-byte records. Precomputing 1-, 2-, and 3-byte seeds produces roughly 16.8
+million entries (~135 MB).
 
 ---
 
@@ -57,12 +62,13 @@ All files begin with an EVQL-encoded file header describing:
 - The fixed block size
 
 Every block after that is preceded by a standard compressed block header:
+
 - **Seed index**
 - **Arity**
 
 The `arity` field encodes both compression span and literal passthrough signals:
 
-### Reserved Arity Values for Literal Passthrough:
+### Reserved Arity Values for Literal Passthrough
 
 - `29` → one literal block  
 - `30` → two literal blocks  
@@ -70,6 +76,7 @@ The `arity` field encodes both compression span and literal passthrough signals:
 - `32` → final tail (shorter than full block)
 
 These literal codes are used in place of escape markers or raw bytes:
+
 - The decoder reads the arity.
 - If it is `29`–`31`, it copies that number of literal blocks directly.
 - If it is `32`, it copies the remaining tail bytes (less than `block_size`).
@@ -83,7 +90,7 @@ Telomere files are organized into small batches of up to three blocks.  Each
 batch starts with a fixed three‑byte header followed by one or more standard
 block headers and the associated data.  Conceptually this looks as follows:
 
-```
+```text
 ┌──────────────┬───────────────────────────────────┐
 │ 3‑byte batch │ block header → block data → ...   │
 │ header       │                                   │
@@ -106,8 +113,28 @@ Decoders verify the hash after reconstructing a batch to detect corruption.
 
 ---
 
+## Telomere Protocol Compliance Notes
+
+Telomere maintains a **stateless** design aside from the optional seed table.
+The format never emits **raw data** directly; literal regions use reserved arity
+codes as a **literal fallback** path. Every file header records the format
+**version** and fixed **block size**. There is no entropy or statistical coding
+involved—compression relies purely on search. The **literal header logic** is
+intentionally simple, and recursive batching ensures eventual **convergence** of
+nested segments as a recursive convergence goal.
+
+---
+
 ## Status
 
 - ✅ Deterministic compression and literal passthrough format complete
 - ✅ Round-trip identity supported
 - 🔜 Seed-driven decoding (G-based) in development
+
+## Telomere Protocol Compliance Notes
+
+The compressed output contains only headers and deterministic seed references.
+Any literal bytes are wrapped in a `Literal` header and expected to vanish as
+multi-pass compression converges. Stopping early may leave such sections in the
+stream, which is allowed but suboptimal. No entropy coding is applied at any
+stage, adhering to the stateless design described in the whitepaper.

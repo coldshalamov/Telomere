@@ -6,8 +6,8 @@
 //! for seed matches in future iterations.
 
 use crate::compress_stats::CompressionStats;
-use crate::tlmr::{encode_tlmr_header, truncated_hash, TlmrHeader};
 use crate::header::{encode_header, Header};
+use crate::tlmr::{encode_tlmr_header, truncated_hash, TlmrHeader};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::collections::HashSet;
@@ -77,12 +77,20 @@ impl TruncHashTable {
 /// emitted with a header whose arity is 29, 30 or 31. If the final region is
 /// shorter than one block, a header with arity 32 precedes the remaining bytes.
 pub fn compress(data: &[u8], block_size: usize) -> Vec<u8> {
-    let last_block = if data.is_empty() { 0 } else { (data.len() - 1) % block_size + 1 };
+    let last_block = if data.is_empty() {
+        0
+    } else {
+        (data.len() - 1) % block_size + 1
+    };
     let hash = truncated_hash(data);
     let header_bytes = encode_tlmr_header(&TlmrHeader {
         version: 0,
         block_size,
-        last_block_size: if last_block == 0 { block_size } else { last_block },
+        last_block_size: if last_block == 0 {
+            block_size
+        } else {
+            last_block
+        },
         output_hash: hash,
     });
     let mut out = header_bytes.to_vec();
@@ -105,6 +113,38 @@ pub fn compress(data: &[u8], block_size: usize) -> Vec<u8> {
     }
 
     out
+}
+
+/// Perform multi-pass compression. After the first pass, the result is
+/// repeatedly decompressed and recompressed until no further size
+/// reduction is observed or `max_passes` is reached.
+pub fn compress_multi_pass(
+    data: &[u8],
+    block_size: usize,
+    max_passes: usize,
+) -> Result<Vec<u8>, crate::tlmr::TlmrError> {
+    let mut compressed = compress(data, block_size);
+    if max_passes <= 1 {
+        return Ok(compressed);
+    }
+    let mut prev_size = compressed.len();
+    for pass in 2..=max_passes {
+        let decompressed = crate::decompress_with_limit(&compressed, usize::MAX)?;
+        let new_compressed = compress(&decompressed, block_size);
+        if new_compressed.len() < prev_size {
+            eprintln!(
+                "Pass {}: size {} -> {}",
+                pass,
+                prev_size,
+                new_compressed.len()
+            );
+            prev_size = new_compressed.len();
+            compressed = new_compressed;
+        } else {
+            break;
+        }
+    }
+    Ok(compressed)
 }
 
 /// Compress a single block and return its encoded header and bytes consumed.

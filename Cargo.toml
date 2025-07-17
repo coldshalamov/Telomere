@@ -10,7 +10,6 @@ serde_json = "1"
 bincode = "1"
 serde = { version = "1", features = ["derive"] }
 memmap2 = "0.5"
-bytemuck = "1"
 thiserror = "2.0.12"
 csv = "1"
 clap = { version = "4", features = ["derive"] }
@@ -20,7 +19,6 @@ bytemuck = "1.23.1"
 
 [dev-dependencies]
 tempfile = "3"
-
 
 [[bin]]
 name = "gloss_tool"
@@ -49,3 +47,19 @@ path = "src/bin/seed_table.rs"
 [[bin]]
 name = "block_summary"
 path = "src/bin/block_summary.rs"
+
+[[bin]]
+name = "hash_dump"
+path = "src/bin/hash_dump.rs"
+
+[[bin]]
+name = "gloss_dump"
+path = "src/bin/gloss_dump.rs"
+
+[[bin]]
+name = "block_histogram"
+path = "src/bin/block_histogram.rs"
+
+[[bin]]
+name = "hash_find"
+path = "src/bin/hash_find.rs"

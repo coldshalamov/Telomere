@@ -13,6 +13,8 @@ mod tlmr;
 // Gloss table support has been removed for the MVP.  The original
 // implementation used precomputed decompressed strings to accelerate
 // seed matching.  Future versions may reintroduce a `gloss` module.
+mod candidate;
+mod hash_reader;
 mod header;
 pub mod io_utils;
 mod live_window;
@@ -20,7 +22,6 @@ mod path;
 mod seed_detect;
 mod seed_logger;
 mod sha_cache;
-mod hash_reader;
 mod stats;
 
 pub use block::{
@@ -28,14 +29,14 @@ pub use block::{
     prune_branches, run_all_passes, split_into_blocks, Block, BlockChange, BlockTable,
     BranchStatus,
 };
-pub use hash_reader::lookup_seed;
 pub use bundle::{apply_bundle, BlockStatus, MutableBlock};
-pub use compress::{compress, compress_block, TruncHashTable};
+pub use candidate::{prune_candidates, Block as CandidateBlock, Candidate};
+pub use compress::{compress, compress_block, compress_multi_pass, TruncHashTable};
 pub use compress_stats::{write_stats_csv, CompressionStats};
 pub use file_header::{decode_file_header, encode_file_header};
+pub use hash_reader::lookup_seed;
 pub use header::{decode_header, encode_header, Header, HeaderError};
 pub use io_utils::*;
-pub use tlmr::{decode_tlmr_header, encode_tlmr_header, truncated_hash, TlmrError, TlmrHeader};
 pub use live_window::{print_window, LiveStats};
 pub use path::*;
 pub use seed_detect::{detect_seed_matches, MatchRecord};
@@ -43,8 +44,8 @@ pub use seed_logger::{
     log_seed, log_seed_to, resume_seed_index, resume_seed_index_from, HashEntry, ResourceLimits,
 };
 pub use sha_cache::*;
-pub use hash_reader::lookup_seed;
 pub use stats::Stats;
+pub use tlmr::{decode_tlmr_header, encode_tlmr_header, truncated_hash, TlmrError, TlmrHeader};
 
 pub fn print_compression_status(original: usize, compressed: usize) {
     let ratio = 100.0 * (1.0 - compressed as f64 / original as f64);
@@ -85,7 +86,7 @@ pub fn decompress_region_with_limit(
 ///
 /// Files begin with a 3-byte Telomere header describing protocol version,
 /// block size, last block size and a truncated output hash. Each subsequent
-/// region is prefixed with a normal header. 
+/// region is prefixed with a normal header.
 pub fn decompress_with_limit(input: &[u8], limit: usize) -> Result<Vec<u8>, TlmrError> {
     if input.len() < 3 {
         return Err(TlmrError::TooShort);
