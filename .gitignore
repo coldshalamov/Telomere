@@ -21,6 +21,7 @@ slice_seed_table.rs
 src/bin/seed_table.rs
 !src/bin/gloss_dump.rs
 !src/bin/block_histogram.rs
+!src/seed_index.rs
 seed_table.csv
 run_table.bat
 table_24.csv
