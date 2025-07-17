@@ -51,3 +51,7 @@ path = "src/bin/block_summary.rs"
 [[bin]]
 name = "hash_dump"
 path = "src/bin/hash_dump.rs"
+
+[[bin]]
+name = "hash_find"
+path = "src/bin/hash_find.rs"
