@@ -20,6 +20,7 @@ USAGE:
 
 FLAGS:
     --block-size N   size of each compression block (default 3)
+    --passes N       maximum compression passes (default 10)
     --status         print a short progress line for every block
     --json           emit a JSON summary after completion
     --dry-run        perform compression but skip writing the output file
@@ -115,3 +116,11 @@ Decoders verify the hash after reconstructing a batch to detect corruption.
 - ✅ Deterministic compression and literal passthrough format complete
 - ✅ Round-trip identity supported
 - 🔜 Seed-driven decoding (G-based) in development
+
+## Telomere Protocol Compliance Notes
+
+The compressed output contains only headers and deterministic seed references.
+Any literal bytes are wrapped in a `Literal` header and expected to vanish as
+multi-pass compression converges. Stopping early may leave such sections in the
+stream, which is allowed but suboptimal. No entropy coding is applied at any
+stage, adhering to the stateless design described in the whitepaper.
