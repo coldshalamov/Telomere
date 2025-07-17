@@ -14,6 +14,7 @@ table_32.csv
 .vs/Telomere/FileContentIndex/5ca5cf56-2e59-4100-8bb9-6b498e2a7b9f.vsidx
 *.rs
 src/bin/seed_table.rs
+!src/bin/gloss_dump.rs
 seed_table.csv
 .vs/VSWorkspaceState.json
 .vs/Telomere/v17/workspaceFileList.bin
