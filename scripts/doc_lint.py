@@ -51,5 +51,21 @@ print('Doc lint summary:')
 print(f'  markdownlint issues: {len(md_warnings)}')
 print(f'  missing fields: {len(missing)}')
 
-if md_warnings or missing:
+# Search the repository for vestigial "inchworm" references. Exclude this
+# script itself so the search doesn't match the check text.
+grep_cmd = [
+    'git',
+    'grep',
+    '-i',
+    'inchworm',
+    '--',
+    ':!scripts/doc_lint.py',
+]
+grep_proc = subprocess.run(grep_cmd, capture_output=True, text=True)
+inchworm_hits = grep_proc.stdout.strip()
+if inchworm_hits:
+    print("ERROR: found vestigial 'inchworm' references:")
+    print(inchworm_hits)
+
+if md_warnings or missing or inchworm_hits:
     sys.exit(1)
