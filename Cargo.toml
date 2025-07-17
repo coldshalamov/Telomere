@@ -20,7 +20,6 @@ bytemuck = "1.23.1"
 [dev-dependencies]
 tempfile = "3"
 
-
 [[bin]]
 name = "gloss_tool"
 path = "src/bin/gloss_tool.rs"
@@ -48,9 +47,14 @@ path = "src/bin/seed_table.rs"
 [[bin]]
 name = "block_summary"
 path = "src/bin/block_summary.rs"
+
 [[bin]]
 name = "hash_dump"
 path = "src/bin/hash_dump.rs"
+
+[[bin]]
+name = "block_histogram"
+path = "src/bin/block_histogram.rs"
 
 [[bin]]
 name = "hash_find"
