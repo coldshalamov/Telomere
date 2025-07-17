@@ -53,6 +53,10 @@ name = "hash_dump"
 path = "src/bin/hash_dump.rs"
 
 [[bin]]
+name = "gloss_dump"
+path = "src/bin/gloss_dump.rs"
+
+[[bin]]
 name = "block_histogram"
 path = "src/bin/block_histogram.rs"
 
