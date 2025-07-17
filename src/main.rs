@@ -7,7 +7,7 @@
 use clap::{ArgGroup, Args, Parser, Subcommand};
 use std::{fs, path::PathBuf, time::Instant};
 use telomere::{
-    compress, decompress_with_limit,
+    compress_multi_pass, decompress_with_limit,
     io_utils::{extension_error, io_cli_error, simple_cli_error},
 };
 
@@ -28,10 +28,11 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                 .map_err(|e| io_cli_error("opening input file", &input_path, e))?;
 
             let start_time = Instant::now();
-            let out = compress(&data, args.block_size);
+            let out = compress_multi_pass(&data, args.block_size, args.passes)
+                .map_err(|e| simple_cli_error(&format!("compression failed: {e}")))?;
 
             if out.is_empty() {
-                return Err(simple_cli_error("compress() returned no data").into());
+                return Err(simple_cli_error("compression returned no data").into());
             }
 
             if output_path.exists() && !args.force && !args.dry_run {
@@ -146,6 +147,9 @@ struct ActionArgs {
     /// Compression block size
     #[arg(long, default_value_t = 3)]
     block_size: usize,
+    /// Maximum compression passes
+    #[arg(long, default_value_t = 10)]
+    passes: usize,
     /// Print a short progress line for every block
     #[arg(long)]
     status: bool,

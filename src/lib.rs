@@ -31,7 +31,7 @@ pub use block::{
 };
 pub use bundle::{apply_bundle, BlockStatus, MutableBlock};
 pub use candidate::{prune_candidates, Block as CandidateBlock, Candidate};
-pub use compress::{compress, compress_block, TruncHashTable};
+pub use compress::{compress, compress_block, compress_multi_pass, TruncHashTable};
 pub use compress_stats::{write_stats_csv, CompressionStats};
 pub use file_header::{decode_file_header, encode_file_header};
 pub use hash_reader::lookup_seed;
