@@ -22,6 +22,7 @@ mod path;
 mod seed_detect;
 mod seed_logger;
 mod seed_enum;
+mod seed_index;
 mod sha_cache;
 mod stats;
 
@@ -45,6 +46,7 @@ pub use seed_logger::{
     log_seed, log_seed_to, resume_seed_index, resume_seed_index_from, HashEntry, ResourceLimits,
 };
 pub use seed_enum::index_to_seed;
+pub use seed_index::seed_to_index;
 pub use sha_cache::*;
 pub use stats::Stats;
 pub use tlmr::{decode_tlmr_header, encode_tlmr_header, truncated_hash, TlmrError, TlmrHeader};
