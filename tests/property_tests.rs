@@ -4,9 +4,9 @@ use telomere::{compress, decompress};
 proptest! {
     #[test]
     fn roundtrip_random(data in any::<Vec<u8>>()) {
-        let config = Config::default();
-        let compressed = compress(&data, &config).unwrap();
-        let output = decompress(&compressed, &config).unwrap();
+        // Use block_size 3 (or change if a different default is needed)
+        let compressed = compress(&data, 3).unwrap();
+        let output = decompress(&compressed).unwrap();
         prop_assert_eq!(output, data);
     }
 }
