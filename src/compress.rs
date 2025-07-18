@@ -103,6 +103,7 @@ fn find_seed_match(slice: &[u8], max_seed_len: usize) -> Result<Option<usize>, T
 }
 
 /// Compress the input using brute-force seed search with optional bundling.
+/// Always skips arity=2 as it is reserved for literal spans.
 pub fn compress(data: &[u8], block_size: usize) -> Result<Vec<u8>, TelomereError> {
     let last_block = if data.is_empty() { 0 } else { (data.len() - 1) % block_size + 1 };
     let hash = truncated_hash(data);

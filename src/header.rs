@@ -22,7 +22,6 @@
 
 use crate::TelomereError;
 use std::collections::HashMap;
-use std::io::{Read, Cursor};
 
 /// Span descriptor consisting of a block count (arity) and seed index.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -338,8 +337,7 @@ mod tests {
 
     #[test]
     fn recursive_decode_example() -> Result<(), TelomereError> {
-        // This test is a placeholder—populate with a real two-level header
-        // and corresponding seed_expansions to fully test recursive decode.
+        // TODO: Add a real multi-level header + seed_expansions test case.
         Ok(())
     }
 }

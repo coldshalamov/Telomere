@@ -7,6 +7,10 @@ quickcheck! {
         match variant % 3 {
             0 => {
                 let a = (arity % 7) + 1;
+                if a == 2 {
+                    // arity 2 is reserved for literals
+                    return true;
+                }
                 let h = Header::Standard { seed_index: seed, arity: a as usize };
                 let enc = encode_header(&h).unwrap();
                 match decode_header(&enc) { Ok((d, _)) => d == h, Err(_) => false }
