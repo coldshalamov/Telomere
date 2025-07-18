@@ -30,12 +30,14 @@ pub fn seed_to_index(seed: &[u8], max_seed_len: usize) -> usize {
     index + value
 }
 
+use crate::TelomereError;
+
 /// Returns the canonical seed for the given enumeration index.
 ///
 /// The enumeration follows the July 2025 Telomere protocol. Indices are
 /// assigned in big-endian order, grouped first by seed length. Passing an
-/// index outside the valid range for `max_seed_len` will panic.
-pub fn index_to_seed(index: usize, max_seed_len: usize) -> Vec<u8> {
+/// index outside the valid range for `max_seed_len` returns an error.
+pub fn index_to_seed(index: usize, max_seed_len: usize) -> Result<Vec<u8>, TelomereError> {
     let mut remaining = index as u128;
     for len in 1..=max_seed_len {
         let count = 1u128 << (len * 8);
@@ -44,11 +46,11 @@ pub fn index_to_seed(index: usize, max_seed_len: usize) -> Vec<u8> {
             for i in 0..len {
                 seed[len - 1 - i] = ((remaining >> (8 * i)) & 0xFF) as u8;
             }
-            return seed;
+            return Ok(seed);
         }
         remaining -= count;
     }
-    panic!("index out of range");
+    Err(TelomereError::Decode("index out of range".into()))
 }
 
 #[cfg(test)]
