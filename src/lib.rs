@@ -10,6 +10,7 @@ mod compress;
 mod compress_stats;
 mod file_header;
 mod tlmr;
+mod error;
 // Gloss table support has been removed for the MVP.  The original
 // implementation used precomputed decompressed strings to accelerate
 // seed matching.  Future versions may reintroduce a `gloss` module.
@@ -58,6 +59,7 @@ pub use seed_logger::{
 pub use sha_cache::*;
 pub use stats::Stats;
 pub use tlmr::{decode_tlmr_header, encode_tlmr_header, truncated_hash, TlmrError, TlmrHeader};
+pub use error::TelomereError;
 
 pub fn print_compression_status(original: usize, compressed: usize) {
     let ratio = 100.0 * (1.0 - compressed as f64 / original as f64);
@@ -112,33 +114,33 @@ pub fn decompress_region_with_limit(
 /// Files begin with a 3-byte Telomere header describing protocol version,
 /// block size, last block size and a truncated output hash. Each subsequent
 /// region is prefixed with a normal header.
-pub fn decompress_with_limit(input: &[u8], limit: usize) -> Result<Vec<u8>, TlmrError> {
+pub fn decompress_with_limit(input: &[u8], limit: usize) -> Result<Vec<u8>, TelomereError> {
     if input.len() < 3 {
-        return Err(TlmrError::TooShort);
+        return Err(TelomereError::Decode("header too short".into()));
     }
-    let header = decode_tlmr_header(input)?;
+    let header = decode_tlmr_header(input).map_err(|e| TelomereError::Decode(format!("{e}")))?;
     let mut offset = 3usize;
     let block_size = header.block_size;
     let last_block_size = header.last_block_size;
     let mut out = Vec::new();
     loop {
-        let slice = input.get(offset..).ok_or(TlmrError::InvalidField)?;
-        let (header, bits) = decode_header(slice).map_err(|_| TlmrError::InvalidField)?;
+        let slice = input.get(offset..).ok_or_else(|| TelomereError::Decode("invalid header field".into()))?;
+        let (header, bits) = decode_header(slice).map_err(|_| TelomereError::Decode("invalid header field".into()))?;
         offset += (bits + 7) / 8;
         match header {
             Header::Standard { seed_index, arity } => {
                 let needed = arity * block_size;
                 if out.len() + needed > limit {
-                    return Err(TlmrError::InvalidField);
+                    return Err(TelomereError::Decode("invalid header field".into()));
                 }
-                let seed = index_to_seed(seed_index, 2);
+                let seed = index_to_seed(seed_index, 2)?;
                 let generated = expand_seed(&seed, needed);
                 out.extend_from_slice(&generated);
             }
             Header::Literal => {
                 let bytes = block_size;
                 if out.len() + bytes > limit || offset + bytes > input.len() {
-                    return Err(TlmrError::InvalidField);
+                    return Err(TelomereError::Decode("invalid header field".into()));
                 }
                 out.extend_from_slice(&input[offset..offset + bytes]);
                 offset += bytes;
@@ -146,7 +148,7 @@ pub fn decompress_with_limit(input: &[u8], limit: usize) -> Result<Vec<u8>, Tlmr
             Header::LiteralLast => {
                 let bytes = last_block_size;
                 if out.len() + bytes > limit || offset + bytes > input.len() {
-                    return Err(TlmrError::InvalidField);
+                    return Err(TelomereError::Decode("invalid header field".into()));
                 }
                 out.extend_from_slice(&input[offset..offset + bytes]);
                 offset += bytes;
@@ -160,7 +162,7 @@ pub fn decompress_with_limit(input: &[u8], limit: usize) -> Result<Vec<u8>, Tlmr
     }
     let hash = truncated_hash(&out);
     if hash != header.output_hash {
-        return Err(TlmrError::OutputHashMismatch);
+        return Err(TelomereError::Decode("output hash mismatch".into()));
     }
     Ok(out)
 }

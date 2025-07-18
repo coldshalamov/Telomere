@@ -4,7 +4,7 @@ use telomere::{compress, decode_tlmr_header, decode_header, decompress_with_limi
 fn compress_writes_header_then_data() {
     let block_size = 3;
     let data: Vec<u8> = (0u8..50).collect();
-    let out = compress(&data, block_size);
+    let out = compress(&data, block_size).unwrap();
     let decompressed = decompress_with_limit(&out, usize::MAX).unwrap();
     assert_eq!(decompressed, data);
 
@@ -47,7 +47,7 @@ fn compress_writes_header_then_data() {
 fn compress_empty_input() {
     let block_size = 4usize;
     let data: Vec<u8> = Vec::new();
-    let out = compress(&data, block_size);
+    let out = compress(&data, block_size).unwrap();
     // output should only contain the tlmr header
     assert_eq!(out.len(), 3);
     let decompressed = telomere::decompress(&out);

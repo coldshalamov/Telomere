@@ -37,12 +37,12 @@ fn build_data(bytes: &[u8], bs: usize) -> Vec<u8> {
     let mut out = hdr.to_vec();
     let mut offset = 0usize;
     while offset + bs <= bytes.len() {
-        out.extend_from_slice(&encode_header(&Header::Literal));
+        out.extend_from_slice(&encode_header(&Header::Literal).unwrap());
         out.extend_from_slice(&bytes[offset..offset + bs]);
         offset += bs;
     }
     if offset < bytes.len() {
-        out.extend_from_slice(&encode_header(&Header::LiteralLast));
+        out.extend_from_slice(&encode_header(&Header::LiteralLast).unwrap());
         out.extend_from_slice(&bytes[offset..]);
     }
     out
@@ -72,7 +72,7 @@ fn wrong_hash_fails() {
 fn random_roundtrip() {
     let bs = 5;
     let data: Vec<u8> = (0u8..37).collect();
-    let out = compress(&data, bs);
+    let out = compress(&data, bs).unwrap();
     let decoded = decompress_with_limit(&out, usize::MAX).unwrap();
     assert_eq!(data, decoded);
 }
