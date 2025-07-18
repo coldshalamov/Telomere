@@ -117,7 +117,7 @@ pub fn decompress_with_limit(input: &[u8], limit: usize) -> Result<Vec<u8>, Tlmr
         let (header, bits) = decode_header(slice).map_err(|_| TlmrError::InvalidField)?;
         offset += (bits + 7) / 8;
         match header {
-            Header::Standard { seed_index, arity } | Header::Penultimate { seed_index, arity } => {
+            Header::Standard { seed_index, arity } => {
                 let needed = arity * block_size;
                 if out.len() + needed > limit {
                     return Err(TlmrError::InvalidField);
