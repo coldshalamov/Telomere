@@ -20,7 +20,7 @@
 //! All helper routines return the number of bits consumed so callers can
 //! advance the byte stream if additional data follows.
 
-use thiserror::Error;
+use crate::TelomereError;
 
 /// Span descriptor consisting of a block count (arity) and seed index.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -37,16 +37,6 @@ pub struct Header {
     pub hash_len: u16,
     pub spans: Vec<Span>,
 }
-
-#[derive(Debug, Error, PartialEq, Eq)]
-pub enum TelomereError {
-    #[error("unexpected end of input")]
-    UnexpectedEof,
-}
-
-/// Alias maintained for backwards compatibility with older code. All
-/// header routines now use [`TelomereError`].
-pub type HeaderError = TelomereError;
 
 /// Encode a batch header as described in §3 of the July 2025 Telomere
 /// specification.
