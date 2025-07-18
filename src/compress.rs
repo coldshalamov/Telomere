@@ -10,7 +10,7 @@
 use crate::compress_stats::CompressionStats;
 use crate::header::{encode_header, Header};
 use crate::tlmr::{encode_tlmr_header, truncated_hash, TlmrHeader};
-use crate::index_to_seed;
+use crate::{index_to_seed, TelomereError};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::collections::HashSet;
@@ -88,22 +88,22 @@ fn expand_seed(seed: &[u8], len: usize) -> Vec<u8> {
 }
 
 /// Find a seed index whose SHA-256 expansion matches the slice.
-fn find_seed_match(slice: &[u8], max_seed_len: usize) -> Option<usize> {
+fn find_seed_match(slice: &[u8], max_seed_len: usize) -> Result<Option<usize>, TelomereError> {
     let mut limit = 0usize;
     for len in 1..=max_seed_len {
         limit += 1usize << (8 * len);
     }
     for idx in 0..limit {
-        let seed = index_to_seed(idx, max_seed_len);
+        let seed = index_to_seed(idx, max_seed_len)?;
         if expand_seed(&seed, slice.len()) == slice {
-            return Some(idx);
+            return Ok(Some(idx));
         }
     }
-    None
+    Ok(None)
 }
 
 /// Compress the input using brute-force seed search with optional bundling.
-pub fn compress(data: &[u8], block_size: usize) -> Vec<u8> {
+pub fn compress(data: &[u8], block_size: usize) -> Result<Vec<u8>, TelomereError> {
     let last_block = if data.is_empty() { 0 } else { (data.len() - 1) % block_size + 1 };
     let hash = truncated_hash(data);
     let header_bytes = encode_tlmr_header(&TlmrHeader {
@@ -120,7 +120,7 @@ pub fn compress(data: &[u8], block_size: usize) -> Vec<u8> {
     while offset < data.len() {
         let remaining = data.len() - offset;
         if remaining < block_size {
-            out.extend_from_slice(&encode_header(&Header::LiteralLast));
+            out.extend_from_slice(&encode_header(&Header::LiteralLast)?);
             out.extend_from_slice(&data[offset..]);
             break;
         }
@@ -128,11 +128,14 @@ pub fn compress(data: &[u8], block_size: usize) -> Vec<u8> {
         let mut matched = false;
         let max_bundle = (remaining / block_size).min(max_arity);
         for arity in (1..=max_bundle).rev() {
+            if arity == 2 {
+                continue; // arity 2 conflicts with literal encoding
+            }
             let span_len = arity * block_size;
             let slice = &data[offset..offset + span_len];
-            if let Some(seed_idx) = find_seed_match(slice, max_seed_len) {
+            if let Some(seed_idx) = find_seed_match(slice, max_seed_len)? {
                 let header = Header::Standard { seed_index: seed_idx, arity };
-                let hbytes = encode_header(&header);
+                let hbytes = encode_header(&header)?;
                 if hbytes.len() < span_len {
                     out.extend_from_slice(&hbytes);
                     offset += span_len;
@@ -144,13 +147,13 @@ pub fn compress(data: &[u8], block_size: usize) -> Vec<u8> {
 
         if !matched {
             let header = if remaining == block_size { Header::LiteralLast } else { Header::Literal };
-            out.extend_from_slice(&encode_header(&header));
+            out.extend_from_slice(&encode_header(&header)?);
             out.extend_from_slice(&data[offset..offset + block_size]);
             offset += block_size;
         }
     }
 
-    out
+    Ok(out)
 }
 
 /// Perform multi-pass compression. After the first pass, the result is
@@ -160,15 +163,15 @@ pub fn compress_multi_pass(
     data: &[u8],
     block_size: usize,
     max_passes: usize,
-) -> Result<Vec<u8>, crate::tlmr::TlmrError> {
-    let mut compressed = compress(data, block_size);
+) -> Result<Vec<u8>, TelomereError> {
+    let mut compressed = compress(data, block_size)?;
     if max_passes <= 1 {
         return Ok(compressed);
     }
     let mut prev_size = compressed.len();
     for pass in 2..=max_passes {
         let decompressed = crate::decompress_with_limit(&compressed, usize::MAX)?;
-        let new_compressed = compress(&decompressed, block_size);
+        let new_compressed = compress(&decompressed, block_size)?;
         if new_compressed.len() < prev_size {
             eprintln!(
                 "Pass {}: size {} -> {}",
@@ -190,24 +193,24 @@ pub fn compress_block(
     input: &[u8],
     block_size: usize,
     mut stats: Option<&mut CompressionStats>,
-) -> Option<(Header, usize)> {
+) -> Result<Option<(Header, usize)>, TelomereError> {
     if input.len() < block_size {
-        return None;
+        return Ok(None);
     }
     if let Some(s) = stats.as_mut() {
         s.tick_block();
     }
 
     let slice = &input[..block_size];
-    if let Some(seed_idx) = find_seed_match(slice, 2) {
+    if let Some(seed_idx) = find_seed_match(slice, 2)? {
         let header = Header::Standard { seed_index: seed_idx, arity: 1 };
-        let hbytes = encode_header(&header);
+        let hbytes = encode_header(&header)?;
         if hbytes.len() < block_size {
             if let Some(s) = stats.as_mut() {
                 s.maybe_log(slice, slice, true);
                 s.log_match(true, 1);
             }
-            return Some((header, block_size));
+            return Ok(Some((header, block_size)));
         }
     }
 
@@ -216,5 +219,5 @@ pub fn compress_block(
         s.log_match(false, 1);
     }
 
-    Some((Header::Literal, block_size))
+    Ok(Some((Header::Literal, block_size)))
 }

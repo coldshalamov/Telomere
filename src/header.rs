@@ -18,6 +18,7 @@
 //! the truncated hash stored in the surrounding batch header.
 
 use thiserror::Error;
+use crate::TelomereError;
 
 /**
 Telomere headers use dynamic toggles (dToggles) for the arity field and
@@ -58,17 +59,22 @@ pub enum HeaderError {
 }
 
 /// Encode a Telomere header and return packed bytes.
-pub fn encode_header(h: &Header) -> Vec<u8> {
+pub fn encode_header(h: &Header) -> Result<Vec<u8>, TelomereError> {
     let mut bits = Vec::new();
     match *h {
         Header::Standard { seed_index, arity } => {
-            bits.extend(encode_arity_bits(arity).expect("arity out of range"));
+            if arity == 2 {
+                return Err(TelomereError::Config("arity 2 unsupported".into()));
+            }
+            let arity_bits = encode_arity_bits(arity)
+                .ok_or_else(|| TelomereError::Config("arity out of range".into()))?;
+            bits.extend(arity_bits);
             bits.extend(encode_evql_bits(seed_index));
         }
         Header::Literal => bits.extend([true, false]),
         Header::LiteralLast => bits.extend([true, true, true, true, true, true]),
     }
-    pack_bits(&bits)
+    Ok(pack_bits(&bits))
 }
 
 /// Decode a Telomere header from a bitstream. Returns the header and number of
@@ -239,7 +245,7 @@ mod tests {
         ];
 
         for h in cases {
-            let enc = encode_header(&h);
+            let enc = encode_header(&h).unwrap();
             let (decoded, bits) = decode_header(&enc).unwrap();
             assert_eq!(decoded, h);
             assert!(bits <= enc.len() * 8);

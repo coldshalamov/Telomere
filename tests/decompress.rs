@@ -6,7 +6,7 @@ use telomere::{
 fn basic_roundtrip() {
     let block_size = 4;
     let data: Vec<u8> = (0u8..20).collect();
-    let buf = compress(&data, block_size);
+    let buf = compress(&data, block_size).unwrap();
     let out = decompress_with_limit(&buf, usize::MAX).unwrap();
     assert_eq!(out, data);
 }
@@ -15,14 +15,14 @@ fn basic_roundtrip() {
 fn limit_enforced() {
     let block_size = 3;
     let data: Vec<u8> = (0u8..10).collect();
-    let buf = compress(&data, block_size);
+    let buf = compress(&data, block_size).unwrap();
     assert!(decompress_with_limit(&buf, data.len() - 1).is_err());
 }
 
 #[test]
 fn passthrough_decompresses() {
     let block_size = 3;
-    let header = encode_header(&Header::Literal);
+    let header = encode_header(&Header::Literal).unwrap();
     let literal = vec![0x11; block_size];
     let tlmr = encode_tlmr_header(&TlmrHeader {
         version: 0,
@@ -40,7 +40,7 @@ fn passthrough_decompresses() {
 #[test]
 fn passthrough_respects_limit() {
     let block_size = 3;
-    let header = encode_header(&Header::Literal);
+    let header = encode_header(&Header::Literal).unwrap();
     let literal = vec![0x22; block_size];
     let tlmr = encode_tlmr_header(&TlmrHeader {
         version: 0,
@@ -57,7 +57,7 @@ fn passthrough_respects_limit() {
 #[test]
 fn passthrough_prefix_safe() {
     let block_size = 3;
-    let header = encode_header(&Header::Literal);
+    let header = encode_header(&Header::Literal).unwrap();
     let literal = vec![0x33; 3 * block_size - 1];
     let tlmr = encode_tlmr_header(&TlmrHeader {
         version: 0,
@@ -82,9 +82,9 @@ fn passthrough_literals_basic() {
         output_hash: truncated_hash(&literals),
     });
     let mut data = tlmr.to_vec();
-    data.extend_from_slice(&encode_header(&Header::Literal));
+    data.extend_from_slice(&encode_header(&Header::Literal).unwrap());
     data.extend_from_slice(&literals[..block_size]);
-    data.extend_from_slice(&encode_header(&Header::LiteralLast));
+    data.extend_from_slice(&encode_header(&Header::LiteralLast).unwrap());
     data.extend_from_slice(&literals[block_size..]);
     let out = decompress_with_limit(&data, 100).unwrap();
     assert_eq!(out, literals);
@@ -101,7 +101,7 @@ fn passthrough_final_tail() {
         output_hash: truncated_hash(&literals),
     });
     let mut data = tlmr.to_vec();
-    data.extend_from_slice(&encode_header(&Header::LiteralLast));
+    data.extend_from_slice(&encode_header(&Header::LiteralLast).unwrap());
     data.extend_from_slice(&literals);
     let out = decompress_with_limit(&data, 100).unwrap();
     assert_eq!(out, literals);
@@ -111,7 +111,7 @@ fn passthrough_final_tail() {
 fn unsupported_header_fails() {
     let block_size = 3;
     // Use a non-literal header (standard compressed, not supported here)
-    let header = encode_header(&Header::Standard { seed_index: 1, arity: 3 });
+    let header = encode_header(&Header::Standard { seed_index: 1, arity: 3 }).unwrap();
     let literal = vec![0u8; block_size];
     let tlmr = encode_tlmr_header(&TlmrHeader {
         version: 0,
@@ -131,10 +131,19 @@ fn empty_stream_fails() {
 }
 
 #[test]
+fn bad_header_error_variant() {
+    let err = decompress_with_limit(&[0u8; 3], 10).unwrap_err();
+    match err {
+        telomere::TelomereError::Decode(_) => {}
+        _ => panic!("wrong error type"),
+    }
+}
+
+#[test]
 fn empty_roundtrip() {
     let block_size = 4usize;
     let data: Vec<u8> = Vec::new();
-    let buf = compress(&data, block_size);
+    let buf = compress(&data, block_size).unwrap();
     let out = telomere::decompress(&buf);
     assert!(out.is_empty());
 }
