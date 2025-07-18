@@ -8,7 +8,7 @@ quickcheck! {
         // Calculate the total number of valid indices for MAX_LEN
         let total: u128 = (1u128 << 8) + (1u128 << 16) + (1u128 << 24);
         let idx = (idx as u128 % total) as usize;
-        let seed = index_to_seed(idx, MAX_LEN);
+        let seed = index_to_seed(idx, MAX_LEN).unwrap();
         seed_to_index(&seed, MAX_LEN) == idx
     }
 }
@@ -19,7 +19,7 @@ quickcheck! {
             return true; // vacuously true for out-of-bounds seeds
         }
         let idx = seed_to_index(&seed, MAX_LEN);
-        index_to_seed(idx, MAX_LEN) == seed
+        index_to_seed(idx, MAX_LEN).unwrap() == seed
     }
 }
 
@@ -35,9 +35,9 @@ fn edge_cases() {
         256 + 65536usize + 16777216usize - 1, // last 3-byte
     ];
     for &idx in &edges {
-        let seed = index_to_seed(idx, MAX_LEN);
+        let seed = index_to_seed(idx, MAX_LEN).unwrap();
         assert_eq!(seed_to_index(&seed, MAX_LEN), idx);
-        assert_eq!(index_to_seed(seed_to_index(&seed, MAX_LEN), MAX_LEN), seed);
+        assert_eq!(index_to_seed(seed_to_index(&seed, MAX_LEN), MAX_LEN).unwrap(), seed);
     }
 }
 
@@ -48,8 +48,7 @@ fn empty_seed_panics() {
 }
 
 #[test]
-#[should_panic]
-fn index_overflow_panics() {
+fn index_overflow_errors() {
     let total = (1usize << 8) + (1usize << 16) + (1usize << 24);
-    let _ = index_to_seed(total, MAX_LEN);
+    assert!(index_to_seed(total, MAX_LEN).is_err());
 }

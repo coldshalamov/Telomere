@@ -72,7 +72,7 @@ fn arity_bit_patterns() {
         // Small seed index pattern
         let mut expected = bits.to_vec();
         expected.extend(evql_bits(small_seed));
-        let enc = encode_header(&Header::Standard { seed_index: small_seed, arity });
+        let enc = encode_header(&Header::Standard { seed_index: small_seed, arity }).unwrap();
         assert_eq!(enc, pack_bits(&expected), "arity {} small index", arity);
         let (decoded, _) = decode_header(&enc).unwrap();
         assert_eq!(decoded, Header::Standard { seed_index: small_seed, arity });
@@ -80,7 +80,7 @@ fn arity_bit_patterns() {
         // Large seed index pattern
         let mut expected_big = bits.to_vec();
         expected_big.extend(evql_bits(large_seed));
-        let enc_big = encode_header(&Header::Standard { seed_index: large_seed, arity });
+        let enc_big = encode_header(&Header::Standard { seed_index: large_seed, arity }).unwrap();
         assert_eq!(enc_big, pack_bits(&expected_big), "arity {} large index", arity);
         let (decoded_big, _) = decode_header(&enc_big).unwrap();
         assert_eq!(decoded_big, Header::Standard { seed_index: large_seed, arity });
@@ -92,8 +92,8 @@ fn literal_bit_patterns() {
     let lit = pack_bits(&[true, false]);
     let last = pack_bits(&[true, true, true, true, true, true]);
 
-    assert_eq!(encode_header(&Header::Literal), lit);
-    assert_eq!(encode_header(&Header::LiteralLast), last);
+    assert_eq!(encode_header(&Header::Literal).unwrap(), lit);
+    assert_eq!(encode_header(&Header::LiteralLast).unwrap(), last);
 
     let (dec_lit, _) = decode_header(&lit).unwrap();
     assert_eq!(dec_lit, Header::Literal);
@@ -126,7 +126,7 @@ fn seed_index_lengths() {
         let arity_bits = [false]; // arity 1 -> single zero bit
         let mut all = arity_bits.to_vec();
         all.extend(bits.clone());
-        let enc = encode_header(&Header::Standard { seed_index: seed, arity: 1 });
+        let enc = encode_header(&Header::Standard { seed_index: seed, arity: 1 }).unwrap();
         assert_eq!(enc, pack_bits(&all));
         let (dec, used) = decode_header(&enc).unwrap();
         assert_eq!(dec, Header::Standard { seed_index: seed, arity: 1 });
@@ -137,10 +137,10 @@ fn seed_index_lengths() {
 #[test]
 fn truncated_headers_fail() {
     // Truncate a valid header so not all bits are available
-    let full = encode_header(&Header::Standard { seed_index: 1, arity: 3 });
+    let full = encode_header(&Header::Standard { seed_index: 1, arity: 3 }).unwrap();
     assert!(decode_header(&full[..0]).is_err());
 
     // Truncated literal marker
-    let lit = encode_header(&Header::Literal);
+    let lit = encode_header(&Header::Literal).unwrap();
     assert!(decode_header(&lit[..0]).is_err());
 }
