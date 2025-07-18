@@ -42,23 +42,27 @@ fn evql_bits(value: usize) -> Vec<bool> {
 
 #[test]
 fn arity_bit_patterns() {
-    // Expected toggle patterns for arity values 1-7
-    // Based on protocol table:
+    // Expected toggle patterns for arity values using the 2025 scheme
     // 1 -> 0
-    // 2 -> 1 00
-    // 3 -> 1 01
-    // 4 -> 1 10
-    // 5 -> 1 11 000
-    // 6 -> 1 11 001
-    // 7 -> 1 11 010
+    // literal -> 1 0
+    // 3 -> 1 1 000
+    // 4 -> 1 1 001
+    // 5 -> 1 1 010
+    // 6 -> 1 1 011
+    // 7 -> 1 1 100
+    // 8 -> 1 1 101
+    // 9 -> 1 1 110
+    // 10 -> 1 1 1110
     let patterns: &[(usize, &[bool])] = &[
         (1, &[false]),
-        (2, &[true, false, false]),
-        (3, &[true, false, true]),
-        (4, &[true, true, false]),
-        (5, &[true, true, true, false, false, false]),
-        (6, &[true, true, true, false, false, true]),
-        (7, &[true, true, true, false, true, false]),
+        (3, &[true, true, false, false, false]),
+        (4, &[true, true, false, false, true]),
+        (5, &[true, true, false, true, false]),
+        (6, &[true, true, false, true, true]),
+        (7, &[true, true, true, false, false]),
+        (8, &[true, true, true, false, true]),
+        (9, &[true, true, true, true, false]),
+        (10, &[true, true, true, true, true, false]),
     ];
 
     let small_seed = 3usize;
@@ -84,47 +88,17 @@ fn arity_bit_patterns() {
 }
 
 #[test]
-fn marker_bit_patterns() {
-    // Marker headers do not include a seed index
-    // penultimate markers:
-    // arity 1 -> 1 11 011
-    // arity 2 -> 1 11 100
-    // arity 3 -> 1 11 101
-    // literal     -> 1 11 110
-    // literal last-> 1 11 111
-    let literal = pack_bits(&[true, true, true, true, true, false]);
-    let final_block = pack_bits(&[true, true, true, true, true, true]);
+fn literal_bit_patterns() {
+    let lit = pack_bits(&[true, false]);
+    let last = pack_bits(&[true, true, true, true, true, true]);
 
-    assert_eq!(encode_header(&Header::Penultimate { seed_index: 0, arity: 1 }), {
-        let mut bits = vec![true, true, true, false, true, true];
-        bits.extend(evql_bits(0));
-        pack_bits(&bits)
-    });
-    assert_eq!(encode_header(&Header::Penultimate { seed_index: 5, arity: 2 }), {
-        let mut bits = vec![true, true, true, true, false, false];
-        bits.extend(evql_bits(5));
-        pack_bits(&bits)
-    });
-    assert_eq!(encode_header(&Header::Penultimate { seed_index: 7, arity: 3 }), {
-        let mut bits = vec![true, true, true, true, false, true];
-        bits.extend(evql_bits(7));
-        pack_bits(&bits)
-    });
-    assert_eq!(encode_header(&Header::Literal), literal);
-    assert_eq!(encode_header(&Header::LiteralLast), final_block);
+    assert_eq!(encode_header(&Header::Literal), lit);
+    assert_eq!(encode_header(&Header::LiteralLast), last);
 
-    // Decode roundtrips
-    for h in [
-        Header::Penultimate { seed_index: 0, arity: 1 },
-        Header::Penultimate { seed_index: 5, arity: 2 },
-        Header::Penultimate { seed_index: 7, arity: 3 },
-        Header::Literal,
-        Header::LiteralLast,
-    ] {
-        let enc = encode_header(&h);
-        let (dec, _) = decode_header(&enc).unwrap();
-        assert_eq!(dec, h);
-    }
+    let (dec_lit, _) = decode_header(&lit).unwrap();
+    assert_eq!(dec_lit, Header::Literal);
+    let (dec_last, _) = decode_header(&last).unwrap();
+    assert_eq!(dec_last, Header::LiteralLast);
 }
 
 #[test]
@@ -163,7 +137,7 @@ fn seed_index_lengths() {
 #[test]
 fn truncated_headers_fail() {
     // Truncate a valid header so not all bits are available
-    let full = encode_header(&Header::Standard { seed_index: 1, arity: 2 });
+    let full = encode_header(&Header::Standard { seed_index: 1, arity: 3 });
     assert!(decode_header(&full[..0]).is_err());
 
     // Truncated literal marker

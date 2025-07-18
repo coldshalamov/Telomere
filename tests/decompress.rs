@@ -111,7 +111,7 @@ fn passthrough_final_tail() {
 fn unsupported_header_fails() {
     let block_size = 3;
     // Use a non-literal header (standard compressed, not supported here)
-    let header = encode_header(&Header::Standard { seed_index: 1, arity: 2 });
+    let header = encode_header(&Header::Standard { seed_index: 1, arity: 3 });
     let literal = vec![0u8; block_size];
     let tlmr = encode_tlmr_header(&TlmrHeader {
         version: 0,
