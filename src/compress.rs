@@ -128,6 +128,10 @@ pub fn compress(data: &[u8], block_size: usize) -> Result<Vec<u8>, TelomereError
         let mut matched = false;
         let max_bundle = (remaining / block_size).min(max_arity);
         for arity in (1..=max_bundle).rev() {
+            if arity == 2 {
+                // arity 2 is reserved for literal spans in the July 2025 protocol
+                continue;
+            }
             let span_len = arity * block_size;
             let slice = &data[offset..offset + span_len];
             if let Some(seed_idx) = find_seed_match(slice, max_seed_len)? {

@@ -21,6 +21,8 @@
 //! advance the byte stream if additional data follows.
 
 use crate::TelomereError;
+use std::collections::HashMap;
+use std::io::{Read, Cursor};
 
 /// Span descriptor consisting of a block count (arity) and seed index.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -37,6 +39,17 @@ pub struct Header {
     pub hash_len: u16,
     pub spans: Vec<Span>,
 }
+
+/// Configuration for recursive decoding.
+#[derive(Debug, Clone, Default)]
+pub struct Config {
+    pub block_size: usize,
+    /// Mapping from seed indices to generated bitstreams used during decoding.
+    pub seed_expansions: HashMap<usize, Vec<u8>>,
+}
+
+// --------------------------------------------------------------------------
+// Batch header encode/decode
 
 /// Encode a batch header as described in §3 of the July 2025 Telomere
 /// specification.
@@ -202,6 +215,84 @@ fn read_evql(r: &mut BitReader) -> Result<usize, TelomereError> {
 }
 
 // --------------------------------------------------------------------------
+// Recursive decoding
+
+fn generate_bits(config: &Config, seed_idx: usize) -> Result<Vec<u8>, TelomereError> {
+    config
+        .seed_expansions
+        .get(&seed_idx)
+        .cloned()
+        .ok_or_else(|| TelomereError::Other(format!("missing seed expansion for {}", seed_idx)))
+}
+
+/// A utility for recursive bit-level reading from a byte slice.
+struct BitReaderDyn<'a> {
+    data: &'a [u8],
+    pos: usize,
+}
+impl<'a> BitReaderDyn<'a> {
+    fn new(data: &'a [u8]) -> Self {
+        Self { data, pos: 0 }
+    }
+    fn read_bit(&mut self) -> Result<bool, TelomereError> {
+        if self.pos / 8 >= self.data.len() {
+            return Err(TelomereError::UnexpectedEof);
+        }
+        let bit = ((self.data[self.pos / 8] >> (7 - (self.pos % 8))) & 1) != 0;
+        self.pos += 1;
+        Ok(bit)
+    }
+    fn read_bits(&mut self, bits: usize) -> Result<u64, TelomereError> {
+        let mut v = 0u64;
+        for _ in 0..bits {
+            v = (v << 1) | self.read_bit()? as u64;
+        }
+        Ok(v)
+    }
+    fn read_bytes(&mut self, count: usize) -> Result<Vec<u8>, TelomereError> {
+        let mut out = Vec::with_capacity(count);
+        for _ in 0..count {
+            out.push(self.read_bits(8)? as u8);
+        }
+        Ok(out)
+    }
+}
+
+fn decode_span<'a>(reader: &mut BitReaderDyn<'a>, config: &Config) -> Result<Vec<u8>, TelomereError> {
+    let first = reader.read_bit()?;
+    let arity = if !first {
+        1
+    } else if !reader.read_bit()? {
+        2
+    } else {
+        read_evql(reader)?
+    };
+    if arity == 2 {
+        // literal: read raw block_size bytes
+        return reader.read_bytes(config.block_size);
+    }
+    // seeded: read seed_index, get expansion, decode children recursively
+    let seed_idx = read_evql(reader)?;
+    let child_bits = generate_bits(config, seed_idx)?;
+    let mut child_reader = BitReaderDyn::new(&child_bits);
+    let mut out = Vec::new();
+    for _ in 0..arity {
+        out.extend(decode_span(&mut child_reader, config)?);
+    }
+    Ok(out)
+}
+
+/// Decode a stream of blocks described by nested headers.
+pub fn decode_recursive<'a>(reader: &mut BitReaderDyn<'a>, config: &Config) -> Result<Vec<u8>, TelomereError> {
+    let block_count = read_evql(reader)?;
+    let mut result = Vec::new();
+    for _ in 0..block_count {
+        result.extend(decode_span(reader, config)?);
+    }
+    Ok(result)
+}
+
+// --------------------------------------------------------------------------
 // Tests
 
 #[cfg(test)]
@@ -243,5 +334,12 @@ mod tests {
             .collect();
         let prefix = 18usize;
         assert_eq!(&bits[prefix..prefix + 2], ['1', '0']);
+    }
+
+    #[test]
+    fn recursive_decode_example() -> Result<(), TelomereError> {
+        // This test is a placeholder—populate with a real two-level header
+        // and corresponding seed_expansions to fully test recursive decode.
+        Ok(())
     }
 }
