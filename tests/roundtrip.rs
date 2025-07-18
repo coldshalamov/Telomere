@@ -1,11 +1,20 @@
+use quickcheck::quickcheck;
+use telomere::{compress, decompress};
+
+quickcheck! {
+    fn random_roundtrip(data: Vec<u8>, bs: u8) -> bool {
+        let block_size = (bs % 16 + 1) as usize; // limit block size 1..16
+        let out = compress(&data, block_size);
+        let decoded = decompress(&out);
+        decoded == data
+    }
+}
+
 #[test]
-fn compression_roundtrip_identity() {
-    use telomere::{compress, decompress};
-
-    let block_size = 3; // or any size you want to test
-    let input: Vec<u8> = (0..100u8).collect();
-
-    let output = compress(&input, block_size);
-    let reconstructed = decompress(&output);
-    assert_eq!(input, reconstructed);
+fn fixed_roundtrip() {
+    let block_size = 3usize;
+    let input: Vec<u8> = (0u8..100).collect();
+    let out = compress(&input, block_size);
+    let decoded = decompress(&out);
+    assert_eq!(input, decoded);
 }
