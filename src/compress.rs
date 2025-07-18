@@ -103,6 +103,7 @@ fn find_seed_match(slice: &[u8], max_seed_len: usize) -> Result<Option<usize>, T
 }
 
 /// Compress the input using brute-force seed search with optional bundling.
+/// Always skips arity=2 as it is reserved for literal spans.
 pub fn compress(data: &[u8], block_size: usize) -> Result<Vec<u8>, TelomereError> {
     let last_block = if data.is_empty() { 0 } else { (data.len() - 1) % block_size + 1 };
     let hash = truncated_hash(data);
@@ -129,7 +130,8 @@ pub fn compress(data: &[u8], block_size: usize) -> Result<Vec<u8>, TelomereError
         let max_bundle = (remaining / block_size).min(max_arity);
         for arity in (1..=max_bundle).rev() {
             if arity == 2 {
-                continue; // arity 2 conflicts with literal encoding
+                // arity 2 is reserved for literal spans in the July 2025 protocol
+                continue;
             }
             let span_len = arity * block_size;
             let slice = &data[offset..offset + span_len];

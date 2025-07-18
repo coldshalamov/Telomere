@@ -38,7 +38,16 @@ pub use compress::{compress, compress_block, compress_multi_pass, TruncHashTable
 pub use compress_stats::{write_stats_csv, CompressionStats};
 pub use file_header::{decode_file_header, encode_file_header};
 pub use hash_reader::lookup_seed;
-pub use header::{decode_header, encode_header, Header, HeaderError};
+pub use header::{
+    decode,
+    decode_header,
+    encode_header,
+    BitReader,
+    Config,
+    Header,
+    HeaderError,
+    TelomereError,
+};
 pub use io_utils::*;
 pub use live_window::{print_window, LiveStats};
 pub use path::*;
