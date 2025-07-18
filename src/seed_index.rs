@@ -1,10 +1,10 @@
 /// Utilities for converting between seeds and enumeration indices.
 ///
-/// The canonical enumeration orders seeds by byte length. All 1-byte seeds
-/// come first, followed by all 2-byte seeds and so on up to
-/// `max_seed_len`. Within each length range seeds are interpreted as
-/// big-endian numbers. This module provides a helper to convert a padded
-/// seed into its index.
+/// The July 2025 Telomere protocol enumerates seeds by byte length in
+/// big-endian order. All 1-byte seeds come first, followed by all 2-byte
+/// seeds and so on up to `max_seed_len`. Within each length range the seed
+/// bytes are interpreted as a big-endian integer. Both directions of the
+/// mapping are implemented here.
 
 /// Returns the index of a given seed in the canonical enumeration.
 ///
@@ -28,6 +28,27 @@ pub fn seed_to_index(seed: &[u8], max_seed_len: usize) -> usize {
     }
 
     index + value
+}
+
+/// Returns the canonical seed for the given enumeration index.
+///
+/// The enumeration follows the July 2025 Telomere protocol. Indices are
+/// assigned in big-endian order, grouped first by seed length. Passing an
+/// index outside the valid range for `max_seed_len` will panic.
+pub fn index_to_seed(index: usize, max_seed_len: usize) -> Vec<u8> {
+    let mut remaining = index as u128;
+    for len in 1..=max_seed_len {
+        let count = 1u128 << (len * 8);
+        if remaining < count {
+            let mut seed = vec![0u8; len];
+            for i in 0..len {
+                seed[len - 1 - i] = ((remaining >> (8 * i)) & 0xFF) as u8;
+            }
+            return seed;
+        }
+        remaining -= count;
+    }
+    panic!("index out of range");
 }
 
 #[cfg(test)]
