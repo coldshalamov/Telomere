@@ -124,3 +124,17 @@ fn unsupported_header_fails() {
     data.extend_from_slice(&literal);
     assert!(decompress_with_limit(&data, usize::MAX).is_err());
 }
+
+#[test]
+fn empty_stream_fails() {
+    assert!(decompress_with_limit(&[], usize::MAX).is_err());
+}
+
+#[test]
+fn empty_roundtrip() {
+    let block_size = 4usize;
+    let data: Vec<u8> = Vec::new();
+    let buf = compress(&data, block_size);
+    let out = telomere::decompress(&buf);
+    assert!(out.is_empty());
+}

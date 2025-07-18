@@ -42,3 +42,14 @@ fn compress_writes_header_then_data() {
     assert_eq!(idx, data.len());
     assert_eq!(offset, out.len());
 }
+
+#[test]
+fn compress_empty_input() {
+    let block_size = 4usize;
+    let data: Vec<u8> = Vec::new();
+    let out = compress(&data, block_size);
+    // output should only contain the tlmr header
+    assert_eq!(out.len(), 3);
+    let decompressed = telomere::decompress(&out);
+    assert!(decompressed.is_empty());
+}
