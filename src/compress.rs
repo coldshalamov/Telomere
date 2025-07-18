@@ -1,13 +1,16 @@
 //! High level compression routines used by the Telomere CLI.
 //!
-//! The main entry point is [`compress`] which performs a very small
-//! subset of the eventual algorithm: literal passthrough of blocks.
-//! Helper utilities maintain a truncated hash table used when scanning
-//! for seed matches in future iterations.
+//! The main entry point is [`compress`] which implements a minimal
+//! stateless recursive compressor. Blocks are hashed and compared
+//! against short seeds enumerated in canonical order. Matching spans
+//! are replaced with a header referencing the seed while unmatched
+//! bytes are emitted as literals. Bundles of up to `block_size` blocks
+//! are tried greedily for additional savings.
 
 use crate::compress_stats::CompressionStats;
 use crate::header::{encode_header, Header};
 use crate::tlmr::{encode_tlmr_header, truncated_hash, TlmrHeader};
+use crate::index_to_seed;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::collections::HashSet;
@@ -71,42 +74,77 @@ impl TruncHashTable {
     }
 }
 
-/// Compress the input using literal passthrough headers.
-///
-/// Literal data is grouped into runs of up to three blocks. Each run is
-/// emitted with a header whose arity is 29, 30 or 31. If the final region is
-/// shorter than one block, a header with arity 32 precedes the remaining bytes.
+/// Generate `len` bytes by repeatedly hashing `seed` with SHA-256.
+fn expand_seed(seed: &[u8], len: usize) -> Vec<u8> {
+    let mut out = Vec::with_capacity(len);
+    let mut cur = seed.to_vec();
+    while out.len() < len {
+        let digest: [u8; 32] = Sha256::digest(&cur).into();
+        out.extend_from_slice(&digest);
+        cur = digest.to_vec();
+    }
+    out.truncate(len);
+    out
+}
+
+/// Find a seed index whose SHA-256 expansion matches the slice.
+fn find_seed_match(slice: &[u8], max_seed_len: usize) -> Option<usize> {
+    let mut limit = 0usize;
+    for len in 1..=max_seed_len {
+        limit += 1usize << (8 * len);
+    }
+    for idx in 0..limit {
+        let seed = index_to_seed(idx, max_seed_len);
+        if expand_seed(&seed, slice.len()) == slice {
+            return Some(idx);
+        }
+    }
+    None
+}
+
+/// Compress the input using brute-force seed search with optional bundling.
 pub fn compress(data: &[u8], block_size: usize) -> Vec<u8> {
-    let last_block = if data.is_empty() {
-        0
-    } else {
-        (data.len() - 1) % block_size + 1
-    };
+    let last_block = if data.is_empty() { 0 } else { (data.len() - 1) % block_size + 1 };
     let hash = truncated_hash(data);
     let header_bytes = encode_tlmr_header(&TlmrHeader {
         version: 0,
         block_size,
-        last_block_size: if last_block == 0 {
-            block_size
-        } else {
-            last_block
-        },
+        last_block_size: if last_block == 0 { block_size } else { last_block },
         output_hash: hash,
     });
     let mut out = header_bytes.to_vec();
     let mut offset = 0usize;
-    if data.is_empty() {
-        return out;
-    }
+    let max_seed_len = 2;
+    let max_arity = block_size;
 
     while offset < data.len() {
         let remaining = data.len() - offset;
-        if remaining <= block_size {
+        if remaining < block_size {
             out.extend_from_slice(&encode_header(&Header::LiteralLast));
             out.extend_from_slice(&data[offset..]);
             break;
-        } else {
-            out.extend_from_slice(&encode_header(&Header::Literal));
+        }
+
+        let mut matched = false;
+        let max_bundle = (remaining / block_size).min(max_arity);
+        for arity in (1..=max_bundle).rev() {
+            let span_len = arity * block_size;
+            let slice = &data[offset..offset + span_len];
+            if let Some(seed_idx) = find_seed_match(slice, max_seed_len) {
+                let header = Header::Standard { seed_index: seed_idx, arity };
+                let hbytes = encode_header(&header);
+                if hbytes.len() < span_len {
+                    out.extend_from_slice(&hbytes);
+                    offset += span_len;
+                    matched = true;
+                    break;
+                }
+            }
+        }
+
+        if !matched {
+            let header = if remaining == block_size { Header::LiteralLast } else { Header::Literal };
+            out.extend_from_slice(&encode_header(&header));
             out.extend_from_slice(&data[offset..offset + block_size]);
             offset += block_size;
         }
@@ -148,7 +186,6 @@ pub fn compress_multi_pass(
 }
 
 /// Compress a single block and return its encoded header and bytes consumed.
-/// Only passthrough matching supported in MVP.
 pub fn compress_block(
     input: &[u8],
     block_size: usize,
@@ -157,11 +194,25 @@ pub fn compress_block(
     if input.len() < block_size {
         return None;
     }
-
     if let Some(s) = stats.as_mut() {
         s.tick_block();
-        let span = &input[..block_size.min(input.len())];
-        s.maybe_log(span, span, false);
+    }
+
+    let slice = &input[..block_size];
+    if let Some(seed_idx) = find_seed_match(slice, 2) {
+        let header = Header::Standard { seed_index: seed_idx, arity: 1 };
+        let hbytes = encode_header(&header);
+        if hbytes.len() < block_size {
+            if let Some(s) = stats.as_mut() {
+                s.maybe_log(slice, slice, true);
+                s.log_match(true, 1);
+            }
+            return Some((header, block_size));
+        }
+    }
+
+    if let Some(s) = stats.as_mut() {
+        s.maybe_log(slice, slice, false);
         s.log_match(false, 1);
     }
 
