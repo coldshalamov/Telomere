@@ -5,6 +5,7 @@ const MAX_LEN: usize = 3;
 
 quickcheck! {
     fn index_roundtrip(idx: u64) -> bool {
+        // Calculate the total number of valid indices for MAX_LEN
         let total: u128 = (1u128 << 8) + (1u128 << 16) + (1u128 << 24);
         let idx = (idx as u128 % total) as usize;
         let seed = index_to_seed(idx, MAX_LEN);
@@ -15,7 +16,7 @@ quickcheck! {
 quickcheck! {
     fn seed_roundtrip(seed: Vec<u8>) -> bool {
         if seed.is_empty() || seed.len() > MAX_LEN {
-            return true;
+            return true; // vacuously true for out-of-bounds seeds
         }
         let idx = seed_to_index(&seed, MAX_LEN);
         index_to_seed(idx, MAX_LEN) == seed
@@ -24,7 +25,7 @@ quickcheck! {
 
 #[test]
 fn edge_cases() {
-    // first and last index for each seed length
+    // First and last index for each seed length up to MAX_LEN
     let edges = [
         0usize,                               // first 1-byte
         255usize,                             // last 1-byte
@@ -36,6 +37,7 @@ fn edge_cases() {
     for &idx in &edges {
         let seed = index_to_seed(idx, MAX_LEN);
         assert_eq!(seed_to_index(&seed, MAX_LEN), idx);
+        assert_eq!(index_to_seed(seed_to_index(&seed, MAX_LEN), MAX_LEN), seed);
     }
 }
 

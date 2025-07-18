@@ -31,6 +31,10 @@ name = "compressor"
 path = "src/bin/compressor.rs"
 
 [[bin]]
+name = "decompressor"
+path = "src/bin/decompressor.rs"
+
+[[bin]]
 name = "hash_precompute"
 path = "src/bin/hash_precompute.rs"
 

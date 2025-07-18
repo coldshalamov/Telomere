@@ -1,5 +1,25 @@
-use telomere::{log_seed, resume_seed_index};
-use sha2::{Digest, Sha256};
+use clap::Parser;
+use std::fs;
+use std::path::PathBuf;
+use telomere::{
+    compress, decompress_with_limit,
+    io_utils::{io_cli_error, simple_cli_error},
+};
+
+/// Compress a file using the Telomere MVP pipeline.
+#[derive(Parser)]
+struct Args {
+    /// Input file path
+    input: PathBuf,
+    /// Output file path
+    output: PathBuf,
+    /// Block size to use during compression
+    #[arg(long, default_value_t = 3)]
+    block_size: usize,
+    /// Verify decompression after compressing
+    #[arg(long)]
+    test: bool,
+}
 
 fn main() {
     if let Err(e) = run() {
@@ -9,14 +29,21 @@ fn main() {
 }
 
 fn run() -> Result<(), Box<dyn std::error::Error>> {
-    let mut index = resume_seed_index();
-    for _ in 0..1000 {
-        let seed = index.to_le_bytes().to_vec();
-        let hash: [u8; 32] = Sha256::digest(&seed).into();
-        if let Err(e) = log_seed(index, hash) {
-            return Err(Box::new(e));
+    let args = Args::parse();
+    let data =
+        fs::read(&args.input).map_err(|e| io_cli_error("reading input file", &args.input, e))?;
+    let compressed = compress(&data, args.block_size);
+
+    if args.test {
+        let decompressed = decompress_with_limit(&compressed, usize::MAX)
+            .map_err(|e| simple_cli_error(&format!("roundtrip failed: {e}")))?;
+        if decompressed != data {
+            return Err(simple_cli_error("roundtrip mismatch").into());
         }
-        index += 1;
+        eprintln!("✅ roundtrip verified");
     }
+
+    fs::write(&args.output, &compressed)
+        .map_err(|e| io_cli_error("writing output file", &args.output, e))?;
     Ok(())
 }
