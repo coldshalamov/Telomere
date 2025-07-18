@@ -44,9 +44,8 @@ pub use header::{
     encode_header,
     BitReader,
     Config,
+    Span,
     Header,
-    HeaderError,
-    TelomereError,
 };
 pub use io_utils::*;
 pub use live_window::{print_window, LiveStats};
@@ -124,6 +123,9 @@ pub fn decompress_with_limit(input: &[u8], limit: usize) -> Result<Vec<u8>, Telo
     let last_block_size = header.last_block_size;
     let mut out = Vec::new();
     loop {
+        if offset == input.len() {
+            break;
+        }
         let slice = input.get(offset..).ok_or_else(|| TelomereError::Decode("invalid header field".into()))?;
         let (header, bits) = decode_header(slice).map_err(|_| TelomereError::Decode("invalid header field".into()))?;
         offset += (bits + 7) / 8;
@@ -168,6 +170,6 @@ pub fn decompress_with_limit(input: &[u8], limit: usize) -> Result<Vec<u8>, Telo
 }
 
 /// Convenience wrapper without a limit.
-pub fn decompress(input: &[u8]) -> Vec<u8> {
-    decompress_with_limit(input, usize::MAX).unwrap_or_default()
+pub fn decompress(input: &[u8]) -> Result<Vec<u8>, TelomereError> {
+    decompress_with_limit(input, usize::MAX)
 }

@@ -144,6 +144,6 @@ fn empty_roundtrip() {
     let block_size = 4usize;
     let data: Vec<u8> = Vec::new();
     let buf = compress(&data, block_size).unwrap();
-    let out = telomere::decompress(&buf);
+    let out = telomere::decompress(&buf).unwrap();
     assert!(out.is_empty());
 }
