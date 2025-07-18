@@ -5,6 +5,8 @@
 //! library APIs found in this crate.
 
 use clap::{ArgGroup, Args, Parser, Subcommand};
+mod config;
+use config::Config;
 use std::{fs, path::PathBuf, time::Instant};
 use telomere::{
     compress_multi_pass, decompress_with_limit,
@@ -24,11 +26,17 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         Command::Compress(mut args) => {
             let input_path = args.input.take().or(args.input_pos).unwrap();
             let output_path = args.output.take().or(args.output_pos).unwrap();
+            let config = Config {
+                block_size: args.block_size,
+                max_seed_len: args.max_seed_len,
+                max_arity: args.max_arity,
+                hash_bits: args.hash_bits,
+            };
             let data = fs::read(&input_path)
                 .map_err(|e| io_cli_error("opening input file", &input_path, e))?;
 
             let start_time = Instant::now();
-            let out = compress_multi_pass(&data, args.block_size, args.passes)
+            let out = compress_multi_pass(&data, config.block_size, args.passes)
                 .map_err(|e| simple_cli_error(&format!("compression failed: {e}")))?;
 
             if out.is_empty() {
@@ -70,6 +78,12 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         Command::Decompress(mut args) => {
             let input_path = args.input.take().or(args.input_pos).unwrap();
             let output_path = args.output.take().or(args.output_pos).unwrap();
+            let config = Config {
+                block_size: args.block_size,
+                max_seed_len: args.max_seed_len,
+                max_arity: args.max_arity,
+                hash_bits: args.hash_bits,
+            };
             if input_path
                 .extension()
                 .and_then(|s| s.to_str())
@@ -147,6 +161,15 @@ struct ActionArgs {
     /// Compression block size
     #[arg(long, default_value_t = 3)]
     block_size: usize,
+    /// Maximum seed length
+    #[arg(long, default_value_t = 2)]
+    max_seed_len: usize,
+    /// Maximum arity
+    #[arg(long, default_value_t = 8)]
+    max_arity: u8,
+    /// Number of hash bits
+    #[arg(long, default_value_t = 13)]
+    hash_bits: usize,
     /// Maximum compression passes
     #[arg(long, default_value_t = 10)]
     passes: usize,
