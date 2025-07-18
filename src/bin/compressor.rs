@@ -32,7 +32,8 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
     let data =
         fs::read(&args.input).map_err(|e| io_cli_error("reading input file", &args.input, e))?;
-    let compressed = compress(&data, args.block_size);
+    let compressed = compress(&data, args.block_size)
+        .map_err(|e| simple_cli_error(&format!("compression failed: {e}")))?;
 
     if args.test {
         let decompressed = decompress_with_limit(&compressed, usize::MAX)

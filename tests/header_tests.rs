@@ -11,7 +11,7 @@ fn header_roundtrip_across_ranges() {
         Header::LiteralLast,
     ];
     for h in cases {
-        let enc = encode_header(&h);
+        let enc = encode_header(&h).unwrap();
         let (decoded, _) = decode_header(&enc).expect("decode failed");
         assert_eq!(h, decoded);
     }

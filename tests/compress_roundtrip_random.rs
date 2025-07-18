@@ -8,7 +8,7 @@ fn random_roundtrip() {
         let len = rng.gen_range(1..200);
         let block = rng.gen_range(2..8);
         let data: Vec<u8> = (0..len).map(|_| rng.gen()).collect();
-        let out = compress(&data, block);
+        let out = compress(&data, block).unwrap();
         let decompressed = decompress_with_limit(&out, usize::MAX).unwrap();
         assert_eq!(data, decompressed);
     }
@@ -20,7 +20,7 @@ fn adversarial_roundtrip() {
     let pattern: [u8; 8] = [0x6e, 0x34, 0x0b, 0x9c, 0xff, 0xb3, 0x7a, 0x98];
     let mut data = pattern.to_vec();
     data.extend_from_slice(&[1,2,3,4]);
-    let out = compress(&data, 4);
+    let out = compress(&data, 4).unwrap();
     let decompressed = decompress_with_limit(&out, usize::MAX).unwrap();
     assert_eq!(data, decompressed);
 }
