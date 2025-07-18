@@ -24,6 +24,7 @@ mod seed_index;
 mod seed_logger;
 mod sha_cache;
 mod stats;
+use sha2::{Digest, Sha256};
 
 pub use block::{
     apply_block_changes, collapse_branches, detect_bundles, finalize_table, group_by_bit_length,
@@ -61,6 +62,19 @@ pub fn print_compression_status(original: usize, compressed: usize) {
 pub enum Region {
     Raw(Vec<u8>),
     Compressed(Vec<u8>, Header),
+}
+
+/// Generate `len` bytes by repeatedly hashing `seed` with SHA-256.
+fn expand_seed(seed: &[u8], len: usize) -> Vec<u8> {
+    let mut out = Vec::with_capacity(len);
+    let mut cur = seed.to_vec();
+    while out.len() < len {
+        let digest: [u8; 32] = Sha256::digest(&cur).into();
+        out.extend_from_slice(&digest);
+        cur = digest.to_vec();
+    }
+    out.truncate(len);
+    out
 }
 
 /// Decompress a single region respecting a byte limit.
@@ -103,6 +117,15 @@ pub fn decompress_with_limit(input: &[u8], limit: usize) -> Result<Vec<u8>, Tlmr
         let (header, bits) = decode_header(slice).map_err(|_| TlmrError::InvalidField)?;
         offset += (bits + 7) / 8;
         match header {
+            Header::Standard { seed_index, arity } | Header::Penultimate { seed_index, arity } => {
+                let needed = arity * block_size;
+                if out.len() + needed > limit {
+                    return Err(TlmrError::InvalidField);
+                }
+                let seed = index_to_seed(seed_index, 2);
+                let generated = expand_seed(&seed, needed);
+                out.extend_from_slice(&generated);
+            }
             Header::Literal => {
                 let bytes = block_size;
                 if out.len() + bytes > limit || offset + bytes > input.len() {
@@ -119,10 +142,6 @@ pub fn decompress_with_limit(input: &[u8], limit: usize) -> Result<Vec<u8>, Tlmr
                 out.extend_from_slice(&input[offset..offset + bytes]);
                 offset += bytes;
                 break;
-            }
-            _ => {
-                // Only passthrough literal blocks supported in this MVP
-                return Err(TlmrError::InvalidField);
             }
         }
         if offset == input.len() {
