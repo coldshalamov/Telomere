@@ -1,9 +1,10 @@
 //! Bit packed batch header used throughout the Telomere format.
 //!
-//! A header is encoded as an EVQL seed index followed by a toggle based
-//! arity code.  The result typically fits within three bytes for small
-//! values.  Decoders perform basic sanity checks including verifying a
-//! truncated SHA‑256 of the reconstructed output when available.
+//! A header is encoded as an EVQL seed index followed by a dynamic arity
+//! toggle.  The July 2025 protocol uses an "arity‑2 as terminal" scheme
+//! where literal spans share the same toggle as the final block marker.
+//! All fields are packed bit‑wise with no padding so typical headers fit
+//! within a few bytes.
 //!
 //! Bit layout (from MSB to LSB):
 //!
@@ -19,35 +20,32 @@
 use thiserror::Error;
 
 /**
-Telomere header encoding uses dynamic toggles (dToggles) for the arity field and
-exponential VQL (eVQL) for the seed index. The table below enumerates every
-valid header pattern. Marker headers never include a seed index.
+Telomere headers use dynamic toggles (dToggles) for the arity field and
+exponential VQL (eVQL) for the seed index.
 
-Bits (first–third window) | Meaning                                 | Action
-0                           | arity 1                                 | use seed index, 1 block
-1 00                        | arity 2                                 | use seed index, 2 blocks
-1 01                        | arity 3                                 | use seed index, 3 blocks
-1 10                        | arity 4                                 | use seed index, 4 blocks
-1 11 000                    | arity 5                                 | use seed index, 5 blocks
-1 11 001                    | arity 6                                 | use seed index, 6 blocks
-1 11 010                    | arity 7                                 | use seed index, 7 blocks
-1 11 011                    | penultimate, arity 1 (marker)           | use seed index, 1 block
-1 11 100                    | penultimate, arity 2 (marker)           | use seed index, 2 blocks
-1 11 101                    | penultimate, arity 3 (marker)           | use seed index, 3 blocks
-1 11 110                    | literal block (marker)                  | NO seed index, skip 1 block
-1 11 111                    | literal last block (marker)             | NO seed index, skip 1 block and END
+Bits (first–third window) | Meaning                  | Action
+0                           | arity 1                  | use seed index, 1 block
+1 0                         | arity 2 (terminal)       | NO seed index, literal span
+1 1 000                     | arity 3                  | use seed index, 3 blocks
+1 1 001                     | arity 4                  | use seed index, 4 blocks
+1 1 010                     | arity 5                  | use seed index, 5 blocks
+1 1 011                     | arity 6                  | use seed index, 6 blocks
+1 1 100                     | arity 7                  | use seed index, 7 blocks
+1 1 101                     | arity 8                  | use seed index, 8 blocks
+1 1 110                     | arity 9                  | use seed index, 9 blocks
+1 1 111                     | arity 10                 | use seed index, 10 blocks
 */
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Header {
-    /// Standard compressed span of N blocks using the provided seed index.
+    /// Standard compressed span of `arity` blocks using the provided seed index.
     Standard { seed_index: usize, arity: usize },
-    /// Marks the penultimate compressed span. The following header must be a
-    /// literal or literal last block. See table above.
-    Penultimate { seed_index: usize, arity: usize },
-    /// Skip the next block literally.
+    /// Skip literal bytes. In the July 2025 protocol this uses the same arity
+    /// toggle as the final block marker. `LiteralLast` encodes identically but
+    /// is preserved as a variant for convenience.
     Literal,
-    /// Skip the next block literally and finish decoding.
+    /// Literal span that also terminates decoding. Encoded the same as
+    /// [`Literal`].
     LiteralLast,
 }
 
@@ -64,14 +62,10 @@ pub fn encode_header(h: &Header) -> Vec<u8> {
     let mut bits = Vec::new();
     match *h {
         Header::Standard { seed_index, arity } => {
-            bits.extend(encode_arity_bits(arity, false).expect("arity out of range"));
+            bits.extend(encode_arity_bits(arity).expect("arity out of range"));
             bits.extend(encode_evql_bits(seed_index));
         }
-        Header::Penultimate { seed_index, arity } => {
-            bits.extend(encode_arity_bits(arity, true).expect("arity out of range"));
-            bits.extend(encode_evql_bits(seed_index));
-        }
-        Header::Literal => bits.extend([true, true, true, true, true, false]),
+        Header::Literal => bits.extend([true, false]),
         Header::LiteralLast => bits.extend([true, true, true, true, true, true]),
     }
     pack_bits(&bits)
@@ -87,10 +81,6 @@ pub fn decode_header(data: &[u8]) -> Result<(Header, usize), HeaderError> {
             let seed = decode_evql(data, &mut pos)?;
             Header::Standard { seed_index: seed, arity }
         }
-        ArityVariant::Penultimate(arity) => {
-            let seed = decode_evql(data, &mut pos)?;
-            Header::Penultimate { seed_index: seed, arity }
-        }
         ArityVariant::Literal => Header::Literal,
         ArityVariant::LiteralLast => Header::LiteralLast,
     };
@@ -102,28 +92,26 @@ pub fn decode_header(data: &[u8]) -> Result<(Header, usize), HeaderError> {
 #[derive(Debug)]
 enum ArityVariant {
     Standard(usize),
-    Penultimate(usize),
     Literal,
     LiteralLast,
 }
 
-/// Encode arity bits according to the table. `penultimate` toggles the marker
-/// window.
-fn encode_arity_bits(arity: usize, penultimate: bool) -> Option<Vec<bool>> {
-    let bits = match (penultimate, arity) {
-        (false, 1) => vec![false],
-        (false, 2) => vec![true, false, false],
-        (false, 3) => vec![true, false, true],
-        (false, 4) => vec![true, true, false],
-        (false, 5) => vec![true, true, true, false, false, false],
-        (false, 6) => vec![true, true, true, false, false, true],
-        (false, 7) => vec![true, true, true, false, true, false],
-        (true, 1) => vec![true, true, true, false, true, true],
-        (true, 2) => vec![true, true, true, true, false, false],
-        (true, 3) => vec![true, true, true, true, false, true],
-        _ => return None,
-    };
-    Some(bits)
+/// Encode arity bits according to the July 2025 toggle scheme.
+fn encode_arity_bits(arity: usize) -> Option<Vec<bool>> {
+    match arity {
+        1 => Some(vec![false]),
+        2 => Some(vec![true, false]),
+        3..=9 => {
+            let value = arity - 3;
+            let mut bits = vec![true, true];
+            for i in (0..3).rev() {
+                bits.push(((value >> i) & 1) != 0);
+            }
+            Some(bits)
+        }
+        10 => Some(vec![true, true, true, true, true, false]),
+        _ => None,
+    }
 }
 
 fn decode_arity_stream(data: &[u8], pos: &mut usize) -> Result<ArityVariant, HeaderError> {
@@ -134,30 +122,29 @@ fn decode_arity_stream(data: &[u8], pos: &mut usize) -> Result<ArityVariant, Hea
     }
     let b1 = get_bit(data, *pos).ok_or(HeaderError::UnexpectedEof)?;
     *pos += 1;
-    let b2 = get_bit(data, *pos).ok_or(HeaderError::UnexpectedEof)?;
-    *pos += 1;
-    match (b1, b2) {
-        (false, false) => Ok(ArityVariant::Standard(2)),
-        (false, true) => Ok(ArityVariant::Standard(3)),
-        (true, false) => Ok(ArityVariant::Standard(4)),
-        (true, true) => {
-            let c1 = get_bit(data, *pos).ok_or(HeaderError::UnexpectedEof)?;
-            *pos += 1;
-            let c2 = get_bit(data, *pos).ok_or(HeaderError::UnexpectedEof)?;
-            *pos += 1;
-            let c3 = get_bit(data, *pos).ok_or(HeaderError::UnexpectedEof)?;
-            *pos += 1;
-            match (c1, c2, c3) {
-                (false, false, false) => Ok(ArityVariant::Standard(5)),
-                (false, false, true) => Ok(ArityVariant::Standard(6)),
-                (false, true, false) => Ok(ArityVariant::Standard(7)),
-                (false, true, true) => Ok(ArityVariant::Penultimate(1)),
-                (true, false, false) => Ok(ArityVariant::Penultimate(2)),
-                (true, false, true) => Ok(ArityVariant::Penultimate(3)),
-                (true, true, false) => Ok(ArityVariant::Literal),
-                (true, true, true) => Ok(ArityVariant::LiteralLast),
-            }
+    if !b1 {
+        return Ok(ArityVariant::Literal);
+    }
+    let mut value = 0usize;
+    for _ in 0..3 {
+        let bit = get_bit(data, *pos).ok_or(HeaderError::UnexpectedEof)?;
+        *pos += 1;
+        value = (value << 1) | (bit as usize);
+    }
+    if value == 7 {
+        let bit = get_bit(data, *pos).ok_or(HeaderError::UnexpectedEof)?;
+        *pos += 1;
+        if bit {
+            return Ok(ArityVariant::LiteralLast);
+        } else {
+            return Ok(ArityVariant::Standard(10));
         }
+    }
+    let arity = value + 3;
+    if (3..=9).contains(&arity) {
+        Ok(ArityVariant::Standard(arity))
+    } else {
+        Err(HeaderError::InvalidArity)
     }
 }
 
@@ -244,15 +231,9 @@ mod tests {
     fn all_headers_roundtrip() {
         let cases = vec![
             Header::Standard { seed_index: 0, arity: 1 },
-            Header::Standard { seed_index: 3, arity: 2 },
-            Header::Standard { seed_index: 7, arity: 3 },
-            Header::Standard { seed_index: 1, arity: 4 },
-            Header::Standard { seed_index: 2, arity: 5 },
-            Header::Standard { seed_index: 3, arity: 6 },
-            Header::Standard { seed_index: 4, arity: 7 },
-            Header::Penultimate { seed_index: 5, arity: 1 },
-            Header::Penultimate { seed_index: 6, arity: 2 },
-            Header::Penultimate { seed_index: 7, arity: 3 },
+            Header::Standard { seed_index: 1, arity: 3 },
+            Header::Standard { seed_index: 2, arity: 4 },
+            Header::Standard { seed_index: 3, arity: 10 },
             Header::Literal,
             Header::LiteralLast,
         ];
