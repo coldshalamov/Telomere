@@ -20,6 +20,7 @@ bytemuck = "1.23.1"
 [dev-dependencies]
 tempfile = "3"
 quickcheck = "1"
+rand = "0.8"
 
 [[bin]]
 name = "gloss_tool"
@@ -28,6 +29,10 @@ path = "src/bin/gloss_tool.rs"
 [[bin]]
 name = "compressor"
 path = "src/bin/compressor.rs"
+
+[[bin]]
+name = "decompressor"
+path = "src/bin/decompressor.rs"
 
 [[bin]]
 name = "hash_precompute"
