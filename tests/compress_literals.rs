@@ -50,6 +50,6 @@ fn compress_empty_input() {
     let out = compress(&data, block_size).unwrap();
     // output should only contain the tlmr header
     assert_eq!(out.len(), 3);
-    let decompressed = telomere::decompress(&out);
+    let decompressed = telomere::decompress(&out).unwrap();
     assert!(decompressed.is_empty());
 }
