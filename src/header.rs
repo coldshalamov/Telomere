@@ -18,6 +18,8 @@
 //! the truncated hash stored in the surrounding batch header.
 
 use thiserror::Error;
+use std::collections::HashMap;
+use std::io::{Read, Cursor};
 
 /**
 Telomere headers use dynamic toggles (dToggles) for the arity field and
@@ -47,6 +49,76 @@ pub enum Header {
     /// Literal span that also terminates decoding. Encoded the same as
     /// [`Literal`].
     LiteralLast,
+}
+
+/// Configuration for recursive decoding.
+#[derive(Debug, Clone, Default)]
+pub struct Config {
+    pub block_size: usize,
+    /// Mapping from seed indices to generated bitstreams used during decoding.
+    pub seed_expansions: HashMap<usize, Vec<u8>>,
+}
+
+/// Errors that can occur during recursive decoding.
+#[derive(Debug, Error)]
+pub enum TelomereError {
+    #[error("io error: {0}")]
+    Io(#[from] std::io::Error),
+    #[error("unexpected end of input")]
+    UnexpectedEof,
+    #[error("invalid arity code")]
+    InvalidArity,
+    #[error("missing seed expansion")]
+    MissingSeed,
+}
+
+/// Simple big-endian bit reader over any `Read` implementation.
+pub struct BitReader<R: Read> {
+    inner: R,
+    buf: u8,
+    remaining: u8,
+}
+
+impl<R: Read> BitReader<R> {
+    pub fn new(inner: R) -> Self {
+        Self { inner, buf: 0, remaining: 0 }
+    }
+
+    fn read_bit(&mut self) -> Result<bool, TelomereError> {
+        if self.remaining == 0 {
+            let mut byte = [0u8; 1];
+            let n = self.inner.read(&mut byte)?;
+            if n == 0 {
+                return Err(TelomereError::UnexpectedEof);
+            }
+            self.buf = byte[0];
+            self.remaining = 8;
+        }
+        self.remaining -= 1;
+        Ok(((self.buf >> self.remaining) & 1) != 0)
+    }
+
+    fn read_bits(&mut self, count: usize) -> Result<u64, TelomereError> {
+        let mut val = 0u64;
+        for _ in 0..count {
+            val = (val << 1) | self.read_bit()? as u64;
+        }
+        Ok(val)
+    }
+
+    pub fn read_bytes(&mut self, count: usize) -> Result<Vec<u8>, TelomereError> {
+        let mut out = Vec::with_capacity(count);
+        for _ in 0..count {
+            out.push(self.read_bits(8)? as u8);
+        }
+        Ok(out)
+    }
+}
+
+impl<'a> BitReader<Cursor<&'a [u8]>> {
+    pub fn from_slice(data: &'a [u8]) -> Self {
+        BitReader::new(Cursor::new(data))
+    }
 }
 
 #[derive(Debug, Error, PartialEq, Eq)]
@@ -221,6 +293,84 @@ fn pack_bits(bits: &[bool]) -> Vec<u8> {
         out.push(0);
     }
     out
+}
+
+// --- recursive decoding helpers ---
+
+fn read_arity<R: Read>(reader: &mut BitReader<R>) -> Result<usize, TelomereError> {
+    let first = reader.read_bit()?;
+    if !first {
+        return Ok(1);
+    }
+    let b1 = reader.read_bit()?;
+    if !b1 {
+        return Ok(2);
+    }
+    let mut value = 0usize;
+    for _ in 0..3 {
+        value = (value << 1) | reader.read_bit()? as usize;
+    }
+    if value == 7 {
+        let bit = reader.read_bit()?;
+        if bit {
+            // treat literal-last as literal
+            return Ok(2);
+        } else {
+            return Ok(10);
+        }
+    }
+    let arity = value + 3;
+    if (3..=9).contains(&arity) {
+        Ok(arity)
+    } else {
+        Err(TelomereError::InvalidArity)
+    }
+}
+
+fn read_evql<R: Read>(reader: &mut BitReader<R>) -> Result<usize, TelomereError> {
+    let mut n = 0usize;
+    while reader.read_bit()? {
+        n += 1;
+    }
+    let width = 1usize << n;
+    let mut value = 0usize;
+    for _ in 0..width {
+        value = (value << 1) | reader.read_bit()? as usize;
+    }
+    Ok(value)
+}
+
+fn generate_bits(config: &Config, seed_idx: usize) -> Result<Vec<u8>, TelomereError> {
+    if let Some(bits) = config.seed_expansions.get(&seed_idx) {
+        Ok(bits.clone())
+    } else {
+        Err(TelomereError::MissingSeed)
+    }
+}
+
+fn decode_span<R: Read>(reader: &mut BitReader<R>, config: &Config) -> Result<Vec<u8>, TelomereError> {
+    let arity = read_arity(reader)?;
+    if arity == 2 {
+        return Ok(reader.read_bytes(config.block_size)?);
+    }
+    let seed_idx = read_evql(reader)?;
+    let child_bits = generate_bits(config, seed_idx)?;
+    let mut child_reader = BitReader::from_slice(&child_bits);
+    let mut out = Vec::new();
+    for _ in 0..arity {
+        out.extend(decode_span(&mut child_reader, config)?);
+    }
+    Ok(out)
+}
+
+/// Decode a stream of blocks described by nested headers.
+pub fn decode<R: Read>(reader: &mut BitReader<R>, config: &Config) -> Result<Vec<u8>, TelomereError> {
+    let block_count = read_evql(reader)?;
+    let mut result = Vec::new();
+    for _ in 0..block_count {
+        result.extend(decode_span(reader, config)?);
+    }
+    Ok(result)
 }
 
 #[cfg(test)]
