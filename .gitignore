@@ -23,7 +23,6 @@ src/bin/seed_table.rs
 !src/bin/block_histogram.rs
 !src/bin/compressor.rs
 !src/bin/decompressor.rs
-!src/seed_enum.rs
 !src/seed_index.rs
 !tests/index_to_seed.rs
 !tests/compressor_cli.rs

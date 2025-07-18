@@ -20,11 +20,11 @@ pub mod io_utils;
 mod live_window;
 mod path;
 mod seed_detect;
-mod seed_logger;
-mod seed_enum;
 mod seed_index;
+mod seed_logger;
 mod sha_cache;
 mod stats;
+use sha2::{Digest, Sha256};
 
 pub use block::{
     apply_block_changes, collapse_branches, detect_bundles, finalize_table, group_by_bit_length,
@@ -42,11 +42,10 @@ pub use io_utils::*;
 pub use live_window::{print_window, LiveStats};
 pub use path::*;
 pub use seed_detect::{detect_seed_matches, MatchRecord};
+pub use seed_index::{index_to_seed, seed_to_index};
 pub use seed_logger::{
     log_seed, log_seed_to, resume_seed_index, resume_seed_index_from, HashEntry, ResourceLimits,
 };
-pub use seed_enum::index_to_seed;
-pub use seed_index::seed_to_index;
 pub use sha_cache::*;
 pub use stats::Stats;
 pub use tlmr::{decode_tlmr_header, encode_tlmr_header, truncated_hash, TlmrError, TlmrHeader};
@@ -63,6 +62,19 @@ pub fn print_compression_status(original: usize, compressed: usize) {
 pub enum Region {
     Raw(Vec<u8>),
     Compressed(Vec<u8>, Header),
+}
+
+/// Generate `len` bytes by repeatedly hashing `seed` with SHA-256.
+fn expand_seed(seed: &[u8], len: usize) -> Vec<u8> {
+    let mut out = Vec::with_capacity(len);
+    let mut cur = seed.to_vec();
+    while out.len() < len {
+        let digest: [u8; 32] = Sha256::digest(&cur).into();
+        out.extend_from_slice(&digest);
+        cur = digest.to_vec();
+    }
+    out.truncate(len);
+    out
 }
 
 /// Decompress a single region respecting a byte limit.
@@ -105,6 +117,15 @@ pub fn decompress_with_limit(input: &[u8], limit: usize) -> Result<Vec<u8>, Tlmr
         let (header, bits) = decode_header(slice).map_err(|_| TlmrError::InvalidField)?;
         offset += (bits + 7) / 8;
         match header {
+            Header::Standard { seed_index, arity } | Header::Penultimate { seed_index, arity } => {
+                let needed = arity * block_size;
+                if out.len() + needed > limit {
+                    return Err(TlmrError::InvalidField);
+                }
+                let seed = index_to_seed(seed_index, 2);
+                let generated = expand_seed(&seed, needed);
+                out.extend_from_slice(&generated);
+            }
             Header::Literal => {
                 let bytes = block_size;
                 if out.len() + bytes > limit || offset + bytes > input.len() {
@@ -121,10 +142,6 @@ pub fn decompress_with_limit(input: &[u8], limit: usize) -> Result<Vec<u8>, Tlmr
                 out.extend_from_slice(&input[offset..offset + bytes]);
                 offset += bytes;
                 break;
-            }
-            _ => {
-                // Only passthrough literal blocks supported in this MVP
-                return Err(TlmrError::InvalidField);
             }
         }
         if offset == input.len() {
