@@ -55,14 +55,14 @@ fn arity_bit_patterns() {
     // 10 -> 1 1 1110
     let patterns: &[(usize, &[bool])] = &[
         (1, &[false]),
-        (3, &[true, true, false, false, false]),
-        (4, &[true, true, false, false, true]),
-        (5, &[true, true, false, true, false]),
-        (6, &[true, true, false, true, true]),
-        (7, &[true, true, true, false, false]),
-        (8, &[true, true, true, false, true]),
-        (9, &[true, true, true, true, false]),
-        (10, &[true, true, true, true, true, false]),
+        (3, &[true, true, false, false]),
+        (4, &[true, true, false, true]),
+        (5, &[true, true, true, false, false, false]),
+        (6, &[true, true, true, false, false, true]),
+        (7, &[true, true, true, false, true, false]),
+        (8, &[true, true, true, false, true, true]),
+        (9, &[true, true, true, true, false, false, false]),
+        (10, &[true, true, true, true, false, false, true]),
     ];
 
     let small_seed = 3usize;

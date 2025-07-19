@@ -123,23 +123,73 @@ fn decode_evql(reader: &mut BitReader) -> Result<usize, TelomereError> {
     Ok(val)
 }
 
+fn encode_arity(arity: usize) -> Result<Vec<bool>, TelomereError> {
+    if arity < 1 {
+        return Err(TelomereError::Other("arity must be positive".into()));
+    }
+    let mut bits = Vec::new();
+    match arity {
+        1 => bits.push(false),
+        2 => bits.extend_from_slice(&[true, false]),
+        3 | 4 => {
+            bits.extend_from_slice(&[true, true]);
+            let off = arity - 3;
+            bits.push(((off >> 1) & 1) != 0);
+            bits.push((off & 1) != 0);
+        }
+        _ => {
+            let mut start = 5usize;
+            let mut size = 4usize;
+            bits.extend_from_slice(&[true, true, true]);
+            while arity > start + size - 1 {
+                bits.push(true);
+                start += size;
+                size <<= 1;
+            }
+            bits.push(false);
+            let off = arity - start;
+            bits.push(((off >> 1) & 1) != 0);
+            bits.push((off & 1) != 0);
+        }
+    }
+    Ok(bits)
+}
+
+fn decode_arity(reader: &mut BitReader) -> Result<usize, TelomereError> {
+    let first = reader.read_bit()?;
+    if !first {
+        return Ok(1);
+    }
+    let second = reader.read_bit()?;
+    if !second {
+        return Ok(2);
+    }
+    let third = reader.read_bit()?;
+    if !third {
+        let b2 = reader.read_bit()?;
+        let off = (third as usize) << 1 | b2 as usize;
+        return Ok(3 + off);
+    }
+    let mut start = 5usize;
+    let mut size = 4usize;
+    let mut bit = reader.read_bit()?;
+    while bit {
+        start += size;
+        size <<= 1;
+        bit = reader.read_bit()?;
+    }
+    let b1 = reader.read_bit()?;
+    let b2 = reader.read_bit()?;
+    let off = (b1 as usize) << 1 | b2 as usize;
+    Ok(start + off)
+}
+
 /// Encode a span header using the July 2025 bit layout.
 pub fn encode_header(header: &Header) -> Result<Vec<u8>, TelomereError> {
     let mut bits = Vec::new();
     match header {
         Header::Standard { seed_index, arity } => {
-            match *arity {
-                1 => bits.push(false),
-                3..=9 => {
-                    bits.extend_from_slice(&[true, true]);
-                    let val = arity - 3;
-                    for i in (0..3).rev() {
-                        bits.push(((val >> i) & 1) != 0);
-                    }
-                }
-                10 => bits.extend_from_slice(&[true, true, true, true, true, false]),
-                _ => return Err(TelomereError::Other(format!("unsupported arity {arity}"))),
-            }
+            bits.extend(encode_arity(*arity)?);
             bits.extend(encode_evql_bits(*seed_index));
         }
         Header::Literal => bits.extend_from_slice(&[true, false]),
@@ -160,21 +210,22 @@ pub fn decode_header(data: &[u8]) -> Result<(Header, usize), TelomereError> {
     if !second {
         return Ok((Header::Literal, r.bits_read()));
     }
-    let b1 = r.read_bit()?;
-    let b2 = r.read_bit()?;
-    let b3 = r.read_bit()?;
-    let val = (b1 as usize) << 2 | (b2 as usize) << 1 | (b3 as usize);
-    if val <= 6 {
-        let arity = val + 3;
-        let seed = decode_evql(&mut r)?;
-        return Ok((Header::Standard { seed_index: seed, arity }, r.bits_read()));
+    // check for literal last marker (six consecutive ones)
+    let mut peek = [true; 4];
+    for i in 0..4 {
+        peek[i] = r.read_bit()?;
     }
-    let b4 = r.read_bit()?;
-    if !b4 {
-        let seed = decode_evql(&mut r)?;
-        return Ok((Header::Standard { seed_index: seed, arity: 10 }, r.bits_read()));
+    if peek.iter().all(|&b| b) {
+        return Ok((Header::LiteralLast, r.bits_read()));
     }
-    Ok((Header::LiteralLast, r.bits_read()))
+    // restart reader to decode arity normally
+    let mut r = BitReader::from_slice(data);
+    let arity = decode_arity(&mut r)?;
+    if arity == 2 && r.bits_read() == 2 {
+        return Ok((Header::Literal, r.bits_read()));
+    }
+    let seed = decode_evql(&mut r)?;
+    Ok((Header::Standard { seed_index: seed, arity }, r.bits_read()))
 }
 
 fn generate_bits(config: &Config, seed_idx: usize) -> Result<Vec<u8>, TelomereError> {
@@ -186,24 +237,7 @@ fn generate_bits(config: &Config, seed_idx: usize) -> Result<Vec<u8>, TelomereEr
 }
 
 fn decode_span(reader: &mut BitReader, config: &Config) -> Result<Vec<u8>, TelomereError> {
-    let first = reader.read_bit()?;
-    let arity = if !first {
-        1
-    } else if !reader.read_bit()? {
-        2
-    } else {
-        let b1 = reader.read_bit()?;
-        let b2 = reader.read_bit()?;
-        let b3 = reader.read_bit()?;
-        let val = (b1 as usize) << 2 | (b2 as usize) << 1 | (b3 as usize);
-        if val <= 6 {
-            val + 3
-        } else if !reader.read_bit()? {
-            10
-        } else {
-            return Err(TelomereError::Other("literal last not allowed".into()));
-        }
-    };
+    let arity = decode_arity(reader)?;
     if arity == 2 {
         return reader.read_bytes(config.block_size);
     }
