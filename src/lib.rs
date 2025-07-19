@@ -26,6 +26,8 @@ mod seed_index;
 mod seed_logger;
 mod sha_cache;
 mod stats;
+pub mod superposition;
+pub mod types;
 use sha2::{Digest, Sha256};
 
 pub use block::{
