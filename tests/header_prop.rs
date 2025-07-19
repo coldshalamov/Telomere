@@ -1,30 +1,16 @@
 use quickcheck::quickcheck;
-use telomere::{encode_header, decode_header, Header};
+use telomere::{decode_header, encode_header, Header};
 
 quickcheck! {
-    fn header_roundtrip(seed: usize, arity: u8, variant: u8) -> bool {
-        let seed = seed % 1_000_000; // keep indices small
-        match variant % 3 {
-            0 => {
-                let a = (arity % 7) + 1;
-                if a == 2 {
-                    // arity 2 is reserved for literals
-                    return true;
-                }
-                let h = Header::Standard { seed_index: seed, arity: a as usize };
-                let enc = encode_header(&h).unwrap();
-                match decode_header(&enc) { Ok((d, _)) => d == h, Err(_) => false }
-            }
-            1 => {
-                let h = Header::Literal;
-                let enc = encode_header(&h).unwrap();
-                match decode_header(&enc) { Ok((d, _)) => d == h, Err(_) => false }
-            }
-            _ => {
-                let h = Header::LiteralLast;
-                let enc = encode_header(&h).unwrap();
-                match decode_header(&enc) { Ok((d, _)) => d == h, Err(_) => false }
-            }
+    fn header_roundtrip(arity: u8, is_literal: bool) -> bool {
+        if is_literal {
+            let h = Header::Literal;
+            let enc = encode_header(&h).unwrap();
+            return matches!(decode_header(&enc), Ok((d, _)) if d == h);
         }
+        let a = (arity % 6) + 1;
+        let h = Header::Arity(a);
+        let enc = encode_header(&h).unwrap();
+        matches!(decode_header(&enc), Ok((d, _)) if d == h)
     }
 }

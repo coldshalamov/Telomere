@@ -36,14 +36,11 @@ fn build_data(bytes: &[u8], bs: usize) -> Vec<u8> {
     });
     let mut out = hdr.to_vec();
     let mut offset = 0usize;
-    while offset + bs <= bytes.len() {
+    while offset < bytes.len() {
         out.extend_from_slice(&encode_header(&Header::Literal).unwrap());
-        out.extend_from_slice(&bytes[offset..offset + bs]);
-        offset += bs;
-    }
-    if offset < bytes.len() {
-        out.extend_from_slice(&encode_header(&Header::LiteralLast).unwrap());
-        out.extend_from_slice(&bytes[offset..]);
+        let len = bs.min(bytes.len() - offset);
+        out.extend_from_slice(&bytes[offset..offset + len]);
+        offset += len;
     }
     out
 }
