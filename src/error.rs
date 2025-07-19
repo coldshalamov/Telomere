@@ -10,6 +10,8 @@ pub enum TelomereError {
     Hash(String),
     #[error("Config error: {0}")]
     Config(String),
+    #[error("Superposition limit exceeded for block {0}")]
+    SuperpositionLimitExceeded(usize),
     #[error("Other: {0}")]
     Other(String),
 }
