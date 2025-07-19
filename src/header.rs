@@ -1,10 +1,11 @@
 use crate::TelomereError;
 
+/// Header describing either a literal block or the arity for a seeded span.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Header {
-    /// Normal span carrying an arity value.
+    /// Span with the provided arity.
     Arity(u8),
-    /// Literal passthrough block.
+    /// Literal passthrough for one block.
     Literal,
 }
 
@@ -27,6 +28,18 @@ impl<'a> BitReader<'a> {
         let bit = ((self.data[self.pos / 8] >> (7 - (self.pos % 8))) & 1) != 0;
         self.pos += 1;
         Ok(bit)
+    }
+
+    pub fn read_bytes(&mut self, n: usize) -> Result<Vec<u8>, TelomereError> {
+        let mut out = Vec::new();
+        for _ in 0..n {
+            let mut byte = 0u8;
+            for _ in 0..8 {
+                byte = (byte << 1) | self.read_bit()? as u8;
+            }
+            out.push(byte);
+        }
+        Ok(out)
     }
 
     pub fn bits_read(&self) -> usize {
@@ -57,34 +70,51 @@ fn pack_bits(bits: &[bool]) -> Vec<u8> {
     out
 }
 
-fn encode_vql(value: usize) -> Vec<bool> {
-    assert!(value >= 2);
-    let mut idx = value - 2;
-    let mut sentinels = idx / 3;
-    let code = idx % 3;
+fn encode_arity(arity: usize) -> Result<Vec<bool>, TelomereError> {
+    if arity < 1 {
+        return Err(TelomereError::Other("arity must be positive".into()));
+    }
     let mut bits = Vec::new();
-    for _ in 0..sentinels {
+    if arity == 1 {
+        bits.push(false);
+        return Ok(bits);
+    }
+    bits.push(true);
+    let mut index = arity - 1;
+    let digit = index % 3;
+    let reps = index / 3;
+    for _ in 0..reps {
         bits.extend_from_slice(&[true, true]);
     }
-    match code {
+    match digit {
         0 => bits.extend_from_slice(&[false, false]),
         1 => bits.extend_from_slice(&[false, true]),
         2 => bits.extend_from_slice(&[true, false]),
         _ => unreachable!(),
     }
-    bits
+    Ok(bits)
 }
 
-fn decode_vql(reader: &mut BitReader) -> Result<usize, TelomereError> {
-    let mut sentinels = 0usize;
+fn decode_arity(reader: &mut BitReader) -> Result<Option<usize>, TelomereError> {
+    let first = reader.read_bit()?;
+    if !first {
+        return Ok(Some(1));
+    }
+    let mut index = 0usize;
     loop {
         let b1 = reader.read_bit()?;
         let b2 = reader.read_bit()?;
         match (b1, b2) {
-            (true, true) => sentinels += 1,
-            (false, false) => return Ok(sentinels * 3 + 0 + 2),
-            (false, true) => return Ok(sentinels * 3 + 1 + 2),
-            (true, false) => return Ok(sentinels * 3 + 2 + 2),
+            (true, true) => index += 3,
+            (false, false) => {
+                if index == 0 {
+                    return Ok(None); // Literal marker
+                } else {
+                    return Ok(Some(index + 1));
+                }
+            }
+            (false, true) => return Ok(Some(index + 2)),
+            (true, false) => return Ok(Some(index + 3)),
         }
     }
 }
@@ -92,32 +122,35 @@ fn decode_vql(reader: &mut BitReader) -> Result<usize, TelomereError> {
 pub fn encode_header(header: &Header) -> Result<Vec<u8>, TelomereError> {
     let mut bits = Vec::new();
     match header {
-        Header::Literal => bits.extend_from_slice(&[true, false, false]),
-        Header::Arity(n) => {
-            let n = *n as usize;
-            if n == 1 {
-                bits.push(false);
-            } else {
-                bits.push(true);
-                bits.extend(encode_vql(n + 1));
-            }
-        }
+        Header::Arity(a) => bits.extend(encode_arity(*a as usize)?),
+        Header::Literal => bits.extend_from_slice(&[true, false, false]), // "100" literal marker
     }
     Ok(pack_bits(&bits))
 }
 
 pub fn decode_header(data: &[u8]) -> Result<(Header, usize), TelomereError> {
     let mut r = BitReader::from_slice(data);
-    let toggle = r.read_bit()?;
-    if !toggle {
+    let first = r.read_bit()?;
+    if !first {
         return Ok((Header::Arity(1), r.bits_read()));
     }
-    let val = decode_vql(&mut r)?;
-    if val == 2 {
-        return Ok((Header::Literal, r.bits_read()));
+    let mut index = 0usize;
+    loop {
+        let b1 = r.read_bit()?;
+        let b2 = r.read_bit()?;
+        match (b1, b2) {
+            (true, true) => index += 3,
+            (false, false) => {
+                if index == 0 {
+                    return Ok((Header::Literal, r.bits_read()));
+                } else {
+                    return Ok((Header::Arity((index + 1) as u8), r.bits_read()));
+                }
+            }
+            (false, true) => return Ok((Header::Arity((index + 2) as u8), r.bits_read())),
+            (true, false) => return Ok((Header::Arity((index + 3) as u8), r.bits_read())),
+        }
     }
-    let arity = (val - 1) as u8;
-    Ok((Header::Arity(arity), r.bits_read()))
 }
 
 #[cfg(test)]

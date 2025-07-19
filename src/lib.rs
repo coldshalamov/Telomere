@@ -41,7 +41,18 @@ pub use compress_stats::{write_stats_csv, CompressionStats};
 pub use error::TelomereError;
 pub use file_header::{decode_file_header, encode_file_header};
 pub use hash_reader::lookup_seed;
+<<<<<<< HEAD
+pub use header::{
+    decode,
+    decode_header,
+    encode_header,
+    BitReader,
+    Config,
+    Header,
+};
+=======
 pub use header::{decode_header, encode_header, BitReader, Header};
+>>>>>>> main
 pub use io_utils::*;
 pub use live_window::{print_window, LiveStats};
 pub use path::*;
@@ -127,6 +138,14 @@ pub fn decompress_with_limit(input: &[u8], limit: usize) -> Result<Vec<u8>, Telo
             .map_err(|_| TelomereError::Decode("invalid header field".into()))?;
         offset += (bits + 7) / 8;
         match header {
+<<<<<<< HEAD
+            Header::Arity(_) => {
+                return Err(TelomereError::Decode("invalid header field".into()));
+            }
+            Header::Literal => {
+                let remaining = input.len() - offset;
+                let bytes = if remaining == last_block_size { last_block_size } else { block_size };
+=======
             Header::Literal => {
                 let remaining = input.len() - offset;
                 let bytes = if remaining == last_block_size {
@@ -134,15 +153,19 @@ pub fn decompress_with_limit(input: &[u8], limit: usize) -> Result<Vec<u8>, Telo
                 } else {
                     block_size
                 };
+>>>>>>> main
                 if out.len() + bytes > limit || offset + bytes > input.len() {
                     return Err(TelomereError::Decode("invalid header field".into()));
                 }
                 out.extend_from_slice(&input[offset..offset + bytes]);
                 offset += bytes;
             }
+<<<<<<< HEAD
+=======
             Header::Arity(_) => {
                 return Err(TelomereError::Decode("compressed spans unsupported".into()));
             }
+>>>>>>> main
         }
         if offset == input.len() {
             // No more data left to decode.

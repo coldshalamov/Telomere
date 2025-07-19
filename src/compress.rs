@@ -26,10 +26,11 @@ pub fn compress(data: &[u8], block_size: usize) -> Result<Vec<u8>, TelomereError
     let mut out = header.to_vec();
     let mut offset = 0usize;
     while offset < data.len() {
+        let remaining = data.len() - offset;
+        let chunk = remaining.min(block_size);
         out.extend_from_slice(&encode_header(&Header::Literal)?);
-        let len = block_size.min(data.len() - offset);
-        out.extend_from_slice(&data[offset..offset + len]);
-        offset += len;
+        out.extend_from_slice(&data[offset..offset + chunk]);
+        offset += chunk;
     }
     Ok(out)
 }
@@ -45,10 +46,16 @@ pub fn compress_multi_pass(
 pub fn compress_block(
     input: &[u8],
     block_size: usize,
-    _stats: Option<&mut CompressionStats>,
+    stats: Option<&mut CompressionStats>,
 ) -> Result<Option<(Header, usize)>, TelomereError> {
     if input.len() < block_size {
         return Ok(None);
+    }
+    if let Some(s) = stats {
+        s.tick_block();
+        let slice = &input[..block_size];
+        s.maybe_log(slice, slice, false);
+        s.log_match(false, 1);
     }
     Ok(Some((Header::Literal, block_size)))
 }

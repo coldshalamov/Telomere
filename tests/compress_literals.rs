@@ -26,6 +26,12 @@ fn compress_writes_header_then_data() {
         offset += (bits + 7) / 8;
         match hdr {
             Header::Literal => {
+<<<<<<< HEAD
+                let chunk = (data.len() - idx).min(block_size);
+                assert_eq!(&out[offset..offset + chunk], &data[idx..idx + chunk]);
+                offset += chunk;
+                idx += chunk;
+=======
                 let remaining = out.len() - offset;
                 let bytes = if remaining == file_hdr.last_block_size {
                     file_hdr.last_block_size
@@ -35,6 +41,7 @@ fn compress_writes_header_then_data() {
                 assert_eq!(&out[offset..offset + bytes], &data[idx..idx + bytes]);
                 offset += bytes;
                 idx += bytes;
+>>>>>>> main
             }
             _ => panic!("unexpected header"),
         }
