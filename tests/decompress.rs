@@ -1,5 +1,6 @@
 use telomere::{
-    compress, decompress_with_limit, encode_tlmr_header, encode_header, Header, TlmrHeader, truncated_hash,
+    compress, decompress_with_limit, encode_header, encode_tlmr_header, truncated_hash, Header,
+    TlmrHeader,
 };
 
 #[test]
@@ -84,7 +85,7 @@ fn passthrough_literals_basic() {
     let mut data = tlmr.to_vec();
     data.extend_from_slice(&encode_header(&Header::Literal).unwrap());
     data.extend_from_slice(&literals[..block_size]);
-    data.extend_from_slice(&encode_header(&Header::LiteralLast).unwrap());
+    data.extend_from_slice(&encode_header(&Header::Literal).unwrap());
     data.extend_from_slice(&literals[block_size..]);
     let out = decompress_with_limit(&data, 100).unwrap();
     assert_eq!(out, literals);
@@ -101,7 +102,7 @@ fn passthrough_final_tail() {
         output_hash: truncated_hash(&literals),
     });
     let mut data = tlmr.to_vec();
-    data.extend_from_slice(&encode_header(&Header::LiteralLast).unwrap());
+    data.extend_from_slice(&encode_header(&Header::Literal).unwrap());
     data.extend_from_slice(&literals);
     let out = decompress_with_limit(&data, 100).unwrap();
     assert_eq!(out, literals);
@@ -110,8 +111,8 @@ fn passthrough_final_tail() {
 #[test]
 fn unsupported_header_fails() {
     let block_size = 3;
-    // Use a non-literal header (standard compressed, not supported here)
-    let header = encode_header(&Header::Standard { seed_index: 1, arity: 3 }).unwrap();
+    // Use a non-literal header which should fail
+    let header = encode_header(&Header::Arity(3)).unwrap();
     let literal = vec![0u8; block_size];
     let tlmr = encode_tlmr_header(&TlmrHeader {
         version: 0,
