@@ -38,18 +38,9 @@ fn build_data(bytes: &[u8], bs: usize) -> Vec<u8> {
     let mut offset = 0usize;
     while offset < bytes.len() {
         out.extend_from_slice(&encode_header(&Header::Literal).unwrap());
-<<<<<<< HEAD
-        out.extend_from_slice(&bytes[offset..offset + bs]);
-        offset += bs;
-    }
-    if offset < bytes.len() {
-        out.extend_from_slice(&encode_header(&Header::Literal).unwrap());
-        out.extend_from_slice(&bytes[offset..]);
-=======
         let len = bs.min(bytes.len() - offset);
         out.extend_from_slice(&bytes[offset..offset + len]);
         offset += len;
->>>>>>> main
     }
     out
 }
