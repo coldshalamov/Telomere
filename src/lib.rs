@@ -24,6 +24,7 @@ mod seed_detect;
 mod seed_index;
 mod seed_logger;
 mod sha_cache;
+mod block_indexer;
 mod stats;
 use sha2::{Digest, Sha256};
 
@@ -56,6 +57,7 @@ pub use seed_logger::{
     log_seed, log_seed_to, resume_seed_index, resume_seed_index_from, HashEntry, ResourceLimits,
 };
 pub use sha_cache::*;
+pub use block_indexer::{brute_force_seed_tables, IndexedBlock, SeedMatch};
 pub use stats::Stats;
 pub use tlmr::{decode_tlmr_header, encode_tlmr_header, truncated_hash, TlmrError, TlmrHeader};
 pub use error::TelomereError;
