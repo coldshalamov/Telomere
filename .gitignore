@@ -30,6 +30,11 @@ src/bin/seed_table.rs
 !tests/nested_decode.rs
 !tests/header_patterns.rs
 !tests/hybrid_match.rs
+!tests/block_tests.rs
+!tests/header_roundtrip.rs
+!tests/compress_determinism.rs
+!tests/seed_index_mapping.rs
+!tests/decompress_validation.rs
 seed_table.csv
 run_table.bat
 table_24.csv
