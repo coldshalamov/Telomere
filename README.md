@@ -66,23 +66,42 @@ Every block after that is preceded by a standard compressed block header:
 - **Seed index**
 - **Arity**
 
-The `arity` field encodes both compression span and literal passthrough signals:
+The `arity` field is encoded with a hybrid toggle + VQL scheme that is prefix
+safe and keeps small spans compact.
 
-### Reserved Arity Values for Literal Passthrough
+### Arity Header Format
 
-- `29` → one literal block  
-- `30` → two literal blocks  
-- `31` → three literal blocks  
-- `32` → final tail (shorter than full block)
+The header begins with a **1‑bit toggle**:
 
-These literal codes are used in place of escape markers or raw bytes:
+```
+0 → arity = 1 (single literal block)
+1 → arity continues in 2‑bit windows
+```
 
-- The decoder reads the arity.
-- If it is `29`–`31`, it copies that number of literal blocks directly.
-- If it is `32`, it copies the remaining tail bytes (less than `block_size`).
-- Otherwise, it uses `G(seed)` for normal reconstruction.
+When the first bit is `1`, the decoder reads successive 2‑bit windows.  Each
+window follows VQL rules—`00`, `01`, and `10` carry payload values while `11`
+signals continuation—except that the **first payload `00` is reserved**.  This
+reserved pattern (`1 00`) marks a multi‑block literal span and terminates the
+header without supplying an arity value.  Actual arities therefore start at the
+next payload value.
 
-No additional marker bytes or prefix codes are ever emitted.
+The resulting codes are:
+
+```
+0           → arity = 1
+1 00        → literal marker
+1 01        → arity = 2
+1 10        → arity = 3
+1 11 00     → arity = 4
+1 11 01     → arity = 5
+1 11 10     → arity = 6
+1 11 11 00  → arity = 7
+...         → and so on
+```
+
+Each additional window contributes three more arity values.  Single block
+literals therefore use `0`, while any multi‑block literal uses the reserved
+`1 00` code.  No extra marker bytes or escape sequences are required.
 
 ### `.tlmr` File Layout
 
