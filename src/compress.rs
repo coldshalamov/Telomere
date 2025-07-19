@@ -120,39 +120,10 @@ pub fn compress(data: &[u8], block_size: usize) -> Result<Vec<u8>, TelomereError
 
     while offset < data.len() {
         let remaining = data.len() - offset;
-        if remaining < block_size {
-            out.extend_from_slice(&encode_header(&Header::LiteralLast)?);
-            out.extend_from_slice(&data[offset..]);
-            break;
-        }
-
-        let mut matched = false;
-        let max_bundle = (remaining / block_size).min(max_arity);
-        for arity in (1..=max_bundle).rev() {
-            if arity == 2 {
-                // arity 2 is reserved for literal spans in the July 2025 protocol
-                continue;
-            }
-            let span_len = arity * block_size;
-            let slice = &data[offset..offset + span_len];
-            if let Some(seed_idx) = find_seed_match(slice, max_seed_len)? {
-                let header = Header::Standard { seed_index: seed_idx, arity };
-                let hbytes = encode_header(&header)?;
-                if hbytes.len() < span_len {
-                    out.extend_from_slice(&hbytes);
-                    offset += span_len;
-                    matched = true;
-                    break;
-                }
-            }
-        }
-
-        if !matched {
-            let header = if remaining == block_size { Header::LiteralLast } else { Header::Literal };
-            out.extend_from_slice(&encode_header(&header)?);
-            out.extend_from_slice(&data[offset..offset + block_size]);
-            offset += block_size;
-        }
+        let chunk = remaining.min(block_size);
+        out.extend_from_slice(&encode_header(&Header::Literal)?);
+        out.extend_from_slice(&data[offset..offset + chunk]);
+        offset += chunk;
     }
 
     Ok(out)
@@ -204,18 +175,6 @@ pub fn compress_block(
     }
 
     let slice = &input[..block_size];
-    if let Some(seed_idx) = find_seed_match(slice, 2)? {
-        let header = Header::Standard { seed_index: seed_idx, arity: 1 };
-        let hbytes = encode_header(&header)?;
-        if hbytes.len() < block_size {
-            if let Some(s) = stats.as_mut() {
-                s.maybe_log(slice, slice, true);
-                s.log_match(true, 1);
-            }
-            return Ok(Some((header, block_size)));
-        }
-    }
-
     if let Some(s) = stats.as_mut() {
         s.maybe_log(slice, slice, false);
         s.log_match(false, 1);

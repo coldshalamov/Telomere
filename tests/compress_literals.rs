@@ -26,14 +26,10 @@ fn compress_writes_header_then_data() {
         offset += (bits + 7) / 8;
         match header {
             Header::Literal => {
-                assert_eq!(&out[offset..offset + block_size], &data[idx..idx + block_size]);
-                offset += block_size;
-                idx += block_size;
-            }
-            Header::LiteralLast => {
-                assert_eq!(&out[offset..], &data[idx..]);
-                idx = data.len();
-                offset = out.len();
+                let chunk = (data.len() - idx).min(block_size);
+                assert_eq!(&out[offset..offset + chunk], &data[idx..idx + chunk]);
+                offset += chunk;
+                idx += chunk;
             }
             _ => panic!("unexpected header"),
         }

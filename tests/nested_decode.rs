@@ -47,7 +47,7 @@ fn decode_two_level_header() {
     // Build child bitstream: three literal blocks 0x01, 0x02, 0x03
     let mut child_bits = Vec::new();
     for &b in &[0x01u8, 0x02, 0x03] {
-        child_bits.extend([true, false]); // arity 2 -> literal
+        child_bits.extend([true, false, false]); // literal marker
         child_bits.extend(byte_bits(b));
     }
     let child_bytes = pack_bits(&child_bits);
@@ -58,7 +58,7 @@ fn decode_two_level_header() {
     // Root header
     let mut bits = Vec::new();
     bits.extend(evql_bits(1)); // block count
-    bits.extend([true, true, false, false, false]); // arity 3
+    bits.extend([true, true, false]); // arity 3 -> 1 10
     bits.extend(evql_bits(0)); // seed index 0
     let input = pack_bits(&bits);
 

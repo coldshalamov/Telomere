@@ -45,7 +45,6 @@ pub use header::{
     encode_header,
     BitReader,
     Config,
-    Span,
     Header,
 };
 pub use io_utils::*;
@@ -132,31 +131,17 @@ pub fn decompress_with_limit(input: &[u8], limit: usize) -> Result<Vec<u8>, Telo
         let (header, bits) = decode_header(slice).map_err(|_| TelomereError::Decode("invalid header field".into()))?;
         offset += (bits + 7) / 8;
         match header {
-            Header::Standard { seed_index, arity } => {
-                let needed = arity * block_size;
-                if out.len() + needed > limit {
-                    return Err(TelomereError::Decode("invalid header field".into()));
-                }
-                let seed = index_to_seed(seed_index, 2)?;
-                let generated = expand_seed(&seed, needed);
-                out.extend_from_slice(&generated);
+            Header::Arity(_) => {
+                return Err(TelomereError::Decode("invalid header field".into()));
             }
             Header::Literal => {
-                let bytes = block_size;
+                let remaining = input.len() - offset;
+                let bytes = if remaining == last_block_size { last_block_size } else { block_size };
                 if out.len() + bytes > limit || offset + bytes > input.len() {
                     return Err(TelomereError::Decode("invalid header field".into()));
                 }
                 out.extend_from_slice(&input[offset..offset + bytes]);
                 offset += bytes;
-            }
-            Header::LiteralLast => {
-                let bytes = last_block_size;
-                if out.len() + bytes > limit || offset + bytes > input.len() {
-                    return Err(TelomereError::Decode("invalid header field".into()));
-                }
-                out.extend_from_slice(&input[offset..offset + bytes]);
-                offset += bytes;
-                break;
             }
         }
         if offset == input.len() {
