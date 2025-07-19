@@ -29,6 +29,7 @@ src/bin/seed_table.rs
 !tests/compressor_cli.rs
 !tests/nested_decode.rs
 !tests/header_patterns.rs
+!tests/hybrid_match.rs
 seed_table.csv
 run_table.bat
 table_24.csv

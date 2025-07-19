@@ -111,11 +111,7 @@ fn passthrough_final_tail() {
 #[test]
 fn unsupported_header_fails() {
     let block_size = 3;
-<<<<<<< HEAD
-    // Use a non-literal header which the decoder does not support
-=======
     // Use a non-literal header which should fail
->>>>>>> main
     let header = encode_header(&Header::Arity(3)).unwrap();
     let literal = vec![0u8; block_size];
     let tlmr = encode_tlmr_header(&TlmrHeader {
