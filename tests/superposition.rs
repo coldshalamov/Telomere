@@ -80,6 +80,8 @@ fn block_change_clears_branches() {
 
 #[test]
 fn superposed_insert_and_promote() {
+    use telomere::superposition::InsertResult;
+
     let mut mgr = SuperpositionManager::new();
 
     let base = Candidate {
@@ -101,9 +103,9 @@ fn superposed_insert_and_promote() {
         pass_seen: 0,
     };
 
-    assert!(mgr.insert_superposed(42, base.clone()).is_ok());
-    assert!(mgr.insert_superposed(42, b.clone()).is_ok());
-    assert!(mgr.insert_superposed(42, c.clone()).is_ok());
+    assert_eq!(mgr.insert_superposed(42, base.clone()).unwrap(), InsertResult::Inserted('A'));
+    assert_eq!(mgr.insert_superposed(42, b.clone()).unwrap(), InsertResult::Inserted('B'));
+    assert_eq!(mgr.insert_superposed(42, c.clone()).unwrap(), InsertResult::Inserted('C'));
 
     let list = mgr
         .all_superposed()
@@ -133,4 +135,54 @@ fn superposed_insert_and_promote() {
     let promoted = mgr.promote_superposed(42, 'B');
     assert_eq!(promoted.unwrap().bit_len, b.bit_len);
     assert!(mgr.best_superposed(42).is_none());
+}
+
+#[test]
+fn superposed_delta_pruning() {
+    use telomere::superposition::InsertResult;
+
+    let mut mgr = SuperpositionManager::new();
+    let a = Candidate { seed_index: 1, arity: 1, bit_len: 24, pass_seen: 0 };
+    let b = Candidate { seed_index: 2, arity: 1, bit_len: 31, pass_seen: 0 };
+    let big = Candidate { seed_index: 3, arity: 1, bit_len: 34, pass_seen: 0 };
+
+    assert_eq!(mgr.insert_superposed(7, a.clone()).unwrap(), InsertResult::Inserted('A'));
+    assert_eq!(mgr.insert_superposed(7, b.clone()).unwrap(), InsertResult::Inserted('B'));
+    // This insertion should prune the C candidate immediately
+    assert_eq!(mgr.insert_superposed(7, big).unwrap(), InsertResult::Pruned(vec!['C']));
+
+    let list = mgr.all_superposed().into_iter().find(|(i, _)| *i == 7).unwrap().1;
+    assert_eq!(list.len(), 2);
+    assert!(list.iter().any(|(l, _)| *l == 'A'));
+    assert!(list.iter().any(|(l, _)| *l == 'B'));
+}
+
+#[test]
+fn superposed_promotion_clears_all() {
+    let mut mgr = SuperpositionManager::new();
+    let a = Candidate { seed_index: 1, arity: 1, bit_len: 24, pass_seen: 0 };
+    let b = Candidate { seed_index: 2, arity: 1, bit_len: 29, pass_seen: 0 };
+    let c = Candidate { seed_index: 3, arity: 1, bit_len: 30, pass_seen: 0 };
+
+    mgr.insert_superposed(99, a).unwrap();
+    mgr.insert_superposed(99, b.clone()).unwrap();
+    mgr.insert_superposed(99, c).unwrap();
+
+    let res = mgr.promote_superposed(99, 'B');
+    assert_eq!(res.unwrap().bit_len, b.bit_len);
+    assert!(mgr.best_superposed(99).is_none());
+}
+
+#[test]
+fn superposed_insert_limit() {
+    let mut mgr = SuperpositionManager::new();
+    let a = Candidate { seed_index: 1, arity: 1, bit_len: 24, pass_seen: 0 };
+    let b = Candidate { seed_index: 2, arity: 1, bit_len: 26, pass_seen: 0 };
+    let c = Candidate { seed_index: 3, arity: 1, bit_len: 28, pass_seen: 0 };
+    let d = Candidate { seed_index: 4, arity: 1, bit_len: 30, pass_seen: 0 };
+
+    assert!(mgr.insert_superposed(5, a).is_ok());
+    assert!(mgr.insert_superposed(5, b).is_ok());
+    assert!(mgr.insert_superposed(5, c).is_ok());
+    assert!(mgr.insert_superposed(5, d).is_err());
 }

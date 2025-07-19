@@ -8,6 +8,12 @@ pub struct SuperpositionManager {
     superposed: HashMap<usize, Vec<(char, Candidate)>>,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum InsertResult {
+    Inserted(char),
+    Pruned(Vec<char>),
+}
+
 impl SuperpositionManager {
     pub fn new() -> Self {
         SuperpositionManager {
@@ -33,12 +39,14 @@ impl SuperpositionManager {
         &mut self,
         block_index: usize,
         cand: Candidate,
-    ) -> Result<(), TelomereError> {
+    ) -> Result<InsertResult, TelomereError> {
         use TelomereError::SuperpositionLimitExceeded;
+
         let list = self.superposed.entry(block_index).or_insert_with(Vec::new);
         if list.len() >= 3 {
             return Err(SuperpositionLimitExceeded(block_index));
         }
+
         let label = match list.len() {
             0 => 'A',
             1 => 'B',
@@ -46,7 +54,22 @@ impl SuperpositionManager {
             _ => unreachable!(),
         };
         list.push((label, cand));
-        Ok(())
+
+        let min_len = list.iter().map(|(_, c)| c.bit_len).min().unwrap();
+        let mut pruned = Vec::new();
+        list.retain(|(l, c)| {
+            let keep = c.bit_len <= min_len + 8;
+            if !keep {
+                pruned.push(*l);
+            }
+            keep
+        });
+
+        if !pruned.is_empty() {
+            Ok(InsertResult::Pruned(pruned))
+        } else {
+            Ok(InsertResult::Inserted(label))
+        }
     }
 
     pub fn remove_superposed(&mut self, block_index: usize) {
@@ -60,13 +83,8 @@ impl SuperpositionManager {
                 if list.len() < 2 {
                     continue;
                 }
-                let mut sorted = list.clone();
-                sorted.sort_by_key(|(_, c)| c.bit_len);
-                let min = sorted[0].1.bit_len;
-                let max = sorted.last().unwrap().1.bit_len;
-                if max > min + 8 {
-                    list.retain(|(_, c)| c.bit_len <= min + 8);
-                }
+                let min = list.iter().map(|(_, c)| c.bit_len).min().unwrap();
+                list.retain(|(_, c)| c.bit_len <= min + 8);
             }
         }
     }
