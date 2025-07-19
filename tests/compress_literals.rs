@@ -1,4 +1,4 @@
-use telomere::{compress, decode_tlmr_header, decode_header, decompress_with_limit, Header};
+use telomere::{compress, decode_header, decode_tlmr_header, decompress_with_limit, Header};
 
 #[test]
 fn compress_writes_header_then_data() {
@@ -8,10 +8,10 @@ fn compress_writes_header_then_data() {
     let decompressed = decompress_with_limit(&out, usize::MAX).unwrap();
     assert_eq!(decompressed, data);
 
-    let header = decode_tlmr_header(&out).unwrap();
-    assert_eq!(header.block_size, block_size);
+    let file_hdr = decode_tlmr_header(&out).unwrap();
+    assert_eq!(file_hdr.block_size, block_size);
     assert_eq!(
-        header.last_block_size,
+        file_hdr.last_block_size,
         if data.len() % block_size == 0 {
             block_size
         } else {
@@ -22,14 +22,26 @@ fn compress_writes_header_then_data() {
     let mut idx = 0usize;
 
     while offset < out.len() {
-        let (header, bits) = decode_header(&out[offset..]).unwrap();
+        let (hdr, bits) = decode_header(&out[offset..]).unwrap();
         offset += (bits + 7) / 8;
-        match header {
+        match hdr {
             Header::Literal => {
+<<<<<<< HEAD
                 let chunk = (data.len() - idx).min(block_size);
                 assert_eq!(&out[offset..offset + chunk], &data[idx..idx + chunk]);
                 offset += chunk;
                 idx += chunk;
+=======
+                let remaining = out.len() - offset;
+                let bytes = if remaining == file_hdr.last_block_size {
+                    file_hdr.last_block_size
+                } else {
+                    block_size
+                };
+                assert_eq!(&out[offset..offset + bytes], &data[idx..idx + bytes]);
+                offset += bytes;
+                idx += bytes;
+>>>>>>> main
             }
             _ => panic!("unexpected header"),
         }

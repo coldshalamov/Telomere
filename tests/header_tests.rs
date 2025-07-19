@@ -1,4 +1,4 @@
-use telomere::{Header, encode_header, decode_header};
+use telomere::{decode_header, encode_header, Header};
 
 #[test]
 fn header_roundtrip_across_ranges() {

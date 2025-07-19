@@ -8,12 +8,13 @@ mod block;
 mod bundle;
 mod compress;
 mod compress_stats;
+mod error;
 mod file_header;
 mod tlmr;
-mod error;
 // Gloss table support has been removed for the MVP.  The original
 // implementation used precomputed decompressed strings to accelerate
 // seed matching.  Future versions may reintroduce a `gloss` module.
+mod block_indexer;
 mod candidate;
 mod hash_reader;
 mod header;
@@ -24,7 +25,6 @@ mod seed_detect;
 mod seed_index;
 mod seed_logger;
 mod sha_cache;
-mod block_indexer;
 mod stats;
 use sha2::{Digest, Sha256};
 
@@ -33,12 +33,15 @@ pub use block::{
     prune_branches, run_all_passes, split_into_blocks, Block, BlockChange, BlockTable,
     BranchStatus,
 };
+pub use block_indexer::{brute_force_seed_tables, IndexedBlock, SeedMatch};
 pub use bundle::{apply_bundle, BlockStatus, MutableBlock};
 pub use candidate::{prune_candidates, Block as CandidateBlock, Candidate};
 pub use compress::{compress, compress_block, compress_multi_pass, TruncHashTable};
 pub use compress_stats::{write_stats_csv, CompressionStats};
+pub use error::TelomereError;
 pub use file_header::{decode_file_header, encode_file_header};
 pub use hash_reader::lookup_seed;
+<<<<<<< HEAD
 pub use header::{
     decode,
     decode_header,
@@ -47,6 +50,9 @@ pub use header::{
     Config,
     Header,
 };
+=======
+pub use header::{decode_header, encode_header, BitReader, Header};
+>>>>>>> main
 pub use io_utils::*;
 pub use live_window::{print_window, LiveStats};
 pub use path::*;
@@ -56,10 +62,8 @@ pub use seed_logger::{
     log_seed, log_seed_to, resume_seed_index, resume_seed_index_from, HashEntry, ResourceLimits,
 };
 pub use sha_cache::*;
-pub use block_indexer::{brute_force_seed_tables, IndexedBlock, SeedMatch};
 pub use stats::Stats;
 pub use tlmr::{decode_tlmr_header, encode_tlmr_header, truncated_hash, TlmrError, TlmrHeader};
-pub use error::TelomereError;
 
 pub fn print_compression_status(original: usize, compressed: usize) {
     let ratio = 100.0 * (1.0 - compressed as f64 / original as f64);
@@ -127,22 +131,41 @@ pub fn decompress_with_limit(input: &[u8], limit: usize) -> Result<Vec<u8>, Telo
         if offset == input.len() {
             break;
         }
-        let slice = input.get(offset..).ok_or_else(|| TelomereError::Decode("invalid header field".into()))?;
-        let (header, bits) = decode_header(slice).map_err(|_| TelomereError::Decode("invalid header field".into()))?;
+        let slice = input
+            .get(offset..)
+            .ok_or_else(|| TelomereError::Decode("invalid header field".into()))?;
+        let (header, bits) = decode_header(slice)
+            .map_err(|_| TelomereError::Decode("invalid header field".into()))?;
         offset += (bits + 7) / 8;
         match header {
+<<<<<<< HEAD
             Header::Arity(_) => {
                 return Err(TelomereError::Decode("invalid header field".into()));
             }
             Header::Literal => {
                 let remaining = input.len() - offset;
                 let bytes = if remaining == last_block_size { last_block_size } else { block_size };
+=======
+            Header::Literal => {
+                let remaining = input.len() - offset;
+                let bytes = if remaining == last_block_size {
+                    last_block_size
+                } else {
+                    block_size
+                };
+>>>>>>> main
                 if out.len() + bytes > limit || offset + bytes > input.len() {
                     return Err(TelomereError::Decode("invalid header field".into()));
                 }
                 out.extend_from_slice(&input[offset..offset + bytes]);
                 offset += bytes;
             }
+<<<<<<< HEAD
+=======
+            Header::Arity(_) => {
+                return Err(TelomereError::Decode("compressed spans unsupported".into()));
+            }
+>>>>>>> main
         }
         if offset == input.len() {
             // No more data left to decode.

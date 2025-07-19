@@ -1,5 +1,4 @@
 use crate::TelomereError;
-use std::collections::HashMap;
 
 /// Header describing either a literal block or the arity for a seeded span.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -10,15 +9,7 @@ pub enum Header {
     Literal,
 }
 
-/// Configuration for recursive decoding.
-#[derive(Debug, Clone, Default)]
-pub struct Config {
-    pub block_size: usize,
-    /// Mapping from seed indices to generated bitstreams used during decoding.
-    pub seed_expansions: HashMap<usize, Vec<u8>>,
-}
-
-/// Bit level reader used by the decoder tests.
+/// Bit level reader used for header decoding in tests and helpers.
 #[derive(Debug, Clone)]
 pub struct BitReader<'a> {
     data: &'a [u8],
@@ -26,12 +17,10 @@ pub struct BitReader<'a> {
 }
 
 impl<'a> BitReader<'a> {
-    /// Create a reader from a byte slice.
     pub fn from_slice(data: &'a [u8]) -> Self {
         Self { data, pos: 0 }
     }
 
-    /// Read a single bit returning an error on EOF.
     pub fn read_bit(&mut self) -> Result<bool, TelomereError> {
         if self.pos / 8 >= self.data.len() {
             return Err(TelomereError::Decode("unexpected EOF".into()));
@@ -41,25 +30,18 @@ impl<'a> BitReader<'a> {
         Ok(bit)
     }
 
-    /// Read an arbitrary number of bits.
-    pub fn read_bits(&mut self, bits: usize) -> Result<u64, TelomereError> {
-        let mut v = 0u64;
-        for _ in 0..bits {
-            v = (v << 1) | self.read_bit()? as u64;
-        }
-        Ok(v)
-    }
-
-    /// Read a byte slice from the underlying bits.
-    pub fn read_bytes(&mut self, count: usize) -> Result<Vec<u8>, TelomereError> {
-        let mut out = Vec::with_capacity(count);
-        for _ in 0..count {
-            out.push(self.read_bits(8)? as u8);
+    pub fn read_bytes(&mut self, n: usize) -> Result<Vec<u8>, TelomereError> {
+        let mut out = Vec::new();
+        for _ in 0..n {
+            let mut byte = 0u8;
+            for _ in 0..8 {
+                byte = (byte << 1) | self.read_bit()? as u8;
+            }
+            out.push(byte);
         }
         Ok(out)
     }
 
-    /// Number of bits consumed so far.
     pub fn bits_read(&self) -> usize {
         self.pos
     }
@@ -82,36 +64,10 @@ fn pack_bits(bits: &[bool]) -> Vec<u8> {
         byte <<= 8 - used;
         out.push(byte);
     }
-    if out.is_empty() { out.push(0); }
+    if out.is_empty() {
+        out.push(0);
+    }
     out
-}
-
-fn encode_evql_bits(mut value: usize) -> Vec<bool> {
-    let mut width = 1usize;
-    let mut n = 0usize;
-    while value >= (1usize << width) {
-        width <<= 1;
-        n += 1;
-    }
-    let mut bits = vec![true; n];
-    bits.push(false);
-    for i in (0..width).rev() {
-        bits.push(((value >> i) & 1) != 0);
-    }
-    bits
-}
-
-fn decode_evql(reader: &mut BitReader) -> Result<usize, TelomereError> {
-    let mut n = 0usize;
-    loop {
-        if reader.read_bit()? { n += 1; } else { break; }
-    }
-    let width = 1usize << n;
-    let mut val = 0usize;
-    for _ in 0..width {
-        val = (val << 1) | reader.read_bit()? as usize;
-    }
-    Ok(val)
 }
 
 fn encode_arity(arity: usize) -> Result<Vec<bool>, TelomereError> {
@@ -149,12 +105,10 @@ fn decode_arity(reader: &mut BitReader) -> Result<Option<usize>, TelomereError> 
         let b1 = reader.read_bit()?;
         let b2 = reader.read_bit()?;
         match (b1, b2) {
-            (true, true) => {
-                index += 3;
-            }
+            (true, true) => index += 3,
             (false, false) => {
                 if index == 0 {
-                    return Ok(None);
+                    return Ok(None); // Literal marker
                 } else {
                     return Ok(Some(index + 1));
                 }
@@ -165,17 +119,15 @@ fn decode_arity(reader: &mut BitReader) -> Result<Option<usize>, TelomereError> 
     }
 }
 
-/// Encode a span header using the July 2025 bit layout.
 pub fn encode_header(header: &Header) -> Result<Vec<u8>, TelomereError> {
     let mut bits = Vec::new();
     match header {
         Header::Arity(a) => bits.extend(encode_arity(*a as usize)?),
-        Header::Literal => bits.extend_from_slice(&[true, false, false]),
+        Header::Literal => bits.extend_from_slice(&[true, false, false]), // "100" literal marker
     }
     Ok(pack_bits(&bits))
 }
 
-/// Decode a span header returning the header and bits consumed.
 pub fn decode_header(data: &[u8]) -> Result<(Header, usize), TelomereError> {
     let mut r = BitReader::from_slice(data);
     let first = r.read_bit()?;
@@ -201,58 +153,28 @@ pub fn decode_header(data: &[u8]) -> Result<(Header, usize), TelomereError> {
     }
 }
 
-fn generate_bits(config: &Config, seed_idx: usize) -> Result<Vec<u8>, TelomereError> {
-    config
-        .seed_expansions
-        .get(&seed_idx)
-        .cloned()
-        .ok_or_else(|| TelomereError::Other(format!("missing seed expansion for {seed_idx}")))
-}
-
-fn decode_span(reader: &mut BitReader, config: &Config) -> Result<Vec<u8>, TelomereError> {
-    match decode_arity(reader)? {
-        None => reader.read_bytes(config.block_size),
-        Some(arity) => {
-            let seed_idx = decode_evql(reader)?;
-            let child_bits = generate_bits(config, seed_idx)?;
-            let mut child_reader = BitReader::from_slice(&child_bits);
-            let mut out = Vec::new();
-            for _ in 0..arity {
-                out.extend(decode_span(&mut child_reader, config)?);
-            }
-            Ok(out)
-        }
-    }
-}
-
-/// Decode a stream of blocks described by nested headers.
-pub fn decode(reader: &mut BitReader, config: &Config) -> Result<Vec<u8>, TelomereError> {
-    let block_count = decode_evql(reader)?;
-    let mut result = Vec::new();
-    for _ in 0..block_count {
-        result.extend(decode_span(reader, config)?);
-    }
-    Ok(result)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
+    fn bits_to_bytes(bits: &[bool]) -> Vec<u8> {
+        pack_bits(bits)
+    }
+
     #[test]
-    fn roundtrip_header() {
+    fn roundtrip_cases() {
         let cases = [
-            Header::Arity(1),
-            Header::Arity(2),
-            Header::Arity(3),
-            Header::Arity(4),
-            Header::Literal,
+            (Header::Arity(1), vec![false]),
+            (Header::Arity(2), vec![true, false, true]),
+            (Header::Arity(3), vec![true, true, false]),
+            (Header::Arity(4), vec![true, true, true, false, false]),
+            (Header::Literal, vec![true, false, false]),
         ];
-        for h in cases {
+        for (h, bits) in cases {
             let enc = encode_header(&h).unwrap();
+            assert_eq!(enc, bits_to_bytes(&bits));
             let (dec, _) = decode_header(&enc).unwrap();
             assert_eq!(dec, h);
         }
     }
 }
-
