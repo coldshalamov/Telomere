@@ -1,3 +1,4 @@
+use crate::config::Config;
 use crate::TelomereError;
 
 /// Header describing either a literal block or the arity for a seeded span.
@@ -44,6 +45,14 @@ impl<'a> BitReader<'a> {
 
     pub fn bits_read(&self) -> usize {
         self.pos
+    }
+
+    /// Advance the reader to the next byte boundary.
+    pub fn align_byte(&mut self) {
+        if self.pos % 8 != 0 {
+            let skip = 8 - (self.pos % 8);
+            self.pos += skip;
+        }
     }
 }
 
@@ -115,6 +124,47 @@ fn decode_arity(reader: &mut BitReader) -> Result<Option<usize>, TelomereError> 
             }
             (false, true) => return Ok(Some(index + 2)),
             (true, false) => return Ok(Some(index + 3)),
+        }
+    }
+}
+
+fn decode_evql(reader: &mut BitReader) -> Result<usize, TelomereError> {
+    let mut n = 0usize;
+    loop {
+        if !reader.read_bit()? {
+            break;
+        }
+        n += 1;
+    }
+    let width = 1usize << n;
+    let mut value = 0usize;
+    for _ in 0..width {
+        value = (value << 1) | reader.read_bit()? as usize;
+    }
+    Ok(value)
+}
+
+/// Decode a span of bytes from a bitstream using seeded arity headers.
+pub fn decode_span(reader: &mut BitReader, config: &Config) -> Result<Vec<u8>, TelomereError> {
+    match decode_arity(reader)? {
+        None => {
+            // Literal block
+            reader.align_byte();
+            reader.read_bytes(config.block_size)
+        }
+        Some(arity) => {
+            let seed_idx = decode_evql(reader)?;
+            reader.align_byte();
+            let child_bits = config
+                .seed_expansions
+                .get(&seed_idx)
+                .ok_or_else(|| TelomereError::Other("Missing seed expansion".into()))?;
+            let mut child_reader = BitReader::from_slice(child_bits);
+            let mut out = Vec::new();
+            for _ in 0..arity {
+                out.extend(decode_span(&mut child_reader, config)?);
+            }
+            Ok(out)
         }
     }
 }

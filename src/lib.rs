@@ -15,9 +15,12 @@ mod tlmr;
 // implementation used precomputed decompressed strings to accelerate
 // seed matching.  Future versions may reintroduce a `gloss` module.
 mod block_indexer;
+mod bundle_select;
 mod candidate;
+mod config;
 mod hash_reader;
 mod header;
+mod hybrid;
 pub mod io_utils;
 mod live_window;
 mod path;
@@ -25,10 +28,8 @@ mod seed_detect;
 mod seed_index;
 mod seed_logger;
 mod sha_cache;
-mod hybrid;
 mod stats;
 pub mod superposition;
-mod bundle_select;
 pub mod types;
 use sha2::{Digest, Sha256};
 
@@ -39,15 +40,16 @@ pub use block::{
 };
 pub use block_indexer::{brute_force_seed_tables, IndexedBlock, SeedMatch};
 pub use bundle::{apply_bundle, BlockStatus, MutableBlock};
+pub use bundle_select::{select_bundles, AcceptedBundle, BundleRecord};
 pub use candidate::{prune_candidates, Block as CandidateBlock, Candidate};
 pub use compress::{compress, compress_block, compress_multi_pass, TruncHashTable};
 pub use compress_stats::{write_stats_csv, CompressionStats};
-pub use hybrid::{compress_hybrid, CpuMatchRecord, GpuMatchRecord};
-pub use bundle_select::{select_bundles, AcceptedBundle, BundleRecord};
+pub use config::Config;
 pub use error::TelomereError;
 pub use file_header::{decode_file_header, encode_file_header};
 pub use hash_reader::lookup_seed;
-pub use header::{decode_header, encode_header, BitReader, Header};
+pub use header::{decode_header, decode_span, encode_header, BitReader, Header};
+pub use hybrid::{compress_hybrid, CpuMatchRecord, GpuMatchRecord};
 pub use io_utils::*;
 pub use live_window::{print_window, LiveStats};
 pub use path::*;
