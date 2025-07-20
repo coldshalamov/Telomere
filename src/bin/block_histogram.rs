@@ -1,7 +1,7 @@
+#![cfg_attr(not(feature = "gpu"), deny(unsafe_code))]
 //! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 use bytemuck::{Pod, Zeroable};
 use clap::Parser;
-use memmap2::Mmap;
 use serde::Serialize;
 use sha2::{Digest, Sha256};
 use std::cmp::Ordering;
@@ -11,15 +11,12 @@ use std::path::{Path, PathBuf};
 use telomere::io_utils::{io_cli_error, simple_cli_error};
 
 #[repr(C)]
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Zeroable, Pod)]
 struct Entry {
     prefix: [u8; 3],
     len: u8,
     seed: [u8; 4],
 }
-
-unsafe impl Zeroable for Entry {}
-unsafe impl Pod for Entry {}
 
 #[derive(Parser)]
 struct Args {
@@ -69,10 +66,8 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         fs::read(&args.input).map_err(|e| io_cli_error("reading input file", &args.input, e))?;
 
     let table_path = Path::new("hash_table.bin");
-    let file =
-        File::open(table_path).map_err(|e| io_cli_error("opening hash table", table_path, e))?;
-    let mmap =
-        unsafe { Mmap::map(&file).map_err(|e| io_cli_error("mapping hash table", table_path, e))? };
+    let table_bytes =
+        fs::read(table_path).map_err(|e| io_cli_error("reading hash table", table_path, e))?;
 
     let mut counts = [0u64; 4]; // 1,2,3,literal
     let mut json_records = Vec::new();
@@ -89,7 +84,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     for (idx, chunk) in input.chunks(args.block_size).enumerate() {
         let digest = Sha256::digest(chunk);
         let prefix = [digest[0], digest[1], digest[2]];
-        let result = lookup_seed(&mmap, prefix, args.min_bits, args.max_bits);
+        let result = lookup_seed(&table_bytes, prefix, args.min_bits, args.max_bits);
         let category = match result {
             Some(seed) => match seed.len() {
                 1 => {
@@ -173,12 +168,12 @@ fn seed_bit_length(seed: &[u8]) -> u32 {
     0
 }
 
-fn lookup_seed(mmap: &Mmap, prefix: [u8; 3], min_bits: u32, max_bits: u32) -> Option<Vec<u8>> {
+fn lookup_seed(bytes: &[u8], prefix: [u8; 3], min_bits: u32, max_bits: u32) -> Option<Vec<u8>> {
     let entry_size = std::mem::size_of::<Entry>();
-    if mmap.len() % entry_size != 0 {
+    if bytes.len() % entry_size != 0 {
         return None;
     }
-    let entries: &[Entry] = bytemuck::cast_slice(&mmap[..]);
+    let entries: &[Entry] = bytemuck::cast_slice(bytes);
 
     let mut left = 0usize;
     let mut right = entries.len();

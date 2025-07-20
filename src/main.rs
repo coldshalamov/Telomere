@@ -1,3 +1,4 @@
+#![cfg_attr(not(feature = "gpu"), deny(unsafe_code))]
 //! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 //!
 //! Compression and decompression are exposed as subcommands. This binary
@@ -7,6 +8,7 @@
 use clap::{ArgGroup, Args, Parser, Subcommand};
 use telomere::Config;
 use std::{fs, path::PathBuf, time::Instant};
+use std::error::Error;
 use telomere::{
     compress_multi_pass, decompress_with_limit, decode_tlmr_header, truncated_hash,
     io_utils::{

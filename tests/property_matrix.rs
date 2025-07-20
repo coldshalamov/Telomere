@@ -1,7 +1,11 @@
 use proptest::prelude::*;
-use telomere::{compress, compress_multi_pass, decompress};
+use telomere::{compress, compress_multi_pass, decompress, Config};
 use telomere::superposition::SuperpositionManager;
 use telomere::types::Candidate;
+
+fn cfg(bs: usize) -> Config {
+    Config { block_size: bs, hash_bits: 13, ..Config::default() }
+}
 
 proptest! {
     #![proptest_config(ProptestConfig { cases: 16, .. ProptestConfig::default() })]
@@ -16,7 +20,7 @@ proptest! {
         } else {
             compress(&data, block).unwrap()
         };
-        let out = decompress(&compressed).unwrap();
+        let out = decompress(&compressed, &cfg(block)).unwrap();
         prop_assert_eq!(out.as_slice(), data.as_slice());
         prop_assert!(compressed.len() <= data.len() + 8);
     }
@@ -65,6 +69,6 @@ proptest! {
         let idx = bit % total_bits;
         let mut corrupt = compressed.clone();
         corrupt[idx / 8] ^= 1 << (idx % 8);
-        prop_assert!(decompress(&corrupt).is_err());
+        prop_assert!(decompress(&corrupt, &cfg(block)).is_err());
     }
 }
