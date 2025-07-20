@@ -3,6 +3,11 @@ use std::collections::HashMap;
 use crate::types::{Candidate, TelomereError};
 
 #[derive(Debug, Clone)]
+/// Manages superposed candidates across compression passes.
+///
+/// Candidates are added freely during a pass. No pruning is performed
+/// until [`prune_end_of_pass`] is called, ensuring that the lattice of
+/// possibilities remains stable while matching logic runs.
 pub struct SuperpositionManager {
     canonical: HashMap<(usize, usize), Candidate>,
     superposed: HashMap<usize, Vec<(char, Candidate)>>,
@@ -22,6 +27,35 @@ impl SuperpositionManager {
         }
     }
 
+    /// Insert a candidate without any pruning. Labels are assigned
+    /// deterministically in insertion order. Pruning must be invoked
+    /// separately after the pass completes.
+    pub fn push_unpruned(&mut self, block_index: usize, cand: Candidate) {
+        let list = self.superposed.entry(block_index).or_default();
+        let label = ((list.len() as u8) + b'A') as char;
+        list.push((label, cand));
+    }
+
+    /// Prune all stored candidates keeping only the shortest per block index.
+    /// Ties are broken deterministically by label so results remain
+    /// reproducible between runs.
+    /// Collapse each superposition down to a single candidate.
+    ///
+    /// This should be called exactly once at the end of a compression pass.
+    pub fn prune_end_of_pass(&mut self) {
+        for (_idx, list) in self.superposed.iter_mut() {
+            if list.is_empty() {
+                continue;
+            }
+            list.sort_by(|a, b| a.1.bit_len.cmp(&b.1.bit_len).then(a.0.cmp(&b.0)));
+            let best_len = list[0].1.bit_len;
+            list.retain(|(_, c)| c.bit_len == best_len);
+            if list.len() > 1 {
+                let keep = list[0].0;
+                list.retain(|(l, _)| *l == keep);
+            }
+        }
+    }
     pub fn insert_candidate(&mut self, key: (usize, usize), cand: Candidate) {
         match self.canonical.entry(key) {
             std::collections::hash_map::Entry::Occupied(mut e) => {
