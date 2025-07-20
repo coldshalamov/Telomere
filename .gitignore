@@ -41,6 +41,8 @@ src/bin/seed_table.rs
 !tests/decode_arity_blocks.rs
 !tests/compress_multi_pass.rs
 !tests/compress_bounds.rs
+!tests/full_roundtrip_audit.rs
+!tests/adversarial_prop.rs
 !src/gpu.rs
 !src/tile.rs
 !tests/gpu_tiling.rs
