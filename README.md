@@ -149,3 +149,14 @@ nested segments as a recursive convergence goal.
 - ✅ Deterministic compression and literal passthrough format complete
 - ✅ Round-trip identity supported
 - 🔜 Seed-driven decoding (G-based) in development
+
+## GPU Accelerated Matching and Block Tiling
+
+The experimental hybrid pipeline splits the global block table into fixed-size
+tiles that can be loaded into RAM or VRAM on demand. Each tile records the
+global index of its first block so match logs can always refer to stable global
+indices. When the GPU begins a pass it hashes seeds over the currently loaded
+tile and reports only the compact match log back to the CPU. The CPU processes
+shorter seeds in parallel and merges the results when both complete.  All block
+tables are kept in sync after every pass so the next round starts from an
+identical state.

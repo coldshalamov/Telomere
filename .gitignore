@@ -41,6 +41,9 @@ src/bin/seed_table.rs
 !tests/decode_arity_blocks.rs
 !tests/compress_multi_pass.rs
 !tests/compress_bounds.rs
+!src/gpu.rs
+!src/tile.rs
+!tests/gpu_tiling.rs
 seed_table.csv
 run_table.bat
 table_24.csv
