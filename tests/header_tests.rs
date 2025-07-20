@@ -7,6 +7,10 @@ fn header_roundtrip_across_ranges() {
         Header::Arity(1),
         Header::Arity(3),
         Header::Arity(4),
+        Header::Arity(5),
+        Header::Arity(6),
+        Header::Arity(7),
+        Header::Arity(8),
         Header::Literal,
     ];
     for h in cases {
