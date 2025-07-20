@@ -1,6 +1,5 @@
-use telomere::{
-    chunk_blocks, load_chunk, TileMap, GpuSeedMatcher, split_into_blocks,
-};
+//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
+use telomere::{chunk_blocks, load_chunk, split_into_blocks, GpuSeedMatcher, TileMap};
 
 #[test]
 fn block_chunk_mapping() {

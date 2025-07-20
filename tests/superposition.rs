@@ -1,3 +1,4 @@
+//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 use telomere::superposition::SuperpositionManager;
 use telomere::types::Candidate;
 use telomere::{apply_block_changes, group_by_bit_length, Block, BlockChange, BranchStatus};
@@ -251,17 +252,45 @@ fn superposed_fourth_prunes_longest() {
     use telomere::superposition::InsertResult;
 
     let mut mgr = SuperpositionManager::new();
-    let a = Candidate { seed_index: 1, arity: 1, bit_len: 24 };
-    let b = Candidate { seed_index: 2, arity: 1, bit_len: 30 };
-    let c = Candidate { seed_index: 3, arity: 1, bit_len: 31 };
-    let better = Candidate { seed_index: 4, arity: 1, bit_len: 25 };
+    let a = Candidate {
+        seed_index: 1,
+        arity: 1,
+        bit_len: 24,
+    };
+    let b = Candidate {
+        seed_index: 2,
+        arity: 1,
+        bit_len: 30,
+    };
+    let c = Candidate {
+        seed_index: 3,
+        arity: 1,
+        bit_len: 31,
+    };
+    let better = Candidate {
+        seed_index: 4,
+        arity: 1,
+        bit_len: 25,
+    };
 
-    assert_eq!(mgr.insert_superposed(11, a.clone()).unwrap(), InsertResult::Inserted('A'));
-    assert_eq!(mgr.insert_superposed(11, b.clone()).unwrap(), InsertResult::Inserted('B'));
-    assert_eq!(mgr.insert_superposed(11, c.clone()).unwrap(), InsertResult::Inserted('C'));
+    assert_eq!(
+        mgr.insert_superposed(11, a.clone()).unwrap(),
+        InsertResult::Inserted('A')
+    );
+    assert_eq!(
+        mgr.insert_superposed(11, b.clone()).unwrap(),
+        InsertResult::Inserted('B')
+    );
+    assert_eq!(
+        mgr.insert_superposed(11, c.clone()).unwrap(),
+        InsertResult::Inserted('C')
+    );
 
     // New candidate is better than the current worst (31) and should replace it.
-    assert_eq!(mgr.insert_superposed(11, better.clone()).unwrap(), InsertResult::Pruned(vec!['C']));
+    assert_eq!(
+        mgr.insert_superposed(11, better.clone()).unwrap(),
+        InsertResult::Pruned(vec!['C'])
+    );
 
     let list = mgr
         .all_superposed()
@@ -270,19 +299,51 @@ fn superposed_fourth_prunes_longest() {
         .unwrap()
         .1;
     assert_eq!(list.len(), 3);
-    assert!(list.iter().any(|(l, c)| *l == 'A' && c.bit_len == a.bit_len));
-    assert!(list.iter().any(|(l, c)| *l == 'B' && c.bit_len == b.bit_len));
-    assert!(list.iter().any(|(l, c)| *l == 'C' && c.bit_len == better.bit_len));
+    assert!(list
+        .iter()
+        .any(|(l, c)| *l == 'A' && c.bit_len == a.bit_len));
+    assert!(list
+        .iter()
+        .any(|(l, c)| *l == 'B' && c.bit_len == b.bit_len));
+    assert!(list
+        .iter()
+        .any(|(l, c)| *l == 'C' && c.bit_len == better.bit_len));
 }
 
 #[test]
 fn prune_end_of_pass_keeps_shortest() {
     let mut mgr = SuperpositionManager::new();
-    mgr.push_unpruned(0, Candidate { seed_index: 1, arity: 1, bit_len: 30 });
-    mgr.push_unpruned(0, Candidate { seed_index: 2, arity: 1, bit_len: 28 });
-    mgr.push_unpruned(0, Candidate { seed_index: 3, arity: 1, bit_len: 28 });
+    mgr.push_unpruned(
+        0,
+        Candidate {
+            seed_index: 1,
+            arity: 1,
+            bit_len: 30,
+        },
+    );
+    mgr.push_unpruned(
+        0,
+        Candidate {
+            seed_index: 2,
+            arity: 1,
+            bit_len: 28,
+        },
+    );
+    mgr.push_unpruned(
+        0,
+        Candidate {
+            seed_index: 3,
+            arity: 1,
+            bit_len: 28,
+        },
+    );
     mgr.prune_end_of_pass();
-    let list = mgr.all_superposed().into_iter().find(|(i, _)| *i == 0).unwrap().1;
+    let list = mgr
+        .all_superposed()
+        .into_iter()
+        .find(|(i, _)| *i == 0)
+        .unwrap()
+        .1;
     assert_eq!(list.len(), 1);
     assert_eq!(list[0].1.bit_len, 28);
 }
