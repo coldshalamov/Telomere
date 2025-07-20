@@ -1,3 +1,4 @@
+//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 use crate::compress_stats::CompressionStats;
 use crate::config::Config;
 use crate::header::{encode_arity_bits, encode_evql_bits, encode_header, Header};
@@ -133,7 +134,7 @@ pub fn compress_multi_pass_with_config(
         for (idx, _slice) in blocks.iter().enumerate() {
             // Literal candidate always exists.
             let lit_bits = _slice.len() * 8 + 3;
-            mgr.push_unpruned(
+            let _ = mgr.insert_superposed(
                 idx,
                 crate::types::Candidate {
                     seed_index: usize::MAX as u64,
@@ -160,7 +161,7 @@ pub fn compress_multi_pass_with_config(
                     let evql_bits = encode_evql_bits(seed_idx);
                     let total_bits = header_bits.len() + evql_bits.len();
                     if (total_bits + 7) / 8 < span.len() {
-                        mgr.push_unpruned(
+                        let _ = mgr.insert_superposed(
                             idx,
                             crate::types::Candidate {
                                 seed_index: seed_idx as u64,

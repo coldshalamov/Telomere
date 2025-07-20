@@ -1,4 +1,5 @@
-use telomere::{seed_to_index, index_to_seed};
+//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
+use telomere::{index_to_seed, seed_to_index};
 
 const MAX_LEN: usize = 3;
 

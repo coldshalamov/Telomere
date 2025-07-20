@@ -1,11 +1,16 @@
-use telomere::{compress, decode_header, decode_tlmr_header, decompress_with_limit, Header};
+//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
+use telomere::{compress, decode_header, decode_tlmr_header, decompress_with_limit, Header, Config};
+
+fn cfg(bs: usize) -> Config {
+    Config { block_size: bs, hash_bits: 13, ..Config::default() }
+}
 
 #[test]
 fn compress_writes_header_then_data() {
     let block_size = 3;
     let data: Vec<u8> = (0u8..50).collect();
     let out = compress(&data, block_size).unwrap();
-    let decompressed = decompress_with_limit(&out, usize::MAX).unwrap();
+    let decompressed = decompress_with_limit(&out, &cfg(block_size), usize::MAX).unwrap();
     assert_eq!(decompressed, data);
 
     let file_hdr = decode_tlmr_header(&out).unwrap();
@@ -51,6 +56,6 @@ fn compress_empty_input() {
     let out = compress(&data, block_size).unwrap();
     // output should only contain the tlmr header
     assert_eq!(out.len(), 3);
-    let decompressed = telomere::decompress(&out).unwrap();
+    let decompressed = telomere::decompress(&out, &cfg(block_size)).unwrap();
     assert!(decompressed.is_empty());
 }

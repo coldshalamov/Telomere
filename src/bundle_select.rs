@@ -1,3 +1,4 @@
+//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 use std::collections::{HashMap, HashSet};
 
 /// Record produced by either the CPU or GPU matching pipeline.
@@ -90,4 +91,3 @@ pub fn select_bundles(records: Vec<BundleRecord>) -> Vec<AcceptedBundle> {
 
     accepted
 }
-

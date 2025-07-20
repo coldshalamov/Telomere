@@ -1,15 +1,14 @@
-//! Telomere command line entry point.
+//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 //!
 //! Compression and decompression are exposed as subcommands. This binary
 //! intentionally performs minimal argument handling before delegating to the
 //! library APIs found in this crate.
 
 use clap::{ArgGroup, Args, Parser, Subcommand};
-mod config;
-use config::Config;
+use telomere::Config;
 use std::{fs, path::PathBuf, time::Instant};
 use telomere::{
-    compress_multi_pass, decompress_with_limit, truncated_hash,
+    compress_multi_pass, decompress_with_limit, decode_tlmr_header, truncated_hash,
     io_utils::{extension_error, io_cli_error, simple_cli_error},
 };
 
@@ -74,7 +73,8 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
             let elapsed = start_time.elapsed();
 
             if args.json {
-                let (hash, err) = match decompress_with_limit(&out, usize::MAX) {
+                let cfg = Config { block_size: args.block_size, hash_bits: args.hash_bits, ..Config::default() };
+                let (hash, err) = match decompress_with_limit(&out, &cfg, usize::MAX) {
                     Ok(bytes) => (truncated_hash(&bytes), None::<String>),
                     Err(e) => (0, Some(e.to_string())),
                 };
@@ -130,7 +130,10 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
             }
             let data = fs::read(&input_path)
                 .map_err(|e| io_cli_error("opening input file", &input_path, e))?;
-            let decompressed = decompress_with_limit(&data, usize::MAX)
+            let header = decode_tlmr_header(&data)
+                .map_err(|e| simple_cli_error(&format!("invalid header: {e}")))?;
+            let cfg = Config { block_size: header.block_size, hash_bits: args.hash_bits, ..Config::default() };
+            let decompressed = decompress_with_limit(&data, &cfg, usize::MAX)
                 .map_err(|e| simple_cli_error(&format!("decompression failed: {e}")))?;
             if !args.dry_run {
                 fs::write(&output_path, decompressed)

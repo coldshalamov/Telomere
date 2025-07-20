@@ -1,14 +1,14 @@
-//! Simple in-memory cache of SHA-256 hashes used during seed search.
+//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 //!
 //! The cache keeps a configurable number of entries and evicts the least
 //! recently used value when full.  It can also persist and reload a hash
 //! table from disk for testing purposes.
 
-use std::collections::HashMap;
+use bincode;
 use sha2::{Digest, Sha256};
+use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufReader, Read};
-use bincode;
 
 pub struct ShaCache {
     capacity: usize,

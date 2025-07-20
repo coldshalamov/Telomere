@@ -1,3 +1,4 @@
+//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 /// Module for live compression stats logging
 
 /// A real-time compression logger triggered at block intervals.
@@ -57,6 +58,8 @@ pub fn print_window(span: &[u8], seed: &[u8], is_greedy: bool, stats: &Stats, in
 }
 
 fn main() {
-    eprintln!("gloss_by_pass_dump has been disabled.\n\
-It originally visualized gloss evolution across compression passes.");
+    eprintln!(
+        "gloss_by_pass_dump has been disabled.\n\
+It originally visualized gloss evolution across compression passes."
+    );
 }

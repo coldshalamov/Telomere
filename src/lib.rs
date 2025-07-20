@@ -1,4 +1,4 @@
-//! Telomere compression library exposing low level building blocks.
+//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 //!
 //! The crate is intentionally minimal and only supports literal
 //! passthrough compression at the moment.  APIs may evolve as the
@@ -6,6 +6,7 @@
 
 mod block;
 mod bundle;
+mod bundler;
 mod compress;
 mod compress_stats;
 mod error;
@@ -42,6 +43,7 @@ pub use block::{
 };
 pub use block_indexer::{brute_force_seed_tables, IndexedBlock, SeedMatch};
 pub use bundle::{apply_bundle, BlockStatus, MutableBlock};
+pub use bundler::bundle_one_layer;
 pub use bundle_select::{select_bundles, AcceptedBundle, BundleRecord};
 pub use candidate::{prune_candidates, Block as CandidateBlock, Candidate};
 pub use compress::{
@@ -112,13 +114,25 @@ pub fn decompress_region_with_limit(
 ///
 /// Files begin with a 3-byte Telomere header describing protocol version,
 /// block size, last block size and a truncated output hash. Each subsequent
-/// region is prefixed with a normal header.
-pub fn decompress_with_limit(input: &[u8], limit: usize) -> Result<Vec<u8>, TelomereError> {
+/// region is prefixed with a normal header. The decoder is strict; no extra bits
+/// or unaligned headers are permitted.
+pub fn decompress_with_limit(
+    input: &[u8],
+    config: &Config,
+    limit: usize,
+) -> Result<Vec<u8>, TelomereError> {
     if input.len() < 3 {
         return Err(TelomereError::Header("header too short".into()));
     }
     let header = decode_tlmr_header(input).map_err(|e| TelomereError::Header(format!("{e}")))?;
+    if header.version != 0
+        || header.block_size != config.block_size
+        || config.hash_bits != 13
+    {
+        return Err(TelomereError::Header("file header mismatch".into()));
+    }
     let mut offset = 3usize;
+    let mut bits_consumed = 24usize;
     let block_size = header.block_size;
     let last_block_size = header.last_block_size;
     let mut out = Vec::new();
@@ -128,10 +142,11 @@ pub fn decompress_with_limit(input: &[u8], limit: usize) -> Result<Vec<u8>, Telo
         }
         let slice = input
             .get(offset..)
-            .ok_or_else(|| TelomereError::Header("invalid header field".into()))?;
-        let (header, bits) = decode_header(slice)
-            .map_err(|_| TelomereError::Header("invalid header field".into()))?;
+            .ok_or_else(|| TelomereError::HeaderCodec("orphan/truncated bits".into()))?;
+        let (header, bits) =
+            decode_header(slice).map_err(|_| TelomereError::HeaderCodec("orphan/truncated bits".into()))?;
         offset += (bits + 7) / 8;
+        bits_consumed += bits;
         match header {
             Header::Literal => {
                 let remaining = input.len() - offset;
@@ -145,6 +160,7 @@ pub fn decompress_with_limit(input: &[u8], limit: usize) -> Result<Vec<u8>, Telo
                 }
                 out.extend_from_slice(&input[offset..offset + bytes]);
                 offset += bytes;
+                bits_consumed += bytes * 8;
             }
             Header::Arity(_) => {
                 return Err(TelomereError::Header("compressed spans unsupported".into()));
@@ -155,6 +171,9 @@ pub fn decompress_with_limit(input: &[u8], limit: usize) -> Result<Vec<u8>, Telo
             break;
         }
     }
+    if bits_consumed != input.len() * 8 {
+        return Err(TelomereError::HeaderCodec("orphan/truncated bits".into()));
+    }
     let hash = truncated_hash(&out);
     if hash != header.output_hash {
         return Err(TelomereError::Header("output hash mismatch".into()));
@@ -163,6 +182,6 @@ pub fn decompress_with_limit(input: &[u8], limit: usize) -> Result<Vec<u8>, Telo
 }
 
 /// Convenience wrapper without a limit.
-pub fn decompress(input: &[u8]) -> Result<Vec<u8>, TelomereError> {
-    decompress_with_limit(input, usize::MAX)
+pub fn decompress(input: &[u8], config: &Config) -> Result<Vec<u8>, TelomereError> {
+    decompress_with_limit(input, config, usize::MAX)
 }
