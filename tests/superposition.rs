@@ -275,6 +275,18 @@ fn superposed_fourth_prunes_longest() {
     assert!(list.iter().any(|(l, c)| *l == 'C' && c.bit_len == better.bit_len));
 }
 
+#[test]
+fn prune_end_of_pass_keeps_shortest() {
+    let mut mgr = SuperpositionManager::new();
+    mgr.push_unpruned(0, Candidate { seed_index: 1, arity: 1, bit_len: 30 });
+    mgr.push_unpruned(0, Candidate { seed_index: 2, arity: 1, bit_len: 28 });
+    mgr.push_unpruned(0, Candidate { seed_index: 3, arity: 1, bit_len: 28 });
+    mgr.prune_end_of_pass();
+    let list = mgr.all_superposed().into_iter().find(|(i, _)| *i == 0).unwrap().1;
+    assert_eq!(list.len(), 1);
+    assert_eq!(list[0].1.bit_len, 28);
+}
+
 proptest::proptest! {
     #[test]
     fn superposition_invariants(bit_lens in proptest::collection::vec(8usize..40, 1..10)) {
