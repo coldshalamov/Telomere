@@ -1,3 +1,4 @@
+//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 use crate::block::Block;
 use crate::{GpuMatchRecord, TelomereError};
 use sha2::{Digest, Sha256};
@@ -20,7 +21,11 @@ impl GpuSeedMatcher {
     }
 
     /// Hash seeds on the fly and return match records.
-    pub fn seed_match(&self, start_seed: usize, end_seed: usize) -> Result<Vec<GpuMatchRecord>, TelomereError> {
+    pub fn seed_match(
+        &self,
+        start_seed: usize,
+        end_seed: usize,
+    ) -> Result<Vec<GpuMatchRecord>, TelomereError> {
         let mut out = Vec::new();
         for seed in start_seed..end_seed {
             let seed_byte = seed as u8;

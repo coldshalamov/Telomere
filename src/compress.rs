@@ -1,3 +1,4 @@
+//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 use crate::compress_stats::CompressionStats;
 use crate::header::{encode_arity_bits, encode_evql_bits, encode_header, Header};
 use crate::seed::find_seed_match;

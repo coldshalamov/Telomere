@@ -1,4 +1,5 @@
-use telomere::{encode_header, decode_header, Header};
+//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
+use telomere::{decode_header, encode_header, Header};
 
 fn pack_bits(bits: &[bool]) -> Vec<u8> {
     let mut out = Vec::new();
@@ -17,7 +18,9 @@ fn pack_bits(bits: &[bool]) -> Vec<u8> {
         byte <<= 8 - used;
         out.push(byte);
     }
-    if out.is_empty() { out.push(0); }
+    if out.is_empty() {
+        out.push(0);
+    }
     out
 }
 
