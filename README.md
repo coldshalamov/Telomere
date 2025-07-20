@@ -81,16 +81,15 @@ The header begins with a **1‑bit toggle**:
 When the first bit is `1`, the decoder reads successive 2‑bit windows.  Each
 window follows VQL rules—`00`, `01`, and `10` carry payload values while `11`
 signals continuation—except that the **first payload `00` is reserved**.  This
-reserved pattern (`1 00`) marks a multi‑block literal span and terminates the
-header without supplying an arity value.  Actual arities therefore start at the
-next payload value.
+reserved pattern (`1 00`) encodes a literal block and terminates the header.
+The numeric arity value `2` is therefore invalid and is never emitted.
 
 The resulting codes are:
 
 ```
 0           → arity = 1
 1 00        → literal marker
-1 01        → arity = 2
+1 01        → reserved
 1 10        → arity = 3
 1 11 00     → arity = 4
 1 11 01     → arity = 5

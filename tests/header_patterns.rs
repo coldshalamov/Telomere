@@ -25,7 +25,6 @@ fn pack_bits(bits: &[bool]) -> Vec<u8> {
 fn known_patterns_roundtrip() {
     let cases: &[(Header, &[bool])] = &[
         (Header::Arity(1), &[false]),
-        (Header::Arity(2), &[true, false, true]),
         (Header::Arity(3), &[true, true, false]),
         (Header::Arity(4), &[true, true, true, false, false]),
         (Header::Literal, &[true, false, false]),
@@ -36,6 +35,10 @@ fn known_patterns_roundtrip() {
         let (dec, _) = decode_header(&enc).unwrap();
         assert_eq!(&dec, h);
     }
+
+    assert!(encode_header(&Header::Arity(2)).is_err());
+    let reserved = pack_bits(&[true, false, true]);
+    assert!(decode_header(&reserved).is_err());
 }
 
 #[test]
