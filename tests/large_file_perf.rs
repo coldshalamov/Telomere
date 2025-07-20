@@ -2,7 +2,11 @@ use rand::rngs::StdRng;
 use rand::{RngCore, SeedableRng};
 use std::time::Instant;
 use sysinfo::{ProcessExt, System, SystemExt};
-use telomere::{compress_multi_pass, decompress_with_limit};
+use telomere::{compress_multi_pass, decompress_with_limit, Config};
+
+fn cfg(block: usize) -> Config {
+    Config { block_size: block, hash_bits: 13, ..Config::default() }
+}
 
 fn profile_case(name: &str, data: Vec<u8>) {
     let mut sys = System::new_all();
@@ -19,7 +23,7 @@ fn profile_case(name: &str, data: Vec<u8>) {
     let after_comp_mem = sys.process(pid).map(|p| p.memory()).unwrap_or(0);
 
     let start = Instant::now();
-    let decompressed = decompress_with_limit(&compressed, usize::MAX).expect("decompress");
+    let decompressed = decompress_with_limit(&compressed, &cfg(block_size), usize::MAX).expect("decompress");
     let decomp_time = start.elapsed();
     sys.refresh_process(pid);
     let after_decomp_mem = sys.process(pid).map(|p| p.memory()).unwrap_or(0);

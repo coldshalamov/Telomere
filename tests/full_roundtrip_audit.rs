@@ -6,7 +6,12 @@ use telomere::{
     decode_tlmr_header,
     expand_seed,
     Header,
+    Config,
 };
+
+fn cfg(bs: usize) -> Config {
+    Config { block_size: bs, hash_bits: 13, ..Config::default() }
+}
 
 #[test]
 fn full_roundtrip_audit() {
@@ -18,7 +23,7 @@ fn full_roundtrip_audit() {
     let (compressed, _) = compress_multi_pass(&data, block_size, 3).unwrap();
 
     // Decompress back to original bytes.
-    let decoded = decompress(&compressed).unwrap();
+    let decoded = decompress(&compressed, &cfg(block_size)).unwrap();
     assert_eq!(decoded, data);
 }
 
@@ -30,7 +35,7 @@ fn single_block_literal_roundtrip() {
     let header = decode_tlmr_header(&compressed).unwrap();
     assert_eq!(header.block_size, block_size);
     let _ = decode_header(&compressed[3..]).unwrap();
-    let out = decompress(&compressed).unwrap();
+    let out = decompress(&compressed, &cfg(block_size)).unwrap();
     assert_eq!(out, data);
 }
 
@@ -63,7 +68,7 @@ fn multi_block_mixed_roundtrip() {
         }
     }
     assert_eq!(offset, compressed.len());
-    let out = decompress(&compressed).unwrap();
+    let out = decompress(&compressed, &cfg(block_size)).unwrap();
     assert_eq!(out, data);
 }
 
@@ -74,7 +79,7 @@ fn partial_compressible_roundtrip() {
     data.extend_from_slice(&[0xAA, 0xBB, 0xCC]);
     data.extend_from_slice(&expand_seed(&[0u8], block_size));
     let compressed = compress(&data, block_size).unwrap();
-    let out = decompress(&compressed).unwrap();
+    let out = decompress(&compressed, &cfg(block_size)).unwrap();
     assert_eq!(out, data);
 }
 
@@ -83,7 +88,7 @@ fn large_file_roundtrip() {
     let block_size = 4usize;
     let data = expand_seed(&[2u8], 1_000_000);
     let compressed = compress(&data, block_size).unwrap();
-    let out = decompress(&compressed).unwrap();
+    let out = decompress(&compressed, &cfg(block_size)).unwrap();
     assert_eq!(out.len(), data.len());
     assert_eq!(out[0..16], data[0..16]);
     assert_eq!(out.last(), data.last());
@@ -94,6 +99,6 @@ fn single_byte_roundtrip() {
     let block_size = 1usize;
     let data = vec![0x7F];
     let compressed = compress(&data, block_size).unwrap();
-    let out = decompress(&compressed).unwrap();
+    let out = decompress(&compressed, &cfg(block_size)).unwrap();
     assert_eq!(out, data);
 }
