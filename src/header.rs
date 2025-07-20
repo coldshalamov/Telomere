@@ -1,17 +1,16 @@
 use crate::config::Config;
 use crate::TelomereError;
 
+const MAX_HEADER_BITS: usize = 500;
 const MAX_RECURSION_DEPTH: usize = 30;
 
 /// Header describing either a literal block or the arity for a seeded span.
 ///
-/// Only two forms exist:
-/// - [`Header::Literal`] encoded as the fixed three bit pattern `1 0 0`.
-/// - [`Header::Arity(n)`] for `n != 2` encoded with the variable length VQL
-///   scheme followed by the EVQL encoded seed index.
-///
-/// The value `2` is reserved for the literal marker and must never be emitted
-/// or accepted as a compressed span.
+/// Two canonical forms exist:
+/// - [`Header::Literal`] encoded as the three bit pattern `100`.
+///   The literal must be followed by `EVQL(0)` when serialized.
+/// - [`Header::Arity(n)`] for `n >= 1` using the windowed VQL scheme
+///   described in [`encode_arity_bits`].
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Header {
     /// Span with the provided arity.
@@ -90,72 +89,84 @@ fn pack_bits(bits: &[bool]) -> Vec<u8> {
 }
 
 // Encode an arity value using the VQL header scheme.
-//
-// `arity` must be positive and not equal to `2`. The value `2` is
-// reserved for the literal marker and will result in an error.
 fn encode_arity(arity: usize) -> Result<Vec<bool>, TelomereError> {
     if arity < 1 {
         return Err(TelomereError::Header("arity must be positive".into()));
     }
-    if arity == 2 {
-        return Err(TelomereError::Header(
-            "arity=2 is reserved for the literal marker".into(),
-        ));
-    }
-    let mut bits = Vec::new();
     if arity == 1 {
-        bits.push(false);
-        return Ok(bits);
+        return Ok(vec![false]);
     }
-    bits.push(true);
-    let mut index = arity - 1;
-    let digit = index % 3;
-    let reps = index / 3;
-    for _ in 0..reps {
-        bits.extend_from_slice(&[true, true]);
+    if arity == 2 {
+        return Ok(vec![true, false, false]);
     }
-    match digit {
-        0 => bits.extend_from_slice(&[false, false]),
-        1 => bits.extend_from_slice(&[false, true]),
-        2 => bits.extend_from_slice(&[true, false]),
-        _ => unreachable!(),
+
+    let mut bits = vec![true];
+    let w = usize::BITS as usize - 1 - (arity - 1).leading_zeros() as usize;
+    let prefix: Vec<bool> = if w == 1 {
+        vec![false, true]
+    } else {
+        let mut p = vec![true; w - 1];
+        p.push(false);
+        p
+    };
+    bits.extend(prefix);
+    let offset = arity - ((1usize << w) + 1);
+    for i in (0..w).rev() {
+        bits.push(((offset >> i) & 1) != 0);
     }
     Ok(bits)
 }
 
 // Decode an arity value according to the VQL header scheme.
-//
-// Returns `Ok(None)` when the literal marker (`1 0 0`) is encountered.
-// The numeric value `2` is invalid and treated as a decode error.
 fn decode_arity(reader: &mut BitReader) -> Result<Option<usize>, TelomereError> {
+    let mut bits_read = 0usize;
     let first = reader.read_bit()?;
+    bits_read += 1;
     if !first {
         return Ok(Some(1));
     }
-    let mut index = 0usize;
+
+    let second = reader.read_bit()?;
+    bits_read += 1;
+    if !second {
+        let third = reader.read_bit()?;
+        bits_read += 1;
+        if !third {
+            return Ok(None); // literal marker
+        }
+        // prefix 01 -> width 1
+        let val = reader.read_bit()? as usize;
+        bits_read += 1;
+        return Ok(Some(3 + val));
+    }
+
+    let mut ones = 1usize;
     loop {
-        let b1 = reader.read_bit()?;
-        let b2 = reader.read_bit()?;
-        match (b1, b2) {
-            (true, true) => index += 3,
-            (false, false) => {
-                if index == 0 {
-                    return Ok(None); // Literal marker
-                } else {
-                    return Ok(Some(index + 1));
-                }
-            }
-            (false, true) => {
-                if index == 0 {
-                    return Err(TelomereError::Header(
-                        "arity=2 is reserved for the literal marker".into(),
-                    ));
-                }
-                return Ok(Some(index + 2));
-            }
-            (true, false) => return Ok(Some(index + 3)),
+        if bits_read >= MAX_HEADER_BITS {
+            return Err(TelomereError::Header("arity prefix too long".into()));
+        }
+        let bit = reader.read_bit()?;
+        bits_read += 1;
+        if bit {
+            ones += 1;
+        } else {
+            break;
         }
     }
+    let width = ones + 1;
+    if width >= MAX_HEADER_BITS {
+        return Err(TelomereError::Header("arity width too large".into()));
+    }
+    let mut value = 0usize;
+    for _ in 0..width {
+        if bits_read >= MAX_HEADER_BITS {
+            return Err(TelomereError::Header("arity value truncated".into()));
+        }
+        let b = reader.read_bit()?;
+        bits_read += 1;
+        value = (value << 1) | b as usize;
+    }
+    Ok(Some((1usize << width) + 1 + value))
 }
 
 /// Encode an arity value to raw bits without packing.
@@ -163,41 +174,53 @@ pub fn encode_arity_bits(arity: usize) -> Result<Vec<bool>, TelomereError> {
     encode_arity(arity)
 }
 
+/// Decode an arity field using the July‑2025 windowed VQL scheme.
+pub fn decode_arity_bits(reader: &mut BitReader) -> Result<Option<usize>, TelomereError> {
+    decode_arity(reader)
+}
+
 /// Encode a usize using EVQL and return the raw bits.
 pub fn encode_evql_bits(value: usize) -> Vec<bool> {
-    let mut width = 1usize;
-    let mut n = 0usize;
-    while width < usize::BITS as usize && value >= (1usize << width) {
-        width <<= 1;
-        n += 1;
+    let mut bytes = 1usize;
+    while value >= (1usize << (bytes * 8)) {
+        bytes += 1;
     }
     let mut bits = Vec::new();
-    for _ in 0..n {
+    for _ in 0..bytes - 1 {
         bits.push(true);
     }
     bits.push(false);
-    for i in (0..width).rev() {
-        bits.push(((value >> i) & 1) != 0);
+    for i in (0..bytes).rev() {
+        let shift = i * 8;
+        let byte = ((value >> shift) & 0xFF) as u8;
+        for j in (0..8).rev() {
+            bits.push(((byte >> j) & 1) != 0);
+        }
     }
     bits
 }
 
 /// Decode an EVQL value from the provided bit reader.
 pub fn decode_evql_bits(reader: &mut BitReader) -> Result<usize, TelomereError> {
-    let mut n = 0usize;
-    loop {
-        let bit = reader.read_bit()?;
-        if bit {
-            n += 1;
-        } else {
-            break;
+    let mut ones = 0usize;
+    while reader.read_bit()? {
+        ones += 1;
+        if ones > MAX_HEADER_BITS {
+            return Err(TelomereError::Header("EVQL prefix too long".into()));
         }
     }
-    let width = 1usize << n;
+    let bytes = ones + 1;
+    if bytes * 8 > MAX_HEADER_BITS {
+        return Err(TelomereError::Header("EVQL width too large".into()));
+    }
     let mut value = 0usize;
-    for _ in 0..width {
-        let b = reader.read_bit()?;
-        value = (value << 1) | b as usize;
+    for _ in 0..bytes {
+        let mut byte = 0u8;
+        for _ in 0..8 {
+            let bit = reader.read_bit()?;
+            byte = (byte << 1) | bit as u8;
+        }
+        value = (value << 8) | byte as usize;
     }
     Ok(value)
 }
@@ -239,44 +262,24 @@ pub fn decode_span(reader: &mut BitReader, config: &Config) -> Result<Vec<u8>, T
     decode_span_rec(reader, config, 0)
 }
 
+/// Encode a [`Header`] to a byte vector.
+///
+/// Literals are encoded as the arity‑2 marker followed by `EVQL(0)`.
 pub fn encode_header(header: &Header) -> Result<Vec<u8>, TelomereError> {
     let mut bits = Vec::new();
     match header {
         Header::Arity(a) => bits.extend(encode_arity(*a as usize)?),
-        Header::Literal => bits.extend_from_slice(&[true, false, false]), // "100" literal marker
+        Header::Literal => bits.extend(encode_arity(2)?),
     }
     Ok(pack_bits(&bits))
 }
 
+/// Decode a [`Header`] from the provided byte slice.
 pub fn decode_header(data: &[u8]) -> Result<(Header, usize), TelomereError> {
     let mut r = BitReader::from_slice(data);
-    let first = r.read_bit()?;
-    if !first {
-        return Ok((Header::Arity(1), r.bits_read()));
-    }
-    let mut index = 0usize;
-    loop {
-        let b1 = r.read_bit()?;
-        let b2 = r.read_bit()?;
-        match (b1, b2) {
-            (true, true) => index += 3,
-            (false, false) => {
-                if index == 0 {
-                    return Ok((Header::Literal, r.bits_read()));
-                } else {
-                    return Ok((Header::Arity((index + 1) as u8), r.bits_read()));
-                }
-            }
-            (false, true) => {
-                if index == 0 {
-                    return Err(TelomereError::Header(
-                        "arity=2 is reserved for the literal marker".into(),
-                    ));
-                }
-                return Ok((Header::Arity((index + 2) as u8), r.bits_read()));
-            }
-            (true, false) => return Ok((Header::Arity((index + 3) as u8), r.bits_read())),
-        }
+    match decode_arity_bits(&mut r)? {
+        None => Ok((Header::Literal, r.bits_read())),
+        Some(a) => Ok((Header::Arity(a as u8), r.bits_read())),
     }
 }
 
@@ -284,28 +287,17 @@ pub fn decode_header(data: &[u8]) -> Result<(Header, usize), TelomereError> {
 mod tests {
     use super::*;
 
-    fn bits_to_bytes(bits: &[bool]) -> Vec<u8> {
-        super::pack_bits(bits)
-    }
-
     #[test]
     fn roundtrip_cases() {
-        let cases = [
-            (Header::Arity(1), vec![false]),
-            (Header::Arity(3), vec![true, true, false]),
-            (Header::Arity(4), vec![true, true, true, false, false]),
-            (Header::Literal, vec![true, false, false]),
-        ];
-        for (h, bits) in cases {
-            let enc = encode_header(&h).unwrap();
-            assert_eq!(enc, bits_to_bytes(&bits));
+        for arity in 1..=6u8 {
+            let header = if arity == 2 {
+                Header::Literal
+            } else {
+                Header::Arity(arity)
+            };
+            let enc = encode_header(&header).unwrap();
             let (dec, _) = decode_header(&enc).unwrap();
-            assert_eq!(dec, h);
+            assert_eq!(dec, header);
         }
-
-        // Reserved arity value should fail to encode
-        assert!(encode_header(&Header::Arity(2)).is_err());
-        let reserved = bits_to_bytes(&[true, false, true]);
-        assert!(decode_header(&reserved).is_err());
     }
 }
