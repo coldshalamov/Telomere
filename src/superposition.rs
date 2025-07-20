@@ -43,32 +43,69 @@ impl SuperpositionManager {
         use TelomereError::SuperpositionLimitExceeded;
 
         let list = self.superposed.entry(block_index).or_insert_with(Vec::new);
-        if list.len() >= 3 {
-            return Err(SuperpositionLimitExceeded(block_index));
+        let mut pruned = Vec::new();
+
+        // Determine the minimum length if this candidate were inserted.
+        let mut min_len = cand.bit_len;
+        for (_, c) in list.iter() {
+            if c.bit_len < min_len {
+                min_len = c.bit_len;
+            }
         }
 
-        let label = match list.len() {
-            0 => 'A',
-            1 => 'B',
-            2 => 'C',
-            _ => unreachable!(),
-        };
-        list.push((label, cand));
-
-        let min_len = list.iter().map(|(_, c)| c.bit_len).min().unwrap();
-        let mut pruned = Vec::new();
-        list.retain(|(l, c)| {
-            let keep = c.bit_len <= min_len + 8;
-            if !keep {
+        // Remove existing candidates that exceed the allowed delta.
+        let mut to_remove = Vec::new();
+        for (idx, (l, c)) in list.iter().enumerate() {
+            if c.bit_len > min_len + 8 {
+                to_remove.push(idx);
                 pruned.push(*l);
             }
-            keep
-        });
+        }
+        for idx in to_remove.into_iter().rev() {
+            list.remove(idx);
+        }
 
-        if !pruned.is_empty() {
-            Ok(InsertResult::Pruned(pruned))
+        // If the new candidate itself is outside the delta it is pruned.
+        if cand.bit_len > min_len + 8 {
+            pruned.sort();
+            return Ok(InsertResult::Pruned(pruned));
+        }
+
+        if list.len() < 3 {
+            // Assign the first available label.
+            let label = ['A', 'B', 'C']
+                .into_iter()
+                .find(|l| !list.iter().any(|(el, _)| el == l))
+                .unwrap();
+            list.push((label, cand));
+            pruned.sort();
+            if pruned.is_empty() {
+                Ok(InsertResult::Inserted(label))
+            } else {
+                Ok(InsertResult::Pruned(pruned))
+            }
         } else {
-            Ok(InsertResult::Inserted(label))
+            // Replace the worst candidate if the new one is shorter.
+            let (worst_idx, worst_len) = list
+                .iter()
+                .enumerate()
+                .max_by_key(|(_, (_, c))| c.bit_len)
+                .map(|(i, (_, c))| (i, c.bit_len))
+                .unwrap();
+            if cand.bit_len < worst_len {
+                let (label, _) = list.remove(worst_idx);
+                pruned.push(label);
+                list.push((label, cand));
+                pruned.sort();
+                Ok(InsertResult::Pruned(pruned))
+            } else {
+                pruned.sort();
+                if pruned.is_empty() {
+                    Err(SuperpositionLimitExceeded(block_index))
+                } else {
+                    Ok(InsertResult::Pruned(pruned))
+                }
+            }
         }
     }
 

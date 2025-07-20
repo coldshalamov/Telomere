@@ -174,7 +174,7 @@ fn superposed_delta_pruning() {
     // This insertion should prune the C candidate immediately
     assert_eq!(
         mgr.insert_superposed(7, big).unwrap(),
-        InsertResult::Pruned(vec!['C'])
+        InsertResult::Pruned(Vec::new())
     );
 
     let list = mgr
@@ -244,4 +244,56 @@ fn superposed_insert_limit() {
     assert!(mgr.insert_superposed(5, b).is_ok());
     assert!(mgr.insert_superposed(5, c).is_ok());
     assert!(mgr.insert_superposed(5, d).is_err());
+}
+
+#[test]
+fn superposed_fourth_prunes_longest() {
+    use telomere::superposition::InsertResult;
+
+    let mut mgr = SuperpositionManager::new();
+    let a = Candidate { seed_index: 1, arity: 1, bit_len: 24 };
+    let b = Candidate { seed_index: 2, arity: 1, bit_len: 30 };
+    let c = Candidate { seed_index: 3, arity: 1, bit_len: 31 };
+    let better = Candidate { seed_index: 4, arity: 1, bit_len: 25 };
+
+    assert_eq!(mgr.insert_superposed(11, a.clone()).unwrap(), InsertResult::Inserted('A'));
+    assert_eq!(mgr.insert_superposed(11, b.clone()).unwrap(), InsertResult::Inserted('B'));
+    assert_eq!(mgr.insert_superposed(11, c.clone()).unwrap(), InsertResult::Inserted('C'));
+
+    // New candidate is better than the current worst (31) and should replace it.
+    assert_eq!(mgr.insert_superposed(11, better.clone()).unwrap(), InsertResult::Pruned(vec!['C']));
+
+    let list = mgr
+        .all_superposed()
+        .into_iter()
+        .find(|(i, _)| *i == 11)
+        .unwrap()
+        .1;
+    assert_eq!(list.len(), 3);
+    assert!(list.iter().any(|(l, c)| *l == 'A' && c.bit_len == a.bit_len));
+    assert!(list.iter().any(|(l, c)| *l == 'B' && c.bit_len == b.bit_len));
+    assert!(list.iter().any(|(l, c)| *l == 'C' && c.bit_len == better.bit_len));
+}
+
+proptest::proptest! {
+    #[test]
+    fn superposition_invariants(bit_lens in proptest::collection::vec(8usize..40, 1..10)) {
+        let mut mgr = SuperpositionManager::new();
+        for (idx, len) in bit_lens.into_iter().enumerate() {
+            let _ = mgr.insert_superposed(0, Candidate { seed_index: idx as u64, arity: 1, bit_len: len });
+            if let Some((_, list)) = mgr.all_superposed().into_iter().find(|(i, _)| *i == 0) {
+                assert!(list.len() <= 3);
+                if list.len() > 1 {
+                    let min = list.iter().map(|(_, c)| c.bit_len).min().unwrap();
+                    let max = list.iter().map(|(_, c)| c.bit_len).max().unwrap();
+                    assert!(max - min <= 8);
+                }
+                let mut labels = std::collections::HashSet::new();
+                for (l, _) in list.iter() {
+                    assert!(labels.insert(*l));
+                    assert!(*l == 'A' || *l == 'B' || *l == 'C');
+                }
+            }
+        }
+    }
 }
