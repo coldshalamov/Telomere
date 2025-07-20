@@ -1,3 +1,4 @@
+use crate::config::Config;
 use crate::TelomereError;
 
 /// Header describing either a literal block or the arity for a seeded span.
@@ -44,6 +45,14 @@ impl<'a> BitReader<'a> {
 
     pub fn bits_read(&self) -> usize {
         self.pos
+    }
+
+    /// Advance the reader to the next byte boundary.
+    pub fn align_byte(&mut self) {
+        if self.pos % 8 != 0 {
+            let skip = 8 - (self.pos % 8);
+            self.pos += skip;
+        }
     }
 }
 
@@ -163,6 +172,31 @@ pub fn decode_evql_bits(reader: &mut BitReader) -> Result<usize, TelomereError> 
     Ok(value)
 }
 
+/// Decode a span of bytes from a bitstream using seeded arity headers.
+pub fn decode_span(reader: &mut BitReader, config: &Config) -> Result<Vec<u8>, TelomereError> {
+    match decode_arity(reader)? {
+        None => {
+            // Literal block
+            reader.align_byte();
+            reader.read_bytes(config.block_size)
+        }
+        Some(arity) => {
+            let seed_idx = decode_evql_bits(reader)?;
+            reader.align_byte();
+            let child_bits = config
+                .seed_expansions
+                .get(&seed_idx)
+                .ok_or_else(|| TelomereError::Other("Missing seed expansion".into()))?;
+            let mut child_reader = BitReader::from_slice(child_bits);
+            let mut out = Vec::new();
+            for _ in 0..arity {
+                out.extend(decode_span(&mut child_reader, config)?);
+            }
+            Ok(out)
+        }
+    }
+}
+
 pub fn encode_header(header: &Header) -> Result<Vec<u8>, TelomereError> {
     let mut bits = Vec::new();
     match header {
@@ -202,7 +236,7 @@ mod tests {
     use super::*;
 
     fn bits_to_bytes(bits: &[bool]) -> Vec<u8> {
-        pack_bits(bits)
+        super::pack_bits(bits)
     }
 
     #[test]
