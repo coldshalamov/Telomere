@@ -46,7 +46,10 @@ pub use bundle::{apply_bundle, BlockStatus, MutableBlock};
 pub use bundler::bundle_one_layer;
 pub use bundle_select::{select_bundles, AcceptedBundle, BundleRecord};
 pub use candidate::{prune_candidates, Block as CandidateBlock, Candidate};
-pub use compress::{compress, compress_block, compress_multi_pass, TruncHashTable};
+pub use compress::{
+    compress, compress_block, compress_block_with_config, compress_multi_pass,
+    compress_multi_pass_with_config, compress_with_config, TruncHashTable,
+};
 pub use compress_stats::{write_stats_csv, CompressionStats};
 pub use config::Config;
 pub use error::TelomereError;

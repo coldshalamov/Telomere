@@ -7,6 +7,9 @@ pub struct Config {
     /// Fixed block size in bytes.
     pub block_size: usize,
     /// Maximum allowed seed length in bytes.
+    ///
+    /// The default unit tests use a value of `3` but larger seeds may be
+    /// configured for real compression workloads.
     pub max_seed_len: usize,
     /// Maximum bundle arity (number of blocks per seed span).
     pub max_arity: u8,
