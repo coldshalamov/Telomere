@@ -37,7 +37,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                 .map_err(|e| io_cli_error("opening input file", &input_path, e))?;
 
             let start_time = Instant::now();
-            let out = compress_multi_pass(&data, config.block_size, args.passes)
+            let (out, gains) = compress_multi_pass(&data, config.block_size, args.passes)
                 .map_err(|e| simple_cli_error(&format!("compression failed: {e}")))?;
 
             if out.is_empty() {
@@ -70,9 +70,13 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                     "input_bytes": raw_len,
                     "compressed_bytes": compressed_len,
                     "elapsed_ms": elapsed.as_millis(),
+                    "gains": gains,
                 });
                 println!("{}", serde_json::to_string_pretty(&out_json).unwrap());
             } else if args.status {
+                for (idx, gain) in gains.iter().enumerate() {
+                    eprintln!("pass {} gained {} bytes", idx + 2, gain);
+                }
                 eprintln!("Compressed {:.2}% in {:.2?}", percent, elapsed);
             }
         }
