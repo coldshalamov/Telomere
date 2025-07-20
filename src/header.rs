@@ -4,6 +4,14 @@ use crate::TelomereError;
 const MAX_RECURSION_DEPTH: usize = 30;
 
 /// Header describing either a literal block or the arity for a seeded span.
+///
+/// Only two forms exist:
+/// - [`Header::Literal`] encoded as the fixed three bit pattern `1 0 0`.
+/// - [`Header::Arity(n)`] for `n != 2` encoded with the variable length VQL
+///   scheme followed by the EVQL encoded seed index.
+///
+/// The value `2` is reserved for the literal marker and must never be emitted
+/// or accepted as a compressed span.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Header {
     /// Span with the provided arity.
@@ -81,9 +89,18 @@ fn pack_bits(bits: &[bool]) -> Vec<u8> {
     out
 }
 
+// Encode an arity value using the VQL header scheme.
+//
+// `arity` must be positive and not equal to `2`. The value `2` is
+// reserved for the literal marker and will result in an error.
 fn encode_arity(arity: usize) -> Result<Vec<bool>, TelomereError> {
     if arity < 1 {
         return Err(TelomereError::Other("arity must be positive".into()));
+    }
+    if arity == 2 {
+        return Err(TelomereError::Other(
+            "arity=2 is reserved for the literal marker".into(),
+        ));
     }
     let mut bits = Vec::new();
     if arity == 1 {
@@ -106,6 +123,10 @@ fn encode_arity(arity: usize) -> Result<Vec<bool>, TelomereError> {
     Ok(bits)
 }
 
+// Decode an arity value according to the VQL header scheme.
+//
+// Returns `Ok(None)` when the literal marker (`1 0 0`) is encountered.
+// The numeric value `2` is invalid and treated as a decode error.
 fn decode_arity(reader: &mut BitReader) -> Result<Option<usize>, TelomereError> {
     let first = reader.read_bit()?;
     if !first {
@@ -124,7 +145,14 @@ fn decode_arity(reader: &mut BitReader) -> Result<Option<usize>, TelomereError> 
                     return Ok(Some(index + 1));
                 }
             }
-            (false, true) => return Ok(Some(index + 2)),
+            (false, true) => {
+                if index == 0 {
+                    return Err(TelomereError::Decode(
+                        "arity=2 is reserved for the literal marker".into(),
+                    ));
+                }
+                return Ok(Some(index + 2));
+            }
             (true, false) => return Ok(Some(index + 3)),
         }
     }
@@ -239,7 +267,14 @@ pub fn decode_header(data: &[u8]) -> Result<(Header, usize), TelomereError> {
                     return Ok((Header::Arity((index + 1) as u8), r.bits_read()));
                 }
             }
-            (false, true) => return Ok((Header::Arity((index + 2) as u8), r.bits_read())),
+            (false, true) => {
+                if index == 0 {
+                    return Err(TelomereError::Decode(
+                        "arity=2 is reserved for the literal marker".into(),
+                    ));
+                }
+                return Ok((Header::Arity((index + 2) as u8), r.bits_read()));
+            }
             (true, false) => return Ok((Header::Arity((index + 3) as u8), r.bits_read())),
         }
     }
@@ -257,7 +292,6 @@ mod tests {
     fn roundtrip_cases() {
         let cases = [
             (Header::Arity(1), vec![false]),
-            (Header::Arity(2), vec![true, false, true]),
             (Header::Arity(3), vec![true, true, false]),
             (Header::Arity(4), vec![true, true, true, false, false]),
             (Header::Literal, vec![true, false, false]),
@@ -268,5 +302,10 @@ mod tests {
             let (dec, _) = decode_header(&enc).unwrap();
             assert_eq!(dec, h);
         }
+
+        // Reserved arity value should fail to encode
+        assert!(encode_header(&Header::Arity(2)).is_err());
+        let reserved = bits_to_bytes(&[true, false, true]);
+        assert!(decode_header(&reserved).is_err());
     }
 }

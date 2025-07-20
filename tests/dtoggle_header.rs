@@ -27,7 +27,6 @@ fn pack_bits(bits: &[bool]) -> Vec<u8> {
 fn basic_patterns() {
     let cases: &[(Header, &[bool])] = &[
         (Header::Arity(1), &[false]),
-        (Header::Arity(2), &[true, false, true]),
         (Header::Arity(3), &[true, true, false]),
         (Header::Arity(4), &[true, true, true, false, false]),
         (Header::Literal, &[true, false, false]),
@@ -38,4 +37,9 @@ fn basic_patterns() {
         let (dec, _) = decode_header(&enc).unwrap();
         assert_eq!(&dec, h);
     }
+
+    // reserved arity value should be rejected
+    assert!(encode_header(&Header::Arity(2)).is_err());
+    let pattern = pack_bits(&[true, false, true]);
+    assert!(decode_header(&pattern).is_err());
 }

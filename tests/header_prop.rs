@@ -8,7 +8,10 @@ quickcheck! {
             let enc = encode_header(&h).unwrap();
             return matches!(decode_header(&enc), Ok((d, _)) if d == h);
         }
-        let a = (arity % 6) + 1;
+        let a = (arity % 5) + 1;
+        if a == 2 {
+            return encode_header(&Header::Arity(a)).is_err();
+        }
         let h = Header::Arity(a);
         let enc = encode_header(&h).unwrap();
         matches!(decode_header(&enc), Ok((d, _)) if d == h)
