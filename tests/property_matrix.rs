@@ -1,7 +1,7 @@
 use proptest::prelude::*;
-use telomere::{compress, compress_multi_pass, decompress};
 use telomere::superposition::SuperpositionManager;
 use telomere::types::Candidate;
+use telomere::{compress, compress_multi_pass, decompress, Config};
 
 proptest! {
     #![proptest_config(ProptestConfig { cases: 16, .. ProptestConfig::default() })]
@@ -16,7 +16,7 @@ proptest! {
         } else {
             compress(&data, block).unwrap()
         };
-        let cfg = telomere::Config { block_size: block, ..telomere::Config::default() };
+        let cfg = Config { block_size: block, ..Config::default() };
         let out = decompress(&compressed, &cfg).unwrap();
         prop_assert_eq!(out.as_slice(), data.as_slice());
         prop_assert!(compressed.len() <= data.len() + 8);
@@ -28,7 +28,7 @@ proptest! {
     // Superposition pruning keeps only the smallest candidate
     #[test]
     fn superposition_minimality(bit_lens in proptest::collection::vec(8usize..64, 1..8)) {
-        let mut mgr = SuperpositionManager::new();
+        let mut mgr = SuperpositionManager::new(1);
         for (i, len) in bit_lens.iter().enumerate() {
             mgr.push_unpruned(0, Candidate { seed_index: i as u64, arity: 1, bit_len: *len });
         }
@@ -66,7 +66,7 @@ proptest! {
         let idx = bit % total_bits;
         let mut corrupt = compressed.clone();
         corrupt[idx / 8] ^= 1 << (idx % 8);
-        let cfg = telomere::Config { block_size: block, ..telomere::Config::default() };
+        let cfg = Config { block_size: block, ..Config::default() };
         prop_assert!(decompress(&corrupt, &cfg).is_err());
     }
 }
