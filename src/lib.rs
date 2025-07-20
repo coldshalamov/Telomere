@@ -6,6 +6,7 @@
 
 mod block;
 mod bundle;
+mod bundler;
 mod compress;
 mod compress_stats;
 mod error;
@@ -42,6 +43,7 @@ pub use block::{
 };
 pub use block_indexer::{brute_force_seed_tables, IndexedBlock, SeedMatch};
 pub use bundle::{apply_bundle, BlockStatus, MutableBlock};
+pub use bundler::bundle_one_layer;
 pub use bundle_select::{select_bundles, AcceptedBundle, BundleRecord};
 pub use candidate::{prune_candidates, Block as CandidateBlock, Candidate};
 pub use compress::{compress, compress_block, compress_multi_pass, TruncHashTable};
