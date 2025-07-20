@@ -33,6 +33,7 @@ src/bin/seed_table.rs
 !tests/hybrid_match.rs
 !tests/block_tests.rs
 !tests/header_roundtrip.rs
+!tests/header_evql_roundtrip.rs
 !tests/compress_determinism.rs
 !tests/compress_seeds.rs
 !tests/seed_index_mapping.rs

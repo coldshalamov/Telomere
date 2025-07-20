@@ -12,6 +12,8 @@ pub enum TelomereError {
     Config(String),
     #[error("Superposition limit exceeded for block {0}")]
     SuperpositionLimitExceeded(usize),
+    #[error("Header codec error: {0}")]
+    HeaderCodec(String),
     #[error("Other: {0}")]
     Other(String),
 }

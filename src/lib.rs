@@ -18,6 +18,7 @@ mod block_indexer;
 mod bundle_select;
 mod candidate;
 mod config;
+mod gpu;
 mod hash_reader;
 mod header;
 mod hybrid;
@@ -29,10 +30,9 @@ mod seed_detect;
 mod seed_index;
 mod seed_logger;
 mod sha_cache;
-mod tile;
-mod gpu;
 mod stats;
 pub mod superposition;
+mod tile;
 pub mod types;
 
 pub use block::{
@@ -49,8 +49,12 @@ pub use compress_stats::{write_stats_csv, CompressionStats};
 pub use config::Config;
 pub use error::TelomereError;
 pub use file_header::{decode_file_header, encode_file_header};
+pub use gpu::GpuSeedMatcher;
 pub use hash_reader::lookup_seed;
-pub use header::{decode_header, decode_span, encode_header, BitReader, Header};
+pub use header::{
+    decode_arity_bits, decode_evql_bits, decode_header, decode_span, encode_arity_bits,
+    encode_evql_bits, encode_header, BitReader, Header,
+};
 pub use hybrid::{compress_hybrid, CpuMatchRecord, GpuMatchRecord};
 pub use io_utils::*;
 pub use live_window::{print_window, LiveStats};
@@ -62,9 +66,8 @@ pub use seed_logger::{
     log_seed, log_seed_to, resume_seed_index, resume_seed_index_from, HashEntry, ResourceLimits,
 };
 pub use sha_cache::*;
-pub use tile::{BlockChunk, TileMap, chunk_blocks, flush_chunk, load_chunk};
-pub use gpu::GpuSeedMatcher;
 pub use stats::Stats;
+pub use tile::{chunk_blocks, flush_chunk, load_chunk, BlockChunk, TileMap};
 pub use tlmr::{decode_tlmr_header, encode_tlmr_header, truncated_hash, TlmrError, TlmrHeader};
 
 pub fn print_compression_status(original: usize, compressed: usize) {
