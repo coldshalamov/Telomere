@@ -1,5 +1,7 @@
 # Telomere Compression
 
+![Coverage](https://github.com/OWNER/Inchworm/actions/workflows/coverage.yml/badge.svg?branch=main)
+
 Demonstration of the generative compression scheme described in the project
 documentation. The encoder brute‑forces short seeds whose SHA‑256 output
 reconstructs one or more adjacent blocks. Matches replace those blocks with the

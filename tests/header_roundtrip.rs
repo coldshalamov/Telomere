@@ -1,5 +1,5 @@
 //! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
-use quickcheck::quickcheck;
+use proptest::prelude::*;
 use telomere::{decode_header, encode_header, Header};
 
 #[test]
@@ -11,15 +11,17 @@ fn test_literal_header_encode_decode_roundtrip() {
     assert_eq!(header, decoded);
 }
 
-quickcheck! {
-    fn arity_header_roundtrip(arity: u8) -> bool {
+proptest! {
+    #[test]
+    fn arity_header_roundtrip(arity in 0u8..=255) {
         let arity = (arity % 7) + 1;
         if arity == 2 {
-            return encode_header(&Header::Arity(arity)).is_err();
+            prop_assert!(encode_header(&Header::Arity(arity)).is_err());
+        } else {
+            let header = Header::Arity(arity);
+            let encoded = encode_header(&header).unwrap();
+            prop_assert!(matches!(decode_header(&encoded), Ok((decoded, _)) if decoded == header));
         }
-        let header = Header::Arity(arity);
-        let encoded = encode_header(&header).unwrap();
-        matches!(decode_header(&encoded), Ok((decoded, _)) if decoded == header)
     }
 }
 
