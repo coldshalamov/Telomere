@@ -9,7 +9,7 @@ mod config;
 use config::Config;
 use std::{fs, path::PathBuf, time::Instant};
 use telomere::{
-    compress_multi_pass, decompress_with_limit,
+    compress_multi_pass, decompress_with_limit, truncated_hash,
     io_utils::{extension_error, io_cli_error, simple_cli_error},
 };
 
@@ -24,8 +24,16 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     let cli = Cli::parse();
     match cli.command {
         Command::Compress(mut args) => {
-            let input_path = args.input.take().or(args.input_pos).unwrap();
-            let output_path = args.output.take().or(args.output_pos).unwrap();
+            let input_path = args
+                .input
+                .take()
+                .or(args.input_pos)
+                .ok_or_else(|| simple_cli_error("missing input path"))?;
+            let output_path = args
+                .output
+                .take()
+                .or(args.output_pos)
+                .ok_or_else(|| simple_cli_error("missing output path"))?;
             let config = Config {
                 block_size: args.block_size,
                 max_seed_len: args.max_seed_len,
@@ -66,13 +74,21 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
             let elapsed = start_time.elapsed();
 
             if args.json {
+                let (hash, err) = match decompress_with_limit(&out, usize::MAX) {
+                    Ok(bytes) => (truncated_hash(&bytes), None::<String>),
+                    Err(e) => (0, Some(e.to_string())),
+                };
                 let out_json = serde_json::json!({
-                    "input_bytes": raw_len,
+                    "raw_bytes": raw_len,
                     "compressed_bytes": compressed_len,
-                    "elapsed_ms": elapsed.as_millis(),
-                    "gains": gains,
+                    "compression_ratio": compressed_len as f64 / raw_len as f64,
+                    "round_trip_hash": hash,
+                    "error": err,
                 });
-                println!("{}", serde_json::to_string_pretty(&out_json).unwrap());
+                match serde_json::to_string_pretty(&out_json) {
+                    Ok(s) => println!("{}", s),
+                    Err(e) => eprintln!("json serialization error: {e}"),
+                }
             } else if args.status {
                 for (idx, gain) in gains.iter().enumerate() {
                     eprintln!("pass {} gained {} bytes", idx + 2, gain);
@@ -81,8 +97,16 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
             }
         }
         Command::Decompress(mut args) => {
-            let input_path = args.input.take().or(args.input_pos).unwrap();
-            let output_path = args.output.take().or(args.output_pos).unwrap();
+            let input_path = args
+                .input
+                .take()
+                .or(args.input_pos)
+                .ok_or_else(|| simple_cli_error("missing input path"))?;
+            let output_path = args
+                .output
+                .take()
+                .or(args.output_pos)
+                .ok_or_else(|| simple_cli_error("missing output path"))?;
             let config = Config {
                 block_size: args.block_size,
                 max_seed_len: args.max_seed_len,

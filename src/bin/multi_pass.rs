@@ -16,7 +16,10 @@ fn main() {
                 "--json",
             ])
             .status()
-            .expect("Pass compression failed");
+            .unwrap_or_else(|e| {
+                eprintln!("failed to launch cargo: {e}");
+                std::process::exit(1);
+            });
         if !status.success() {
             eprintln!("Compression pass {} failed", i);
             std::process::exit(1);

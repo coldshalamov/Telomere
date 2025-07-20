@@ -109,9 +109,9 @@ pub fn decompress_region_with_limit(
 /// region is prefixed with a normal header.
 pub fn decompress_with_limit(input: &[u8], limit: usize) -> Result<Vec<u8>, TelomereError> {
     if input.len() < 3 {
-        return Err(TelomereError::Decode("header too short".into()));
+        return Err(TelomereError::Header("header too short".into()));
     }
-    let header = decode_tlmr_header(input).map_err(|e| TelomereError::Decode(format!("{e}")))?;
+    let header = decode_tlmr_header(input).map_err(|e| TelomereError::Header(format!("{e}")))?;
     let mut offset = 3usize;
     let block_size = header.block_size;
     let last_block_size = header.last_block_size;
@@ -122,9 +122,9 @@ pub fn decompress_with_limit(input: &[u8], limit: usize) -> Result<Vec<u8>, Telo
         }
         let slice = input
             .get(offset..)
-            .ok_or_else(|| TelomereError::Decode("invalid header field".into()))?;
+            .ok_or_else(|| TelomereError::Header("invalid header field".into()))?;
         let (header, bits) = decode_header(slice)
-            .map_err(|_| TelomereError::Decode("invalid header field".into()))?;
+            .map_err(|_| TelomereError::Header("invalid header field".into()))?;
         offset += (bits + 7) / 8;
         match header {
             Header::Literal => {
@@ -135,13 +135,13 @@ pub fn decompress_with_limit(input: &[u8], limit: usize) -> Result<Vec<u8>, Telo
                     block_size
                 };
                 if out.len() + bytes > limit || offset + bytes > input.len() {
-                    return Err(TelomereError::Decode("invalid header field".into()));
+                    return Err(TelomereError::Header("invalid header field".into()));
                 }
                 out.extend_from_slice(&input[offset..offset + bytes]);
                 offset += bytes;
             }
             Header::Arity(_) => {
-                return Err(TelomereError::Decode("compressed spans unsupported".into()));
+                return Err(TelomereError::Header("compressed spans unsupported".into()));
             }
         }
         if offset == input.len() {
@@ -151,7 +151,7 @@ pub fn decompress_with_limit(input: &[u8], limit: usize) -> Result<Vec<u8>, Telo
     }
     let hash = truncated_hash(&out);
     if hash != header.output_hash {
-        return Err(TelomereError::Decode("output hash mismatch".into()));
+        return Err(TelomereError::Header("output hash mismatch".into()));
     }
     Ok(out)
 }

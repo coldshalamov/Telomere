@@ -34,7 +34,7 @@ impl<'a> BitReader<'a> {
 
     pub fn read_bit(&mut self) -> Result<bool, TelomereError> {
         if self.pos / 8 >= self.data.len() {
-            return Err(TelomereError::Decode("unexpected EOF".into()));
+            return Err(TelomereError::Header("unexpected EOF".into()));
         }
         let bit = ((self.data[self.pos / 8] >> (7 - (self.pos % 8))) & 1) != 0;
         self.pos += 1;
@@ -95,10 +95,10 @@ fn pack_bits(bits: &[bool]) -> Vec<u8> {
 // reserved for the literal marker and will result in an error.
 fn encode_arity(arity: usize) -> Result<Vec<bool>, TelomereError> {
     if arity < 1 {
-        return Err(TelomereError::Other("arity must be positive".into()));
+        return Err(TelomereError::Header("arity must be positive".into()));
     }
     if arity == 2 {
-        return Err(TelomereError::Other(
+        return Err(TelomereError::Header(
             "arity=2 is reserved for the literal marker".into(),
         ));
     }
@@ -147,7 +147,7 @@ fn decode_arity(reader: &mut BitReader) -> Result<Option<usize>, TelomereError> 
             }
             (false, true) => {
                 if index == 0 {
-                    return Err(TelomereError::Decode(
+                    return Err(TelomereError::Header(
                         "arity=2 is reserved for the literal marker".into(),
                     ));
                 }
@@ -209,7 +209,7 @@ fn decode_span_rec(
     depth: usize,
 ) -> Result<Vec<u8>, TelomereError> {
     if depth >= MAX_RECURSION_DEPTH {
-        return Err(TelomereError::Decode("Too deep".into()));
+        return Err(TelomereError::Header("Too deep".into()));
     }
     match decode_arity(reader)? {
         None => {
@@ -223,7 +223,7 @@ fn decode_span_rec(
             let child_bits = config
                 .seed_expansions
                 .get(&seed_idx)
-                .ok_or_else(|| TelomereError::Other("Missing seed expansion".into()))?;
+                .ok_or_else(|| TelomereError::Header("Missing seed expansion".into()))?;
             let mut child_reader = BitReader::from_slice(child_bits);
             let mut out = Vec::new();
             for _ in 0..arity {
@@ -269,7 +269,7 @@ pub fn decode_header(data: &[u8]) -> Result<(Header, usize), TelomereError> {
             }
             (false, true) => {
                 if index == 0 {
-                    return Err(TelomereError::Decode(
+                    return Err(TelomereError::Header(
                         "arity=2 is reserved for the literal marker".into(),
                     ));
                 }

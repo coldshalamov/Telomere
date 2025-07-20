@@ -52,7 +52,10 @@ pub fn chunk_blocks(blocks: &[Block], chunk_size: usize) -> Vec<BlockChunk> {
 
 /// Load a chunk from a pre-split vector.
 pub fn load_chunk(chunks: &[BlockChunk], index: usize) -> Result<BlockChunk, TelomereError> {
-    chunks.get(index).cloned().ok_or_else(|| TelomereError::Other("invalid chunk".into()))
+    chunks
+        .get(index)
+        .cloned()
+        .ok_or_else(|| TelomereError::Internal("invalid chunk".into()))
 }
 
 /// No-op flush helper for the in-memory tiling tests.

@@ -50,7 +50,7 @@ pub fn index_to_seed(index: usize, max_seed_len: usize) -> Result<Vec<u8>, Telom
         }
         remaining -= count;
     }
-    Err(TelomereError::Decode("index out of range".into()))
+    Err(TelomereError::Header("index out of range".into()))
 }
 
 #[cfg(test)]
