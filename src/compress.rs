@@ -1,4 +1,6 @@
+//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 use crate::compress_stats::CompressionStats;
+use crate::config::Config;
 use crate::header::{encode_arity_bits, encode_evql_bits, encode_header, Header};
 use crate::seed::find_seed_match;
 use crate::superposition::SuperpositionManager;
@@ -36,7 +38,12 @@ fn pack_bits(bits: &[bool]) -> Vec<u8> {
 }
 
 /// Compress the input using literal passthrough blocks and arity-based seed compression.
-pub fn compress(data: &[u8], block_size: usize) -> Result<Vec<u8>, TelomereError> {
+///
+/// Seeds are enumerated deterministically from length `1..=config.max_seed_len`.
+/// The search order is consensus critical and must remain stable across
+/// implementations.
+pub fn compress_with_config(data: &[u8], config: &Config) -> Result<Vec<u8>, TelomereError> {
+    let block_size = config.block_size;
     let last_block = if data.is_empty() {
         block_size
     } else {
@@ -51,7 +58,6 @@ pub fn compress(data: &[u8], block_size: usize) -> Result<Vec<u8>, TelomereError
     let mut out = header.to_vec();
     let mut offset = 0usize;
     const MAX_ARITY: usize = 6;
-    const MAX_SEED_LEN: usize = 3;
     while offset < data.len() {
         let remaining = data.len() - offset;
         let max_bundle = (remaining / block_size).min(MAX_ARITY);
@@ -62,7 +68,7 @@ pub fn compress(data: &[u8], block_size: usize) -> Result<Vec<u8>, TelomereError
             }
             let span_len = arity * block_size;
             let slice = &data[offset..offset + span_len];
-            if let Some(seed_idx) = find_seed_match(slice, MAX_SEED_LEN)? {
+            if let Some(seed_idx) = find_seed_match(slice, config.max_seed_len)? {
                 let header_bits = encode_arity_bits(arity)?;
                 let evql_bits = encode_evql_bits(seed_idx);
                 let total_bits = header_bits.len() + evql_bits.len();
@@ -98,9 +104,9 @@ pub fn compress(data: &[u8], block_size: usize) -> Result<Vec<u8>, TelomereError
 /// input has been processed, superpositions are pruned so that only the
 /// shortest candidate per block remains. The block table is therefore
 /// immutable during a pass and only updated at pass boundaries.
-pub fn compress_multi_pass(
+pub fn compress_multi_pass_with_config(
     data: &[u8],
-    block_size: usize,
+    config: &Config,
     max_passes: usize,
 ) -> Result<(Vec<u8>, Vec<usize>), TelomereError> {
     let mut current = data.to_vec();
@@ -108,7 +114,7 @@ pub fn compress_multi_pass(
     let mut passes = 0usize;
 
     const MAX_ARITY: usize = 6;
-    const MAX_SEED_LEN: usize = 3;
+    let block_size = config.block_size;
 
     while passes < max_passes {
         passes += 1;
@@ -117,6 +123,7 @@ pub fn compress_multi_pass(
         // Split the current stream into fixed sized blocks.
         let mut blocks: Vec<&[u8]> = Vec::new();
         let mut offset = 0usize;
+        let block_size = config.block_size;
         while offset < current.len() {
             let end = (offset + block_size).min(current.len());
             blocks.push(&current[offset..end]);
@@ -127,7 +134,7 @@ pub fn compress_multi_pass(
         for (idx, _slice) in blocks.iter().enumerate() {
             // Literal candidate always exists.
             let lit_bits = _slice.len() * 8 + 3;
-            mgr.push_unpruned(
+            let _ = mgr.insert_superposed(
                 idx,
                 crate::types::Candidate {
                     seed_index: usize::MAX as u64,
@@ -149,12 +156,12 @@ pub fn compress_multi_pass(
                     break;
                 }
                 let span = &current[span_start..span_end];
-                if let Some(seed_idx) = find_seed_match(span, MAX_SEED_LEN)? {
+                if let Some(seed_idx) = find_seed_match(span, config.max_seed_len)? {
                     let header_bits = encode_arity_bits(arity)?;
                     let evql_bits = encode_evql_bits(seed_idx);
                     let total_bits = header_bits.len() + evql_bits.len();
                     if (total_bits + 7) / 8 < span.len() {
-                        mgr.push_unpruned(
+                        let _ = mgr.insert_superposed(
                             idx,
                             crate::types::Candidate {
                                 seed_index: seed_idx as u64,
@@ -219,11 +226,12 @@ pub fn compress_multi_pass(
     Ok((current, gains))
 }
 
-pub fn compress_block(
+pub fn compress_block_with_config(
     input: &[u8],
-    block_size: usize,
+    config: &Config,
     mut stats: Option<&mut CompressionStats>,
 ) -> Result<Option<(Header, usize)>, TelomereError> {
+    let block_size = config.block_size;
     if input.len() < block_size {
         return Ok(None);
     }
@@ -232,7 +240,7 @@ pub fn compress_block(
     }
 
     let slice = &input[..block_size];
-    if let Some(seed_idx) = find_seed_match(slice, 3)? {
+    if let Some(seed_idx) = find_seed_match(slice, config.max_seed_len)? {
         let header_bits = encode_arity_bits(1)?;
         let evql_bits = encode_evql_bits(seed_idx);
         let total_bits = header_bits.len() + evql_bits.len();
@@ -250,4 +258,36 @@ pub fn compress_block(
         s.log_match(false, 1);
     }
     Ok(Some((Header::Literal, block_size)))
+}
+
+/// Wrapper using the CI default seed length of 3 bytes.
+pub fn compress(data: &[u8], block_size: usize) -> Result<Vec<u8>, TelomereError> {
+    let mut cfg = Config::default();
+    cfg.block_size = block_size;
+    cfg.max_seed_len = 3;
+    compress_with_config(data, &cfg)
+}
+
+/// Wrapper around [`compress_multi_pass_with_config`] using a 3 byte seed limit.
+pub fn compress_multi_pass(
+    data: &[u8],
+    block_size: usize,
+    max_passes: usize,
+) -> Result<(Vec<u8>, Vec<usize>), TelomereError> {
+    let mut cfg = Config::default();
+    cfg.block_size = block_size;
+    cfg.max_seed_len = 3;
+    compress_multi_pass_with_config(data, &cfg, max_passes)
+}
+
+/// Wrapper around [`compress_block_with_config`] with the default seed length.
+pub fn compress_block(
+    input: &[u8],
+    block_size: usize,
+    stats: Option<&mut CompressionStats>,
+) -> Result<Option<(Header, usize)>, TelomereError> {
+    let mut cfg = Config::default();
+    cfg.block_size = block_size;
+    cfg.max_seed_len = 3;
+    compress_block_with_config(input, &cfg, stats)
 }

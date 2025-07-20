@@ -71,3 +71,9 @@ path = "src/bin/block_histogram.rs"
 [[bin]]
 name = "hash_find"
 path = "src/bin/hash_find.rs"
+
+[features]
+# GPU accelerated seed matching. Off by default.
+gpu = []
+# Bloom filter based pruning. Placeholder for future optimization.
+bloom = []

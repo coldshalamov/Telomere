@@ -1,3 +1,4 @@
+//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 use quickcheck::quickcheck;
 use telomere::{index_to_seed, seed_to_index};
 
@@ -37,7 +38,10 @@ fn edge_cases() {
     for &idx in &edges {
         let seed = index_to_seed(idx, MAX_LEN).unwrap();
         assert_eq!(seed_to_index(&seed, MAX_LEN), idx);
-        assert_eq!(index_to_seed(seed_to_index(&seed, MAX_LEN), MAX_LEN).unwrap(), seed);
+        assert_eq!(
+            index_to_seed(seed_to_index(&seed, MAX_LEN), MAX_LEN).unwrap(),
+            seed
+        );
     }
 }
 

@@ -69,3 +69,21 @@ if inchworm_hits:
 
 if md_warnings or missing or inchworm_hits:
     sys.exit(1)
+
+# Ensure every Rust source file begins with a documentation header linking the
+# specification, the current date, and a commit hash.
+header_errors = []
+commit = subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode().strip()
+for folder in ['src', 'tests']:
+    for path in Path(folder).rglob('*.rs'):
+        lines = path.read_text().splitlines()
+        if not lines or not lines[0].startswith('//!'):
+            header_errors.append(f'{path}: missing doc header')
+            continue
+        if 'Spec' not in lines[0] or 'commit' not in lines[0]:
+            header_errors.append(f'{path}: malformed doc header')
+
+if header_errors:
+    for err in header_errors:
+        print('ERROR:', err)
+    sys.exit(1)

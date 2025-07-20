@@ -1,8 +1,13 @@
+//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 use rand::rngs::StdRng;
 use rand::{RngCore, SeedableRng};
 use std::time::Instant;
 use sysinfo::{ProcessExt, System, SystemExt};
-use telomere::{compress_multi_pass, decompress_with_limit};
+use telomere::{compress_multi_pass, decompress_with_limit, Config};
+
+fn cfg(block: usize) -> Config {
+    Config { block_size: block, hash_bits: 13, ..Config::default() }
+}
 
 fn profile_case(name: &str, data: Vec<u8>) {
     let mut sys = System::new_all();
@@ -12,14 +17,13 @@ fn profile_case(name: &str, data: Vec<u8>) {
     let before_mem = sys.process(pid).map(|p| p.memory()).unwrap_or(0);
 
     let start = Instant::now();
-    let (compressed, _gains) =
-        compress_multi_pass(&data, block_size, 3).expect("compress");
+    let (compressed, _gains) = compress_multi_pass(&data, block_size, 3).expect("compress");
     let comp_time = start.elapsed();
     sys.refresh_process(pid);
     let after_comp_mem = sys.process(pid).map(|p| p.memory()).unwrap_or(0);
 
     let start = Instant::now();
-    let decompressed = decompress_with_limit(&compressed, usize::MAX).expect("decompress");
+    let decompressed = decompress_with_limit(&compressed, &cfg(block_size), usize::MAX).expect("decompress");
     let decomp_time = start.elapsed();
     sys.refresh_process(pid);
     let after_decomp_mem = sys.process(pid).map(|p| p.memory()).unwrap_or(0);

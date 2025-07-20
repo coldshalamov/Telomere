@@ -1,3 +1,4 @@
+//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 use sha2::{Digest, Sha256};
 use thiserror::Error;
 
@@ -31,8 +32,14 @@ pub enum TlmrError {
 /// Encode the Telomere header with protocol version 0.
 pub fn encode_tlmr_header(header: &TlmrHeader) -> [u8; 3] {
     assert!(header.version <= 7, "version out of range");
-    assert!(header.block_size >= 1 && header.block_size <= 16, "block size out of range");
-    assert!(header.last_block_size >= 1 && header.last_block_size <= 16, "last block size out of range");
+    assert!(
+        header.block_size >= 1 && header.block_size <= 16,
+        "block size out of range"
+    );
+    assert!(
+        header.last_block_size >= 1 && header.last_block_size <= 16,
+        "last block size out of range"
+    );
     let mut val: u32 = 0;
     val |= (header.version as u32 & 0x7) << 21;
     val |= ((header.block_size as u32 - 1) & 0xF) << 17;
@@ -57,7 +64,12 @@ pub fn decode_tlmr_header(data: &[u8]) -> Result<TlmrHeader, TlmrError> {
     let hash = (val & 0x1FFF) as u16;
     let block_size = bs_code as usize + 1;
     let last_block_size = lbs_code as usize + 1;
-    if version > 7 || block_size == 0 || block_size > 16 || last_block_size == 0 || last_block_size > 16 {
+    if version > 7
+        || block_size == 0
+        || block_size > 16
+        || last_block_size == 0
+        || last_block_size > 16
+    {
         return Err(TlmrError::InvalidField);
     }
     Ok(TlmrHeader {

@@ -1,11 +1,16 @@
-use telomere::{compress, decompress_with_limit};
+//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
+use telomere::{compress, decompress_with_limit, Config};
+
+fn cfg(bs: usize) -> Config {
+    Config { block_size: bs, hash_bits: 13, ..Config::default() }
+}
 
 #[test]
 fn test_compression_roundtrip_stability() {
     // Compressing and then decompressing should yield the original bytes
     let input: Vec<u8> = (0u8..50).collect();
     let compressed = compress(&input, 3).unwrap();
-    let decompressed = decompress_with_limit(&compressed, usize::MAX).unwrap();
+    let decompressed = decompress_with_limit(&compressed, &cfg(3), usize::MAX).unwrap();
     assert_eq!(decompressed, input);
 }
 

@@ -1,5 +1,6 @@
-use telomere::{log_seed_to, resume_seed_index_from, HashEntry, ResourceLimits};
+//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 use std::fs;
+use telomere::{log_seed_to, resume_seed_index_from, HashEntry, ResourceLimits};
 use tempfile::NamedTempFile;
 
 #[test]
@@ -38,7 +39,10 @@ fn resource_limit_abort() {
     let tmp = NamedTempFile::new().unwrap();
     let path = tmp.path();
     // Set disk limit smaller than a single entry
-    let limits = ResourceLimits { max_disk_bytes: 1, max_memory_bytes: u64::MAX };
+    let limits = ResourceLimits {
+        max_disk_bytes: 1,
+        max_memory_bytes: u64::MAX,
+    };
     let res = log_seed_to(path, 0, [0u8; 32], true, Some(&limits));
     assert!(res.is_err());
     // Nothing should have been written

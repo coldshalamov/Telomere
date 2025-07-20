@@ -1,5 +1,6 @@
-use telomere::{group_by_bit_length, run_all_passes, split_into_blocks};
+//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 use std::collections::HashMap;
+use telomere::{group_by_bit_length, run_all_passes, split_into_blocks};
 
 #[test]
 fn table_counts_within_bounds() {

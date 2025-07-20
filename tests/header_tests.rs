@@ -1,3 +1,4 @@
+//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 use telomere::{decode_header, encode_header, Header};
 
 #[test]
@@ -6,6 +7,10 @@ fn header_roundtrip_across_ranges() {
         Header::Arity(1),
         Header::Arity(3),
         Header::Arity(4),
+        Header::Arity(5),
+        Header::Arity(6),
+        Header::Arity(7),
+        Header::Arity(8),
         Header::Literal,
     ];
     for h in cases {

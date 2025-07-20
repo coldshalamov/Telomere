@@ -1,8 +1,9 @@
+//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 use clap::Parser;
 use std::fs;
 use std::path::PathBuf;
 use telomere::{
-    compress, decompress_with_limit,
+    compress, decompress_with_limit, Config,
     io_utils::{io_cli_error, simple_cli_error},
 };
 
@@ -36,7 +37,8 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         .map_err(|e| simple_cli_error(&format!("compression failed: {e}")))?;
 
     if args.test {
-        let decompressed = decompress_with_limit(&compressed, usize::MAX)
+        let config = Config { block_size: args.block_size, hash_bits: 13, ..Config::default() };
+        let decompressed = decompress_with_limit(&compressed, &config, usize::MAX)
             .map_err(|e| simple_cli_error(&format!("roundtrip failed: {e}")))?;
         if decompressed != data {
             return Err(simple_cli_error("roundtrip mismatch").into());

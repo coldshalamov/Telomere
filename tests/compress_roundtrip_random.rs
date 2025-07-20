@@ -1,5 +1,10 @@
+//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 use rand::Rng;
-use telomere::{compress, decompress_with_limit};
+use telomere::{compress, decompress_with_limit, Config};
+
+fn cfg(block: usize) -> Config {
+    Config { block_size: block, hash_bits: 13, ..Config::default() }
+}
 
 #[test]
 fn random_roundtrip() {
@@ -9,7 +14,7 @@ fn random_roundtrip() {
         let block = rng.gen_range(2..8);
         let data: Vec<u8> = (0..len).map(|_| rng.gen()).collect();
         let out = compress(&data, block).unwrap();
-        let decompressed = decompress_with_limit(&out, usize::MAX).unwrap();
+        let decompressed = decompress_with_limit(&out, &cfg(block), usize::MAX).unwrap();
         assert_eq!(data, decompressed);
     }
 }
@@ -21,5 +26,5 @@ fn adversarial_roundtrip() {
     let mut data = pattern.to_vec();
     data.extend_from_slice(&[1, 2, 3, 4]);
     let out = compress(&data, 4).unwrap();
-    assert!(decompress_with_limit(&out, usize::MAX).is_err());
+    assert!(decompress_with_limit(&out, &cfg(4), usize::MAX).is_err());
 }

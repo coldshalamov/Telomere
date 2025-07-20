@@ -38,6 +38,7 @@ src/bin/seed_table.rs
 !tests/compress_seeds.rs
 !tests/seed_index_mapping.rs
 !tests/decompress_validation.rs
+!src/bundler.rs
 !tests/bundle_select.rs
 !tests/decode_arity_blocks.rs
 !tests/compress_multi_pass.rs
@@ -52,3 +53,4 @@ run_table.bat
 table_24.csv
 table_32.csv
 !tests/large_file_perf.rs
+!tests/property_matrix.rs

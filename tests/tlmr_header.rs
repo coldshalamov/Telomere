@@ -1,7 +1,12 @@
+//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 use telomere::{
     compress, decode_tlmr_header, decompress_with_limit, encode_header, encode_tlmr_header,
-    truncated_hash, Header, TlmrHeader,
+    truncated_hash, Header, TlmrHeader, Config,
 };
+
+fn cfg(bs: usize) -> Config {
+    Config { block_size: bs, hash_bits: 13, ..Config::default() }
+}
 
 #[test]
 fn header_bit_roundtrip() {
@@ -52,7 +57,7 @@ fn wrong_last_block_size_fails() {
     let mut buf = build_data(&data, bs);
     // corrupt last block size in header
     buf[0] ^= 0b0001_0000; // tweak block size bits to change last block size
-    assert!(decompress_with_limit(&buf, usize::MAX).is_err());
+    assert!(decompress_with_limit(&buf, &cfg(bs), usize::MAX).is_err());
 }
 
 #[test]
@@ -62,7 +67,7 @@ fn wrong_hash_fails() {
     let mut buf = build_data(&data, bs);
     // corrupt hash bits
     buf[2] ^= 0x01;
-    assert!(decompress_with_limit(&buf, usize::MAX).is_err());
+    assert!(decompress_with_limit(&buf, &cfg(bs), usize::MAX).is_err());
 }
 
 #[test]
@@ -70,6 +75,6 @@ fn random_roundtrip() {
     let bs = 5;
     let data: Vec<u8> = (0u8..37).collect();
     let out = compress(&data, bs).unwrap();
-    let decoded = decompress_with_limit(&out, usize::MAX).unwrap();
+    let decoded = decompress_with_limit(&out, &cfg(bs), usize::MAX).unwrap();
     assert_eq!(data, decoded);
 }

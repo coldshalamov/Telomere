@@ -1,8 +1,11 @@
+//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
+
 use crate::block::Block;
 use crate::{GpuMatchRecord, TelomereError};
 use sha2::{Digest, Sha256};
 
 /// Simple CPU-based simulation of the GPU seed matcher.
+/// This is always used unless the `gpu` feature is enabled and a real GPU implementation is provided.
 #[derive(Default)]
 pub struct GpuSeedMatcher {
     tile: Vec<Block>,
@@ -20,7 +23,11 @@ impl GpuSeedMatcher {
     }
 
     /// Hash seeds on the fly and return match records.
-    pub fn seed_match(&self, start_seed: usize, end_seed: usize) -> Result<Vec<GpuMatchRecord>, TelomereError> {
+    pub fn seed_match(
+        &self,
+        start_seed: usize,
+        end_seed: usize,
+    ) -> Result<Vec<GpuMatchRecord>, TelomereError> {
         let mut out = Vec::new();
         for seed in start_seed..end_seed {
             let seed_byte = seed as u8;
@@ -51,3 +58,11 @@ fn expand_seed(seed: &[u8], len: usize) -> Vec<u8> {
     out.truncate(len);
     out
 }
+
+// --- Feature gating for future real GPU support ---
+
+#[cfg(feature = "gpu")]
+#[path = "gpu_impl.rs"]
+mod gpu_impl;
+#[cfg(feature = "gpu")]
+pub use gpu_impl::GpuSeedMatcher;

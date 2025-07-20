@@ -1,8 +1,9 @@
+//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 use clap::Parser;
 use std::fs;
 use std::path::PathBuf;
 use telomere::{
-    decompress_with_limit,
+    decompress_with_limit, decode_tlmr_header, Config,
     io_utils::{extension_error, io_cli_error, simple_cli_error},
 };
 
@@ -34,7 +35,9 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     }
     let data =
         fs::read(&args.input).map_err(|e| io_cli_error("reading input file", &args.input, e))?;
-    let decompressed = decompress_with_limit(&data, usize::MAX)
+    let header = decode_tlmr_header(&data).map_err(|e| simple_cli_error(&format!("invalid header: {e}")))?;
+    let config = Config { block_size: header.block_size, hash_bits: 13, ..Config::default() };
+    let decompressed = decompress_with_limit(&data, &config, usize::MAX)
         .map_err(|e| simple_cli_error(&format!("decompression failed: {e}")))?;
     fs::write(&args.output, &decompressed)
         .map_err(|e| io_cli_error("writing output file", &args.output, e))?;
