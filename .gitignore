@@ -3,7 +3,7 @@ target.zip
 hash_table.bin
 slice_seed_table.rs
 .vs/Telomere/FileContentIndex/1affbf1f-0a97-4263-bcf9-89a460bedab6.vsidx
-.vs/Telomere/FileContentIndex/6574d3f6-207f-45a4-9709-9bc7cfff1dea.vsidx
+.vs/Telomere/FileContentIndex/6574d3f6-207f-45a4-9709-9bc5cfff1dea.vsidx
 .vs/Telomere/FileContentIndex/bf857845-d6a0-4bec-bca7-c9eef28f128e.vsidx
 .vs/Telomere/FileContentIndex/de344d7a-fce6-4399-a4a2-fb1a98c15433.vsidx
 .vs/Telomere/FileContentIndex/merges/f9310bf2-70fc-4057-8d20-3e1da55abd49.vsidx
@@ -40,6 +40,7 @@ src/bin/seed_table.rs
 !tests/bundle_select.rs
 !tests/decode_arity_blocks.rs
 !tests/compress_multi_pass.rs
+!tests/compress_bounds.rs
 seed_table.csv
 run_table.bat
 table_24.csv

@@ -77,6 +77,9 @@ pub fn compress(data: &[u8], block_size: usize) -> Result<Vec<u8>, TelomereError
         let max_bundle = (remaining / block_size).min(MAX_ARITY);
         let mut matched = false;
         for arity in (1..=max_bundle).rev() {
+            if offset + arity * block_size > data.len() {
+                continue;
+            }
             if arity == 2 {
                 continue;
             }
