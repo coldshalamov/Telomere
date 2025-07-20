@@ -35,6 +35,12 @@ impl From<&str> for TlmrError {
     }
 }
 
+impl From<String> for TlmrError {
+    fn from(_: String) -> Self {
+        TlmrError::InvalidField
+    }
+}
+
 /// Encode the Telomere header with protocol version 0.
 pub fn encode_tlmr_header(header: &TlmrHeader) -> [u8; 3] {
     assert!(header.version <= 7, "version out of range");

@@ -1,33 +1,29 @@
 //! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 use bytemuck::{Pod, Zeroable};
-use memmap2::Mmap;
 use std::cmp::Ordering;
 
 #[repr(C)]
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Zeroable, Pod)]
 struct Entry {
     prefix: [u8; 3],
     len: u8,
     seed: [u8; 4],
 }
 
-unsafe impl Zeroable for Entry {}
-unsafe impl Pod for Entry {}
-
 /// Look up a seed by 3-byte hash prefix.
 ///
 /// The file must be sorted by prefix. Returns `None` if no matching entry is
 /// found or the mapping is malformed.
-pub fn lookup_seed(mmap: &Mmap, prefix: [u8; 3]) -> Option<Vec<u8>> {
+pub fn lookup_seed(bytes: &[u8], prefix: [u8; 3]) -> Option<Vec<u8>> {
     let entry_size = std::mem::size_of::<Entry>();
 
-    if mmap.len() % entry_size != 0 {
+    if bytes.len() % entry_size != 0 {
         return None;
     }
 
     // SAFETY: Entry is `Pod` and the length check above ensures the slice
     // length is a multiple of the item size.
-    let entries: &[Entry] = bytemuck::cast_slice(&mmap[..]);
+    let entries: &[Entry] = bytemuck::cast_slice(bytes);
 
     let mut left = 0usize;
     let mut right = entries.len();
@@ -56,7 +52,7 @@ pub fn lookup_seed(mmap: &Mmap, prefix: [u8; 3]) -> Option<Vec<u8>> {
                 }
 
                 let len = best.len as usize;
-                if len > 4 {
+                if len == 0 || len > 4 {
                     return None;
                 }
                 return Some(best.seed[..len].to_vec());
@@ -70,12 +66,9 @@ pub fn lookup_seed(mmap: &Mmap, prefix: [u8; 3]) -> Option<Vec<u8>> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use memmap2::MmapOptions;
-    use tempfile::tempfile;
 
     #[test]
     fn basic_lookup() {
-        let mut file = tempfile().unwrap();
         let entries = [
             Entry {
                 prefix: [0, 0, 1],
@@ -94,18 +87,31 @@ mod tests {
             },
         ];
         let bytes: &[u8] = bytemuck::cast_slice(&entries);
-        std::io::Write::write_all(&mut file, bytes).unwrap();
-        let mmap = unsafe { MmapOptions::new().map(&file).unwrap() };
 
         assert_eq!(
-            lookup_seed(&mmap, [0, 0, 1]).as_deref(),
+            lookup_seed(bytes, [0, 0, 1]).as_deref(),
             Some(&[1, 2, 3][..])
         );
-        assert_eq!(lookup_seed(&mmap, [0, 1, 0]).as_deref(), Some(&[4][..]));
+        assert_eq!(lookup_seed(bytes, [0, 1, 0]).as_deref(), Some(&[4][..]));
         assert_eq!(
-            lookup_seed(&mmap, [0, 1, 1]).as_deref(),
+            lookup_seed(bytes, [0, 1, 1]).as_deref(),
             Some(&[5, 6, 7, 8][..])
         );
-        assert!(lookup_seed(&mmap, [9, 9, 9]).is_none());
+        assert!(lookup_seed(bytes, [9, 9, 9]).is_none());
+    }
+
+    #[test]
+    fn rejects_malformed_length() {
+        // length not a multiple of entry size
+        let bytes = [0u8; 7];
+        assert!(lookup_seed(&bytes, [0, 0, 0]).is_none());
+    }
+
+    #[test]
+    fn handles_zero_len_seed() {
+        // zero length should be ignored and return None
+        let entries = [Entry { prefix: [1, 2, 3], len: 0, seed: [0; 4] }];
+        let bytes: &[u8] = bytemuck::cast_slice(&entries);
+        assert!(lookup_seed(bytes, [1, 2, 3]).is_none());
     }
 }

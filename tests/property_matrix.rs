@@ -3,6 +3,10 @@ use telomere::superposition::SuperpositionManager;
 use telomere::types::Candidate;
 use telomere::{compress, compress_multi_pass, decompress, Config};
 
+fn cfg(bs: usize) -> Config {
+    Config { block_size: bs, hash_bits: 13, ..Config::default() }
+}
+
 proptest! {
     #![proptest_config(ProptestConfig { cases: 16, .. ProptestConfig::default() })]
     // Round-trip fuzz across bundling modes
@@ -16,8 +20,7 @@ proptest! {
         } else {
             compress(&data, block).unwrap()
         };
-        let cfg = Config { block_size: block, ..Config::default() };
-        let out = decompress(&compressed, &cfg).unwrap();
+        let out = decompress(&compressed, &cfg(block)).unwrap();
         prop_assert_eq!(out.as_slice(), data.as_slice());
         prop_assert!(compressed.len() <= data.len() + 8);
     }
@@ -66,7 +69,6 @@ proptest! {
         let idx = bit % total_bits;
         let mut corrupt = compressed.clone();
         corrupt[idx / 8] ^= 1 << (idx % 8);
-        let cfg = Config { block_size: block, ..Config::default() };
-        prop_assert!(decompress(&corrupt, &cfg).is_err());
+        prop_assert!(decompress(&corrupt, &cfg(block)).is_err());
     }
 }
