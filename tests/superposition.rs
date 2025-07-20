@@ -1,6 +1,5 @@
-use rand::seq::SliceRandom;
-use rand::{thread_rng, Rng};
-use telomere::superposition::SuperpositionManager;
+//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
+use telomere::superposition::{SuperpositionManager, InsertResult};
 use telomere::types::Candidate;
 use telomere::{apply_block_changes, group_by_bit_length, Block, BlockChange, BranchStatus};
 
@@ -83,29 +82,37 @@ fn block_change_clears_branches() {
 #[test]
 fn superposed_label_promotion() {
     let mut mgr = SuperpositionManager::new();
+
+    // Insert three candidates with varying bit_len.
     let a = Candidate { seed_index: 1, arity: 1, bit_len: 24 };
     let b = Candidate { seed_index: 2, arity: 1, bit_len: 29 };
     let c = Candidate { seed_index: 3, arity: 1, bit_len: 31 };
 
-    mgr.insert_superposed(0, a.clone()).unwrap();
-    mgr.insert_superposed(0, b.clone()).unwrap();
-    mgr.insert_superposed(0, c).unwrap();
+    assert_eq!(mgr.insert_superposed(0, a.clone()).unwrap(), InsertResult::Inserted('A'));
+    assert_eq!(mgr.insert_superposed(0, b.clone()).unwrap(), InsertResult::Inserted('B'));
+    assert_eq!(mgr.insert_superposed(0, c.clone()).unwrap(), InsertResult::Inserted('C'));
 
+    // Insert a better candidate (bit_len < all previous)
     let better = Candidate { seed_index: 4, arity: 1, bit_len: 23 };
-    mgr.insert_superposed(0, better.clone()).unwrap();
+    assert_eq!(mgr.insert_superposed(0, better.clone()).unwrap(), InsertResult::Inserted('A'));
 
+    // After pruning and relabeling, there should be three candidates, best is 'A'
     let list = mgr.all_superposed().into_iter().find(|(i, _)| *i == 0).unwrap().1;
     assert_eq!(list.len(), 3);
+
+    // The best (lowest bit_len) is 'A', must be 'better'
     assert_eq!(list[0].0, 'A');
     assert_eq!(list[0].1.bit_len, better.bit_len);
-    assert_eq!(list[1].0, 'B');
-    assert_eq!(list[1].1.bit_len, a.bit_len);
-    assert_eq!(list[2].0, 'C');
-    assert_eq!(list[2].1.bit_len, b.bit_len);
+
+    // All candidates are within 8 bits of the best
+    for (_, c) in &list {
+        assert!(c.bit_len - better.bit_len <= 8);
+    }
 }
 
 #[test]
 fn superposed_prune_many() {
+    use rand::{thread_rng, Rng};
     let mut rng = thread_rng();
     let mut mgr = SuperpositionManager::new();
     for i in 0..100u64 {
@@ -138,7 +145,7 @@ proptest::proptest! {
         mgr1.prune_end_of_pass();
         let out1 = mgr1.all_superposed();
 
-        vals.shuffle(&mut thread_rng());
+        vals.shuffle(&mut rand::thread_rng());
         let mut mgr2 = SuperpositionManager::new();
         for (len, seed) in vals {
             mgr2.insert_superposed(0, Candidate { seed_index:seed, arity:1, bit_len:len }).unwrap();

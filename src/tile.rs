@@ -1,3 +1,4 @@
+//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 use crate::block::Block;
 use crate::TelomereError;
 
@@ -20,17 +21,26 @@ pub struct TileMap {
 impl TileMap {
     /// Create a new `TileMap` covering `total_blocks` blocks.
     pub fn new(total_blocks: usize, chunk_size: usize) -> Self {
-        Self { total_blocks, chunk_size }
+        Self {
+            total_blocks,
+            chunk_size,
+        }
     }
 
     /// Number of chunks implied by this map.
     pub fn chunk_count(&self) -> usize {
-        if self.total_blocks == 0 { 0 } else { (self.total_blocks - 1) / self.chunk_size + 1 }
+        if self.total_blocks == 0 {
+            0
+        } else {
+            (self.total_blocks - 1) / self.chunk_size + 1
+        }
     }
 
     /// Map a global block index to `(chunk, offset)`.
     pub fn map_global(&self, index: usize) -> Option<(usize, usize)> {
-        if index >= self.total_blocks { return None; }
+        if index >= self.total_blocks {
+            return None;
+        }
         let chunk = index / self.chunk_size;
         let offset = index % self.chunk_size;
         Some((chunk, offset))
@@ -44,7 +54,10 @@ pub fn chunk_blocks(blocks: &[Block], chunk_size: usize) -> Vec<BlockChunk> {
     while idx < blocks.len() {
         let end = (idx + chunk_size).min(blocks.len());
         let slice = blocks[idx..end].to_vec();
-        chunks.push(BlockChunk { start_index: idx, blocks: slice });
+        chunks.push(BlockChunk {
+            start_index: idx,
+            blocks: slice,
+        });
         idx = end;
     }
     chunks

@@ -1,4 +1,4 @@
-//! Telomere command line entry point.
+//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 //!
 //! Compression and decompression are exposed as subcommands. This binary
 //! intentionally performs minimal argument handling before delegating to the
@@ -9,8 +9,9 @@ mod config;
 use config::Config;
 use std::{fs, path::PathBuf, time::Instant};
 use telomere::{
-    compress_multi_pass, decompress_with_limit, truncated_hash,
+    compress_multi_pass, decompress_with_limit,
     io_utils::{extension_error, io_cli_error, simple_cli_error},
+    truncated_hash,
 };
 
 fn main() {

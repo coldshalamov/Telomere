@@ -1,4 +1,5 @@
-use telomere::{split_into_blocks, group_by_bit_length, collapse_branches, Block, BranchStatus};
+//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
+use telomere::{collapse_branches, group_by_bit_length, split_into_blocks, Block, BranchStatus};
 
 #[test]
 fn test_block_splitting_correctness() {

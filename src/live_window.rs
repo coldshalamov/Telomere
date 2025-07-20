@@ -1,4 +1,4 @@
-//! Real-time compression progress logging utility.
+//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 
 #[derive(Default)]
 pub struct LiveStats {
@@ -8,7 +8,10 @@ pub struct LiveStats {
 
 impl LiveStats {
     pub fn new(interval: u64) -> Self {
-        Self { total_blocks: 0, interval }
+        Self {
+            total_blocks: 0,
+            interval,
+        }
     }
 
     /// Call whenever a block has been processed.
@@ -40,7 +43,13 @@ pub struct Stats {
 #[allow(dead_code)]
 use crate::compress_stats::CompressionStats;
 
-pub fn print_window(span: &[u8], seed: &[u8], is_greedy: bool, stats: &CompressionStats, interval: u64) {
+pub fn print_window(
+    span: &[u8],
+    seed: &[u8],
+    is_greedy: bool,
+    stats: &CompressionStats,
+    interval: u64,
+) {
     if interval == 0 {
         return;
     }

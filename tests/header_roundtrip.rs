@@ -1,3 +1,4 @@
+//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 use quickcheck::quickcheck;
 use telomere::{decode_header, encode_header, Header};
 
@@ -12,7 +13,7 @@ fn test_literal_header_encode_decode_roundtrip() {
 
 quickcheck! {
     fn arity_header_roundtrip(arity: u8) -> bool {
-        let arity = (arity % 5) + 1;
+        let arity = (arity % 7) + 1;
         if arity == 2 {
             return encode_header(&Header::Arity(arity)).is_err();
         }
@@ -24,7 +25,7 @@ quickcheck! {
 
 #[test]
 fn all_header_forms_roundtrip() {
-    for a in [1u8,3,4,5,6] {
+    for a in [1u8, 3, 4, 5, 6, 7, 8] {
         let h = Header::Arity(a);
         let enc = encode_header(&h).unwrap();
         let (dec, _) = decode_header(&enc).unwrap();
