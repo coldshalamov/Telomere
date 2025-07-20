@@ -1,5 +1,6 @@
 use crate::compress_stats::CompressionStats;
 use crate::header::{encode_arity_bits, encode_evql_bits, encode_header, Header};
+use crate::seed::find_seed_match;
 use crate::seed_index::index_to_seed;
 use crate::tlmr::{encode_tlmr_header, truncated_hash, TlmrHeader};
 use crate::TelomereError;
@@ -32,27 +33,6 @@ fn pack_bits(bits: &[bool]) -> Vec<u8> {
         out.push(0);
     }
     out
-}
-
-fn expand_seed(seed: &[u8], len: usize) -> Vec<u8> {
-    use sha2::{Digest, Sha256};
-    let mut out = Vec::with_capacity(len);
-    let mut cur = seed.to_vec();
-    while out.len() < len {
-        let digest: [u8; 32] = Sha256::digest(&cur).into();
-        out.extend_from_slice(&digest);
-        cur = digest.to_vec();
-    }
-    out.truncate(len);
-    out
-}
-
-fn find_seed_match(slice: &[u8], _max_seed_len: usize) -> Result<Option<usize>, TelomereError> {
-    let seed = [0u8];
-    if expand_seed(&seed, slice.len()) == slice {
-        return Ok(Some(0));
-    }
-    Ok(None)
 }
 
 /// Compress the input using literal passthrough blocks.

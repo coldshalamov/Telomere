@@ -24,6 +24,7 @@ mod hybrid;
 pub mod io_utils;
 mod live_window;
 mod path;
+mod seed;
 mod seed_detect;
 mod seed_index;
 mod seed_logger;
@@ -31,7 +32,6 @@ mod sha_cache;
 mod stats;
 pub mod superposition;
 pub mod types;
-use sha2::{Digest, Sha256};
 
 pub use block::{
     apply_block_changes, collapse_branches, detect_bundles, finalize_table, group_by_bit_length,
@@ -53,6 +53,7 @@ pub use hybrid::{compress_hybrid, CpuMatchRecord, GpuMatchRecord};
 pub use io_utils::*;
 pub use live_window::{print_window, LiveStats};
 pub use path::*;
+pub use seed::{expand_seed, find_seed_match};
 pub use seed_detect::{detect_seed_matches, MatchRecord};
 pub use seed_index::{index_to_seed, seed_to_index};
 pub use seed_logger::{
@@ -74,19 +75,6 @@ pub fn print_compression_status(original: usize, compressed: usize) {
 pub enum Region {
     Raw(Vec<u8>),
     Compressed(Vec<u8>, Header),
-}
-
-/// Generate `len` bytes by repeatedly hashing `seed` with SHA-256.
-fn expand_seed(seed: &[u8], len: usize) -> Vec<u8> {
-    let mut out = Vec::with_capacity(len);
-    let mut cur = seed.to_vec();
-    while out.len() < len {
-        let digest: [u8; 32] = Sha256::digest(&cur).into();
-        out.extend_from_slice(&digest);
-        cur = digest.to_vec();
-    }
-    out.truncate(len);
-    out
 }
 
 /// Decompress a single region respecting a byte limit.
