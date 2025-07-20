@@ -114,7 +114,7 @@ pub fn decompress_with_limit(input: &[u8], limit: usize) -> Result<Vec<u8>, Telo
     if input.len() < 3 {
         return Err(TelomereError::Header("header too short".into()));
     }
-    let header = decode_tlmr_header(input).map_err(|e| TelomereError::Header(format!("{e}")))?;
+    let header = decode_tlmr_header(input)?;
     let mut offset = 3usize;
     let block_size = header.block_size;
     let last_block_size = header.last_block_size;

@@ -1,5 +1,7 @@
 use thiserror::Error;
 
+use crate::tlmr::TlmrError;
+
 #[derive(Error, Debug)]
 pub enum TelomereError {
     /// Malformed or invalid header/EVQL data.
@@ -24,7 +26,7 @@ pub enum TelomereError {
 
     /// Codec-specific header failure (legacy, use Header instead for new code).
     #[error("header codec error: {0}")]
-    HeaderCodec(String),
+    HeaderCodec(#[from] TlmrError),
 
     /// Hashing errors (if any).
     #[error("hashing error: {0}")]
