@@ -128,18 +128,46 @@ fn decode_arity(reader: &mut BitReader) -> Result<Option<usize>, TelomereError> 
     }
 }
 
-fn decode_evql(reader: &mut BitReader) -> Result<usize, TelomereError> {
+/// Encode an arity value to raw bits without packing.
+pub fn encode_arity_bits(arity: usize) -> Result<Vec<bool>, TelomereError> {
+    encode_arity(arity)
+}
+
+/// Encode a usize using EVQL and return the raw bits.
+pub fn encode_evql_bits(value: usize) -> Vec<bool> {
+    let mut width = 1usize;
+    let mut n = 0usize;
+    while width < usize::BITS as usize && value >= (1usize << width) {
+        width <<= 1;
+        n += 1;
+    }
+    let mut bits = Vec::new();
+    for _ in 0..n {
+        bits.push(true);
+    }
+    bits.push(false);
+    for i in (0..width).rev() {
+        bits.push(((value >> i) & 1) != 0);
+    }
+    bits
+}
+
+/// Decode an EVQL value from the provided bit reader.
+pub fn decode_evql_bits(reader: &mut BitReader) -> Result<usize, TelomereError> {
     let mut n = 0usize;
     loop {
-        if !reader.read_bit()? {
+        let bit = reader.read_bit()?;
+        if bit {
+            n += 1;
+        } else {
             break;
         }
-        n += 1;
     }
     let width = 1usize << n;
     let mut value = 0usize;
     for _ in 0..width {
-        value = (value << 1) | reader.read_bit()? as usize;
+        let b = reader.read_bit()?;
+        value = (value << 1) | b as usize;
     }
     Ok(value)
 }
@@ -153,7 +181,7 @@ pub fn decode_span(reader: &mut BitReader, config: &Config) -> Result<Vec<u8>, T
             reader.read_bytes(config.block_size)
         }
         Some(arity) => {
-            let seed_idx = decode_evql(reader)?;
+            let seed_idx = decode_evql_bits(reader)?;
             reader.align_byte();
             let child_bits = config
                 .seed_expansions
@@ -208,7 +236,7 @@ mod tests {
     use super::*;
 
     fn bits_to_bytes(bits: &[bool]) -> Vec<u8> {
-        pack_bits(bits)
+        super::pack_bits(bits)
     }
 
     #[test]
