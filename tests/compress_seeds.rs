@@ -1,4 +1,4 @@
-use telomere::{compress, decode_header, decode_tlmr_header, index_to_seed, Header};
+use telomere::{compress, decode_header, decode_tlmr_header, expand_seed, index_to_seed, Header};
 
 fn decode_evql_bits(reader: &mut telomere::BitReader) -> usize {
     let mut n = 0usize;
@@ -17,19 +17,6 @@ fn decode_evql_bits(reader: &mut telomere::BitReader) -> usize {
         value = (value << 1) | b as usize;
     }
     value
-}
-
-fn expand_seed(seed: &[u8], len: usize) -> Vec<u8> {
-    use sha2::{Digest, Sha256};
-    let mut out = Vec::with_capacity(len);
-    let mut cur = seed.to_vec();
-    while out.len() < len {
-        let digest: [u8; 32] = Sha256::digest(&cur).into();
-        out.extend_from_slice(&digest);
-        cur = digest.to_vec();
-    }
-    out.truncate(len);
-    out
 }
 
 fn decode(data: &[u8], block_size: usize, last_block_size: usize, max_seed_len: usize) -> Vec<u8> {

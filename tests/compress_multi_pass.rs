@@ -1,17 +1,4 @@
-use sha2::{Digest, Sha256};
-use telomere::{compress, compress_multi_pass};
-
-fn expand_seed(seed: &[u8], len: usize) -> Vec<u8> {
-    let mut out = Vec::with_capacity(len);
-    let mut cur = seed.to_vec();
-    while out.len() < len {
-        let digest: [u8; 32] = Sha256::digest(&cur).into();
-        out.extend_from_slice(&digest);
-        cur = digest.to_vec();
-    }
-    out.truncate(len);
-    out
-}
+use telomere::{compress, compress_multi_pass, expand_seed};
 
 #[test]
 fn multi_pass_converges() {

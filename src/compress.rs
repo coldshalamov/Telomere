@@ -1,5 +1,7 @@
 use crate::compress_stats::CompressionStats;
 use crate::header::{encode_arity_bits, encode_evql_bits, encode_header, Header};
+use crate::seed::find_seed_match;
+use crate::seed_index::index_to_seed;
 use crate::tlmr::{encode_tlmr_header, truncated_hash, TlmrHeader};
 use crate::TelomereError;
 
@@ -33,28 +35,7 @@ fn pack_bits(bits: &[bool]) -> Vec<u8> {
     out
 }
 
-fn expand_seed(seed: &[u8], len: usize) -> Vec<u8> {
-    use sha2::{Digest, Sha256};
-    let mut out = Vec::with_capacity(len);
-    let mut cur = seed.to_vec();
-    while out.len() < len {
-        let digest: [u8; 32] = Sha256::digest(&cur).into();
-        out.extend_from_slice(&digest);
-        cur = digest.to_vec();
-    }
-    out.truncate(len);
-    out
-}
-
-fn find_seed_match(slice: &[u8], _max_seed_len: usize) -> Result<Option<usize>, TelomereError> {
-    let seed = [0u8];
-    if expand_seed(&seed, slice.len()) == slice {
-        return Ok(Some(0));
-    }
-    Ok(None)
-}
-
-/// Compress the input using literal passthrough blocks.
+/// Compress the input using literal passthrough blocks and arity-based seed compression.
 pub fn compress(data: &[u8], block_size: usize) -> Result<Vec<u8>, TelomereError> {
     let last_block = if data.is_empty() {
         block_size
@@ -79,15 +60,12 @@ pub fn compress(data: &[u8], block_size: usize) -> Result<Vec<u8>, TelomereError
             if arity == 2 {
                 continue; // reserved for literal marker
             }
-
             let span_len = arity * block_size;
             let slice = &data[offset..offset + span_len];
-
             if let Some(seed_idx) = find_seed_match(slice, MAX_SEED_LEN)? {
                 let header_bits = encode_arity_bits(arity)?;
                 let evql_bits = encode_evql_bits(seed_idx);
                 let total_bits = header_bits.len() + evql_bits.len();
-
                 if (total_bits + 7) / 8 < span_len {
                     let mut bits = header_bits;
                     bits.extend(evql_bits);
@@ -98,7 +76,6 @@ pub fn compress(data: &[u8], block_size: usize) -> Result<Vec<u8>, TelomereError
                 }
             }
         }
-
         if !matched {
             let chunk = remaining.min(block_size);
             out.extend_from_slice(&encode_header(&Header::Literal)?);

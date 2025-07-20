@@ -1,32 +1,26 @@
-use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 
+use crate::seed::expand_seed;
 use crate::{index_to_seed, TelomereError};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SeedMatch {
+    /// Index of the block that matched.
     pub block_index: usize,
+    /// Seed enumeration index that generated the match.
     pub seed_index: usize,
+    /// Length in bytes of the matched block.
     pub block_len: usize,
 }
 
 #[derive(Debug, Clone)]
 pub struct IndexedBlock {
+    /// Position of this block within the input stream.
     pub index: usize,
+    /// Size of the block in bytes.
     pub len: usize,
+    /// All seed indices that expand exactly to this block.
     pub matches: Vec<usize>,
-}
-
-fn expand_seed(seed: &[u8], len: usize) -> Vec<u8> {
-    let mut out = Vec::with_capacity(len);
-    let mut cur = seed.to_vec();
-    while out.len() < len {
-        let digest: [u8; 32] = Sha256::digest(&cur).into();
-        out.extend_from_slice(&digest);
-        cur = digest.to_vec();
-    }
-    out.truncate(len);
-    out
 }
 
 pub fn brute_force_seed_tables(
@@ -65,4 +59,3 @@ pub fn brute_force_seed_tables(
     }
     Ok(tables)
 }
-
