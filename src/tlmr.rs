@@ -29,6 +29,12 @@ pub enum TlmrError {
     OutputHashMismatch,
 }
 
+impl From<&str> for TlmrError {
+    fn from(_: &str) -> Self {
+        TlmrError::InvalidField
+    }
+}
+
 /// Encode the Telomere header with protocol version 0.
 pub fn encode_tlmr_header(header: &TlmrHeader) -> [u8; 3] {
     assert!(header.version <= 7, "version out of range");
