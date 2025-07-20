@@ -50,3 +50,4 @@ seed_table.csv
 run_table.bat
 table_24.csv
 table_32.csv
+!tests/large_file_perf.rs
