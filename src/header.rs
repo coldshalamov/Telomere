@@ -1,6 +1,8 @@
 use crate::config::Config;
 use crate::TelomereError;
 
+const MAX_RECURSION_DEPTH: usize = 30;
+
 /// Header describing either a literal block or the arity for a seeded span.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Header {
@@ -173,7 +175,14 @@ pub fn decode_evql_bits(reader: &mut BitReader) -> Result<usize, TelomereError> 
 }
 
 /// Decode a span of bytes from a bitstream using seeded arity headers.
-pub fn decode_span(reader: &mut BitReader, config: &Config) -> Result<Vec<u8>, TelomereError> {
+fn decode_span_rec(
+    reader: &mut BitReader,
+    config: &Config,
+    depth: usize,
+) -> Result<Vec<u8>, TelomereError> {
+    if depth >= MAX_RECURSION_DEPTH {
+        return Err(TelomereError::Decode("Too deep".into()));
+    }
     match decode_arity(reader)? {
         None => {
             // Literal block
@@ -190,11 +199,16 @@ pub fn decode_span(reader: &mut BitReader, config: &Config) -> Result<Vec<u8>, T
             let mut child_reader = BitReader::from_slice(child_bits);
             let mut out = Vec::new();
             for _ in 0..arity {
-                out.extend(decode_span(&mut child_reader, config)?);
+                out.extend(decode_span_rec(&mut child_reader, config, depth + 1)?);
             }
             Ok(out)
         }
     }
+}
+
+/// Decode a span of bytes from a bitstream using seeded arity headers.
+pub fn decode_span(reader: &mut BitReader, config: &Config) -> Result<Vec<u8>, TelomereError> {
+    decode_span_rec(reader, config, 0)
 }
 
 pub fn encode_header(header: &Header) -> Result<Vec<u8>, TelomereError> {
