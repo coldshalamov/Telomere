@@ -143,9 +143,9 @@ pub fn decompress_with_limit(
         }
         let slice = input
             .get(offset..)
-            .ok_or_else(|| TelomereError::HeaderCodec("orphan/truncated bits".into()))?;
+            .ok_or_else(|| TelomereError::Header("orphan/truncated bits".into()))?;
         let (header, bits) =
-            decode_header(slice).map_err(|_| TelomereError::HeaderCodec("orphan/truncated bits".into()))?;
+            decode_header(slice).map_err(|_| TelomereError::Header("orphan/truncated bits".into()))?;
         offset += (bits + 7) / 8;
         bits_consumed += bits;
         match header {
@@ -173,7 +173,7 @@ pub fn decompress_with_limit(
         }
     }
     if bits_consumed != input.len() * 8 {
-        return Err(TelomereError::HeaderCodec("orphan/truncated bits".into()));
+        return Err(TelomereError::Header("orphan/truncated bits".into()));
     }
     let hash = truncated_hash(&out);
     if hash != header.output_hash {

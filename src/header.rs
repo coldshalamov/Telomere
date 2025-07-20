@@ -46,7 +46,7 @@ impl<'a> BitReader<'a> {
 
     pub fn read_bit(&mut self) -> Result<bool, TelomereError> {
         if self.pos / 8 >= self.data.len() {
-            return Err(TelomereError::HeaderCodec("unexpected EOF".into()));
+            return Err(TelomereError::Header("unexpected EOF".into()));
         }
         let bit = ((self.data[self.pos / 8] >> (7 - (self.pos % 8))) & 1) != 0;
         self.pos += 1;
@@ -109,7 +109,7 @@ pub fn is_literal_bits(bits: &[bool]) -> bool {
 // Encode an arity value using the VQL header scheme.
 fn encode_arity(arity: usize) -> Result<Vec<bool>, TelomereError> {
     if arity < 1 {
-        return Err(TelomereError::HeaderCodec("arity must be positive".into()));
+        return Err(TelomereError::Header("arity must be positive".into()));
     }
     if arity == 1 {
         return Ok(vec![false]);
@@ -161,7 +161,7 @@ fn decode_arity(reader: &mut BitReader) -> Result<Option<usize>, TelomereError> 
     let mut ones = 1usize;
     loop {
         if bits_read >= MAX_HEADER_BITS {
-            return Err(TelomereError::HeaderCodec("arity prefix too long".into()));
+            return Err(TelomereError::Header("arity prefix too long".into()));
         }
         let bit = reader.read_bit()?;
         bits_read += 1;
@@ -173,12 +173,12 @@ fn decode_arity(reader: &mut BitReader) -> Result<Option<usize>, TelomereError> 
     }
     let width = ones + 1;
     if width >= MAX_HEADER_BITS {
-        return Err(TelomereError::HeaderCodec("arity width too large".into()));
+        return Err(TelomereError::Header("arity width too large".into()));
     }
     let mut value = 0usize;
     for _ in 0..width {
         if bits_read >= MAX_HEADER_BITS {
-            return Err(TelomereError::HeaderCodec("arity value truncated".into()));
+            return Err(TelomereError::Header("arity value truncated".into()));
         }
         let b = reader.read_bit()?;
         bits_read += 1;
@@ -198,7 +198,7 @@ fn decode_arity(reader: &mut BitReader) -> Result<Option<usize>, TelomereError> 
 /// ```
 pub fn encode_arity_bits(arity: usize) -> Result<Vec<bool>, TelomereError> {
     if arity == 2 {
-        return Err(TelomereError::HeaderCodec("arity 2 reserved".into()));
+        return Err(TelomereError::Header("arity 2 reserved".into()));
     }
     encode_arity(arity)
 }
@@ -247,12 +247,12 @@ pub fn decode_evql_bits(reader: &mut BitReader) -> Result<usize, TelomereError> 
     while reader.read_bit()? {
         ones += 1;
         if ones > MAX_HEADER_BITS {
-            return Err(TelomereError::HeaderCodec("EVQL prefix too long".into()));
+            return Err(TelomereError::Header("EVQL prefix too long".into()));
         }
     }
     let bytes = ones + 1;
     if bytes * 8 > MAX_HEADER_BITS {
-        return Err(TelomereError::HeaderCodec("EVQL width too large".into()));
+        return Err(TelomereError::Header("EVQL width too large".into()));
     }
     let mut value = 0usize;
     for _ in 0..bytes {
@@ -266,7 +266,7 @@ pub fn decode_evql_bits(reader: &mut BitReader) -> Result<usize, TelomereError> 
     if bytes > 1 {
         let max = 1usize << ((bytes - 1) * 8);
         if value < max {
-            return Err(TelomereError::HeaderCodec("overlong EVQL".into()));
+            return Err(TelomereError::Header("overlong EVQL".into()));
         }
     }
     Ok(value)
@@ -279,7 +279,7 @@ fn decode_span_rec(
     depth: usize,
 ) -> Result<Vec<u8>, TelomereError> {
     if depth >= MAX_RECURSION_DEPTH {
-        return Err(TelomereError::HeaderCodec("Too deep".into()));
+        return Err(TelomereError::Header("Too deep".into()));
     }
     match decode_arity(reader)? {
         None => {
@@ -293,7 +293,7 @@ fn decode_span_rec(
             let child_bits = config
                 .seed_expansions
                 .get(&seed_idx)
-                .ok_or_else(|| TelomereError::HeaderCodec("Missing seed expansion".into()))?;
+                .ok_or_else(|| TelomereError::Header("Missing seed expansion".into()))?;
             let mut child_reader = BitReader::from_slice(child_bits);
             let mut out = Vec::new();
             for _ in 0..arity {

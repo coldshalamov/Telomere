@@ -24,29 +24,29 @@ pub struct ResourceLimits {
 }
 
 /// Return an error if writing an entry would exceed resource limits.
-fn check_limits(path: &Path, entry_bytes: u64, limits: &ResourceLimits) -> io::Result<()> {
+fn check_limits(path: &Path, entry_bytes: u64, limits: &ResourceLimits) -> Result<(), crate::TelomereError> {
     let current = std::fs::metadata(path).map(|m| m.len()).unwrap_or(0);
     if current + entry_bytes > limits.max_disk_bytes {
-        return Err(io::Error::new(
+        return Err(crate::TelomereError::Io(io::Error::new(
             io::ErrorKind::Other,
             format!(
                 "disk limit exceeded: {} + {} > {}",
                 current, entry_bytes, limits.max_disk_bytes
             ),
-        ));
+        )));
     }
 
     let mut sys = System::new();
     sys.refresh_memory();
     let used = sys.used_memory() * 1024;
     if used > limits.max_memory_bytes {
-        return Err(io::Error::new(
+        return Err(crate::TelomereError::Io(io::Error::new(
             io::ErrorKind::Other,
             format!(
                 "memory limit exceeded: {} > {}",
                 used, limits.max_memory_bytes
             ),
-        ));
+        )));
     }
     Ok(())
 }
@@ -75,7 +75,7 @@ pub fn resume_seed_index_from(path: &Path) -> u64 {
     }
 }
 
-pub fn log_seed(seed_index: u64, hash: [u8; 32]) -> io::Result<()> {
+pub fn log_seed(seed_index: u64, hash: [u8; 32]) -> Result<(), crate::TelomereError> {
     log_seed_to(Path::new("hash_table.bin"), seed_index, hash, true, None)
 }
 
@@ -89,17 +89,18 @@ pub fn log_seed_to(
     hash: [u8; 32],
     persist: bool,
     limits: Option<&ResourceLimits>,
-) -> io::Result<()> {
+) -> Result<(), crate::TelomereError> {
     if !persist {
         return Ok(());
     }
 
     let entry = HashEntry { seed_index, hash };
-    let bytes = bincode::serialize(&entry).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+    let bytes = bincode::serialize(&entry)
+        .map_err(|e| crate::TelomereError::Io(io::Error::new(io::ErrorKind::Other, e)))?;
     if let Some(l) = limits {
         check_limits(path, bytes.len() as u64, l)?;
     }
-    let mut file = OpenOptions::new().create(true).append(true).open(path)?;
-    file.write_all(&bytes)?;
+    let mut file = OpenOptions::new().create(true).append(true).open(path).map_err(crate::TelomereError::from)?;
+    file.write_all(&bytes).map_err(crate::TelomereError::from)?;
     Ok(())
 }

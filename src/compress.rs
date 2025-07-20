@@ -118,7 +118,6 @@ pub fn compress_multi_pass_with_config(
 
     while passes < max_passes {
         passes += 1;
-        let mut mgr = SuperpositionManager::new();
 
         // Split the current stream into fixed sized blocks.
         let mut blocks: Vec<&[u8]> = Vec::new();
@@ -129,6 +128,8 @@ pub fn compress_multi_pass_with_config(
             blocks.push(&current[offset..end]);
             offset += block_size;
         }
+
+        let mut mgr = SuperpositionManager::new(blocks.len());
 
         // Insert all candidates for each block index.
         for (idx, _slice) in blocks.iter().enumerate() {
@@ -192,11 +193,9 @@ pub fn compress_multi_pass_with_config(
 
         let mut i = 0usize;
         while i < blocks.len() {
-            let cand = mgr
-                .best_superposed(i)
-                .ok_or_else(|| TelomereError::Superposition(format!(
-                    "no candidate at block {i}"
-                )))?;
+            let cand = mgr.best_superposed(i).ok_or_else(|| {
+                TelomereError::Superposition(format!("no candidate at block {i}"))
+            })?;
             if cand.seed_index == usize::MAX as u64 {
                 // literal
                 next.extend_from_slice(&encode_header(&Header::Literal)?);

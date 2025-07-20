@@ -1,7 +1,7 @@
 use proptest::prelude::*;
-use telomere::{compress, compress_multi_pass, decompress, Config};
 use telomere::superposition::SuperpositionManager;
 use telomere::types::Candidate;
+use telomere::{compress, compress_multi_pass, decompress, Config};
 
 fn cfg(bs: usize) -> Config {
     Config { block_size: bs, hash_bits: 13, ..Config::default() }
@@ -31,7 +31,7 @@ proptest! {
     // Superposition pruning keeps only the smallest candidate
     #[test]
     fn superposition_minimality(bit_lens in proptest::collection::vec(8usize..64, 1..8)) {
-        let mut mgr = SuperpositionManager::new();
+        let mut mgr = SuperpositionManager::new(1);
         for (i, len) in bit_lens.iter().enumerate() {
             mgr.push_unpruned(0, Candidate { seed_index: i as u64, arity: 1, bit_len: *len });
         }
