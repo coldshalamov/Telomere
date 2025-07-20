@@ -38,6 +38,18 @@ cargo run --release -- compress -i input.bin -o output.tlmr --block-size 4 --sta
 cargo run --release -- decompress output.tlmr restored.bin
 ```
 
+The `compress` and `decompress` subcommands are also available through the
+top‑level `telomere` binary:
+
+```bash
+target/debug/telomere compress input.bin output.tlmr --block-size 3
+target/debug/telomere decompress output.tlmr restored.bin
+```
+
+If an output path already exists, pass `--force` to overwrite it.  Use the
+`--status` flag to print progress for each processed block, and `--json` to emit
+a short summary after completion.
+
 ---
 
 ## Seed and Hash Storage
@@ -140,6 +152,25 @@ codes as a **literal fallback** path. Every file header records the format
 involved—compression relies purely on search. The **literal header logic** is
 intentionally simple, and recursive batching ensures eventual **convergence** of
 nested segments as a recursive convergence goal.
+
+### Protocol Invariants
+
+- Headers always include a version and block size field.
+- Decoders reject any raw payload that is not referenced by a header.
+- Literal paths never exceed the configured block size.
+- The truncated hash in each batch header must match the expanded output.
+
+### Frequently Asked Questions
+
+**Q: The decompressor reports `output hash mismatch`. What does this mean?**
+
+A: The input file is likely corrupted or was produced with incompatible
+parameters. Verify the block size and recompress the original data.
+
+**Q: Why is compression so slow on large files?**
+
+A: Telomere relies on exhaustive seed searches. Increase `--max-seed-len` only
+when necessary and use the `--status` flag to monitor progress.
 
 ---
 
