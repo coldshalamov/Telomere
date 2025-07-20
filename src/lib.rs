@@ -124,7 +124,7 @@ pub fn decompress_with_limit(
     if input.len() < 3 {
         return Err(TelomereError::Header("header too short".into()));
     }
-    let header = decode_tlmr_header(input).map_err(|e| TelomereError::Header(format!("{e}")))?;
+    let header = decode_tlmr_header(input)?;
     if header.version != 0
         || header.block_size != config.block_size
         || config.hash_bits != 13

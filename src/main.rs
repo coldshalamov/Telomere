@@ -9,17 +9,29 @@ use telomere::Config;
 use std::{fs, path::PathBuf, time::Instant};
 use telomere::{
     compress_multi_pass, decompress_with_limit, decode_tlmr_header, truncated_hash,
-    io_utils::{extension_error, io_cli_error, simple_cli_error},
+    io_utils::{
+        extension_error, io_cli_error, simple_cli_error, telomere_cli_error,
+        CliError,
+    },
 };
+
+fn print_cli_error(err: &CliError) {
+    eprintln!("{}", err.msg);
+    let mut src = err.source();
+    while let Some(s) = src {
+        eprintln!("Caused by: {}", s);
+        src = s.source();
+    }
+}
 
 fn main() {
     if let Err(e) = run() {
-        eprintln!("{e}");
+        print_cli_error(&e);
         std::process::exit(1);
     }
 }
 
-fn run() -> Result<(), Box<dyn std::error::Error>> {
+fn run() -> Result<(), CliError> {
     let cli = Cli::parse();
     match cli.command {
         Command::Compress(mut args) => {
@@ -45,18 +57,17 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
 
             let start_time = Instant::now();
             let (out, gains) = compress_multi_pass(&data, config.block_size, args.passes)
-                .map_err(|e| simple_cli_error(&format!("compression failed: {e}")))?;
+                .map_err(|e| telomere_cli_error("compression failed", e))?;
 
             if out.is_empty() {
-                return Err(simple_cli_error("compression returned no data").into());
+                return Err(simple_cli_error("compression returned no data"));
             }
 
             if output_path.exists() && !args.force && !args.dry_run {
                 return Err(simple_cli_error(&format!(
                     "Error: output file {} already exists (use --force to overwrite)",
                     output_path.display()
-                ))
-                .into());
+                )));
             }
 
             if !args.dry_run {
@@ -119,17 +130,17 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                 .and_then(|s| s.to_str())
                 .map_or(true, |ext| ext.to_ascii_lowercase() != "tlmr")
             {
-                return Err(extension_error(&input_path).into());
+                return Err(extension_error(&input_path));
             }
             if output_path.exists() && !args.force {
                 return Err(simple_cli_error(&format!(
                     "Error: output file {} already exists (use --force to overwrite)",
                     output_path.display()
-                ))
-                .into());
+                )));
             }
             let data = fs::read(&input_path)
                 .map_err(|e| io_cli_error("opening input file", &input_path, e))?;
+            // Always decode header and use correct config to ensure strictness
             let header = decode_tlmr_header(&data)
                 .map_err(|e| simple_cli_error(&format!("invalid header: {e}")))?;
             let cfg = Config { block_size: header.block_size, hash_bits: args.hash_bits, ..Config::default() };

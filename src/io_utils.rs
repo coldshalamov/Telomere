@@ -4,15 +4,24 @@ use std::io;
 use std::path::Path;
 
 #[derive(Debug)]
-pub struct CliError(pub String);
+pub struct CliError {
+    pub msg: String,
+    pub source: Option<Box<dyn std::error::Error + Send + Sync>>,
+}
 
 impl fmt::Display for CliError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        self.0.fmt(f)
+        self.msg.fmt(f)
     }
 }
 
-impl std::error::Error for CliError {}
+impl std::error::Error for CliError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        self.source
+            .as_deref()
+            .map(|e| e as &(dyn std::error::Error + 'static))
+    }
+}
 
 /// Format a user friendly I/O error message with suggestions.
 pub fn format_io_error(operation: &str, path: &Path, err: &io::Error) -> String {
@@ -36,7 +45,10 @@ pub fn format_io_error(operation: &str, path: &Path, err: &io::Error) -> String 
 
 /// Convert an I/O error into a CLI error with context.
 pub fn io_cli_error(operation: &str, path: &Path, err: io::Error) -> CliError {
-    CliError(format_io_error(operation, path, &err))
+    CliError {
+        msg: format_io_error(operation, path, &err),
+        source: Some(Box::new(err)),
+    }
 }
 
 /// Convert an I/O error into a std::io::Error with context.
@@ -46,13 +58,45 @@ pub fn io_error(operation: &str, path: &Path, err: io::Error) -> io::Error {
 
 /// Simple CLI error from string.
 pub fn simple_cli_error(msg: &str) -> CliError {
-    CliError(msg.to_string())
+    CliError {
+        msg: msg.to_string(),
+        source: None,
+    }
 }
 
 /// Invalid file extension error.
 pub fn extension_error(path: &Path) -> CliError {
-    CliError(format!(
-        "Invalid file extension for '{}'. Expected .tlmr. Check the input file.",
-        path.display()
-    ))
+    CliError {
+        msg: format!(
+            "Invalid file extension for '{}'. Expected .tlmr. Check the input file.",
+            path.display()
+        ),
+        source: None,
+    }
+}
+
+/// Convert a Telomere library error into a CLI error with a hint.
+pub fn telomere_cli_error(context: &str, err: crate::TelomereError) -> CliError {
+    CliError {
+        msg: format!("{}: {}", context, cli_hint(&err)),
+        source: Some(Box::new(err)),
+    }
+}
+
+/// Return an actionable hint for a Telomere error variant.
+pub fn cli_hint(err: &crate::TelomereError) -> String {
+    use crate::TelomereError::*;
+    match err {
+        Header(msg) => format!("{msg}. Verify the file is intact."),
+        SeedSearch(msg) => format!("{msg}. Check the seed table."),
+        Bundling(msg) => format!("{msg}. Bundle selection failed."),
+        Superposition(msg) => format!("{msg}. Candidate pruning issue."),
+        SuperpositionLimitExceeded(i) => format!("Too many candidates at block {i}."),
+        HeaderCodec(e) => format!("{e}. Likely stream malformed, try recompressing."),
+        Hash(msg) => format!("{msg}. Hash mismatch."),
+        Config(msg) => format!("{msg}. Invalid configuration."),
+        Io(io) => format!("{io}"),
+        Internal(msg) => format!("{msg}. This is a bug."),
+        Decode(msg) | Other(msg) => msg.clone(),
+    }
 }
