@@ -1,12 +1,12 @@
-//! Helpers for collecting compression statistics at runtime.
+//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 //!
 //! [`CompressionStats`] tracks block counts and optional progress
 //! snapshots that are written to CSV.  The structure can be queried at
 //! the end of a run to produce user facing summaries.
 
-use std::time::Instant;
-use std::fs::File;
 use csv::Writer;
+use std::fs::File;
+use std::time::Instant;
 
 pub struct CompressionStats {
     start_time: Instant,
@@ -41,7 +41,13 @@ impl CompressionStats {
     pub fn with_csv(path: &str) -> std::io::Result<Self> {
         let file = File::create(path)?;
         let mut wtr = Writer::from_writer(file);
-        wtr.write_record(&["seconds", "total_blocks", "compressed_blocks", "greedy", "fallback"])?;
+        wtr.write_record(&[
+            "seconds",
+            "total_blocks",
+            "compressed_blocks",
+            "greedy",
+            "fallback",
+        ])?;
         Ok(Self {
             start_time: Instant::now(),
             total_blocks: 0,
@@ -117,7 +123,14 @@ pub fn write_stats_csv(stats: &CompressionStats, path: &str) -> std::io::Result<
     let elapsed = stats.start_time.elapsed().as_secs_f32();
     let ratio = stats.compressed_blocks as f32 / stats.total_blocks.max(1) as f32;
     let mut wtr = Writer::from_writer(File::create(path)?);
-    wtr.write_record(&["time_s", "total_blocks", "compressed_blocks", "ratio", "greedy", "fallback"])?;
+    wtr.write_record(&[
+        "time_s",
+        "total_blocks",
+        "compressed_blocks",
+        "ratio",
+        "greedy",
+        "fallback",
+    ])?;
     wtr.write_record(&[
         format!("{:.2}", elapsed),
         stats.total_blocks.to_string(),

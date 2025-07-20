@@ -1,8 +1,21 @@
+//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 use crate::config::Config;
 use crate::TelomereError;
 
+// July‑2025 header prefix table (MSB first)
+// 0      -> arity 1
+// 100    -> literal passthrough
+// 1010   -> arity 3
+// 1011   -> arity 4
+// 11000  -> arity 5
+// 11001  -> arity 6
+// 11010  -> arity 7
+// 11011  -> arity 8
+
 const MAX_HEADER_BITS: usize = 500;
 const MAX_RECURSION_DEPTH: usize = 30;
+
+const LITERAL_BITS: [bool; 3] = [true, false, false];
 
 /// Header describing either a literal block or the arity for a seeded span.
 ///
@@ -33,7 +46,7 @@ impl<'a> BitReader<'a> {
 
     pub fn read_bit(&mut self) -> Result<bool, TelomereError> {
         if self.pos / 8 >= self.data.len() {
-            return Err(TelomereError::Header("unexpected EOF".into()));
+            return Err(TelomereError::HeaderCodec("unexpected EOF".into()));
         }
         let bit = ((self.data[self.pos / 8] >> (7 - (self.pos % 8))) & 1) != 0;
         self.pos += 1;
@@ -88,10 +101,15 @@ fn pack_bits(bits: &[bool]) -> Vec<u8> {
     out
 }
 
+/// Return true if the provided bits start with the literal header marker.
+pub fn is_literal_bits(bits: &[bool]) -> bool {
+    bits.len() >= 3 && bits[0] && !bits[1] && !bits[2]
+}
+
 // Encode an arity value using the VQL header scheme.
 fn encode_arity(arity: usize) -> Result<Vec<bool>, TelomereError> {
     if arity < 1 {
-        return Err(TelomereError::Header("arity must be positive".into()));
+        return Err(TelomereError::HeaderCodec("arity must be positive".into()));
     }
     if arity == 1 {
         return Ok(vec![false]);
@@ -143,7 +161,7 @@ fn decode_arity(reader: &mut BitReader) -> Result<Option<usize>, TelomereError> 
     let mut ones = 1usize;
     loop {
         if bits_read >= MAX_HEADER_BITS {
-            return Err(TelomereError::Header("arity prefix too long".into()));
+            return Err(TelomereError::HeaderCodec("arity prefix too long".into()));
         }
         let bit = reader.read_bit()?;
         bits_read += 1;
@@ -155,12 +173,12 @@ fn decode_arity(reader: &mut BitReader) -> Result<Option<usize>, TelomereError> 
     }
     let width = ones + 1;
     if width >= MAX_HEADER_BITS {
-        return Err(TelomereError::Header("arity width too large".into()));
+        return Err(TelomereError::HeaderCodec("arity width too large".into()));
     }
     let mut value = 0usize;
     for _ in 0..width {
         if bits_read >= MAX_HEADER_BITS {
-            return Err(TelomereError::Header("arity value truncated".into()));
+            return Err(TelomereError::HeaderCodec("arity value truncated".into()));
         }
         let b = reader.read_bit()?;
         bits_read += 1;
@@ -170,16 +188,39 @@ fn decode_arity(reader: &mut BitReader) -> Result<Option<usize>, TelomereError> 
 }
 
 /// Encode an arity value to raw bits without packing.
+///
+/// # Examples
+/// ```
+/// use telomere::encode_arity_bits;
+/// assert_eq!(encode_arity_bits(1).unwrap(), vec![false]);
+/// assert_eq!(encode_arity_bits(3).unwrap(), vec![true, false, true, false]);
+/// assert_eq!(encode_arity_bits(4).unwrap(), vec![true, false, true, true]);
+/// ```
 pub fn encode_arity_bits(arity: usize) -> Result<Vec<bool>, TelomereError> {
+    if arity == 2 {
+        return Err(TelomereError::HeaderCodec("arity 2 reserved".into()));
+    }
     encode_arity(arity)
 }
 
 /// Decode an arity field using the July‑2025 windowed VQL scheme.
+///
+/// Returns `Ok(None)` for the literal marker. Unknown prefixes are reported as
+/// `TelomereError::HeaderCodec`.
 pub fn decode_arity_bits(reader: &mut BitReader) -> Result<Option<usize>, TelomereError> {
     decode_arity(reader)
 }
 
-/// Encode a usize using EVQL and return the raw bits.
+/// Encode an integer using the EVQL format.
+///
+/// The value is written as unary length `k` (`k` one bits followed by zero)
+/// then exactly `k+1` bytes most significant byte first.
+///
+/// # Examples
+/// ```
+/// use telomere::encode_evql_bits;
+/// assert_eq!(encode_evql_bits(0), vec![false, false, false, false, false, false, false, false, false]);
+/// ```
 pub fn encode_evql_bits(value: usize) -> Vec<bool> {
     let mut bytes = 1usize;
     while value >= (1usize << (bytes * 8)) {
@@ -206,12 +247,12 @@ pub fn decode_evql_bits(reader: &mut BitReader) -> Result<usize, TelomereError> 
     while reader.read_bit()? {
         ones += 1;
         if ones > MAX_HEADER_BITS {
-            return Err(TelomereError::Header("EVQL prefix too long".into()));
+            return Err(TelomereError::HeaderCodec("EVQL prefix too long".into()));
         }
     }
     let bytes = ones + 1;
     if bytes * 8 > MAX_HEADER_BITS {
-        return Err(TelomereError::Header("EVQL width too large".into()));
+        return Err(TelomereError::HeaderCodec("EVQL width too large".into()));
     }
     let mut value = 0usize;
     for _ in 0..bytes {
@@ -221,6 +262,12 @@ pub fn decode_evql_bits(reader: &mut BitReader) -> Result<usize, TelomereError> 
             byte = (byte << 1) | bit as u8;
         }
         value = (value << 8) | byte as usize;
+    }
+    if bytes > 1 {
+        let max = 1usize << ((bytes - 1) * 8);
+        if value < max {
+            return Err(TelomereError::HeaderCodec("overlong EVQL".into()));
+        }
     }
     Ok(value)
 }
@@ -232,7 +279,7 @@ fn decode_span_rec(
     depth: usize,
 ) -> Result<Vec<u8>, TelomereError> {
     if depth >= MAX_RECURSION_DEPTH {
-        return Err(TelomereError::Header("Too deep".into()));
+        return Err(TelomereError::HeaderCodec("Too deep".into()));
     }
     match decode_arity(reader)? {
         None => {
@@ -246,7 +293,7 @@ fn decode_span_rec(
             let child_bits = config
                 .seed_expansions
                 .get(&seed_idx)
-                .ok_or_else(|| TelomereError::Header("Missing seed expansion".into()))?;
+                .ok_or_else(|| TelomereError::HeaderCodec("Missing seed expansion".into()))?;
             let mut child_reader = BitReader::from_slice(child_bits);
             let mut out = Vec::new();
             for _ in 0..arity {
@@ -264,12 +311,12 @@ pub fn decode_span(reader: &mut BitReader, config: &Config) -> Result<Vec<u8>, T
 
 /// Encode a [`Header`] to a byte vector.
 ///
-/// Literals are encoded as the arity‑2 marker followed by `EVQL(0)`.
+/// Literals are encoded as the reserved `100` marker followed by `EVQL(0)`.
 pub fn encode_header(header: &Header) -> Result<Vec<u8>, TelomereError> {
     let mut bits = Vec::new();
     match header {
-        Header::Arity(a) => bits.extend(encode_arity(*a as usize)?),
-        Header::Literal => bits.extend(encode_arity(2)?),
+        Header::Arity(a) => bits.extend(encode_arity_bits(*a as usize)?),
+        Header::Literal => bits.extend_from_slice(&LITERAL_BITS),
     }
     Ok(pack_bits(&bits))
 }
@@ -289,7 +336,7 @@ mod tests {
 
     #[test]
     fn roundtrip_cases() {
-        for arity in 1..=6u8 {
+        for arity in 1..=8u8 {
             let header = if arity == 2 {
                 Header::Literal
             } else {

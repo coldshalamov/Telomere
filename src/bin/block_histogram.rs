@@ -1,13 +1,14 @@
+//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
+use bytemuck::{Pod, Zeroable};
 use clap::Parser;
 use memmap2::Mmap;
+use serde::Serialize;
 use sha2::{Digest, Sha256};
+use std::cmp::Ordering;
 use std::fs::{self, File};
 use std::io::Write;
 use std::path::{Path, PathBuf};
 use telomere::io_utils::{io_cli_error, simple_cli_error};
-use bytemuck::{Pod, Zeroable};
-use serde::Serialize;
-use std::cmp::Ordering;
 
 #[repr(C)]
 #[derive(Clone, Copy)]
@@ -64,13 +65,14 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         return Err(simple_cli_error("min_bits greater than max_bits").into());
     }
 
-    let input = fs::read(&args.input)
-        .map_err(|e| io_cli_error("reading input file", &args.input, e))?;
+    let input =
+        fs::read(&args.input).map_err(|e| io_cli_error("reading input file", &args.input, e))?;
 
     let table_path = Path::new("hash_table.bin");
-    let file = File::open(table_path)
-        .map_err(|e| io_cli_error("opening hash table", table_path, e))?;
-    let mmap = unsafe { Mmap::map(&file).map_err(|e| io_cli_error("mapping hash table", table_path, e))? };
+    let file =
+        File::open(table_path).map_err(|e| io_cli_error("opening hash table", table_path, e))?;
+    let mmap =
+        unsafe { Mmap::map(&file).map_err(|e| io_cli_error("mapping hash table", table_path, e))? };
 
     let mut counts = [0u64; 4]; // 1,2,3,literal
     let mut json_records = Vec::new();
@@ -131,8 +133,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         wtr.flush()?;
     }
     if let Some(path) = &args.json {
-        let mut f = File::create(path)
-            .map_err(|e| io_cli_error("creating json", path, e))?;
+        let mut f = File::create(path).map_err(|e| io_cli_error("creating json", path, e))?;
         serde_json::to_writer_pretty(&mut f, &json_records)?;
         f.write_all(b"\n")?;
     }
@@ -172,12 +173,7 @@ fn seed_bit_length(seed: &[u8]) -> u32 {
     0
 }
 
-fn lookup_seed(
-    mmap: &Mmap,
-    prefix: [u8; 3],
-    min_bits: u32,
-    max_bits: u32,
-) -> Option<Vec<u8>> {
+fn lookup_seed(mmap: &Mmap, prefix: [u8; 3], min_bits: u32, max_bits: u32) -> Option<Vec<u8>> {
     let entry_size = std::mem::size_of::<Entry>();
     if mmap.len() % entry_size != 0 {
         return None;
@@ -223,4 +219,3 @@ fn lookup_seed(
     }
     None
 }
-

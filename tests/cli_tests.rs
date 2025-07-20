@@ -1,3 +1,4 @@
+//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 use std::fs;
 use std::process::Command;
 
@@ -24,7 +25,11 @@ fn compress_roundtrip_cli() {
     assert!(status.success());
 
     let status = Command::new(exe)
-        .args(["decompress", compressed.to_str().unwrap(), output.to_str().unwrap()])
+        .args([
+            "decompress",
+            compressed.to_str().unwrap(),
+            output.to_str().unwrap(),
+        ])
         .status()
         .expect("decompress failed");
     assert!(status.success());

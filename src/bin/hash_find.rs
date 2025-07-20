@@ -1,8 +1,9 @@
+//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 use bytemuck::{Pod, Zeroable};
 use sha2::{Digest, Sha256};
 use std::cmp::Ordering;
 use std::fs;
-use std::io::{Read};
+use std::io::Read;
 use std::path::Path;
 use telomere::io_utils::{io_cli_error, simple_cli_error};
 
@@ -27,10 +28,7 @@ fn main() {
 fn run() -> Result<(), Box<dyn std::error::Error>> {
     let args: Vec<String> = std::env::args().collect();
     if args.len() != 2 {
-        return Err(simple_cli_error(&format!(
-            "Usage: {} <input_file|hex|->",
-            args[0]
-        )).into());
+        return Err(simple_cli_error(&format!("Usage: {} <input_file|hex|->", args[0])).into());
     }
 
     let input_bytes = if args[1] == "-" {
@@ -51,7 +49,8 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     let prefix_hex = format!("{:02x}{:02x}{:02x}", prefix[0], prefix[1], prefix[2]);
 
     let table_path = Path::new("hash_table.bin");
-    let bytes = fs::read(table_path).map_err(|e| io_cli_error("reading hash table", table_path, e))?;
+    let bytes =
+        fs::read(table_path).map_err(|e| io_cli_error("reading hash table", table_path, e))?;
     if bytes.len() % std::mem::size_of::<HashEntry>() != 0 {
         return Err(simple_cli_error("corrupt hash table file").into());
     }
@@ -97,12 +96,12 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         if len > 4 || len == 0 {
             continue;
         }
-        let seed_hex: String = entry.seed[..len].iter().map(|b| format!("{:02x}", b)).collect();
+        let seed_hex: String = entry.seed[..len]
+            .iter()
+            .map(|b| format!("{:02x}", b))
+            .collect();
         let bit_len = seed_bit_length(&entry.seed[..len]);
-        println!(
-            "{prefix_hex}  {}  {seed_hex}  {bit_len}",
-            entry.seed_len
-        );
+        println!("{prefix_hex}  {}  {seed_hex}  {bit_len}", entry.seed_len);
     }
 
     println!(
@@ -135,4 +134,3 @@ mod tests {
         assert_eq!(seed_bit_length(&[0x80, 0x00]), 16);
     }
 }
-
