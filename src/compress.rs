@@ -1,6 +1,5 @@
 use crate::compress_stats::CompressionStats;
 use crate::header::{encode_arity_bits, encode_evql_bits, encode_header, Header};
-use crate::seed_index::index_to_seed;
 use crate::tlmr::{encode_tlmr_header, truncated_hash, TlmrHeader};
 use crate::TelomereError;
 
@@ -77,19 +76,19 @@ pub fn compress(data: &[u8], block_size: usize) -> Result<Vec<u8>, TelomereError
         let max_bundle = (remaining / block_size).min(MAX_ARITY);
         let mut matched = false;
         for arity in (1..=max_bundle).rev() {
-            if offset + arity * block_size > data.len() {
-                continue;
-            }
             if arity == 2 {
-                continue;
+                continue; // reserved for literal marker
             }
+
             let span_len = arity * block_size;
             let slice = &data[offset..offset + span_len];
+
             if let Some(seed_idx) = find_seed_match(slice, MAX_SEED_LEN)? {
                 let header_bits = encode_arity_bits(arity)?;
                 let evql_bits = encode_evql_bits(seed_idx);
                 let total_bits = header_bits.len() + evql_bits.len();
-                if total_bits / 8 < span_len {
+
+                if (total_bits + 7) / 8 < span_len {
                     let mut bits = header_bits;
                     bits.extend(evql_bits);
                     out.extend(pack_bits(&bits));
@@ -151,7 +150,7 @@ pub fn compress_block(
         let header_bits = encode_arity_bits(1)?;
         let evql_bits = encode_evql_bits(seed_idx);
         let total_bits = header_bits.len() + evql_bits.len();
-        if total_bits / 8 < block_size {
+        if (total_bits + 7) / 8 < block_size {
             if let Some(s) = stats.as_deref_mut() {
                 s.maybe_log(slice, slice, false);
                 s.log_match(false, 1);
