@@ -12,6 +12,8 @@ use crate::types::{Candidate, TelomereError};
 pub struct SuperpositionManager {
     canonical: HashMap<(usize, usize), Candidate>,
     superposed: HashMap<usize, Vec<(char, Candidate)>>,
+    /// Total number of original blocks in the stream. Used for gap checks.
+    total_blocks: usize,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -21,10 +23,12 @@ pub enum InsertResult {
 }
 
 impl SuperpositionManager {
-    pub fn new() -> Self {
+    /// Create a new manager for a stream with the given number of blocks.
+    pub fn new(total_blocks: usize) -> Self {
         SuperpositionManager {
             canonical: HashMap::new(),
             superposed: HashMap::new(),
+            total_blocks,
         }
     }
 
@@ -45,8 +49,7 @@ impl SuperpositionManager {
             }
 
             list.sort_by(|a, b| {
-                a.1
-                    .bit_len
+                a.1.bit_len
                     .cmp(&b.1.bit_len)
                     .then(a.1.seed_index.cmp(&b.1.seed_index))
             });
@@ -66,7 +69,38 @@ impl SuperpositionManager {
         }
     }
 
-    pub fn insert_candidate(&mut self, key: (usize, usize), cand: Candidate) {
+    /// Ensure the canonical set of candidates covers the entire input without
+    /// gaps or overlaps.
+    fn verify_gap_free(&self) -> Result<(), TelomereError> {
+        use TelomereError::Superposition;
+        if self.total_blocks == 0 {
+            return Ok(());
+        }
+
+        let mut coverage = vec![false; self.total_blocks];
+        for (&(start, blocks), _) in &self.canonical {
+            if start + blocks > self.total_blocks {
+                return Err(Superposition("span out of bounds".into()));
+            }
+            for i in start..start + blocks {
+                if coverage[i] {
+                    return Err(Superposition("overlap detected".into()));
+                }
+                coverage[i] = true;
+            }
+        }
+
+        if coverage.iter().any(|c| !*c) {
+            return Err(Superposition("gap detected".into()));
+        }
+        Ok(())
+    }
+
+    pub fn insert_candidate(
+        &mut self,
+        key: (usize, usize),
+        cand: Candidate,
+    ) -> Result<(), TelomereError> {
         match self.canonical.entry(key) {
             std::collections::hash_map::Entry::Occupied(mut e) => {
                 if cand.bit_len < e.get().bit_len {
@@ -77,6 +111,7 @@ impl SuperpositionManager {
                 v.insert(cand);
             }
         }
+        self.verify_gap_free()
     }
 
     pub fn insert_superposed(
@@ -90,12 +125,15 @@ impl SuperpositionManager {
             return Err(Superposition("zero bit length".into()));
         }
 
+        if block_index >= self.total_blocks {
+            return Err(Superposition("block index out of range".into()));
+        }
+
         let list = self.superposed.entry(block_index).or_default();
         list.push(('?', cand.clone()));
 
         list.sort_by(|a, b| {
-            a.1
-                .bit_len
+            a.1.bit_len
                 .cmp(&b.1.bit_len)
                 .then(a.1.seed_index.cmp(&b.1.seed_index))
         });
@@ -169,5 +207,27 @@ impl SuperpositionManager {
             .iter()
             .map(|(k, v)| (*k, v.clone()))
             .collect()
+    }
+
+    /// Dump the current state for debugging.
+    pub fn debug_dump(&self) -> String {
+        let mut out = String::new();
+        out.push_str("Canonical:\n");
+        let mut can: Vec<_> = self.canonical.iter().collect();
+        can.sort_by_key(|(k, _)| *k);
+        for ((s, b), c) in can {
+            out.push_str(&format!("  ({s},{b}) -> {:?}\n", c));
+        }
+        out.push_str("Superposed:\n");
+        let mut sup: Vec<_> = self.superposed.iter().collect();
+        sup.sort_by_key(|(k, _)| *k);
+        for (idx, list) in sup {
+            let mut tmp = list.clone();
+            tmp.sort_by_key(|x| x.0);
+            for (l, c) in tmp {
+                out.push_str(&format!("  {idx}{l}: {:?}\n", c));
+            }
+        }
+        out
     }
 }
