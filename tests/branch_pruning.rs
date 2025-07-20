@@ -1,4 +1,5 @@
-use telomere::{group_by_bit_length, Block, prune_branches, collapse_branches, finalize_table};
+//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
+use telomere::{collapse_branches, finalize_table, group_by_bit_length, prune_branches, Block};
 
 #[test]
 fn prune_removes_longest() {
@@ -37,8 +38,18 @@ fn prune_removes_longest() {
     let mut table = group_by_bit_length(blocks);
     prune_branches(&mut table);
     // index 0 should only have 8-bit block
-    assert_eq!(table.get(&8).unwrap().iter().filter(|b| b.global_index == 0).count(), 1);
-    assert!(table.get(&24).map_or(true, |v| v.iter().all(|b| b.global_index != 0)));
+    assert_eq!(
+        table
+            .get(&8)
+            .unwrap()
+            .iter()
+            .filter(|b| b.global_index == 0)
+            .count(),
+        1
+    );
+    assert!(table
+        .get(&24)
+        .map_or(true, |v| v.iter().all(|b| b.global_index != 0)));
 }
 
 #[test]
@@ -87,9 +98,27 @@ fn collapse_from_index() {
     ];
     let mut table = group_by_bit_length(blocks);
     collapse_branches(&mut table, 0);
-    assert_eq!(table.get(&8).unwrap().iter().filter(|b| b.global_index == 0).count(), 1);
-    assert!(table.get(&16).map_or(true, |v| v.iter().all(|b| b.global_index != 0)));
-    assert_eq!(table.get(&8).unwrap().iter().filter(|b| b.global_index == 1).count(), 1);
+    assert_eq!(
+        table
+            .get(&8)
+            .unwrap()
+            .iter()
+            .filter(|b| b.global_index == 0)
+            .count(),
+        1
+    );
+    assert!(table
+        .get(&16)
+        .map_or(true, |v| v.iter().all(|b| b.global_index != 0)));
+    assert_eq!(
+        table
+            .get(&8)
+            .unwrap()
+            .iter()
+            .filter(|b| b.global_index == 1)
+            .count(),
+        1
+    );
 }
 
 #[test]

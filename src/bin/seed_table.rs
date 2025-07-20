@@ -1,5 +1,5 @@
+//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 use clap::Parser;
-use telomere::io_utils::io_cli_error;
 use sha2::{Digest, Sha256};
 use std::{
     collections::HashSet,
@@ -7,6 +7,7 @@ use std::{
     io::{BufRead, BufReader, BufWriter, Write},
     path::Path,
 };
+use telomere::io_utils::io_cli_error;
 
 #[derive(Parser)]
 struct Args {

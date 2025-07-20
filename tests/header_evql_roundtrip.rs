@@ -1,3 +1,4 @@
+//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 use proptest::prelude::*;
 use telomere::{
     decode_arity_bits, decode_evql_bits, encode_arity_bits, encode_evql_bits, BitReader,

@@ -1,4 +1,4 @@
-//! Utilities for selectively persisting seed hashes.
+//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 //!
 //! Only final or whitelisted seeds should be written to disk.  Temporary
 //! candidates are discarded.  Every write checks available disk space and
@@ -95,8 +95,7 @@ pub fn log_seed_to(
     }
 
     let entry = HashEntry { seed_index, hash };
-    let bytes = bincode::serialize(&entry)
-        .map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
+    let bytes = bincode::serialize(&entry).map_err(|e| io::Error::new(io::ErrorKind::Other, e))?;
     if let Some(l) = limits {
         check_limits(path, bytes.len() as u64, l)?;
     }

@@ -1,3 +1,4 @@
+//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 use std::collections::HashMap;
 
 use crate::types::{Candidate, TelomereError};
@@ -135,7 +136,10 @@ impl SuperpositionManager {
             } else {
                 pruned.sort();
                 if pruned.is_empty() {
-                    Err(Superposition(format!("limit exceeded at block {}", block_index)))
+                    Err(Superposition(format!(
+                        "limit exceeded at block {}",
+                        block_index
+                    )))
                 } else {
                     Ok(InsertResult::Pruned(pruned))
                 }
