@@ -35,7 +35,7 @@ fn pack_bits(bits: &[bool]) -> Vec<u8> {
     out
 }
 
-/// Compress the input using literal passthrough blocks.
+/// Compress the input using literal passthrough blocks and arity-based seed compression.
 pub fn compress(data: &[u8], block_size: usize) -> Result<Vec<u8>, TelomereError> {
     let last_block = if data.is_empty() {
         block_size
@@ -57,11 +57,8 @@ pub fn compress(data: &[u8], block_size: usize) -> Result<Vec<u8>, TelomereError
         let max_bundle = (remaining / block_size).min(MAX_ARITY);
         let mut matched = false;
         for arity in (1..=max_bundle).rev() {
-            if offset + arity * block_size > data.len() {
-                continue;
-            }
             if arity == 2 {
-                continue;
+                continue; // reserved for literal marker
             }
             let span_len = arity * block_size;
             let slice = &data[offset..offset + span_len];
@@ -69,7 +66,7 @@ pub fn compress(data: &[u8], block_size: usize) -> Result<Vec<u8>, TelomereError
                 let header_bits = encode_arity_bits(arity)?;
                 let evql_bits = encode_evql_bits(seed_idx);
                 let total_bits = header_bits.len() + evql_bits.len();
-                if total_bits / 8 < span_len {
+                if (total_bits + 7) / 8 < span_len {
                     let mut bits = header_bits;
                     bits.extend(evql_bits);
                     out.extend(pack_bits(&bits));
@@ -79,7 +76,6 @@ pub fn compress(data: &[u8], block_size: usize) -> Result<Vec<u8>, TelomereError
                 }
             }
         }
-
         if !matched {
             let chunk = remaining.min(block_size);
             out.extend_from_slice(&encode_header(&Header::Literal)?);
@@ -131,7 +127,7 @@ pub fn compress_block(
         let header_bits = encode_arity_bits(1)?;
         let evql_bits = encode_evql_bits(seed_idx);
         let total_bits = header_bits.len() + evql_bits.len();
-        if total_bits / 8 < block_size {
+        if (total_bits + 7) / 8 < block_size {
             if let Some(s) = stats.as_deref_mut() {
                 s.maybe_log(slice, slice, false);
                 s.log_match(false, 1);

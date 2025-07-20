@@ -29,6 +29,8 @@ mod seed_detect;
 mod seed_index;
 mod seed_logger;
 mod sha_cache;
+mod tile;
+mod gpu;
 mod stats;
 pub mod superposition;
 pub mod types;
@@ -60,6 +62,8 @@ pub use seed_logger::{
     log_seed, log_seed_to, resume_seed_index, resume_seed_index_from, HashEntry, ResourceLimits,
 };
 pub use sha_cache::*;
+pub use tile::{BlockChunk, TileMap, chunk_blocks, flush_chunk, load_chunk};
+pub use gpu::GpuSeedMatcher;
 pub use stats::Stats;
 pub use tlmr::{decode_tlmr_header, encode_tlmr_header, truncated_hash, TlmrError, TlmrHeader};
 
