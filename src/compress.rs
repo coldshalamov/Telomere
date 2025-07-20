@@ -86,28 +86,40 @@ pub fn compress(data: &[u8], block_size: usize) -> Result<Vec<u8>, TelomereError
     Ok(out)
 }
 
+/// Apply [`compress`] repeatedly until no further gains are achieved or the
+/// provided pass limit is reached.
+///
+/// Returns the final compressed bytes along with a vector recording the number
+/// of bytes saved after each *successful* pass.  The first element corresponds
+/// to the second pass since the initial invocation is considered pass `1`.
 pub fn compress_multi_pass(
     data: &[u8],
     block_size: usize,
     max_passes: usize,
-) -> Result<Vec<u8>, TelomereError> {
+) -> Result<(Vec<u8>, Vec<usize>), TelomereError> {
     let mut current = compress(data, block_size)?;
+    let mut gains = Vec::new();
     let mut passes = 1usize;
+
     while passes < max_passes {
         let next = compress(&current, block_size)?;
-        if next.len() < current.len() {
-            eprintln!(
-                "pass {} gained {} bytes",
-                passes + 1,
-                current.len() - next.len()
-            );
+        let saved = current.len().saturating_sub(next.len());
+        if saved > 0 {
+            eprintln!("pass {} gained {} bytes", passes + 1, saved);
+            gains.push(saved);
             current = next;
             passes += 1;
         } else {
-            break;
+            eprintln!("converged after {} passes", passes);
+            return Ok((current, gains));
         }
     }
-    Ok(current)
+
+    if passes == max_passes {
+        eprintln!("stopped after {} passes (pass cap)", passes);
+    }
+
+    Ok((current, gains))
 }
 
 pub fn compress_block(
