@@ -16,7 +16,8 @@ proptest! {
         } else {
             compress(&data, block).unwrap()
         };
-        let out = decompress(&compressed, &Config::default()).unwrap();
+        let cfg = Config { block_size: block, ..Config::default() };
+        let out = decompress(&compressed, &cfg).unwrap();
         prop_assert_eq!(out.as_slice(), data.as_slice());
         prop_assert!(compressed.len() <= data.len() + 8);
     }
@@ -65,6 +66,7 @@ proptest! {
         let idx = bit % total_bits;
         let mut corrupt = compressed.clone();
         corrupt[idx / 8] ^= 1 << (idx % 8);
-        prop_assert!(decompress(&corrupt, &Config::default()).is_err());
+        let cfg = Config { block_size: block, ..Config::default() };
+        prop_assert!(decompress(&corrupt, &cfg).is_err());
     }
 }

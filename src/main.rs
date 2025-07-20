@@ -6,11 +6,10 @@
 
 use clap::{ArgGroup, Args, Parser, Subcommand};
 use std::{error::Error, fs, path::PathBuf, time::Instant};
-use telomere::Config;
 use telomere::{
     compress_multi_pass, decode_tlmr_header, decompress_with_limit,
     io_utils::{extension_error, io_cli_error, simple_cli_error, telomere_cli_error, CliError},
-    truncated_hash,
+    truncated_hash, Config,
 };
 
 fn print_cli_error(err: &CliError) {
