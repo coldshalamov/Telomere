@@ -113,9 +113,25 @@ pub fn compress(data: &[u8], block_size: usize) -> Result<Vec<u8>, TelomereError
 pub fn compress_multi_pass(
     data: &[u8],
     block_size: usize,
-    _max_passes: usize,
+    max_passes: usize,
 ) -> Result<Vec<u8>, TelomereError> {
-    compress(data, block_size)
+    let mut current = compress(data, block_size)?;
+    let mut passes = 1usize;
+    while passes < max_passes {
+        let next = compress(&current, block_size)?;
+        if next.len() < current.len() {
+            eprintln!(
+                "pass {} gained {} bytes",
+                passes + 1,
+                current.len() - next.len()
+            );
+            current = next;
+            passes += 1;
+        } else {
+            break;
+        }
+    }
+    Ok(current)
 }
 
 pub fn compress_block(
