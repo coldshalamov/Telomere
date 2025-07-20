@@ -31,6 +31,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                 max_seed_len: args.max_seed_len,
                 max_arity: args.max_arity,
                 hash_bits: args.hash_bits,
+                seed_expansions: std::collections::HashMap::new(),
             };
             let data = fs::read(&input_path)
                 .map_err(|e| io_cli_error("opening input file", &input_path, e))?;
@@ -83,6 +84,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
                 max_seed_len: args.max_seed_len,
                 max_arity: args.max_arity,
                 hash_bits: args.hash_bits,
+                seed_expansions: std::collections::HashMap::new(),
             };
             if input_path
                 .extension()
