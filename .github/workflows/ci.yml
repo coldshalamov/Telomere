@@ -41,8 +41,8 @@ jobs:
       - name: tests
         run: cross test --target ${{ matrix.target }} --release
       - name: fuzz
-        run: |
-          cargo hfuzz run fuzz_target_1 --runs 100
+        run: cargo hfuzz run fuzz_target_1 --runs 100
+
   coverage:
     if: github.event_name == 'schedule'
     runs-on: ubuntu-latest
@@ -58,7 +58,8 @@ jobs:
       - name: Run coverage
         run: cargo tarpaulin --out Xml
       - name: Upload coverage
-        uses: codecov/codecov-action@v3
+        uses: actions/upload-artifact@v4
         with:
-          files: cobertura.xml
-          fail_ci_if_error: true
+          name: coverage
+          path: cobertura.xml
+          if-no-files-found: error

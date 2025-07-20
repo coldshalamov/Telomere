@@ -1,3 +1,4 @@
+#![cfg_attr(not(feature = "gpu"), deny(unsafe_code))]
 //! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 use bytemuck::{Pod, Zeroable};
 use serde::Serialize;
@@ -12,15 +13,12 @@ use telomere::io_utils::{io_cli_error, simple_cli_error};
 /// Each entry stores the first three bytes of the seed's SHA-256 digest,
 /// the seed length, and the zero-padded seed bytes.
 #[repr(C)]
-#[derive(Clone, Copy, Debug, Serialize)]
+#[derive(Clone, Copy, Debug, Serialize, Zeroable, Pod)]
 struct HashEntry {
     hash_prefix: [u8; 3],
     seed_len: u8,
     seed: [u8; 4],
 }
-
-unsafe impl Zeroable for HashEntry {}
-unsafe impl Pod for HashEntry {}
 
 fn main() {
     if let Err(e) = run() {
