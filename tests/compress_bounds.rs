@@ -1,5 +1,9 @@
 //! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
-use telomere::{compress, decode_header, decode_tlmr_header, decompress_with_limit, Header};
+use telomere::{compress, decode_header, decode_tlmr_header, decompress_with_limit, Header, Config};
+
+fn cfg(block: usize) -> Config {
+    Config { block_size: block, hash_bits: 13, ..Config::default() }
+}
 
 #[test]
 fn partial_seed_block_falls_back_to_literal() {
@@ -37,6 +41,6 @@ fn partial_seed_block_falls_back_to_literal() {
     assert!(matches!(headers[1], Header::Literal));
 
     // Ensure roundtrip works
-    let decompressed = decompress_with_limit(&compressed, usize::MAX).unwrap();
+    let decompressed = decompress_with_limit(&compressed, &cfg(block_size), usize::MAX).unwrap();
     assert_eq!(decompressed, data);
 }
