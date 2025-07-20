@@ -61,12 +61,12 @@ impl ShaCache {
     }
 }
 
-pub fn load_hash_table(path: &str) -> std::io::Result<HashMap<Vec<u8>, [u8; 32]>> {
-    let file = File::open(path)?;
+pub fn load_hash_table(path: &str) -> Result<HashMap<Vec<u8>, [u8; 32]>, crate::TelomereError> {
+    let file = File::open(path).map_err(crate::TelomereError::from)?;
     let mut reader = BufReader::new(file);
     let mut buf = Vec::new();
-    reader.read_to_end(&mut buf)?;
+    reader.read_to_end(&mut buf).map_err(crate::TelomereError::from)?;
     let table: HashMap<Vec<u8>, [u8; 32]> = bincode::deserialize(&buf)
-        .map_err(|e| std::io::Error::new(std::io::ErrorKind::InvalidData, e))?;
+        .map_err(|e| crate::TelomereError::Io(std::io::Error::new(std::io::ErrorKind::InvalidData, e)))?;
     Ok(table)
 }

@@ -38,8 +38,8 @@ impl CompressionStats {
     }
 
     /// Create a new stats tracker that logs progress snapshots to the given CSV file.
-    pub fn with_csv(path: &str) -> std::io::Result<Self> {
-        let file = File::create(path)?;
+    pub fn with_csv(path: &str) -> Result<Self, crate::TelomereError> {
+        let file = File::create(path).map_err(crate::TelomereError::from)?;
         let mut wtr = Writer::from_writer(file);
         wtr.write_record(&[
             "seconds",
@@ -47,7 +47,8 @@ impl CompressionStats {
             "compressed_blocks",
             "greedy",
             "fallback",
-        ])?;
+        ])
+        .map_err(|e| crate::TelomereError::Io(std::io::Error::new(std::io::ErrorKind::Other, e)))?;
         Ok(Self {
             start_time: Instant::now(),
             total_blocks: 0,
@@ -119,10 +120,10 @@ impl CompressionStats {
 }
 
 /// Write a single CSV row summarizing the provided statistics.
-pub fn write_stats_csv(stats: &CompressionStats, path: &str) -> std::io::Result<()> {
+pub fn write_stats_csv(stats: &CompressionStats, path: &str) -> Result<(), crate::TelomereError> {
     let elapsed = stats.start_time.elapsed().as_secs_f32();
     let ratio = stats.compressed_blocks as f32 / stats.total_blocks.max(1) as f32;
-    let mut wtr = Writer::from_writer(File::create(path)?);
+    let mut wtr = Writer::from_writer(File::create(path).map_err(crate::TelomereError::from)?);
     wtr.write_record(&[
         "time_s",
         "total_blocks",
@@ -130,7 +131,8 @@ pub fn write_stats_csv(stats: &CompressionStats, path: &str) -> std::io::Result<
         "ratio",
         "greedy",
         "fallback",
-    ])?;
+    ])
+    .map_err(|e| crate::TelomereError::Io(std::io::Error::new(std::io::ErrorKind::Other, e)))?;
     wtr.write_record(&[
         format!("{:.2}", elapsed),
         stats.total_blocks.to_string(),
@@ -138,7 +140,8 @@ pub fn write_stats_csv(stats: &CompressionStats, path: &str) -> std::io::Result<
         format!("{:.2}", ratio * 100.0),
         stats.greedy_matches.to_string(),
         stats.fallback_matches.to_string(),
-    ])?;
-    wtr.flush()?;
+    ])
+    .map_err(|e| crate::TelomereError::Io(std::io::Error::new(std::io::ErrorKind::Other, e)))?;
+    wtr.flush().map_err(crate::TelomereError::from)?;
     Ok(())
 }

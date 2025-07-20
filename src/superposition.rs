@@ -123,10 +123,9 @@ impl SuperpositionManager {
             }
         }
 
-        if inserted.is_some() {
-            Ok(InsertResult::Inserted(inserted.unwrap()))
-        } else {
-            Ok(InsertResult::Pruned)
+        match inserted {
+            Some(label) => Ok(InsertResult::Inserted(label)),
+            None => Ok(InsertResult::Pruned),
         }
     }
 

@@ -7,6 +7,7 @@
 use clap::{ArgGroup, Args, Parser, Subcommand};
 use telomere::Config;
 use std::{fs, path::PathBuf, time::Instant};
+use std::error::Error;
 use telomere::{
     compress_multi_pass, decompress_with_limit, decode_tlmr_header, truncated_hash,
     io_utils::{
