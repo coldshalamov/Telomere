@@ -36,7 +36,7 @@ jobs:
       - name: size check
         if: matrix.rust == 'stable' && matrix.mode == 'release'
         run: scripts/size_check.sh
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: matrix.rust == 'stable' && matrix.mode == 'release'
         with:
           name: artifacts-${{ matrix.rust }}-${{ matrix.mode }}
