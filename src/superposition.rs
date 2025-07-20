@@ -40,7 +40,7 @@ impl SuperpositionManager {
         block_index: usize,
         cand: Candidate,
     ) -> Result<InsertResult, TelomereError> {
-        use TelomereError::SuperpositionLimitExceeded;
+        use TelomereError::Superposition;
 
         let list = self.superposed.entry(block_index).or_insert_with(Vec::new);
         let mut pruned = Vec::new();
@@ -76,7 +76,7 @@ impl SuperpositionManager {
             let label = ['A', 'B', 'C']
                 .into_iter()
                 .find(|l| !list.iter().any(|(el, _)| el == l))
-                .unwrap();
+                .ok_or_else(|| Superposition("no label available".into()))?;
             list.push((label, cand));
             pruned.sort();
             if pruned.is_empty() {
@@ -91,7 +91,7 @@ impl SuperpositionManager {
                 .enumerate()
                 .max_by_key(|(_, (_, c))| c.bit_len)
                 .map(|(i, (_, c))| (i, c.bit_len))
-                .unwrap();
+                .ok_or_else(|| Superposition("no candidates".into()))?;
             if cand.bit_len < worst_len {
                 let (label, _) = list.remove(worst_idx);
                 pruned.push(label);
@@ -101,7 +101,7 @@ impl SuperpositionManager {
             } else {
                 pruned.sort();
                 if pruned.is_empty() {
-                    Err(SuperpositionLimitExceeded(block_index))
+                    Err(Superposition(format!("limit exceeded at block {}", block_index)))
                 } else {
                     Ok(InsertResult::Pruned(pruned))
                 }
@@ -120,8 +120,9 @@ impl SuperpositionManager {
                 if list.len() < 2 {
                     continue;
                 }
-                let min = list.iter().map(|(_, c)| c.bit_len).min().unwrap();
-                list.retain(|(_, c)| c.bit_len <= min + 8);
+                if let Some(min) = list.iter().map(|(_, c)| c.bit_len).min() {
+                    list.retain(|(_, c)| c.bit_len <= min + 8);
+                }
             }
         }
     }

@@ -159,6 +159,10 @@ nested segments as a recursive convergence goal.
 - Decoders reject any raw payload that is not referenced by a header.
 - Literal paths never exceed the configured block size.
 - The truncated hash in each batch header must match the expanded output.
+- Candidate pruning occurs after each pass and never during the insertion
+  phase. Bundles are selected greedily without recursion within a pass and
+  conflicting spans are dropped. Headers always alternate `arity` and `EVQL`
+  bits and must self-terminate with a zero bit.
 
 ### Frequently Asked Questions
 
@@ -171,6 +175,18 @@ parameters. Verify the block size and recompress the original data.
 
 A: Telomere relies on exhaustive seed searches. Increase `--max-seed-len` only
 when necessary and use the `--status` flag to monitor progress.
+
+### Troubleshooting and Error Reference
+
+Errors are grouped by subsystem. `Header` errors indicate malformed file
+structures or invalid EVQL sequences. `SeedSearch` covers failures during seed
+lookups and hash table access. `Bundling` errors originate in bundle selection
+logic while `Superposition` errors surface when too many overlapping candidates
+compete for the same block. Any I/O failure will surface as an `Io` error and
+unexpected internal bugs are reported as `Internal`.
+
+Most decoder issues stem from corrupted input. Verify the reported error type
+and re-run the compressor to regenerate a fresh file if in doubt.
 
 ---
 

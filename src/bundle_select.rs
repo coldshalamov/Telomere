@@ -57,7 +57,10 @@ pub fn select_bundles(records: Vec<BundleRecord>) -> Vec<AcceptedBundle> {
             continue;
         }
 
-        let owner_idx = *owners.iter().next().unwrap();
+        let owner_idx = match owners.iter().next() {
+            Some(&idx) => idx,
+            None => continue,
+        };
         let owner = &accepted[owner_idx];
         let owner_set: HashSet<usize> = owner.block_indices.iter().copied().collect();
 

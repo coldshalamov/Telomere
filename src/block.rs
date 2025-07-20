@@ -109,8 +109,8 @@ impl BlockTable {
         if branches.is_empty() {
             None
         } else {
-            let min = branches.iter().map(|b| b.bit_length).min().unwrap();
-            let max = branches.iter().map(|b| b.bit_length).max().unwrap();
+            let min = branches.iter().map(|b| b.bit_length).min().unwrap_or(0);
+            let max = branches.iter().map(|b| b.bit_length).max().unwrap_or(0);
             Some(max - min)
         }
     }
@@ -258,8 +258,8 @@ pub fn prune_branches(table: &mut BlockTable) {
         if branches.len() <= 1 {
             continue;
         }
-        let min_len = branches.iter().map(|b| b.0).min().unwrap();
-        let max_len = branches.iter().map(|b| b.0).max().unwrap();
+        let min_len = branches.iter().map(|b| b.0).min().unwrap_or(0);
+        let max_len = branches.iter().map(|b| b.0).max().unwrap_or(0);
         if max_len - min_len > 8 {
             for (len, pos) in branches.iter().filter(|b| b.0 == max_len) {
                 remove_map.entry(*len).or_default().push(*pos);
@@ -301,7 +301,7 @@ pub fn collapse_branches(table: &mut BlockTable, start_index: usize) {
         if branches.len() <= 1 {
             continue;
         }
-        let min_len = branches.iter().map(|b| b.0).min().unwrap();
+        let min_len = branches.iter().map(|b| b.0).min().unwrap_or(0);
         for (len, pos) in branches.into_iter().filter(|b| b.0 != min_len) {
             remove_map.entry(len).or_default().push(pos);
         }
