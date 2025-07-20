@@ -5,14 +5,11 @@
 //! library APIs found in this crate.
 
 use clap::{ArgGroup, Args, Parser, Subcommand};
-use telomere::Config;
-use std::{fs, path::PathBuf, time::Instant};
+use std::{error::Error, fs, path::PathBuf, time::Instant};
 use telomere::{
-    compress_multi_pass, decompress_with_limit, decode_tlmr_header, truncated_hash,
-    io_utils::{
-        extension_error, io_cli_error, simple_cli_error, telomere_cli_error,
-        CliError,
-    },
+    compress_multi_pass, decode_tlmr_header, decompress_with_limit,
+    io_utils::{extension_error, io_cli_error, simple_cli_error, telomere_cli_error, CliError},
+    truncated_hash, Config,
 };
 
 fn print_cli_error(err: &CliError) {
@@ -84,7 +81,11 @@ fn run() -> Result<(), CliError> {
             let elapsed = start_time.elapsed();
 
             if args.json {
-                let cfg = Config { block_size: args.block_size, hash_bits: args.hash_bits, ..Config::default() };
+                let cfg = Config {
+                    block_size: args.block_size,
+                    hash_bits: args.hash_bits,
+                    ..Config::default()
+                };
                 let (hash, err) = match decompress_with_limit(&out, &cfg, usize::MAX) {
                     Ok(bytes) => (truncated_hash(&bytes), None::<String>),
                     Err(e) => (0, Some(e.to_string())),
@@ -143,7 +144,11 @@ fn run() -> Result<(), CliError> {
             // Always decode header and use correct config to ensure strictness
             let header = decode_tlmr_header(&data)
                 .map_err(|e| simple_cli_error(&format!("invalid header: {e}")))?;
-            let cfg = Config { block_size: header.block_size, hash_bits: args.hash_bits, ..Config::default() };
+            let cfg = Config {
+                block_size: header.block_size,
+                hash_bits: args.hash_bits,
+                ..Config::default()
+            };
             let decompressed = decompress_with_limit(&data, &cfg, usize::MAX)
                 .map_err(|e| simple_cli_error(&format!("decompression failed: {e}")))?;
             if !args.dry_run {
