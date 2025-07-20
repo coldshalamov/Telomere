@@ -27,7 +27,11 @@ fn pack(bits: &[bool]) -> Vec<u8> {
 
 #[test]
 fn arity_roundtrip_exhaustive() {
-    for a in 1..=16usize {
+    for a in 1..=8usize {
+        if a == 2 {
+            assert!(encode_arity_bits(a).is_err());
+            continue;
+        }
         let bits = encode_arity_bits(a).unwrap();
         let packed = pack(&bits);
         let mut r = BitReader::from_slice(&packed);
@@ -57,11 +61,32 @@ proptest! {
         let mut r = BitReader::from_slice(&data);
         let _ = decode_arity_bits(&mut r);
     }
+
+    #[test]
+    fn fuzz_safety(bs in proptest::collection::vec(any::<bool>(), 1..32)) {
+        let data = pack(&bs);
+        let mut r = BitReader::from_slice(&data);
+        let pos_before = r.bits_read();
+        let res = decode_arity_bits(&mut r);
+        prop_assert!(r.bits_read() <= data.len() * 8);
+        if let Ok(Some(a)) = res {
+            let enc = encode_arity_bits(a).unwrap();
+            if bs.len() >= enc.len() {
+                prop_assert_eq!(&bs[..enc.len()], &enc[..]);
+            }
+        } else if let Ok(None) = res {
+            let enc = vec![true, false, false];
+            if bs.len() >= enc.len() {
+                prop_assert_eq!(&bs[..enc.len()], &enc[..]);
+            }
+        }
+        prop_assert!(r.bits_read() >= pos_before);
+    }
 }
 
 #[test]
 fn literal_marker_roundtrip() {
-    let mut bits = encode_arity_bits(2).unwrap();
+    let mut bits = vec![true, false, false];
     bits.extend(encode_evql_bits(0));
     let packed = pack(&bits);
     let mut r = BitReader::from_slice(&packed);
