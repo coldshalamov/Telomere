@@ -39,6 +39,7 @@ src/bin/seed_table.rs
 !tests/decompress_validation.rs
 !tests/bundle_select.rs
 !tests/decode_arity_blocks.rs
+!tests/compress_bounds.rs
 seed_table.csv
 run_table.bat
 table_24.csv
