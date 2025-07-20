@@ -16,7 +16,7 @@ pub struct SuperpositionManager {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum InsertResult {
     Inserted(char),
-    Pruned(Vec<char>),
+    Pruned,
 }
 
 impl SuperpositionManager {
@@ -27,32 +27,40 @@ impl SuperpositionManager {
         }
     }
 
-    /// Insert a candidate without any pruning. Labels are assigned
-    /// deterministically in insertion order. Pruning must be invoked
-    /// separately after the pass completes.
+    /// Deprecated wrapper maintained for compatibility. Calls
+    /// [`insert_superposed`] and ignores the returned value.
     pub fn push_unpruned(&mut self, block_index: usize, cand: Candidate) {
-        let list = self.superposed.entry(block_index).or_default();
-        let label = ((list.len() as u8) + b'A') as char;
-        list.push((label, cand));
+        let _ = self.insert_superposed(block_index, cand);
     }
 
-    /// Prune all stored candidates keeping only the shortest per block index.
-    /// Ties are broken deterministically by label so results remain
-    /// reproducible between runs.
-    /// Collapse each superposition down to a single candidate.
-    ///
-    /// This should be called exactly once at the end of a compression pass.
+    /// Finalize the state after a pass.  For each block index only the best
+    /// three candidates within an 8-bit delta of the shortest are retained and
+    /// labeled `A`, `B` and `C` respectively.  Ordering is deterministic based
+    /// on length and `seed_index` so repeated runs yield identical results.
     pub fn prune_end_of_pass(&mut self) {
-        for (_idx, list) in self.superposed.iter_mut() {
+        for list in self.superposed.values_mut() {
             if list.is_empty() {
                 continue;
             }
-            list.sort_by(|a, b| a.1.bit_len.cmp(&b.1.bit_len).then(a.0.cmp(&b.0)));
+
+            list.sort_by(|a, b| {
+                a.1
+                    .bit_len
+                    .cmp(&b.1.bit_len)
+                    .then(a.1.seed_index.cmp(&b.1.seed_index))
+            });
             let best_len = list[0].1.bit_len;
-            list.retain(|(_, c)| c.bit_len == best_len);
-            if list.len() > 1 {
-                let keep = list[0].0;
-                list.retain(|(l, _)| *l == keep);
+            list.retain(|(_, c)| c.bit_len <= best_len + 8);
+            if list.len() > 3 {
+                list.truncate(3);
+            }
+            for (i, (label, _)) in list.iter_mut().enumerate() {
+                *label = match i {
+                    0 => 'A',
+                    1 => 'B',
+                    2 => 'C',
+                    _ => unreachable!(),
+                };
             }
         }
     }
@@ -76,70 +84,47 @@ impl SuperpositionManager {
     ) -> Result<InsertResult, TelomereError> {
         use TelomereError::Superposition;
 
-        let list = self.superposed.entry(block_index).or_insert_with(Vec::new);
-        let mut pruned = Vec::new();
+        if cand.bit_len == 0 {
+            return Err(Superposition("zero bit length".into()));
+        }
 
-        // Determine the minimum length if this candidate were inserted.
-        let mut min_len = cand.bit_len;
-        for (_, c) in list.iter() {
-            if c.bit_len < min_len {
-                min_len = c.bit_len;
+        let list = self.superposed.entry(block_index).or_default();
+        list.push(('?', cand.clone()));
+
+        list.sort_by(|a, b| {
+            a.1
+                .bit_len
+                .cmp(&b.1.bit_len)
+                .then(a.1.seed_index.cmp(&b.1.seed_index))
+        });
+
+        let best_len = list[0].1.bit_len;
+        list.retain(|(_, c)| c.bit_len <= best_len + 8);
+        if list.len() > 3 {
+            list.truncate(3);
+        }
+
+        let mut inserted = None;
+        for (i, (label, c)) in list.iter_mut().enumerate() {
+            *label = match i {
+                0 => 'A',
+                1 => 'B',
+                2 => 'C',
+                _ => unreachable!(),
+            };
+            if inserted.is_none()
+                && c.seed_index == cand.seed_index
+                && c.bit_len == cand.bit_len
+                && c.arity == cand.arity
+            {
+                inserted = Some(*label);
             }
         }
 
-        // Remove existing candidates that exceed the allowed delta.
-        let mut to_remove = Vec::new();
-        for (idx, (l, c)) in list.iter().enumerate() {
-            if c.bit_len > min_len + 8 {
-                to_remove.push(idx);
-                pruned.push(*l);
-            }
-        }
-        for idx in to_remove.into_iter().rev() {
-            list.remove(idx);
-        }
-
-        // If the new candidate itself is outside the delta it is pruned.
-        if cand.bit_len > min_len + 8 {
-            pruned.sort();
-            return Ok(InsertResult::Pruned(pruned));
-        }
-
-        if list.len() < 3 {
-            // Assign the first available label.
-            let label = ['A', 'B', 'C']
-                .into_iter()
-                .find(|l| !list.iter().any(|(el, _)| el == l))
-                .ok_or_else(|| Superposition("no label available".into()))?;
-            list.push((label, cand));
-            pruned.sort();
-            if pruned.is_empty() {
-                Ok(InsertResult::Inserted(label))
-            } else {
-                Ok(InsertResult::Pruned(pruned))
-            }
+        if inserted.is_some() {
+            Ok(InsertResult::Inserted(inserted.unwrap()))
         } else {
-            // Replace the worst candidate if the new one is shorter.
-            let (worst_idx, worst_len) = list
-                .iter()
-                .enumerate()
-                .max_by_key(|(_, (_, c))| c.bit_len)
-                .map(|(i, (_, c))| (i, c.bit_len))
-                .ok_or_else(|| Superposition("no candidates".into()))?;
-            if cand.bit_len < worst_len {
-                let (label, _) = list.remove(worst_idx);
-                pruned.push(label);
-                list.push((label, cand));
-                pruned.sort();
-                Ok(InsertResult::Pruned(pruned))
-            } else {
-                pruned.sort();
-                if pruned.is_empty() {
-                    Err(Superposition(format!("limit exceeded at block {}", block_index)))
-                } else {
-                    Ok(InsertResult::Pruned(pruned))
-                }
-            }
+            Ok(InsertResult::Pruned)
         }
     }
 
