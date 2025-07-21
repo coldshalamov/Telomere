@@ -3,7 +3,7 @@ use clap::Parser;
 use std::fs;
 use std::path::PathBuf;
 use telomere::{
-    compress, decompress_with_limit, Config,
+    compress, decompress_with_limit, decode_tlmr_header, Config,
     io_utils::{io_cli_error, simple_cli_error},
 };
 
@@ -54,7 +54,6 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
 }
     eprintln!("✅ roundtrip verified");
 }
-
 
     fs::write(&args.output, &compressed)
         .map_err(|e| io_cli_error("writing output file", &args.output, e))?;
