@@ -114,9 +114,9 @@ fn passthrough_final_tail() {
 }
 
 #[test]
-fn unsupported_header_fails() {
+fn missing_seed_index_fails() {
     let block_size = 3;
-    // Use a non-literal header which should fail
+    // Emit an arity header without the required EVQL seed index
     let header = encode_header(&Header::Arity(3)).unwrap();
     let literal = vec![0u8; block_size];
     let tlmr = encode_tlmr_header(&TlmrHeader {

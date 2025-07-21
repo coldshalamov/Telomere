@@ -80,6 +80,13 @@ Every block after that is preceded by a standard compressed block header:
 - **Seed index**
 - **Arity**
 
+The `seed index` is the ordinal position of a seed in the protocol's
+deterministic enumeration. Seeds are ordered first by byte length
+(`1..=max_seed_len`) and then lexicographically in big‑endian order.
+Both encoder and decoder must implement the same mapping from index to
+seed bytes for all time. Changing the enumeration would break backward
+compatibility.
+
 The `arity` field is encoded with a hybrid toggle + VQL scheme that is prefix
 safe and keeps small spans compact.
 
@@ -208,3 +215,16 @@ tile and reports only the compact match log back to the CPU. The CPU processes
 shorter seeds in parallel and merges the results when both complete.  All block
 tables are kept in sync after every pass so the next round starts from an
 identical state.
+
+### GPU feature flag
+
+A compile-time `gpu` feature exists but currently only enables a stub
+implementation that hashes seeds on the CPU. Enabling this feature keeps the
+public API stable while real GPU kernels are developed. Builds should succeed
+either way:
+
+```bash
+cargo build --all --features gpu
+```
+
+Future work will replace the stub in `gpu_impl.rs` with an actual GPU backend.

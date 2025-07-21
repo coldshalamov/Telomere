@@ -7,6 +7,8 @@ use sha2::{Digest, Sha256};
 /// The current implementation hashes seeds on the CPU but is compiled
 /// when the `gpu` feature is enabled so the public API remains stable once
 /// real GPU kernels land.
+///
+/// TODO: replace this stub with real GPU kernels and memory management.
 
 /// Simple CPU-based simulation of the GPU seed matcher.
 #[derive(Default)]

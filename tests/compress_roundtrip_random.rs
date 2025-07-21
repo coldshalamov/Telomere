@@ -26,5 +26,6 @@ fn adversarial_roundtrip() {
     let mut data = pattern.to_vec();
     data.extend_from_slice(&[1, 2, 3, 4]);
     let out = compress(&data, 4).unwrap();
-    assert!(decompress_with_limit(&out, &cfg(4), usize::MAX).is_err());
+    let decoded = decompress_with_limit(&out, &cfg(4), usize::MAX).unwrap();
+    assert_eq!(decoded, data);
 }

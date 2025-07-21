@@ -1,8 +1,8 @@
 //! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
-use rand::seq::SliceRandom;
 use telomere::superposition::{InsertResult, SuperpositionManager};
 use telomere::types::Candidate;
 use telomere::{apply_block_changes, group_by_bit_length, Block, BlockChange, BranchStatus};
+
 #[test]
 fn branches_sorted_and_delta() {
     let blocks = vec![
