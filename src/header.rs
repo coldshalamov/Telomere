@@ -290,16 +290,8 @@ fn decode_span_rec(
         Some(arity) => {
             let seed_idx = decode_evql_bits(reader)?;
             reader.align_byte();
-            let child_bits = config
-                .seed_expansions
-                .get(&seed_idx)
-                .ok_or_else(|| TelomereError::Header("Missing seed expansion".into()))?;
-            let mut child_reader = BitReader::from_slice(child_bits);
-            let mut out = Vec::new();
-            for _ in 0..arity {
-                out.extend(decode_span_rec(&mut child_reader, config, depth + 1)?);
-            }
-            Ok(out)
+            let seed = crate::index_to_seed(seed_idx, config.max_seed_len)?;
+            Ok(crate::expand_seed(&seed, arity * config.block_size))
         }
     }
 }

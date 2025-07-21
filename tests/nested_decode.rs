@@ -69,30 +69,16 @@ fn encode_evql_bits(value: usize) -> Vec<bool> {
 fn nested_seed_decode() {
     let mut config = Config::default();
     config.block_size = 3;
+    config.max_seed_len = 1;
 
-    // Seed 0 expands to literal bytes
-    config.seed_expansions.insert(0, {
-        let mut b = Vec::new();
-        b.extend_from_slice(&encode_header(&Header::Literal).unwrap());
-        b.extend_from_slice(&[0xAA, 0xBB, 0xCC]);
-        b
-    });
-
-    // Seed 1 expands to arity(1) -> seed 0
-    config.seed_expansions.insert(1, {
+    let stream = {
         let mut bits = encode_arity_bits(1);
         bits.extend(encode_evql_bits(0));
         pack_bits(&bits)
-    });
-
-    // Stream uses arity(1) pointing to seed 1
-    let stream = {
-        let mut bits = encode_arity_bits(1);
-        bits.extend(encode_evql_bits(1));
-        pack_bits(&bits)
     };
 
+    let expected = telomere::expand_seed(&[0u8], config.block_size);
     let mut reader = BitReader::from_slice(&stream);
     let out = decode_span(&mut reader, &config).unwrap();
-    assert_eq!(out, vec![0xAA, 0xBB, 0xCC]);
+    assert_eq!(out, expected);
 }

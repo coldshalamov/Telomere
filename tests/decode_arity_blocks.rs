@@ -67,15 +67,10 @@ fn encode_evql_bits(value: usize) -> Vec<bool> {
 
 #[test]
 fn decode_seed_arity_stream() {
-    let block = vec![1u8, 2, 3];
     let mut config = Config::default();
-    config.block_size = block.len();
-    config.seed_expansions.insert(0, {
-        let mut b = Vec::new();
-        b.extend_from_slice(&encode_header(&Header::Literal).unwrap());
-        b.extend_from_slice(&block);
-        b
-    });
+    config.block_size = 3;
+    config.max_seed_len = 1;
+    let block = telomere::expand_seed(&[0u8], config.block_size);
 
     let mut bits = encode_arity(1);
     bits.extend(encode_evql_bits(0));
