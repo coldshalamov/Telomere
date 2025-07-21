@@ -80,6 +80,13 @@ Every block after that is preceded by a standard compressed block header:
 - **Seed index**
 - **Arity**
 
+The `seed index` is the ordinal position of a seed in the protocol's
+deterministic enumeration. Seeds are ordered first by byte length
+(`1..=max_seed_len`) and then lexicographically in big‑endian order.
+Both encoder and decoder must implement the same mapping from index to
+seed bytes for all time. Changing the enumeration would break backward
+compatibility.
+
 The `arity` field is encoded with a hybrid toggle + VQL scheme that is prefix
 safe and keeps small spans compact.
 

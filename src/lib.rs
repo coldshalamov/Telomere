@@ -146,10 +146,10 @@ pub fn decompress_with_limit(
             .ok_or_else(|| TelomereError::Header("orphan/truncated bits".into()))?;
         let (header, bits) =
             decode_header(slice).map_err(|_| TelomereError::Header("orphan/truncated bits".into()))?;
-        offset += (bits + 7) / 8;
-        bits_consumed += bits;
         match header {
             Header::Literal => {
+                offset += (bits + 7) / 8;
+                bits_consumed += bits;
                 let remaining = input.len() - offset;
                 let bytes = if remaining == last_block_size {
                     last_block_size
@@ -163,8 +163,23 @@ pub fn decompress_with_limit(
                 offset += bytes;
                 bits_consumed += bytes * 8;
             }
-            Header::Arity(_) => {
-                return Err(TelomereError::Header("compressed spans unsupported".into()));
+            Header::Arity(a) => {
+                let mut reader = BitReader::from_slice(slice);
+                for _ in 0..bits {
+                    reader.read_bit()?;
+                }
+                let seed_idx = decode_evql_bits(&mut reader)?;
+                reader.align_byte();
+                let consumed = reader.bits_read();
+                offset += consumed / 8;
+                bits_consumed += consumed;
+
+                let seed = index_to_seed(seed_idx, config.max_seed_len)?;
+                let bytes = expand_seed(&seed, a as usize * block_size);
+                if out.len() + bytes.len() > limit {
+                    return Err(TelomereError::Header("invalid header field".into()));
+                }
+                out.extend_from_slice(&bytes);
             }
         }
         if offset == input.len() {
