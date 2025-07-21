@@ -36,24 +36,22 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     let compressed = compress(&data, args.block_size)
         .map_err(|e| simple_cli_error(&format!("compression failed: {e}")))?;
 
-    if args.test {
-    // Decode the config from the file header for decompression
-    if args.test {
-    let header = decode_tlmr_header(&compressed)
-        .map_err(|e| simple_cli_error(&format!("invalid header: {e}")))?;
-    let config = Config {
-        block_size: header.block_size,
-        hash_bits: 13,
-        ..Config::default()
-    };
-    let decompressed = decompress_with_limit(&compressed, &config, usize::MAX)
-        .map_err(|e| simple_cli_error(&format!("roundtrip failed: {e}")))?;
-    if decompressed != data {
-        return Err(simple_cli_error("roundtrip mismatch").into());
+        if args.test {
+        let header = decode_tlmr_header(&compressed)
+            .map_err(|e| simple_cli_error(&format!("invalid header: {e}")))?;
+        let config = Config {
+            block_size: header.block_size,
+            hash_bits: 13,
+            ..Config::default()
+        };
+        let decompressed = decompress_with_limit(&compressed, &config, usize::MAX)
+            .map_err(|e| simple_cli_error(&format!("roundtrip failed: {e}")))?;
+        if decompressed != data {
+            return Err(simple_cli_error("roundtrip mismatch").into());
+        }
+        eprintln!("✅ roundtrip verified");
     }
-}
-    eprintln!("✅ roundtrip verified");
-}
+
 
     fs::write(&args.output, &compressed)
         .map_err(|e| io_cli_error("writing output file", &args.output, e))?;
