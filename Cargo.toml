@@ -21,9 +21,6 @@ tempfile = "3"
 quickcheck = "1"
 rand = "0.8"
 proptest = "1"
-cargo-fuzz = "0.13"
-honggfuzz = "0.5"
-
 [[bin]]
 name = "gloss_tool"
 path = "src/bin/gloss_tool.rs"
