@@ -44,8 +44,8 @@ pub use block::{
 };
 pub use block_indexer::{brute_force_seed_tables, IndexedBlock, SeedMatch};
 pub use bundle::{apply_bundle, BlockStatus, MutableBlock};
-pub use bundler::bundle_one_layer;
 pub use bundle_select::{select_bundles, AcceptedBundle, BundleRecord};
+pub use bundler::bundle_one_layer;
 pub use candidate::{prune_candidates, Block as CandidateBlock, Candidate};
 pub use compress::{
     compress, compress_block, compress_block_with_config, compress_multi_pass,
@@ -126,10 +126,7 @@ pub fn decompress_with_limit(
         return Err(TelomereError::Header("header too short".into()));
     }
     let header = decode_tlmr_header(input)?;
-    if header.version != 0
-        || header.block_size != config.block_size
-        || config.hash_bits != 13
-    {
+    if header.version != 0 || header.block_size != config.block_size || config.hash_bits != 13 {
         return Err(TelomereError::Header("file header mismatch".into()));
     }
     let mut offset = 3usize;
@@ -144,12 +141,13 @@ pub fn decompress_with_limit(
         let slice = input
             .get(offset..)
             .ok_or_else(|| TelomereError::Header("orphan/truncated bits".into()))?;
-        let (header, bits) =
-            decode_header(slice).map_err(|_| TelomereError::Header("orphan/truncated bits".into()))?;
+        let (header, bits) = decode_header(slice)
+            .map_err(|_| TelomereError::Header("orphan/truncated bits".into()))?;
+        let byte_len = (bits + 7) / 8;
         match header {
             Header::Literal => {
-                offset += (bits + 7) / 8;
-                bits_consumed += bits;
+                offset += byte_len;
+                bits_consumed += byte_len * 8;
                 let remaining = input.len() - offset;
                 let bytes = if remaining == last_block_size {
                     last_block_size
@@ -163,23 +161,18 @@ pub fn decompress_with_limit(
                 offset += bytes;
                 bits_consumed += bytes * 8;
             }
-            Header::Arity(a) => {
+            Header::Arity(_) => {
                 let mut reader = BitReader::from_slice(slice);
-                for _ in 0..bits {
-                    reader.read_bit()?;
-                }
-                let seed_idx = decode_evql_bits(&mut reader)?;
-                reader.align_byte();
-                let consumed = reader.bits_read();
-                offset += consumed / 8;
-                bits_consumed += consumed;
-
-                let seed = index_to_seed(seed_idx, config.max_seed_len)?;
-                let bytes = expand_seed(&seed, a as usize * block_size);
-                if out.len() + bytes.len() > limit {
+                let span = decode_span(&mut reader, config)
+                    .map_err(|_| TelomereError::Header("orphan/truncated bits".into()))?;
+                let span_bits = reader.bits_read();
+                let bytes = span.len();
+                if out.len() + bytes > limit {
                     return Err(TelomereError::Header("invalid header field".into()));
                 }
-                out.extend_from_slice(&bytes);
+                out.extend_from_slice(&span);
+                offset += (span_bits + 7) / 8;
+                bits_consumed += ((span_bits + 7) / 8) * 8;
             }
         }
         if offset == input.len() {

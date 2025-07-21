@@ -215,3 +215,16 @@ tile and reports only the compact match log back to the CPU. The CPU processes
 shorter seeds in parallel and merges the results when both complete.  All block
 tables are kept in sync after every pass so the next round starts from an
 identical state.
+
+### GPU feature flag
+
+A compile-time `gpu` feature exists but currently only enables a stub
+implementation that hashes seeds on the CPU. Enabling this feature keeps the
+public API stable while real GPU kernels are developed. Builds should succeed
+either way:
+
+```bash
+cargo build --all --features gpu
+```
+
+Future work will replace the stub in `gpu_impl.rs` with an actual GPU backend.

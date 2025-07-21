@@ -55,3 +55,4 @@ table_32.csv
 !tests/large_file_perf.rs
 !tests/property_matrix.rs
 !tests/decompress_seeds.rs
+!tests/decompress_spans.rs
