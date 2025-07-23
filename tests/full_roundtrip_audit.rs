@@ -16,7 +16,7 @@ fn full_roundtrip_audit() {
     data.extend_from_slice(&[1, 2, 3, 4, 5]);
 
     // Compress through multi-pass pipeline.
-    let (compressed, _) = compress_multi_pass(&data, block_size, 3).unwrap();
+    let (compressed, _) = compress_multi_pass(&data, block_size, 3, false).unwrap();
 
     // Decompress back to original bytes.
     let decoded = decompress(&compressed, &cfg(block_size)).unwrap();

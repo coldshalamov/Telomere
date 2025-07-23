@@ -16,7 +16,7 @@ proptest! {
                       passes in 1usize..4,
                       bundling in proptest::bool::ANY) {
         let compressed = if bundling {
-            compress_multi_pass(&data, block, passes).unwrap().0
+            compress_multi_pass(&data, block, passes, false).unwrap().0
         } else {
             compress(&data, block).unwrap()
         };
@@ -50,8 +50,8 @@ proptest! {
     fn bundler_idempotence(data in proptest::collection::vec(any::<u8>(), 32..257),
                            block in 2usize..8,
                            passes in 1usize..4) {
-        let (first, _) = compress_multi_pass(&data, block, passes).unwrap();
-        let (second, _) = compress_multi_pass(&data, block, passes).unwrap();
+        let (first, _) = compress_multi_pass(&data, block, passes, false).unwrap();
+        let (second, _) = compress_multi_pass(&data, block, passes, false).unwrap();
         prop_assert_eq!(first, second);
     }
 }
