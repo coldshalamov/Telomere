@@ -56,3 +56,5 @@ table_32.csv
 !tests/property_matrix.rs
 !tests/decompress_seeds.rs
 !tests/decompress_spans.rs
+test.tlmr
+test.txt
