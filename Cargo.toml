@@ -15,6 +15,7 @@ clap = { version = "4", features = ["derive"] }
 sysinfo = "0.29"
 tempfile = { version = "3", optional = true }
 bytemuck = { version = "1.23.1", features = ["derive"] }
+indicatif = "0.17"
 
 [dev-dependencies]
 tempfile = "3"

@@ -6,6 +6,7 @@ use crate::seed::find_seed_match;
 use crate::superposition::SuperpositionManager;
 use crate::tlmr::{encode_tlmr_header, truncated_hash, TlmrHeader};
 use crate::TelomereError;
+use indicatif::{ProgressBar, ProgressStyle};
 
 /// Dummy in-memory table placeholder.
 #[derive(Default, serde::Serialize, serde::Deserialize)]
@@ -108,6 +109,7 @@ pub fn compress_multi_pass_with_config(
     data: &[u8],
     config: &Config,
     max_passes: usize,
+    show_status: bool,
 ) -> Result<(Vec<u8>, Vec<usize>), TelomereError> {
     let mut current = data.to_vec();
     let mut gains = Vec::new();
@@ -128,6 +130,20 @@ pub fn compress_multi_pass_with_config(
             blocks.push(&current[offset..end]);
             offset += block_size;
         }
+
+        let blocks_total = blocks.len();
+        let maybe_pb = if show_status && blocks_total > 0 {
+            let pb = ProgressBar::new(blocks_total as u64);
+            pb.set_style(
+                ProgressStyle::with_template(
+                    "{bar:50.cyan/blue} {percent:>3}%  {pos}/{len} blocks",
+                )
+                .unwrap(),
+            );
+            Some(pb)
+        } else {
+            None
+        };
 
         let mut mgr = SuperpositionManager::new(blocks.len());
 
@@ -173,9 +189,19 @@ pub fn compress_multi_pass_with_config(
                     }
                 }
             }
+
+            if let Some(pb) = &maybe_pb {
+                if (idx & 0xF) == 0 {
+                    pb.inc(16);
+                }
+            }
         }
 
         mgr.prune_end_of_pass();
+
+        if let Some(pb) = &maybe_pb {
+            pb.finish_and_clear();
+        }
 
         // Build the next compressed stream from the pruned candidates.
         let last_block = if current.is_empty() {
@@ -272,11 +298,12 @@ pub fn compress_multi_pass(
     data: &[u8],
     block_size: usize,
     max_passes: usize,
+    show_status: bool,
 ) -> Result<(Vec<u8>, Vec<usize>), TelomereError> {
     let mut cfg = Config::default();
     cfg.block_size = block_size;
     cfg.max_seed_len = 3;
-    compress_multi_pass_with_config(data, &cfg, max_passes)
+    compress_multi_pass_with_config(data, &cfg, max_passes, show_status)
 }
 
 /// Wrapper around [`compress_block_with_config`] with the default seed length.
