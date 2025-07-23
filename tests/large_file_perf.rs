@@ -17,7 +17,8 @@ fn profile_case(name: &str, data: Vec<u8>) {
     let before_mem = sys.process(pid).map(|p| p.memory()).unwrap_or(0);
 
     let start = Instant::now();
-    let (compressed, _gains) = compress_multi_pass(&data, block_size, 3).expect("compress");
+    let (compressed, _gains) =
+        compress_multi_pass(&data, block_size, 3, false).expect("compress");
     let comp_time = start.elapsed();
     sys.refresh_process(pid);
     let after_comp_mem = sys.process(pid).map(|p| p.memory()).unwrap_or(0);

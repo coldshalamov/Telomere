@@ -54,8 +54,9 @@ fn run() -> Result<(), CliError> {
                 .map_err(|e| io_cli_error("opening input file", &input_path, e))?;
 
             let start_time = Instant::now();
-            let (out, gains) = compress_multi_pass(&data, config.block_size, args.passes)
-                .map_err(|e| telomere_cli_error("compression failed", e))?;
+            let (out, gains) =
+                compress_multi_pass(&data, config.block_size, args.passes, args.status)
+                    .map_err(|e| telomere_cli_error("compression failed", e))?;
 
             if out.is_empty() {
                 return Err(simple_cli_error("compression returned no data"));
@@ -223,8 +224,7 @@ struct ActionArgs {
     /// Maximum compression passes
     #[arg(long, default_value_t = 10)]
     passes: usize,
-    /// Print a short progress line for every block
-    #[arg(long)]
+    #[clap(long, help = "Show live status bar during compression")]
     status: bool,
     /// Emit a JSON summary after completion
     #[arg(long)]

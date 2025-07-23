@@ -12,7 +12,7 @@ proptest! {
     fn launch_roundtrip(data in proptest::collection::vec(any::<u8>(), 32..513),
                         block in 2usize..8,
                         passes in 3usize..6) {
-        let (compressed, _) = compress_multi_pass(&data, block, passes).unwrap();
+        let (compressed, _) = compress_multi_pass(&data, block, passes, false).unwrap();
         let decompressed = decompress(&compressed, &cfg(block)).unwrap();
         prop_assert_eq!(decompressed.as_slice(), data.as_slice());
         prop_assert!(compressed.len() <= data.len() + 8);
