@@ -218,13 +218,14 @@ identical state.
 
 ### GPU feature flag
 
-A compile-time `gpu` feature exists but currently only enables a stub
-implementation that hashes seeds on the CPU. Enabling this feature keeps the
-public API stable while real GPU kernels are developed. Builds should succeed
-either way:
+An experimental OpenCL backend accelerates seed matching on AMD hardware.
+Enable it at compile time with:
 
 ```bash
-cargo build --all --features gpu
+cargo build --release --features gpu
 ```
 
-Future work will replace the stub in `gpu_impl.rs` with an actual GPU backend.
+The implementation targets OpenCL&nbsp;1.2 and works with both the standard
+AMD driver and the ROCm stack. If no compatible device is detected at runtime
+the compressor prints a single warning and transparently falls back to the CPU
+matcher.

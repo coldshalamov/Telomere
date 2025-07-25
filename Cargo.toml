@@ -16,13 +16,14 @@ sysinfo = "0.29"
 tempfile = { version = "3", optional = true }
 bytemuck = { version = "1.23.1", features = ["derive"] }
 indicatif = "0.17"
-ocl = "0.30"
+ocl = { version = "0.19.7", optional = true }
 
 [dev-dependencies]
 tempfile = "3"
 quickcheck = "1"
 rand = "0.8"
 proptest = "1"
+
 [[bin]]
 name = "gloss_tool"
 path = "src/bin/gloss_tool.rs"
@@ -73,7 +74,7 @@ path = "src/bin/hash_find.rs"
 
 [features]
 # GPU accelerated seed matching. Off by default.
-gpu = []
+gpu = ["ocl"]
 # Bloom filter based pruning. Placeholder for future optimization.
 bloom = []
 coverage = []

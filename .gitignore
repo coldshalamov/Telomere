@@ -48,6 +48,7 @@ src/bin/seed_table.rs
 !src/gpu.rs
 !src/tile.rs
 !tests/gpu_tiling.rs
+!tests/gpu_determinism.rs
 seed_table.csv
 run_table.bat
 table_24.csv
