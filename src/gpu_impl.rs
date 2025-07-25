@@ -1,34 +1,55 @@
 use crate::block::Block;
 use crate::{GpuMatchRecord, TelomereError};
-use sha2::{Digest, Sha256};
+use std::sync::OnceLock;
 
-/// GPU accelerated seed matcher placeholder.
-///
-/// The current implementation hashes seeds on the CPU but is compiled
-/// when the `gpu` feature is enabled so the public API remains stable once
-/// real GPU kernels land.
-///
-/// TODO: replace this stub with real GPU kernels and memory management.
+use ocl::{flags, prm::Uint2, Buffer, ProQue};
 
-/// Simple CPU-based simulation of the GPU seed matcher.
+const LAUNCH_SIZE: usize = 4096;
+
+static PRO_QUE: OnceLock<Option<ProQue>> = OnceLock::new();
+
+fn proque() -> Option<&'static ProQue> {
+    PRO_QUE
+        .get_or_init(|| {
+            let src = include_str!("gpu_kernels.cl");
+            match ProQue::builder().src(src).dims(1).build() {
+                Ok(pq) => Some(pq),
+                Err(e) => {
+                    eprintln!("GPU init failed, falling back to CPU: {e}");
+                    None
+                }
+            }
+        })
+        .as_ref()
+}
+
 #[derive(Default)]
 pub struct GpuSeedMatcher {
     tile: Vec<Block>,
 }
 
 impl GpuSeedMatcher {
-    /// Create a new matcher with an empty tile.
     pub fn new() -> Self {
         Self { tile: Vec::new() }
     }
 
-    /// Load a block tile into the simulated GPU memory.
     pub fn load_tile(&mut self, blocks: &[Block]) {
         self.tile = blocks.to_vec();
     }
 
-    /// Hash seeds on the fly and return match records.
     pub fn seed_match(
+        &self,
+        start_seed: usize,
+        end_seed: usize,
+    ) -> Result<Vec<GpuMatchRecord>, TelomereError> {
+        if let Some(pq) = proque() {
+            self.seed_match_gpu(pq, start_seed, end_seed)
+        } else {
+            self.seed_match_cpu(start_seed, end_seed)
+        }
+    }
+
+    fn seed_match_cpu(
         &self,
         start_seed: usize,
         end_seed: usize,
@@ -37,7 +58,7 @@ impl GpuSeedMatcher {
         for seed in start_seed..end_seed {
             let seed_byte = seed as u8;
             for block in &self.tile {
-                let expanded = expand_seed(&[seed_byte], block.data.len());
+                let expanded = crate::expand_seed(&[seed_byte], block.data.len());
                 if expanded == block.data {
                     out.push(GpuMatchRecord {
                         seed_index: seed,
@@ -50,16 +71,74 @@ impl GpuSeedMatcher {
         }
         Ok(out)
     }
-}
 
-fn expand_seed(seed: &[u8], len: usize) -> Vec<u8> {
-    let mut out = Vec::with_capacity(len);
-    let mut cur = seed.to_vec();
-    while out.len() < len {
-        let digest: [u8; 32] = Sha256::digest(&cur).into();
-        out.extend_from_slice(&digest);
-        cur = digest.to_vec();
+    fn seed_match_gpu(
+        &self,
+        pq: &ProQue,
+        start_seed: usize,
+        end_seed: usize,
+    ) -> Result<Vec<GpuMatchRecord>, TelomereError> {
+        let mut out = Vec::new();
+        let queue = pq.queue().clone();
+        for block in &self.tile {
+            let block_len = block.data.len();
+            let block_buf: Buffer<u8> = Buffer::builder()
+                .queue(queue.clone())
+                .flags(flags::MEM_READ_ONLY | flags::MEM_COPY_HOST_PTR)
+                .len(block_len)
+                .copy_host_slice(&block.data)
+                .build()
+                .map_err(|e| TelomereError::Internal(format!("opencl: {e}")))?;
+            let mut seed = start_seed;
+            while seed < end_seed {
+                let chunk = (end_seed - seed).min(LAUNCH_SIZE);
+                let seeds_vec: Vec<u8> = (0..chunk).map(|i| ((seed + i) as u8)).collect();
+                let seeds_buf: Buffer<u8> = Buffer::builder()
+                    .queue(queue.clone())
+                    .flags(flags::MEM_READ_ONLY | flags::MEM_COPY_HOST_PTR)
+                    .len(chunk)
+                    .copy_host_slice(&seeds_vec)
+                    .build()
+                    .map_err(|e| TelomereError::Internal(format!("opencl: {e}")))?;
+                let out_buf: Buffer<Uint2> = Buffer::builder()
+                    .queue(queue.clone())
+                    .flags(flags::MEM_WRITE_ONLY)
+                    .len(chunk)
+                    .build()
+                    .map_err(|e| TelomereError::Internal(format!("opencl: {e}")))?;
+                let kernel = pq
+                    .kernel_builder("match_seeds")
+                    .arg(&block_buf)
+                    .arg(block_len as u32)
+                    .arg(&seeds_buf)
+                    .arg(chunk as u32)
+                    .arg(&out_buf)
+                    .global_work_size(chunk)
+                    .build()
+                    .map_err(|e| TelomereError::Internal(format!("opencl: {e}")))?;
+                unsafe {
+                    kernel
+                        .enq()
+                        .map_err(|e| TelomereError::Internal(format!("opencl: {e}")))?;
+                }
+                let mut results = vec![Uint2::new(0, 0); chunk];
+                out_buf
+                    .read(&mut results)
+                    .enq()
+                    .map_err(|e| TelomereError::Internal(format!("opencl: {e}")))?;
+                for pair in results.iter() {
+                    if pair[1] != 0 {
+                        out.push(GpuMatchRecord {
+                            seed_index: seed + pair[0] as usize,
+                            bundle_length: pair[1] as usize,
+                            block_indices: vec![block.global_index],
+                            original_bits: block.bit_length,
+                        });
+                    }
+                }
+                seed += chunk;
+            }
+        }
+        Ok(out)
     }
-    out.truncate(len);
-    out
 }
