@@ -48,6 +48,7 @@ fn run() -> Result<(), CliError> {
                 max_seed_len: args.max_seed_len,
                 max_arity: args.max_arity,
                 hash_bits: args.hash_bits,
+                use_xxhash: false,
                 seed_expansions: std::collections::HashMap::new(),
             };
             let data = fs::read(&input_path)
@@ -126,6 +127,7 @@ fn run() -> Result<(), CliError> {
                 max_seed_len: args.max_seed_len,
                 max_arity: args.max_arity,
                 hash_bits: args.hash_bits,
+                use_xxhash: false,
                 seed_expansions: std::collections::HashMap::new(),
             };
             if input_path

@@ -1,18 +1,21 @@
 //! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 use telomere::{
     compress, compress_multi_pass, decode_header, decode_tlmr_header, decompress, expand_seed,
-    Header,
-    Config,
+    Config, Header,
 };
 
 fn cfg(bs: usize) -> Config {
-    Config { block_size: bs, hash_bits: 13, ..Config::default() }
+    Config {
+        block_size: bs,
+        hash_bits: 13,
+        ..Config::default()
+    }
 }
 
 #[test]
 fn full_roundtrip_audit() {
     let block_size = 3usize;
-    let mut data = expand_seed(&[0u8], block_size * 2);
+    let mut data = expand_seed(&[0u8], block_size * 2, false);
     data.extend_from_slice(&[1, 2, 3, 4, 5]);
 
     // Compress through multi-pass pipeline.
@@ -38,7 +41,7 @@ fn single_block_literal_roundtrip() {
 #[test]
 fn multi_block_mixed_roundtrip() {
     let block_size = 3usize;
-    let mut data = expand_seed(&[1u8], block_size * 3);
+    let mut data = expand_seed(&[1u8], block_size * 3, false);
     data.extend_from_slice(&[0x10, 0x20, 0x30]);
     let compressed = compress(&data, block_size).unwrap();
     let hdr = decode_tlmr_header(&compressed).unwrap();
@@ -71,9 +74,9 @@ fn multi_block_mixed_roundtrip() {
 #[test]
 fn partial_compressible_roundtrip() {
     let block_size = 3usize;
-    let mut data = expand_seed(&[0u8], block_size);
+    let mut data = expand_seed(&[0u8], block_size, false);
     data.extend_from_slice(&[0xAA, 0xBB, 0xCC]);
-    data.extend_from_slice(&expand_seed(&[0u8], block_size));
+    data.extend_from_slice(&expand_seed(&[0u8], block_size, false));
     let compressed = compress(&data, block_size).unwrap();
     let out = decompress(&compressed, &cfg(block_size)).unwrap();
     assert_eq!(out, data);
@@ -82,7 +85,7 @@ fn partial_compressible_roundtrip() {
 #[test]
 fn large_file_roundtrip() {
     let block_size = 4usize;
-    let data = expand_seed(&[2u8], 1_000_000);
+    let data = expand_seed(&[2u8], 1_000_000, false);
     let compressed = compress(&data, block_size).unwrap();
     let out = decompress(&compressed, &cfg(block_size)).unwrap();
     assert_eq!(out.len(), data.len());

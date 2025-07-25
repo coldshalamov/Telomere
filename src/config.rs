@@ -15,6 +15,8 @@ pub struct Config {
     pub max_arity: u8,
     /// Number of bits used when truncating seed hashes.
     pub hash_bits: usize,
+    /// If true, use a fast XXHash-like hash for seed expansion; otherwise use SHA-256.
+    pub use_xxhash: bool,
     /// Pre-expanded seed bitstreams indexed by seed index.
     pub seed_expansions: HashMap<usize, Vec<u8>>,
 }
@@ -26,6 +28,7 @@ impl Default for Config {
             max_seed_len: 0,
             max_arity: 0,
             hash_bits: 0,
+            use_xxhash: false,
             seed_expansions: HashMap::new(),
         }
     }

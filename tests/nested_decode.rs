@@ -77,7 +77,7 @@ fn nested_seed_decode() {
         pack_bits(&bits)
     };
 
-    let expected = telomere::expand_seed(&[0u8], config.block_size);
+    let expected = telomere::expand_seed(&[0u8], config.block_size, false);
     let mut reader = BitReader::from_slice(&stream);
     let out = decode_span(&mut reader, &config).unwrap();
     assert_eq!(out, expected);

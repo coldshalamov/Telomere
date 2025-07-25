@@ -4,16 +4,19 @@
 //! recently used value when full.  It can also persist and reload a hash
 //! table from disk for testing purposes.
 
+use crate::seed::digest32;
 use bincode;
-use sha2::{Digest, Sha256};
+use sha2::Digest;
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{BufReader, Read};
 
+type CacheKey = (bool, Vec<u8>);
+
 pub struct ShaCache {
     capacity: usize,
-    map: HashMap<Vec<u8>, [u8; 32]>,
-    order: Vec<Vec<u8>>, // simple queue for LRU
+    map: HashMap<CacheKey, [u8; 32]>,
+    order: Vec<CacheKey>, // simple queue for LRU
 }
 
 impl ShaCache {
@@ -27,14 +30,14 @@ impl ShaCache {
         }
     }
 
-    fn touch(&mut self, key: &[u8]) {
-        if let Some(pos) = self.order.iter().position(|k| k.as_slice() == key) {
+    fn touch(&mut self, key: &CacheKey) {
+        if let Some(pos) = self.order.iter().position(|k| k == key) {
             let key_vec = self.order.remove(pos);
             self.order.push(key_vec);
         }
     }
 
-    fn insert(&mut self, key: Vec<u8>, value: [u8; 32]) {
+    fn insert(&mut self, key: CacheKey, value: [u8; 32]) {
         if self.map.len() >= self.capacity {
             if let Some(old) = self.order.first() {
                 self.map.remove(old);
@@ -47,15 +50,15 @@ impl ShaCache {
         self.map.insert(key, value);
     }
 
-    pub fn get_or_compute(&mut self, seed: &[u8]) -> [u8; 32] {
-        let value = self.map.get(seed).cloned();
+    pub fn get_or_compute(&mut self, seed: &[u8], use_xxhash: bool) -> [u8; 32] {
+        let key: CacheKey = (use_xxhash, seed.to_vec());
+        let value = self.map.get(&key).cloned();
         if let Some(v) = value {
-            self.touch(seed);
+            self.touch(&key);
             v
         } else {
-            let digest = Sha256::digest(seed);
-            let arr: [u8; 32] = digest.into();
-            self.insert(seed.to_vec(), arr);
+            let arr = digest32(seed, use_xxhash);
+            self.insert(key, arr);
             arr
         }
     }
@@ -65,8 +68,11 @@ pub fn load_hash_table(path: &str) -> Result<HashMap<Vec<u8>, [u8; 32]>, crate::
     let file = File::open(path).map_err(crate::TelomereError::from)?;
     let mut reader = BufReader::new(file);
     let mut buf = Vec::new();
-    reader.read_to_end(&mut buf).map_err(crate::TelomereError::from)?;
-    let table: HashMap<Vec<u8>, [u8; 32]> = bincode::deserialize(&buf)
-        .map_err(|e| crate::TelomereError::Io(std::io::Error::new(std::io::ErrorKind::InvalidData, e)))?;
+    reader
+        .read_to_end(&mut buf)
+        .map_err(crate::TelomereError::from)?;
+    let table: HashMap<Vec<u8>, [u8; 32]> = bincode::deserialize(&buf).map_err(|e| {
+        crate::TelomereError::Io(std::io::Error::new(std::io::ErrorKind::InvalidData, e))
+    })?;
     Ok(table)
 }
