@@ -82,31 +82,46 @@ impl GpuSeedMatcher {
         let queue = pq.queue().clone();
         for block in &self.tile {
             let block_len = block.data.len();
-            let block_buf: Buffer<u8> = Buffer::builder()
+            let block_buf: Buffer<u8> = match Buffer::builder()
                 .queue(queue.clone())
                 .flags(flags::MEM_READ_ONLY | flags::MEM_COPY_HOST_PTR)
                 .len(block_len)
                 .copy_host_slice(&block.data)
-                .build()
-                .map_err(|e| TelomereError::Internal(format!("opencl: {e}")))?;
+                .build() {
+                Ok(b) => b,
+                Err(e) => {
+                    eprintln!("GPU error {:?}, falling back to CPU", e);
+                    return self.seed_match_cpu(start_seed, end_seed);
+                }
+            };
             let mut seed = start_seed;
             while seed < end_seed {
                 let chunk = (end_seed - seed).min(LAUNCH_SIZE);
-                let seeds_vec: Vec<u8> = (0..chunk).map(|i| ((seed + i) as u8)).collect();
-                let seeds_buf: Buffer<u8> = Buffer::builder()
+                let seeds_vec: Vec<u32> = (0..chunk).map(|i| (seed + i) as u32).collect();
+                let seeds_buf: Buffer<u32> = match Buffer::<u32>::builder()
                     .queue(queue.clone())
                     .flags(flags::MEM_READ_ONLY | flags::MEM_COPY_HOST_PTR)
                     .len(chunk)
                     .copy_host_slice(&seeds_vec)
-                    .build()
-                    .map_err(|e| TelomereError::Internal(format!("opencl: {e}")))?;
-                let out_buf: Buffer<Uint2> = Buffer::builder()
+                    .build() {
+                    Ok(b) => b,
+                    Err(e) => {
+                        eprintln!("GPU error {:?}, falling back to CPU", e);
+                        return self.seed_match_cpu(start_seed, end_seed);
+                    }
+                };
+                let out_buf: Buffer<Uint2> = match Buffer::builder()
                     .queue(queue.clone())
                     .flags(flags::MEM_WRITE_ONLY)
                     .len(chunk)
-                    .build()
-                    .map_err(|e| TelomereError::Internal(format!("opencl: {e}")))?;
-                let kernel = pq
+                    .build() {
+                    Ok(b) => b,
+                    Err(e) => {
+                        eprintln!("GPU error {:?}, falling back to CPU", e);
+                        return self.seed_match_cpu(start_seed, end_seed);
+                    }
+                };
+                let kernel = match pq
                     .kernel_builder("match_seeds")
                     .arg(&block_buf)
                     .arg(block_len as u32)
@@ -114,18 +129,22 @@ impl GpuSeedMatcher {
                     .arg(chunk as u32)
                     .arg(&out_buf)
                     .global_work_size(chunk)
-                    .build()
-                    .map_err(|e| TelomereError::Internal(format!("opencl: {e}")))?;
-                unsafe {
-                    kernel
-                        .enq()
-                        .map_err(|e| TelomereError::Internal(format!("opencl: {e}")))?;
+                    .build() {
+                    Ok(k) => k,
+                    Err(e) => {
+                        eprintln!("GPU error {:?}, falling back to CPU", e);
+                        return self.seed_match_cpu(start_seed, end_seed);
+                    }
+                };
+                if let Err(e) = unsafe { kernel.enq() } {
+                    eprintln!("GPU error {:?}, falling back to CPU", e);
+                    return self.seed_match_cpu(start_seed, end_seed);
                 }
                 let mut results = vec![Uint2::new(0, 0); chunk];
-                out_buf
-                    .read(&mut results)
-                    .enq()
-                    .map_err(|e| TelomereError::Internal(format!("opencl: {e}")))?;
+                if let Err(e) = out_buf.read(&mut results).enq() {
+                    eprintln!("GPU error {:?}, falling back to CPU", e);
+                    return self.seed_match_cpu(start_seed, end_seed);
+                }
                 for pair in results.iter() {
                     if pair[1] != 0 {
                         out.push(GpuMatchRecord {

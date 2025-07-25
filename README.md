@@ -218,7 +218,7 @@ identical state.
 
 ### GPU feature flag
 
-An experimental OpenCL backend accelerates seed matching on AMD hardware.
+An experimental OpenCL backend accelerates seed matching on AMD hardware. Works for any block size; falls back transparently if no OpenCL 1.2 device is present.
 Enable it at compile time with:
 
 ```bash

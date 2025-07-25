@@ -76,33 +76,28 @@ void sha256_simple(const __private uchar *msg, uint len, __private uchar *out) {
 
 __kernel void match_seeds(__global const uchar *block_data,
                           uint block_len,
-                          __global const uchar *seeds,
+                          __global const uint *seed_idx,
                           uint seeds_per_launch,
                           __global uint2 *out_matches) {
     uint gid = get_global_id(0);
     if (gid >= seeds_per_launch) return;
-    uchar seed = seeds[gid];
+    uint seed = seed_idx[gid];
     __private uchar cur[32];
     __private uchar digest[32];
-    __private uchar expanded[512];
-    cur[0] = seed;
+    cur[0] = (uchar)(seed & 0xffu);
     uint cur_len = 1u;
     uint produced = 0u;
+    uint match = 1u;
     while (produced < block_len) {
         sha256_simple(cur, cur_len, digest);
-        for(uint i=0u; i<32u && produced < block_len; i++) {
-            expanded[produced++] = digest[i];
+        for(uint i=0u; i<32u && produced < block_len; i++, produced++) {
+            if (digest[i] != block_data[produced]) { match = 0u; break; }
         }
-        for(uint i=0u; i<32u; i++) {
-            cur[i] = digest[i];
-        }
+        if (!match) break;
         cur_len = 32u;
+        for(uint i=0u; i<32u; i++) cur[i] = digest[i];
     }
-    uint match = 1u;
-    for(uint i=0u; i<block_len; i++) {
-        if (expanded[i] != block_data[i]) { match = 0u; break; }
-    }
-    if (match) {
+    if (match == 1u) {
         out_matches[gid] = (uint2)(gid, 1u);
     } else {
         out_matches[gid] = (uint2)(0xffffffffu, 0u);
