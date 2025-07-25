@@ -70,7 +70,7 @@ fn decode_seed_arity_stream() {
     let mut config = Config::default();
     config.block_size = 3;
     config.max_seed_len = 1;
-    let block = telomere::expand_seed(&[0u8], config.block_size);
+    let block = telomere::expand_seed(&[0u8], config.block_size, false);
 
     let mut bits = encode_arity(1);
     bits.extend(encode_evql_bits(0));
