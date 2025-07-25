@@ -291,7 +291,11 @@ fn decode_span_rec(
             let seed_idx = decode_evql_bits(reader)?;
             reader.align_byte();
             let seed = crate::index_to_seed(seed_idx, config.max_seed_len)?;
-            Ok(crate::expand_seed(&seed, arity * config.block_size))
+            Ok(crate::expand_seed(
+                &seed,
+                arity * config.block_size,
+                config.use_xxhash,
+            ))
         }
     }
 }

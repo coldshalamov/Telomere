@@ -69,7 +69,8 @@ pub fn compress_with_config(data: &[u8], config: &Config) -> Result<Vec<u8>, Tel
             }
             let span_len = arity * block_size;
             let slice = &data[offset..offset + span_len];
-            if let Some(seed_idx) = find_seed_match(slice, config.max_seed_len)? {
+            if let Some(seed_idx) = find_seed_match(slice, config.max_seed_len, config.use_xxhash)?
+            {
                 let header_bits = encode_arity_bits(arity)?;
                 let evql_bits = encode_evql_bits(seed_idx);
                 let total_bits = header_bits.len() + evql_bits.len();
@@ -173,7 +174,9 @@ pub fn compress_multi_pass_with_config(
                     break;
                 }
                 let span = &current[span_start..span_end];
-                if let Some(seed_idx) = find_seed_match(span, config.max_seed_len)? {
+                if let Some(seed_idx) =
+                    find_seed_match(span, config.max_seed_len, config.use_xxhash)?
+                {
                     let header_bits = encode_arity_bits(arity)?;
                     let evql_bits = encode_evql_bits(seed_idx);
                     let total_bits = header_bits.len() + evql_bits.len();
@@ -265,7 +268,7 @@ pub fn compress_block_with_config(
     }
 
     let slice = &input[..block_size];
-    if let Some(seed_idx) = find_seed_match(slice, config.max_seed_len)? {
+    if let Some(seed_idx) = find_seed_match(slice, config.max_seed_len, config.use_xxhash)? {
         let header_bits = encode_arity_bits(1)?;
         let evql_bits = encode_evql_bits(seed_idx);
         let total_bits = header_bits.len() + evql_bits.len();
