@@ -16,6 +16,7 @@ sysinfo = "0.29"
 tempfile = { version = "3", optional = true }
 bytemuck = { version = "1.23.1", features = ["derive"] }
 indicatif = "0.17"
+ocl = { version = "0.19.7", optional = true }
 
 [dev-dependencies]
 tempfile = "3"
@@ -72,7 +73,7 @@ path = "src/bin/hash_find.rs"
 
 [features]
 # GPU accelerated seed matching. Off by default.
-gpu = []
+gpu = ["ocl"]
 # Bloom filter based pruning. Placeholder for future optimization.
 bloom = []
 coverage = []
