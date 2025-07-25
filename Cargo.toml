@@ -23,6 +23,7 @@ tempfile = "3"
 quickcheck = "1"
 rand = "0.8"
 proptest = "1"
+
 [[bin]]
 name = "gloss_tool"
 path = "src/bin/gloss_tool.rs"
