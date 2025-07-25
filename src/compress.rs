@@ -223,11 +223,16 @@ pub fn compress_multi_pass_with_config(
                 TelomereError::Superposition(format!("no candidate at block {i}"))
             })?;
             if cand.seed_index == usize::MAX as u64 {
+		println!("Block {}: LITERAL (no compression)", i);
                 // literal
                 next.extend_from_slice(&encode_header(&Header::Literal)?);
                 next.extend_from_slice(blocks[i]);
                 i += 1;
             } else {
+		println!(
+    "Block {}: COMPRESSED by seed {} (arity {})",
+    i, cand.seed_index, cand.arity
+);
                 let arity = cand.arity as usize;
                 let span_start = i * block_size;
                 let _span_end = span_start + arity * block_size;
