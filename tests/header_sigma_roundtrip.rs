@@ -1,7 +1,7 @@
 //! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 use proptest::prelude::*;
 use telomere::{
-    decode_arity_bits, decode_evql_bits, encode_arity_bits, encode_evql_bits, BitReader,
+    decode_arity_bits, decode_sigma_bits, encode_arity_bits, encode_sigma_bits, BitReader,
 };
 
 fn pack(bits: &[bool]) -> Vec<u8> {
@@ -48,11 +48,11 @@ fn arity_roundtrip_exhaustive() {
 proptest! {
     #![proptest_config(ProptestConfig { cases: 600, .. ProptestConfig::default() })]
     #[test]
-    fn evql_roundtrip(v in 0u32..) {
-        let bits = encode_evql_bits(v as usize);
+    fn sigma_roundtrip(v in 0u32..) {
+        let bits = encode_sigma_bits(v as usize);
         let packed = pack(&bits);
         let mut r = BitReader::from_slice(&packed);
-        let out = decode_evql_bits(&mut r).unwrap();
+        let out = decode_sigma_bits(&mut r).unwrap();
         prop_assert_eq!(out as u32, v);
     }
 
@@ -88,11 +88,11 @@ proptest! {
 #[test]
 fn literal_marker_roundtrip() {
     let mut bits = vec![true, false, false];
-    bits.extend(encode_evql_bits(0));
+    bits.extend(encode_sigma_bits(0));
     let packed = pack(&bits);
     let mut r = BitReader::from_slice(&packed);
     assert_eq!(decode_arity_bits(&mut r).unwrap(), None);
-    assert_eq!(decode_evql_bits(&mut r).unwrap(), 0);
+    assert_eq!(decode_sigma_bits(&mut r).unwrap(), 0);
 }
 
 #[test]

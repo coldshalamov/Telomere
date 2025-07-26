@@ -272,6 +272,17 @@ pub fn decode_evql_bits(reader: &mut BitReader) -> Result<usize, TelomereError> 
     Ok(value)
 }
 
+/// Encode a usize using the Σ‑Step (SigmaStep) scheme with a zero‑based greedy
+/// walk.
+pub fn encode_sigma_bits(value: usize) -> Vec<bool> {
+    encode_evql_bits(value)
+}
+
+/// Decode a Σ‑Step bit sequence back into a usize using the inverse walk.
+pub fn decode_sigma_bits(reader: &mut BitReader) -> Result<usize, TelomereError> {
+    decode_evql_bits(reader)
+}
+
 /// Decode a span of bytes from a bitstream using seeded arity headers.
 fn decode_span_rec(
     reader: &mut BitReader,
@@ -288,7 +299,7 @@ fn decode_span_rec(
             reader.read_bytes(config.block_size)
         }
         Some(arity) => {
-            let seed_idx = decode_evql_bits(reader)?;
+            let seed_idx = decode_sigma_bits(reader)?;
             reader.align_byte();
             let seed = crate::index_to_seed(seed_idx, config.max_seed_len)?;
             Ok(crate::expand_seed(&seed, arity * config.block_size))

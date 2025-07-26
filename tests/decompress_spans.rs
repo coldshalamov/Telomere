@@ -1,5 +1,5 @@
 use telomere::{
-    decompress_with_limit, encode_arity_bits, encode_evql_bits, encode_header, encode_tlmr_header,
+    decompress_with_limit, encode_arity_bits, encode_header, encode_sigma_bits, encode_tlmr_header,
     truncated_hash, Config, Header,
 };
 
@@ -49,7 +49,7 @@ fn bundled_span_roundtrip() {
     });
 
     let mut bits = encode_arity_bits(3).unwrap();
-    bits.extend(encode_evql_bits(0));
+    bits.extend(encode_sigma_bits(0));
     let body = pack_bits(&bits);
 
     let mut data = encode_tlmr_header(&telomere::TlmrHeader {
@@ -81,7 +81,7 @@ fn bundled_then_literal() {
     });
 
     let mut bits = encode_arity_bits(3).unwrap();
-    bits.extend(encode_evql_bits(0));
+    bits.extend(encode_sigma_bits(0));
     let span = pack_bits(&bits);
 
     let mut body = span.clone();

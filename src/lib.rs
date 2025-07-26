@@ -58,8 +58,8 @@ pub use file_header::{decode_file_header, encode_file_header};
 pub use gpu::GpuSeedMatcher;
 pub use hash_reader::lookup_seed;
 pub use header::{
-    decode_arity_bits, decode_evql_bits, decode_header, decode_span, encode_arity_bits,
-    encode_evql_bits, encode_header, BitReader, Header,
+    decode_arity_bits, decode_header, decode_sigma_bits, decode_span, encode_arity_bits,
+    encode_header, encode_sigma_bits, BitReader, Header,
 };
 pub use hybrid::{compress_hybrid, CpuMatchRecord, GpuMatchRecord};
 pub use io_utils::*;
