@@ -1,7 +1,7 @@
 //! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 use crate::compress_stats::CompressionStats;
 use crate::config::Config;
-use crate::header::{encode_arity_bits, encode_evql_bits, encode_header, Header};
+use crate::header::{encode_arity_bits, encode_header, encode_sigma_bits, Header};
 use crate::seed::find_seed_match;
 use crate::superposition::SuperpositionManager;
 use crate::tlmr::{encode_tlmr_header, truncated_hash, TlmrHeader};
@@ -72,11 +72,11 @@ pub fn compress_with_config(data: &[u8], config: &Config) -> Result<Vec<u8>, Tel
             if let Some(seed_idx) = find_seed_match(slice, config.max_seed_len, config.use_xxhash)?
             {
                 let header_bits = encode_arity_bits(arity)?;
-                let evql_bits = encode_evql_bits(seed_idx);
-                let total_bits = header_bits.len() + evql_bits.len();
+                let sigma_bits = encode_sigma_bits(seed_idx);
+                let total_bits = header_bits.len() + sigma_bits.len();
                 if (total_bits + 7) / 8 < span_len {
                     let mut bits = header_bits;
-                    bits.extend(evql_bits);
+                    bits.extend(sigma_bits);
                     out.extend(pack_bits(&bits));
                     offset += span_len;
                     matched = true;
@@ -178,8 +178,8 @@ pub fn compress_multi_pass_with_config(
                     find_seed_match(span, config.max_seed_len, config.use_xxhash)?
                 {
                     let header_bits = encode_arity_bits(arity)?;
-                    let evql_bits = encode_evql_bits(seed_idx);
-                    let total_bits = header_bits.len() + evql_bits.len();
+                    let sigma_bits = encode_sigma_bits(seed_idx);
+                    let total_bits = header_bits.len() + sigma_bits.len();
                     if (total_bits + 7) / 8 < span.len() {
                         let _ = mgr.insert_superposed(
                             idx,
@@ -241,7 +241,7 @@ pub fn compress_multi_pass_with_config(
                 let _span_end = span_start + arity * block_size;
                 let header_bits = encode_arity_bits(arity)?;
                 let mut bits = header_bits;
-                bits.extend(encode_evql_bits(cand.seed_index as usize));
+                bits.extend(encode_sigma_bits(cand.seed_index as usize));
                 next.extend(pack_bits(&bits));
                 i += arity;
                 // bytes themselves are reconstructed from seed, so nothing appended
@@ -275,8 +275,8 @@ pub fn compress_block_with_config(
     let slice = &input[..block_size];
     if let Some(seed_idx) = find_seed_match(slice, config.max_seed_len, config.use_xxhash)? {
         let header_bits = encode_arity_bits(1)?;
-        let evql_bits = encode_evql_bits(seed_idx);
-        let total_bits = header_bits.len() + evql_bits.len();
+        let sigma_bits = encode_sigma_bits(seed_idx);
+        let total_bits = header_bits.len() + sigma_bits.len();
         if (total_bits + 7) / 8 < block_size {
             if let Some(s) = stats.as_deref_mut() {
                 s.maybe_log(slice, slice, false);

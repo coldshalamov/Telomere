@@ -1,5 +1,5 @@
 //! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
-use telomere::{decode_span, encode_header, BitReader, Config, Header};
+use telomere::{decode_span, encode_header, encode_sigma_bits, BitReader, Config, Header};
 
 fn pack_bits(bits: &[bool]) -> Vec<u8> {
     let mut out = Vec::new();
@@ -47,24 +47,6 @@ fn encode_arity(arity: usize) -> Vec<bool> {
     bits
 }
 
-fn encode_evql_bits(value: usize) -> Vec<bool> {
-    let mut width = 1usize;
-    let mut n = 0usize;
-    while width < usize::BITS as usize && value >= (1usize << width) {
-        width <<= 1;
-        n += 1;
-    }
-    let mut bits = Vec::new();
-    for _ in 0..n {
-        bits.push(true);
-    }
-    bits.push(false);
-    for i in (0..width).rev() {
-        bits.push(((value >> i) & 1) != 0);
-    }
-    bits
-}
-
 #[test]
 fn decode_seed_arity_stream() {
     let mut config = Config::default();
@@ -73,7 +55,7 @@ fn decode_seed_arity_stream() {
     let block = telomere::expand_seed(&[0u8], config.block_size, false);
 
     let mut bits = encode_arity(1);
-    bits.extend(encode_evql_bits(0));
+    bits.extend(encode_sigma_bits(0));
     let stream = pack_bits(&bits);
 
     let mut reader = BitReader::from_slice(&stream);
