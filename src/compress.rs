@@ -226,16 +226,16 @@ pub fn compress_multi_pass_with_config(
                 TelomereError::Superposition(format!("no candidate at block {i}"))
             })?;
             if cand.seed_index == usize::MAX as u64 {
-		println!("Block {}: LITERAL (no compression)", i);
+                println!("Block {}: LITERAL (no compression)", i);
                 // literal
                 next.extend_from_slice(&encode_header(&Header::Literal)?);
                 next.extend_from_slice(blocks[i]);
                 i += 1;
             } else {
-		println!(
-    "Block {}: COMPRESSED by seed {} (arity {})",
-    i, cand.seed_index, cand.arity
-);
+                println!(
+                    "Block {}: COMPRESSED by seed {} (arity {})",
+                    i, cand.seed_index, cand.arity
+                );
                 let arity = cand.arity as usize;
                 let span_start = i * block_size;
                 let _span_end = span_start + arity * block_size;
@@ -298,7 +298,25 @@ pub fn compress(data: &[u8], block_size: usize) -> Result<Vec<u8>, TelomereError
     let mut cfg = Config::default();
     cfg.block_size = block_size;
     cfg.max_seed_len = 3;
-    compress_with_config(data, &cfg)
+    const MAX_PASSES: usize = 10;
+    let (out, gains) = compress_multi_pass_with_config(data, &cfg, MAX_PASSES, false)?;
+
+    let mut in_len = data.len();
+    if gains.is_empty() {
+        println!("Compression pass 1: {} bytes → {} bytes", in_len, out.len());
+    }
+    for (idx, saved) in gains.iter().enumerate() {
+        let out_len = in_len.saturating_sub(*saved);
+        println!(
+            "Compression pass {}: {} bytes → {} bytes",
+            idx + 1,
+            in_len,
+            out_len
+        );
+        in_len = out_len;
+    }
+
+    Ok(out)
 }
 
 /// Wrapper around [`compress_multi_pass_with_config`] using a 3 byte seed limit.
