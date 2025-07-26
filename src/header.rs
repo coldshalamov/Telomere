@@ -275,13 +275,87 @@ pub fn decode_evql_bits(reader: &mut BitReader) -> Result<usize, TelomereError> 
 /// Encode a usize using the Σ‑Step (SigmaStep) scheme with a zero‑based greedy
 /// walk.
 pub fn encode_sigma_bits(value: usize) -> Vec<bool> {
-    encode_evql_bits(value)
+    let mut bits = Vec::new();
+    let mut c = 1usize;
+    let mut s = 0usize;
+    let target = value;
+
+    while c >= 1 {
+        if s + c * 16 <= target {
+            c *= 16;
+            s += c;
+            bits.push(true);
+        } else {
+            s += c;
+            c /= 2;
+            bits.push(false);
+        }
+    }
+
+    let mut c2 = 1usize;
+    let mut s2 = 0usize;
+    let rem = target.saturating_sub(s);
+
+    while s2 < rem {
+        if s2 + c2 * 2 <= rem {
+            c2 *= 2;
+            s2 += c2;
+            bits.push(true);
+        } else {
+            s2 += c2;
+            c2 /= 2;
+            bits.push(false);
+        }
+    }
+
+    while c2 >= 1 {
+        c2 /= 2;
+        bits.push(false);
+    }
+
+    bits
 }
+
 
 /// Decode a Σ‑Step bit sequence back into a usize using the inverse walk.
 pub fn decode_sigma_bits(reader: &mut BitReader) -> Result<usize, TelomereError> {
-    decode_evql_bits(reader)
+    let mut c = 1usize;
+    let mut s = 0usize;
+
+    loop {
+        let bit = reader.read_bit()?;
+        if bit {
+            c *= 16;
+            s += c;
+        } else {
+            s += c;
+            c /= 2;
+        }
+        if c < 1 {
+            break;
+        }
+    }
+
+    let mut c2 = 1usize;
+    let mut s2 = 0usize;
+
+    loop {
+        let bit = reader.read_bit()?;
+        if bit {
+            c2 *= 2;
+            s2 += c2;
+        } else {
+            s2 += c2;
+            c2 /= 2;
+        }
+        if c2 < 1 {
+            break;
+        }
+    }
+
+    Ok(s + s2)
 }
+
 
 /// Decode a span of bytes from a bitstream using seeded arity headers.
 fn decode_span_rec(
