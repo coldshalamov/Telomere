@@ -1,7 +1,8 @@
 def encode_swe_literal(x: int) -> str:
     if x < 0:
         raise ValueError("SWE undefined for negative x")
-    level, total = 0, 0
+    level = 0
+    total = 0
     while True:
         count = 1 << level
         if x < total + count:
@@ -19,15 +20,22 @@ def decode_swe_literal(bits: str) -> int:
     return base + int(suffix, 2) if suffix else base
 
 def encode_seed(value: int, arity: int = 1) -> str:
-    if arity == 1: ab = "00"
-    elif arity == 2: ab = "01"
-    elif arity == 3: ab = "100"
-    elif arity == 4: ab = "101"
-    elif arity == 5: ab = "110"
-    elif arity == "literal": ab = "111"
+    if arity == 1:
+        ab = "00"
+    elif arity == 2:
+        ab = "01"
+    elif arity == 3:
+        ab = "100"
+    elif arity == 4:
+        ab = "101"
+    elif arity == 5:
+        ab = "110"
+    elif arity == "literal":
+        ab = "111"
     else:
         raise ValueError("Arity must be 1–5 or 'literal'")
 
+    # Special case for zero: ab + "00000" (5 zeros after arity prefix)
     if value == 0:
         return ab + "00000"
 
@@ -39,14 +47,22 @@ def encode_seed(value: int, arity: int = 1) -> str:
     return ab + H1 + H2 + H3 + H4
 
 def decode_seed(code: str) -> tuple[int, int]:
-    if code.startswith("00"): arity, i = 1, 2
-    elif code.startswith("01"): arity, i = 2, 2
-    elif code.startswith("100"): arity, i = 3, 3
-    elif code.startswith("101"): arity, i = 4, 3
-    elif code.startswith("110"): arity, i = 5, 3
-    elif code.startswith("111"): arity, i = "literal", 3
-    else: raise ValueError("Invalid arity prefix")
+    if code.startswith("00"):
+        arity, i = 1, 2
+    elif code.startswith("01"):
+        arity, i = 2, 2
+    elif code.startswith("100"):
+        arity, i = 3, 3
+    elif code.startswith("101"):
+        arity, i = 4, 3
+    elif code.startswith("110"):
+        arity, i = 5, 3
+    elif code.startswith("111"):
+        arity, i = "literal", 3
+    else:
+        raise ValueError("Invalid arity prefix")
 
+    # Special case for zero: "00000" after arity bits
     if code[i:i+5] == "00000":
         return 0, arity
 
@@ -54,6 +70,7 @@ def decode_seed(code: str) -> tuple[int, int]:
         n = 0
         while offset + n < len(bits) and bits[offset + n] == '0':
             n += 1
+        # The SWE field has n leading zeros, then n bits (could be zero).
         size = n + (1 if n == 0 else 0) + n
         return decode_swe_literal(bits[offset:offset+size]), offset + size
 
