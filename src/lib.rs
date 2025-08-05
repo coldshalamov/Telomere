@@ -36,6 +36,7 @@ mod stats;
 pub mod superposition;
 mod tile;
 pub mod types;
+mod swe;
 
 pub use block::{
     apply_block_changes, collapse_branches, detect_bundles, finalize_table, group_by_bit_length,
@@ -75,6 +76,7 @@ pub use sha_cache::*;
 pub use stats::Stats;
 pub use tile::{chunk_blocks, flush_chunk, load_chunk, BlockChunk, TileMap};
 pub use tlmr::{decode_tlmr_header, encode_tlmr_header, truncated_hash, TlmrError, TlmrHeader};
+pub use swe::decode_seed;
 
 pub fn print_compression_status(original: usize, compressed: usize) {
     let ratio = 100.0 * (1.0 - compressed as f64 / original as f64);
