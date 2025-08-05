@@ -60,3 +60,5 @@ table_32.csv
 !tests/decompress_spans.rs
 test.tlmr
 test.txt
+Flatten_Telomere.py
+telomere_flattened.txt

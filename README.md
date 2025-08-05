@@ -229,3 +229,164 @@ The implementation targets OpenCL&nbsp;1.2 and works with both the standard
 AMD driver and the ROCm stack. If no compatible device is detected at runtime
 the compressor prints a single warning and transparently falls back to the CPU
 matcher.
+
+
+⸻
+
+TELOMERE PROTOCOL (2025, SWE 4-Field Edition)
+
+⸻
+
+Introduction
+
+Telomere is a stateless, lossless, recursively converging compression protocol. No raw bytes are stored: every bit is replaced with an SWE-encoded header containing all regeneration instructions. For each block, we brute-force the shortest SWE-encoded seed (header + payload), using SHA256 to ensure that when decoded, the hash output reconstructs the data.
+	•	Formal:
+  G(s) = SHA-256(s) = h, where h is a deterministic representation of the original block (or recursively of headers).
+	•	No entropy coding, fallback models, or statistical prediction.
+All compression emerges from hash-verified regeneration, recursive bundling, and a superposed converging lattice.
+	•	Only headers and seeds are kept—never raw data.
+
+⸻
+
+1. 📦 Core Design Elements
+
+Block Partitioning
+	•	Input is chunked into fixed-length blocks (typically 40 bits).
+	•	Each block is a unit of compression, tracked in a canonical table.
+	•	Bundling: Adjacent blocks may be grouped (arity >1), with max arity constrained by the SWE header (see below).
+	•	No raw data in output—only SWE headers, arity, and seeds.
+
+⸻
+
+2. ✅ Stacked Block Table Model
+	•	Each pass uses a stack of block tables (by size), not a monolithic hash table.
+	•	After each pass, compressed/bundled blocks migrate to a new table according to their new effective length.
+	•	Superposed blocks (fallbacks/candidates) are given canonical sub-labels (e.g., 168A, 168B).
+	•	Hash lookups use prefix-truncated SHA256 (24, 32, 40 bits, etc.) for fast table lookup and low collision risk.
+
+⸻
+
+3. ✅ SWE 4-Field Header Format (2025: Fixed-Window System)
+	•	Each header = 4 SWE fields:
+	1.	Arity Field:
+	•	SWE-encoded:
+	•	00 = single block
+	•	01 = 2-block
+	•	100 = 3-block
+	•	101 = 4-block
+	•	110 = 5-block
+	•	111 = literal passthrough (raw bits)
+	2.	SWE Length Field:
+	•	SWE-encoded, describes length of the payload (or next field if more deeply recursive in future).
+	3.	SWE Payload Field:
+	•	SWE-encoded value (the seed, or literal bits if arity=111).
+	4.	[Reserved/Future Field or for deep recursion: can be ignored in MVP]
+	•	Literal blocks always use arity=111, with a length SWE for the literal tail.
+	•	Block headers are self-delimiting, prefix-free, and fully reconstructable by decoder.
+	•	All info needed for deterministic decompression is contained within the header chain.
+
+⸻
+
+4. 🔁 Compression & Pass Logic
+	•	Telomere is pass-based and converging:
+	•	For each pass:
+	•	For every block or span:
+	•	Brute-force enumerate SWE-encoded seeds (shortest first), hash with SHA256, look for exact match.
+	•	If found, replace block with SWE header (arity/length/payload).
+	•	If not compressive, retain as superposed fallback (with canonical label: 168A, 168B, …).
+	•	Bundling/spans: Try higher arities (grouping) for longer matches/greater gain.
+	•	Final tail:
+	•	If < block size left, encode as literal block with arity=111.
+	•	No codeword boundaries are sacred: Every pass rechunks the bitstream, no external metadata.
+
+⸻
+
+5. ✅ Superposition: Fallback and Candidate Management
+	•	All candidate matches per block are tracked, not just the best:
+	•	If a replacement is found but not compressive, assign sub-label (168B, …).
+	•	Prune longer candidates if delta >8 bits.
+	•	If a candidate gets bundled, all non-bundled variants are pruned.
+	•	Superposed blocks are always eligible for further compression in future passes.
+
+⸻
+
+6. 📈 Compression Condition
+	•	Header bits + Seed bits < Raw span bits = accepted for compression.
+	•	If not compressive, candidate is kept as fallback.
+	•	All matches and fallbacks are lossless and retrievable for later passes.
+
+⸻
+
+7. 📦 Bundling and Recursion
+	•	Bundles:
+	•	Try grouping up to max SWE arity (usually ≤5, for encoding compactness).
+	•	Bundling increases gain per header and enables recursion in future passes.
+	•	All bundled and superposed candidates are pruned by deterministic rules.
+
+⸻
+
+8. 🔒 Determinism and Verifiability
+	•	Protocol is fully deterministic, pass-based, and reproducible.
+	•	All superpositions, fallbacks, and candidates are explicitly tracked (with labels).
+	•	No external metadata required for verification: header/seed stream is sufficient.
+
+⸻
+
+9. 🚀 Implementation Steps (MVP, with SWE 4-Field)
+
+9.1. File Partition
+	•	Partition file into fixed 40-bit blocks.
+
+9.2. Per-Pass Compression
+	•	For each block/span:
+	•	For all superposed candidates:
+	•	Brute-force enumerate SWE-encoded seeds (shortest first).
+	•	Hash with SHA256, check match.
+	•	If compressive, record as main; if not, assign as fallback, label as 168B, 168C, etc.
+	•	Apply deterministic pruning (delta>8bits, etc).
+	•	Update block tables and migrate bundled blocks to next table.
+
+9.3. Recurse
+	•	Repeat above until no further compression.
+
+9.4. Decompression
+	•	For each header/seed, reconstruct original (by hashing or reading literal), following all superposition/pruning logic for block chain.
+
+⸻
+
+10. ✅ What’s Different From the SigmaStep Model
+	•	No SigmaStep; all headers are encoded using SWE 4-field (arity, len, payload)
+	•	No variable U/D walks; all fields are SWE
+	•	Seed space toggle: Use 2 bits if you want to signal the starting length for seed search, as per your toggle mechanism.
+	•	All other elements (block table stacking, superposition, pruning, bundling, recursion, 100% replacement, etc) are identical.
+	•	Literal block marker is just arity=111 in SWE, not special marker.
+
+⸻
+
+11. ✅ Universal Block Replaceability (Seed Space Toggle)
+	•	Every block can be replaced by a seed, compressive or not, thanks to:
+	•	Optional 2-bit seed space toggle, indicating starting length for seed search (and encoding).
+	•	Worst case: block is simply replaced by a canonical seed of equal length; overhead is minimal and bounded.
+	•	No block is ever unmatchable.
+
+⸻
+
+12. ✅ Protocol Summary
+	•	All compression is structural, superposed, recursive, and pass-driven.
+	•	No raw data, fallback coders, or statistical entropy models are used—just brute-force, hash-driven, lattice compression.
+	•	Superposition and recursive bundling ensure global convergence.
+	•	Every pass is deterministic, and every block can be replaced on every pass.
+	•	All information needed for decompression is encoded in SWE headers and canonical block tables—nothing else.
+
+⸻
+
+💡 MVP Implementation Notes for Codex
+	•	Encode everything with SWE (arity/len/payload).
+	•	Track block tables, superposed candidates, and apply deterministic pruning.
+	•	For each block and arity, brute-force SWE seed search, check with SHA256.
+	•	No need for SigmaStep logic anywhere; all self-delimiting codes are SWE.
+	•	All block/seed structures are bit-for-bit roundtrippable and self-delimiting.
+
+⸻
+
+
