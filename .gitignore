@@ -26,6 +26,7 @@ src/bin/seed_table.rs
 !src/error.rs
 !src/seed_index.rs
 !src/bundle_select.rs
+!src/swe.rs
 !tests/index_to_seed.rs
 !tests/compressor_cli.rs
 !tests/nested_decode.rs
