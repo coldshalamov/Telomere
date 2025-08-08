@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from swe import encode_seed, decode_seed
+from telomere.swe_seed_codec import encode_seed, decode_seed
 """CLI Output Format Fuzz Tester for Telomere.
 
 This script exercises the command line binaries shipped with Telomere and
