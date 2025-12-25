@@ -21,7 +21,37 @@
 
 use crate::TelomereError;
 
-/// Bit level reader used for header decoding in tests and helpers.
+/// High level header type used by the compressor.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Header {
+    Literal,
+    Arity(usize),
+}
+
+/// Pack a stream of bits into bytes (MSB first).
+pub fn pack_bits(bits: &[bool]) -> Vec<u8> {
+    let mut out = Vec::new();
+    let mut byte = 0u8;
+    let mut used = 0u8;
+    for &b in bits {
+        byte = (byte << 1) | b as u8;
+        used += 1;
+        if used == 8 {
+            out.push(byte);
+            byte = 0;
+            used = 0;
+        }
+    }
+    if used > 0 {
+        byte <<= 8 - used;
+        out.push(byte);
+    }
+    if out.is_empty() {
+        out.push(0);
+    }
+    out
+}
+
 #[derive(Debug, Clone)]
 pub struct BitReader<'a> {
     data: &'a [u8],
@@ -59,29 +89,6 @@ impl<'a> BitReader<'a> {
     }
 }
 
-// Utility for tests and helpers.
-fn pack_bits(bits: &[bool]) -> Vec<u8> {
-    let mut out = Vec::new();
-    let mut byte = 0u8;
-    let mut used = 0u8;
-    for &b in bits {
-        byte = (byte << 1) | b as u8;
-        used += 1;
-        if used == 8 {
-            out.push(byte);
-            byte = 0;
-            used = 0;
-        }
-    }
-    if used > 0 {
-        byte <<= 8 - used;
-        out.push(byte);
-    }
-    if out.is_empty() {
-        out.push(0);
-    }
-    out
-}
 
 // ---------------------------------------------------------------------------
 // Lotus arity helpers
@@ -298,6 +305,26 @@ pub fn decode_lotus_header(data: &[u8]) -> Result<(DecodedHeader, usize), Telome
         },
         consumed,
     ))
+}
+
+pub fn decode_header(data: &[u8]) -> Result<(Header, usize), TelomereError> {
+    let (decoded, consumed) = decode_lotus_header(data)?;
+    let header = if decoded.is_literal {
+        Header::Literal
+    } else {
+        Header::Arity(decoded.arity as usize)
+    };
+    Ok((header, consumed))
+}
+
+pub fn encode_header(header: &Header) -> Result<Vec<u8>, TelomereError> {
+    match header {
+        Header::Literal => {
+            let bits = encode_lotus_header(0xFF, &[], 0)?;
+            Ok(pack_bits(&bits))
+        },
+        _ => Err(TelomereError::Header("encode_header only supports Literal, use encode_lotus_header for Arity".into())),
+    }
 }
 
 // ---------------------------------------------------------------------------

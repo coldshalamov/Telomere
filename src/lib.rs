@@ -59,8 +59,8 @@ pub use file_header::{decode_file_header, encode_file_header};
 pub use gpu::GpuSeedMatcher;
 pub use hash_reader::lookup_seed;
 pub use header::{
-    decode_arity_bits, decode_header, decode_sigma_bits, decode_span, encode_arity_bits,
-    encode_header, encode_sigma_bits, BitReader, Header,
+    decode_header, decode_lotus_header, encode_header, encode_lotus_header, pack_bits, BitReader,
+    DecodedHeader, Header,
 };
 pub use hybrid::{compress_hybrid, CpuMatchRecord, GpuMatchRecord};
 pub use io_utils::*;
@@ -129,7 +129,7 @@ pub fn decompress_with_limit(
     }
     let header = decode_tlmr_header(input)?;
     if header.version != 0 || header.block_size != config.block_size || config.hash_bits != 13 {
-        return Err(TelomereError::Header("file header mismatch".into()));
+        return Err(TelomereError::Header(format!("file header mismatch: v={} bs={} cfg_bs={} hb={}", header.version, header.block_size, config.block_size, config.hash_bits)));
     }
     let mut offset = 3usize;
     let mut bits_consumed = 24usize;
@@ -143,39 +143,41 @@ pub fn decompress_with_limit(
         let slice = input
             .get(offset..)
             .ok_or_else(|| TelomereError::Header("orphan/truncated bits".into()))?;
-        let (header, bits) = decode_header(slice)
+        let (decoded, bits) = decode_lotus_header(slice)
             .map_err(|_| TelomereError::Header("orphan/truncated bits".into()))?;
         let byte_len = (bits + 7) / 8;
-        match header {
-            Header::Literal => {
-                offset += byte_len;
-                bits_consumed += byte_len * 8;
-                let remaining = input.len() - offset;
-                let bytes = if remaining == last_block_size {
-                    last_block_size
-                } else {
-                    block_size
-                };
-                if out.len() + bytes > limit || offset + bytes > input.len() {
-                    return Err(TelomereError::Header("invalid header field".into()));
-                }
-                out.extend_from_slice(&input[offset..offset + bytes]);
-                offset += bytes;
-                bits_consumed += bytes * 8;
+        
+        if decoded.is_literal {
+            offset += byte_len;
+            bits_consumed += byte_len * 8;
+            let remaining = input.len() - offset;
+            let bytes = if remaining == last_block_size {
+                last_block_size
+            } else {
+                block_size
+            };
+            if out.len() + bytes > limit || offset + bytes > input.len() {
+                return Err(TelomereError::Header("invalid header field".into()));
             }
-            Header::Arity(_) => {
-                let mut reader = BitReader::from_slice(slice);
-                let span = decode_span(&mut reader, config)
-                    .map_err(|_| TelomereError::Header("orphan/truncated bits".into()))?;
-                let span_bits = reader.bits_read();
-                let bytes = span.len();
-                if out.len() + bytes > limit {
-                    return Err(TelomereError::Header("invalid header field".into()));
-                }
-                out.extend_from_slice(&span);
-                offset += (span_bits + 7) / 8;
-                bits_consumed += ((span_bits + 7) / 8) * 8;
+            out.extend_from_slice(&input[offset..offset + bytes]);
+            offset += bytes;
+            bits_consumed += bytes * 8;
+        } else {
+            let encoded_seed_bytes = pack_bits(&decoded.payload_bits);
+            // Reconstruct the seed from bytes? 
+            // The payload IS the seed bytes (short seed). 
+            // We need to expand it to match the span length.
+            let arity = decoded.arity as usize;
+            let span_len = arity * block_size;
+            
+            let expanded = expand_seed(&encoded_seed_bytes, span_len, config.use_xxhash);
+            if out.len() + expanded.len() > limit {
+                 return Err(TelomereError::Header("invalid header field".into()));
             }
+            out.extend_from_slice(&expanded);
+            
+            offset += byte_len;
+            bits_consumed += byte_len * 8;
         }
         if offset == input.len() {
             // No more data left to decode.

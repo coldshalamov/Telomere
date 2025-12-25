@@ -12,7 +12,7 @@ fn random_roundtrip() {
     for _ in 0..10 {
         let len = rng.gen_range(1..200);
         let block = rng.gen_range(2..8);
-        let data: Vec<u8> = (0..len).map(|_| rng.gen()).collect();
+        let data: Vec<u8> = (0..len).map(|_| rng.gen::<u8>()).collect();
         let out = compress(&data, block).unwrap();
         let decompressed = decompress_with_limit(&out, &cfg(block), usize::MAX).unwrap();
         assert_eq!(data, decompressed);

@@ -56,6 +56,9 @@ pub fn find_seed_match(
         limit += 1u128 << (8 * len);
     }
     for idx in 0..limit {
+        if idx % 10000 == 0 {
+             // eprintln!("Search idx: {}", idx);
+        }
         let seed = index_to_seed(idx as usize, max_seed_len)?;
         if expand_seed(&seed, slice.len(), use_xxhash) == slice {
             return Ok(Some(idx as usize));

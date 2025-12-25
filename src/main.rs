@@ -56,7 +56,7 @@ fn run() -> Result<(), CliError> {
 
             let start_time = Instant::now();
             let (out, gains) =
-                compress_multi_pass(&data, config.block_size, args.passes, args.status)
+                telomere::compress_multi_pass_with_config(&data, &config, args.passes, args.status)
                     .map_err(|e| telomere_cli_error("compression failed", e))?;
 
             if out.is_empty() {

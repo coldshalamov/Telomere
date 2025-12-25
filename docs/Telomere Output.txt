@@ -1,0 +1,371 @@
+---
+
+# TELOMERE
+
+## Canonical Technical Specification (True Spec)
+
+---
+
+## 1. System Definition
+
+Telomere is a **lossless, deterministic, stateless, generative regeneration protocol** for representing arbitrary bitstreams as a sequence of self-describing records. Each record either contains literal bits or a seed that deterministically regenerates an equivalent bit sequence via a fixed generative function.
+
+The Telomere output stream is a **pure bitstream**. It contains no file headers, no magic bytes, no external metadata, and no framing beyond what is encoded in the stream itself.
+
+All information required for decompression is contained within the bitstream.
+
+---
+
+## 2. Fundamental Properties
+
+* Lossless
+* Deterministic
+* Prefix-free
+* Self-delimiting
+* Fully reconstructable without external context
+* Stateless across runs
+* Pass-based but decoder-independent of passes
+* No entropy coding
+* No probabilistic decoding
+* No optimality guarantees
+
+Compression is emergent and optional.
+
+---
+
+## 3. Bitstream Model
+
+### 3.1 Bit Ordering
+
+* All bitstreams are interpreted **most-significant-bit first (MSB-first)**.
+* Byte packing is **big-endian**.
+* Bit index 0 is the MSB of byte 0.
+* This convention applies uniformly to:
+
+  * Input files
+  * Header fields
+  * Payloads
+  * Seeds
+  * Reconstructed output
+
+### 3.2 Bit-to-Byte Packing
+
+When converting a bitstring to bytes:
+
+* Bits are packed MSB-first.
+* If the bit length is not a multiple of 8, the final byte is padded with zero bits in the least significant positions.
+* The byte array length is exactly `ceil(bit_length / 8)`.
+
+---
+
+## 4. Generative Function
+
+### 4.1 Definition
+
+```
+G(seed_bits) = SHA-256(seed_bits_as_bytes)
+```
+
+Where `seed_bits_as_bytes` is produced using the canonical bit-to-byte packing rules defined above.
+
+### 4.2 Output
+
+* The output of `G` is a 256-bit bitstream.
+* Bits are interpreted MSB-first.
+
+---
+
+## 5. Generative Equality
+
+A seed is said to **match** a target span of `N` bits if and only if:
+
+```
+first N bits of G(seed) == target_span_bits
+```
+
+This is the only semantic equality in Telomere.
+
+* No comparison of remaining hash bits is performed.
+* No seed uniqueness or collision resistance is assumed.
+* Equality is strictly prefix-based.
+
+---
+
+## 6. Block Model
+
+* Canonical block size: **24 bits**
+* This size is fixed and global.
+
+The initial input bitstream is partitioned into contiguous 24-bit blocks. A final tail shorter than 24 bits may exist.
+
+Block boundaries are not preserved after the first pass and are not semantically meaningful beyond initial partitioning.
+
+---
+
+## 7. Header Format (Lotus Fixed-Window Edition)
+
+Each record in the Telomere bitstream consists of a Lotus header followed by a payload.
+
+Despite the edition name “4-Field,” the header is parsed in **five sequential components**.
+
+### 7.1 Header Components (in order)
+
+#### 1. Arity Length Bit (1 bit)
+
+Determines the width of the arity field.
+
+* `0` → arity field is 1 bit
+* `1` → arity field is 2 bits
+
+#### 2. Arity Field (1 or 2 bits)
+
+Interpreted as follows:
+
+| Arity Length | Bits | Meaning             |
+| ------------ | ---- | ------------------- |
+| 1 bit        | `0`  | 1 block (24 bits)   |
+| 1 bit        | `1`  | 2 blocks (48 bits)  |
+| 2 bits       | `00` | 3 blocks (72 bits)  |
+| 2 bits       | `01` | 4 blocks (96 bits)  |
+| 2 bits       | `10` | 5 blocks (120 bits) |
+| 2 bits       | `11` | Literal passthrough |
+
+#### 3. Jumpstarter (3 bits)
+
+* Unsigned integer `j` in range `[0..7]`
+
+#### 4. Payload Length Field
+
+* Bit width = `j + 1`
+* Fixed-window encoding
+* Unsigned integer `L`
+* Valid range: `0 ≤ L ≤ 2^(j+1) − 1`
+
+#### 5. Payload (L bits)
+
+Interpretation depends on arity:
+
+* Literal passthrough → raw bits
+* Otherwise → seed bits
+
+---
+
+## 8. Prefix-Free Guarantee
+
+The stream is prefix-free and self-delimiting because:
+
+* Arity width is self-describing
+* Payload length width is self-describing
+* Payload length is explicit
+
+No external termination markers exist.
+
+---
+
+## 9. Literal Passthrough
+
+### 9.1 Definition
+
+A literal passthrough record encodes raw bits directly in the payload field.
+
+### 9.2 Usage Rules
+
+* Mandatory for tails shorter than 24 bits.
+* Permitted for full spans.
+* Represents the ground-state encoding.
+* Guarantees universal representability.
+
+Literal passthrough does not preclude future replacement by a seed representation in subsequent passes.
+
+---
+
+## 10. Seeds
+
+### 10.1 Nature
+
+* Seeds are bitstrings with explicit bit lengths.
+* No integer semantics are assumed.
+* Seeds may be any length ≥ 1 bit.
+
+### 10.2 Hashing
+
+* Seeds are converted to bytes using the canonical packing rules.
+* The resulting byte array is hashed using SHA-256.
+* The hash output is interpreted MSB-first.
+
+---
+
+## 11. Seed Enumeration Order
+
+Seed search order is globally fixed and deterministic:
+
+1. Increasing seed bit-length
+2. Within a fixed length, lexicographic order (MSB-first)
+3. Zero-length seeds are excluded
+
+For a given length `k`, enumeration order is:
+
+```
+000...0
+000...1
+...
+111...1
+```
+
+---
+
+## 12. Candidate Validity
+
+For a candidate `(span, seed)`:
+
+### 12.1 Validity Conditions
+
+* Seed length ≤ span length
+* Seed regenerates the span exactly via generative equality
+* Payload length must be representable by the selected window
+
+### 12.2 Rejection Conditions
+
+* Seed length > span length
+* Regeneration mismatch
+* Payload length overflow
+* Structural header invalidity
+
+---
+
+## 13. Acceptance Classification
+
+For valid candidates:
+
+### 13.1 Compressive
+
+```
+header_bits + seed_bits < span_bits
+```
+
+### 13.2 Equal-Length Fallback
+
+```
+header_bits + seed_bits == span_bits
+```
+
+Equal-length seeds are accepted and stored.
+
+### 13.3 Disallowed
+
+```
+header_bits + seed_bits > span_bits
+```
+
+Such candidates are rejected.
+
+---
+
+## 14. Superposition
+
+Superposition is deterministic bookkeeping of multiple valid representations for the same span.
+
+* Exists only during compression
+* Never appears in the output stream
+* Does not affect decoding
+
+### 14.1 Rules
+
+* All valid candidates may be tracked
+* Candidates are labeled deterministically
+* Immediate pruning rules apply
+* No recursive or nested superposition
+
+---
+
+## 15. Pass-Based Compression
+
+### 15.1 Pass Definition
+
+A pass:
+
+1. Interprets the current stream as a bitstream
+2. Rechunks spans opportunistically
+3. Searches for valid seeds and bundles
+4. Emits a new stream of headers
+
+### 15.2 Convergence
+
+* Passes repeat until no gain is observed
+* “Gain” is a deterministic, implementation-defined metric
+* Decoder behavior is independent of pass structure
+
+---
+
+## 16. Decoder Specification
+
+### 16.1 Decoder Behavior
+
+The decoder:
+
+1. Parses the bitstream sequentially
+2. Reconstructs payloads
+3. Emits output bits
+
+### 16.2 Decoder Constraints
+
+The decoder:
+
+* Has no knowledge of blocks or passes
+* Performs no compression logic
+* Performs no semantic validation beyond structure
+
+### 16.3 Decoder Rejection Conditions
+
+* Invalid arity encoding
+* Invalid jumpstarter value
+* Payload length exceeds window capacity
+* Payload shorter than declared length
+
+---
+
+## 17. Determinism Requirements
+
+* Identical input produces identical output bitstreams
+* Enumeration order is fixed
+* Header encoding is fixed
+* No randomness is permitted
+
+---
+
+## 18. Explicit Non-Claims
+
+Telomere does not:
+
+* Approximate Kolmogorov complexity
+* Guarantee compression
+* Infer truth or meaning
+* Rank representations by semantic value
+* Provide optimal encoding
+
+---
+
+## 19. Universality Guarantee
+
+Every finite bitstream has at least one valid Telomere representation using literal passthrough records.
+
+No bitstream is unrepresentable.
+
+---
+
+## 20. Implementation Invariants
+
+* No raw data exists outside payload fields
+* No file-level metadata
+* No side channels
+* No decoder heuristics
+* All ambiguity is resolved at compression time
+
+---
+
+## 21. Canonical Status
+
+This document defines the authoritative operational behavior of Telomere.
+Any implementation deviating from these rules is non-compliant.
+
+---

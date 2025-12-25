@@ -1,0 +1,96 @@
+﻿# Lotus Codec 
+
+
+def _encode_Lotus(n: int) -> str:
+    """Encode positive integer n ≥ 1 into Lotus bitstring."""
+    if n < 1:
+        raise ValueError("Lotus requires n ≥ 1")
+    level = 1
+    total = 0
+    while True:
+        count = 1 << level
+        if n - 1 < total + count:
+            return format(n - 1 - total, f"0{level}b")
+        total += count
+        level += 1
+
+
+
+
+def _decode_Lotus(bits: str) -> int:
+    """Decode Lotus bitstring back to integer (n ≥ 1)."""
+    L = len(bits)
+    base = (1 << L) - 2
+    return base + int(bits, 2) + 1
+
+
+
+
+def encode_lotus(n: int) -> str:
+    """
+    Encode integer n ≥ 0 into Lotus self-delimiting code.
+    Structure = jumpstarter (3b) + Lotus(length(payload)) + Lotus(payload_value).
+    """
+    # Payload encodes n+1
+    payload = _encode_Lotus(n + 1)
+
+
+    # Lotus-encode the payload length
+    length_field = _encode_Lotus(len(payload))
+
+
+    # Jumpstarter = length(length_field) - 1
+    jumpstarter = format(len(length_field) - 1, "03b")
+
+
+    return jumpstarter + length_field + payload
+
+
+
+
+def decode_lotus(bits: str) -> int:
+    """
+    Decode Lotus bitstring back to integer.
+    Returns integer n ≥ 0.
+    """
+    if len(bits) < 3:
+        raise ValueError("Bitstring too short for jumpstarter")
+
+
+    pos = 0
+
+
+    # Jumpstarter = 3 bits
+    jump_val = int(bits[pos:pos+3], 2) + 1
+    pos += 3
+
+
+    # Field2 = Lotus-encoded payload length
+    len_field = bits[pos:pos+jump_val]
+    if len(len_field) != jump_val:
+        raise ValueError("Bitstring ended before length field completed")
+    payload_len = _decode_Lotus(len_field)
+    pos += jump_val
+
+
+    # Field3 = Lotus payload
+    payload_bits = bits[pos:pos+payload_len]
+    if len(payload_bits) != payload_len:
+        raise ValueError("Bitstring ended before payload completed")
+
+
+    value = _decode_Lotus(payload_bits) - 1
+    return value
+
+
+
+
+# --------------------------
+# Quick test
+# --------------------------
+if __name__ == "__main__":
+    for i in range(20):
+        enc = encode_lotus(i)
+        dec = decode_lotus(enc)
+        print(f"{i:2d} -> {enc} -> {dec}")
+        assert i == dec

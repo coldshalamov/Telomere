@@ -1,0 +1,131 @@
+﻿# lotus_codec.py
+#   - Fields:      4 fields (insert Lotus(len(len(payload))) after jump)
+#
+# Layout:
+#   Field1: jump (1 bit) encodes the bit-width of Field2 (1 or 2)
+#   Field2: Lotus(len(len(payload_bits)))   [exactly width from Field1 bits]
+#   Field3: Lotus(len(payload_bits))        [exactly len(Field2) bits worth of Lotus code]
+#   Field4: Lotus(payload_bits for value = n+1)  [exactly len(Field3) bits worth of Lotus code]
+
+
+def _encode_Lotus(n: int) -> str:
+    """Encode positive integer n ≥ 1 into Lotus bitstring (fixed-width by level)."""
+    if n < 1:
+        raise ValueError("Lotus requires n ≥ 1")
+    level = 1
+    total = 0
+    while True:
+        count = 1 << level
+        if n - 1 < total + count:
+            return format(n - 1 - total, f"0{level}b")  # exactly 'level' bits
+        total += count
+        level += 1
+
+
+def _decode_Lotus(bits: str) -> int:
+    """Decode Lotus bitstring back to integer (n ≥ 1) from a KNOWN fixed width."""
+    L = len(bits)
+    base = (1 << L) - 2
+    return base + int(bits, 2) + 1
+
+
+def encode_lotus(n: int) -> str:
+    """
+    Encode n ≥ 0 as:
+      jump(1) • Lotus(len(len(P_bits))) • Lotus(len(P_bits)) • P_bits
+    where P_bits = Lotus(n+1).
+    """
+    if n < 0:
+        raise ValueError("n must be ≥ 0")
+
+
+    # Field4: payload bits for (n+1)
+    P_bits = _encode_Lotus(n + 1)
+    L_payload = len(P_bits)
+
+
+    # Field3: Lotus(len(payload))
+    L3_bits = _encode_Lotus(L_payload)
+    L3_len = len(L3_bits)         # ∈ {1..6} because Field2 can only be 1–2 bits
+
+
+    # Field2: Lotus(len(L3_bits))
+    L2_bits = _encode_Lotus(L3_len)
+    L2_len = len(L2_bits)         # must be 1 or 2 bits only (enforced by jump)
+
+
+    # Field1: jump (1 bit) encodes how many bits to read for Field2
+    # Map: '0' -> read 1 bit for Field2;  '1' -> read 2 bits for Field2
+    if L2_len == 1:
+        jump = "0"
+    elif L2_len == 2:
+        jump = "1"
+    else:
+        raise ValueError("len(len(payload_len_bits)) exceeds 2 bits under 1-bit jumpstarter")
+
+
+    return jump + L2_bits + L3_bits + P_bits
+
+
+def decode_lotus(bits: str) -> int:
+    """
+    Decode bitstring produced by encode_lotus. Returns n ≥ 0.
+    """
+    pos = 0
+    if len(bits) < 1:
+        raise ValueError("Bitstring too short for jumpstarter")
+
+
+    # Field1: jump(1) → width (1 or 2) for Field2
+    j = bits[pos]
+    pos += 1
+    if j == "0":
+        width_L2 = 1
+    elif j == "1":
+        width_L2 = 2
+    else:
+        raise ValueError("Invalid jumpstarter bit")
+
+
+    # Field2: L2 (len(len(payload_bits))) using exactly width_L2 bits
+    if pos + width_L2 > len(bits):
+        raise ValueError("Truncated in L2")
+    L2_bits = bits[pos:pos + width_L2]
+    pos += width_L2
+    L3_len = _decode_Lotus(L2_bits)  # integer in {1..6}
+
+
+    # Field3: L3 (len(payload_bits)) using exactly L3_len bits
+    if pos + L3_len > len(bits):
+        raise ValueError("Truncated in L3")
+    L3_bits = bits[pos:pos + L3_len]
+    pos += L3_len
+    payload_len = _decode_Lotus(L3_bits)  # typically 1..126 when L3_len==6
+
+
+    # Field4: payload using exactly payload_len bits
+    if pos + payload_len > len(bits):
+        raise ValueError("Truncated payload")
+    P_bits = bits[pos:pos + payload_len]
+    pos += payload_len
+
+
+    # payload encodes (n+1)
+    n_plus_1 = _decode_Lotus(P_bits)
+    n = n_plus_1 - 1
+    if n < 0:
+        raise ValueError("Decoded negative value (invalid stream)")
+    return n
+
+
+# --------------------------
+# Quick tests
+# --------------------------
+if __name__ == "__main__":
+    # Round-trip across multiple window edges (including payload_len up to ~126 bits)
+    samples = list(range(0, 300)) + [511, 512, 1023, 1024]
+    for i in samples:
+        enc = encode_lotus(i)
+        dec = decode_lotus(enc)
+        assert i == dec, (i, enc, dec)
+    print("OK:", len(samples), "cases")

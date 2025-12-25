@@ -1,7 +1,7 @@
 //! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 use crate::compress_stats::CompressionStats;
 use crate::config::Config;
-use crate::header::{encode_arity_bits, encode_header, encode_sigma_bits, Header};
+use crate::header::{encode_header, encode_lotus_header, pack_bits, Header};
 use crate::seed::find_seed_match;
 use crate::superposition::SuperpositionManager;
 use crate::tlmr::{encode_tlmr_header, truncated_hash, TlmrHeader};
@@ -15,28 +15,6 @@ pub struct TruncHashTable {
     pub set: std::collections::HashSet<u64>,
 }
 
-fn pack_bits(bits: &[bool]) -> Vec<u8> {
-    let mut out = Vec::new();
-    let mut byte = 0u8;
-    let mut used = 0u8;
-    for &b in bits {
-        byte = (byte << 1) | b as u8;
-        used += 1;
-        if used == 8 {
-            out.push(byte);
-            byte = 0;
-            used = 0;
-        }
-    }
-    if used > 0 {
-        byte <<= 8 - used;
-        out.push(byte);
-    }
-    if out.is_empty() {
-        out.push(0);
-    }
-    out
-}
 
 /// Compress the input using literal passthrough blocks and arity-based seed compression.
 ///
@@ -71,13 +49,19 @@ pub fn compress_with_config(data: &[u8], config: &Config) -> Result<Vec<u8>, Tel
             let slice = &data[offset..offset + span_len];
             if let Some(seed_idx) = find_seed_match(slice, config.max_seed_len, config.use_xxhash)?
             {
-                let header_bits = encode_arity_bits(arity)?;
-                let sigma_bits = encode_sigma_bits(seed_idx);
-                let total_bits = header_bits.len() + sigma_bits.len();
-                if (total_bits + 7) / 8 < span_len {
-                    let mut bits = header_bits;
-                    bits.extend(sigma_bits);
-                    out.extend(pack_bits(&bits));
+                // Convert seed index to bits
+                let seed_bytes = crate::index_to_seed(seed_idx, config.max_seed_len)?;
+                let mut seed_bits = Vec::with_capacity(seed_bytes.len() * 8);
+                for byte in seed_bytes {
+                    for i in (0..8).rev() {
+                        seed_bits.push(((byte >> i) & 1) != 0);
+                    }
+                }
+                
+                // Encode using Lotus header
+                let total_bits_vec = encode_lotus_header(arity, &seed_bits, seed_bits.len())?;
+                if (total_bits_vec.len() + 7) / 8 < span_len {
+                    out.extend(pack_bits(&total_bits_vec));
                     offset += span_len;
                     matched = true;
                     break;
@@ -177,9 +161,18 @@ pub fn compress_multi_pass_with_config(
                 if let Some(seed_idx) =
                     find_seed_match(span, config.max_seed_len, config.use_xxhash)?
                 {
-                    let header_bits = encode_arity_bits(arity)?;
-                    let sigma_bits = encode_sigma_bits(seed_idx);
-                    let total_bits = header_bits.len() + sigma_bits.len();
+                    // Convert seed index to bits
+                    let seed_bytes = crate::index_to_seed(seed_idx, config.max_seed_len)?;
+                    let mut seed_bits = Vec::with_capacity(seed_bytes.len() * 8);
+                    for byte in seed_bytes {
+                         for i in (0..8).rev() {
+                            seed_bits.push(((byte >> i) & 1) != 0);
+                        }
+                    }
+                    
+                    let total_bits_vec = encode_lotus_header(arity, &seed_bits, seed_bits.len())?;
+                    let total_bits = total_bits_vec.len();
+                    
                     if (total_bits + 7) / 8 < span.len() {
                         let _ = mgr.insert_superposed(
                             idx,
@@ -237,11 +230,15 @@ pub fn compress_multi_pass_with_config(
                     i, cand.seed_index, cand.arity
                 );
                 let arity = cand.arity as usize;
-                let span_start = i * block_size;
-                let _span_end = span_start + arity * block_size;
-                let header_bits = encode_arity_bits(arity)?;
-                let mut bits = header_bits;
-                bits.extend(encode_sigma_bits(cand.seed_index as usize));
+                // Reconstruct seed bits from index
+                let seed_bytes = crate::index_to_seed(cand.seed_index as usize, config.max_seed_len)?;
+                let mut seed_bits = Vec::with_capacity(seed_bytes.len() * 8);
+                for byte in seed_bytes {
+                     for i in (0..8).rev() {
+                        seed_bits.push(((byte >> i) & 1) != 0);
+                    }
+                }
+                let bits = encode_lotus_header(arity, &seed_bits, seed_bits.len())?;
                 next.extend(pack_bits(&bits));
                 i += arity;
                 // bytes themselves are reconstructed from seed, so nothing appended
@@ -249,10 +246,12 @@ pub fn compress_multi_pass_with_config(
         }
 
         let saved = current.len().saturating_sub(next.len());
-        if saved == 0 {
+        if saved == 0 && passes > 1 {
             break;
         }
-        gains.push(saved);
+        if saved > 0 {
+            gains.push(saved);
+        }
         current = next;
     }
 
@@ -274,10 +273,16 @@ pub fn compress_block_with_config(
 
     let slice = &input[..block_size];
     if let Some(seed_idx) = find_seed_match(slice, config.max_seed_len, config.use_xxhash)? {
-        let header_bits = encode_arity_bits(1)?;
-        let sigma_bits = encode_sigma_bits(seed_idx);
-        let total_bits = header_bits.len() + sigma_bits.len();
-        if (total_bits + 7) / 8 < block_size {
+        let seed_bytes = crate::index_to_seed(seed_idx, config.max_seed_len)?;
+        let mut seed_bits = Vec::with_capacity(seed_bytes.len() * 8);
+        for byte in seed_bytes {
+             for i in (0..8).rev() {
+                seed_bits.push(((byte >> i) & 1) != 0);
+            }
+        }
+        let total_bits_vec = encode_lotus_header(1, &seed_bits, seed_bits.len())?;
+        
+        if (total_bits_vec.len() + 7) / 8 < block_size {
             if let Some(s) = stats.as_deref_mut() {
                 s.maybe_log(slice, slice, false);
                 s.log_match(false, 1);

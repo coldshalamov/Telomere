@@ -1,0 +1,161 @@
+﻿Telomere Compression System – Updated Formal Model   and System Description
+1. Introduction
+* The Telomere compression protocol is a recursive, deterministic, and generative compression system built upon cryptographic seed matching and dynamic structural encoding. Unlike statistical compressors (e.g., LZ77, Brotli, or Huffman coding), Telomere performs lossless compaction without modeling symbol frequency, entropy, or byte distribution. Instead, it compresses data by discovering short binary seeds whose SHA-256 digests regenerate the original data s  pans through either literal or recursive reconstruction.
+The key insight behind Telomere is that a brute-force search over seed space, guided by the hash function's uniformity, will occasionally yield a seed whose digest exactly replicates a span of the target data. When found, such seeds are recorded in a gloss table and referenced using compact toggle-encoded headers. These headers describe both the arity (i.e., how many blocks are replaced by the seed) and the seed index, both encoded using dynamic-width toggle windows. The system is stateless, forward-decodable, and self-contained—no original data or entropy models are stored.
+Compression performance improves recursively, as new seeds often regenerate not only raw data but previously compressed regions. These structural reinjections promote recursive convergence and enable deeper reductions in file size over successive passes.
+________________
+
+
+2. Core System Architecture
+2.1 Block and Span Structure
+* Base block size (b): The smallest unit of compression, typically 3–4 bytes.
+
+* Arity (k): The number of adjacent blocks grouped into a span for compression.
+
+* Span size: span(k)=b⋅k\text{span}(k) = b \cdot kspan(k)=b⋅k
+
+Each compression attempt targets a span of kkk blocks. The compressor searches for a seed sss such that:
+SHA256(s)[0:span(k)]=span data\text{SHA256}(s)[0:\text{span}(k)] = \text{span data}SHA256(s)[0:span(k)]=span data
+This match may be literal (direct byte-for-byte equality), or recursive, meaning the digest decodes into a sequence of nested compressed headers.
+________________
+
+
+3. Toggle-Based Header Encoding
+Instead of fixed-width headers, Telomere uses dynamic toggle windows with sentinel bits for encoding arity and seed index:
+   * Arity field (base = 3): grows in powers of 3 (1-bit, 3-bit, 6-bit, 12-bit, ...)
+
+   * Seed index field (base = 2): grows in powers of 2 (1-bit, 2-bit, 4-bit, 8-bit, ...)
+
+These toggle fields are prefix-free and self-delimiting, enabling streaming decompression without backtracking. The total header size is:
+H(k,s)=toggle_len(k,base=3)+toggle_len(s,base=2)H(k, s) = \text{toggle\_len}(k, \text{base}=3) + \text{toggle\_len}(s, \text{base}=2)H(k,s)=toggle_len(k,base=3)+toggle_len(s,base=2)
+Where sss is the seed index in the gloss table.
+________________
+
+
+4. Compression Criteria and Gain
+For a compression event to be accepted:
+gain(k,t)=b⋅k−s(k,t)−H(k,s)>0\text{gain}(k, t) = b \cdot k - s(k, t) - H(k, s) > 0gain(k,t)=b⋅k−s(k,t)−H(k,s)>0
+      * s(k,t)s(k, t)s(k,t): average seed size for arity kkk at time ttt
+
+      * H(k,s)H(k, s)H(k,s): total header cost
+
+If gain ≤ 0, the span is not replaced, unless the seed is held in superposition (see below).
+________________
+
+
+5. Match Probability
+Given the uniformity of SHA-256, the probability that a random seed matches a span of b⋅kb \cdot kb⋅k bytes is:
+P(k)=2−8bkP(k) = 2^{-8bk}P(k)=2−8bk
+This assumes a full prefix match is required. For recursive matches:
+Precursive(k)=α⋅P(k)P_{\text{recursive}}(k) = \alpha \cdot P(k)Precursive​(k)=α⋅P(k)
+Where α\alphaα reflects the likelihood that a digest decodes into valid recursive headers.
+________________
+
+
+6. Gloss Tables and Reuse
+Each successful match is indexed in a gloss table, mapping a seed index to a seed string. Once stored, any span later matching that seed’s output can be compressed using its index rather than rediscovering it.
+Gloss reuse probabilities:
+         * γg\gamma_gγg​: gloss table reuse rate
+
+         * γb\gamma_bγb​: bloom filter rejection rate
+
+         * γr\gamma_rγr​: reuse via recursive nesting
+
+The effective number of hash attempts per time unit becomes:
+Heff=H⋅(1−γg)⋅(1−γb)⋅(1−γr)H_{\text{eff}} = H \cdot (1 - \gamma_g) \cdot (1 - \gamma_b) \cdot (1 - \gamma_r)Heff​=H⋅(1−γg​)⋅(1−γb​)⋅(1−γr​)
+________________
+7. Superposition and Bayesian Pruning
+When no short seed exists for a span, a longer-than-span seed may be provisionally accepted if:
+            * It matches the data (literal or recursive),
+
+            * No shorter seed exists,
+
+            * It is likely to yield net compression when bundled in a future pass.
+
+Let FFF be the hypothesis that the fallback seed will lead to future gain.
+Using Bayesian updating:
+P(F∣E)=P(E∣F)⋅P(F)P(E∣F)⋅P(F)+P(E∣¬F)⋅(1−P(F))P(F \mid E) = \frac{P(E \mid F) \cdot P(F)}{P(E \mid F) \cdot P(F) + P(E \mid \neg F) \cdot (1 - P(F))}P(F∣E)=P(E∣F)⋅P(F)+P(E∣¬F)⋅(1−P(F))P(E∣F)⋅P(F)​
+Where:
+               * P(F)=e−λ(s−bk)P(F) = e^{-\lambda (s - bk)}P(F)=e−λ(s−bk)
+
+               * P(E∣F)=1−e−αbP(E \mid F) = 1 - e^{-\alpha b}P(E∣F)=1−e−αb, based on neighbor compressibility, bundling rate, etc.
+
+Prune fallback seeds when P(F∣E)<θP(F \mid E) < \thetaP(F∣E)<θ for a tunable threshold θ\thetaθ.
+________________
+
+
+8. Recursive Gain Modeling
+Each successful compression event may enable further gains recursively. Let:
+R(k,d)=expected gain at recursion depth d from arity kR(k, d) = \text{expected gain at recursion depth } d \text{ from arity } kR(k,d)=expected gain at recursion depth d from arity k
+Then:
+gaintotal(k,t)=gain(k,t)+∑d=1DR(k,d)\text{gain}_{\text{total}}(k, t) = \text{gain}(k, t) + \sum_{d=1}^{D} R(k, d)gaintotal​(k,t)=gain(k,t)+d=1∑D​R(k,d)
+Recursive gain is path-dependent and accumulates over passes.
+________________
+
+
+9. Compression Dynamics
+Let T(t)T(t)T(t) be the number of top-level spans at time ttt. Then:
+                  * Number of compressible windows:
+
+S(k,t)=T(t)−k+1S(k, t) = T(t) - k + 1S(k,t)=T(t)−k+1
+                     * Expected matches per unit time:
+
+E(k,t)=Heff⋅S(k,t)⋅P(k)E(k, t) = H_{\text{eff}} \cdot S(k, t) \cdot P(k)E(k,t)=Heff​⋅S(k,t)⋅P(k)
+                        * Compression rate:
+
+compression_rate(t)=∑k=24E(k,t)⋅gaintotal(k,t)\text{compression\_rate}(t) = \sum_{k=2}^{4} E(k, t) \cdot \text{gain}_{\text{total}}(k, t)compression_rate(t)=k=2∑4​E(k,t)⋅gaintotal​(k,t)
+                           * Region shrink rate:
+
+dTdt=−∑k=24E(k,t)⋅(k−1)\frac{dT}{dt} = -\sum_{k=2}^{4} E(k, t) \cdot (k - 1)dtdT​=−k=2∑4​E(k,t)⋅(k−1)
+________________
+10. Optional Constraints
+10.1 Header Decoding Feasibility
+Ensure seed digest is long enough to hold the claimed header content:
+feasible(k,t)=s(k,t)≥k⋅h(t)\text{feasible}(k, t) = s(k, t) \geq k \cdot h(t)feasible(k,t)=s(k,t)≥k⋅h(t)
+If infeasible, the match is discarded.
+10.2 Bloom and Gloss Simulation
+These may be tuned dynamically. For example:
+                              * γb=0.9\gamma_b = 0.9γb​=0.9: high rejection rate
+
+                              * γg=0.2\gamma_g = 0.2γg​=0.2: gloss reuse
+
+                              * γr=0.1\gamma_r = 0.1γr​=0.1: recursive reuse
+
+Adjust HeffH_{\text{eff}}Heff​ and recompute gains accordingly.
+________________
+
+
+11. Summary of Expressions
+Key quantities to track:
+                                 * Match probability: P(k)P(k)P(k)
+
+                                 * Expected matches: E(k,t)E(k, t)E(k,t)
+
+                                 * Header size: H(k,s)H(k, s)H(k,s)
+
+                                 * Gain per match: gain(k,t)\text{gain}(k, t)gain(k,t)
+
+                                 * Recursive gain: R(k,d)R(k, d)R(k,d)
+
+                                 * Compression rate: compression_rate(t)\text{compression\_rate}(t)compression_rate(t)
+
+                                 * Gloss size change: dT/dtdT/dtdT/dt
+
+                                 * Pruning probability: P(F∣E)P(F \mid E)P(F∣E)
+
+________________
+
+
+12. Conclusion
+This updated framework reflects the modern Telomere architecture, where:
+                                    * Compression uses toggle-encoded recursive structures
+
+                                    * No explicit fallback or fixed modes exist
+
+                                    * Recursive reuse and gloss convergence enable emergent structure
+
+                                    * Superposition seeds allow delayed optimization
+
+                                    * Bayesian pruning ensures compression remains computationally bounded and directionally improving
+
+This model may be used to derive performance predictions, simulate real-world gloss growth, or inform optimizations like early pruning and selective gloss caching.

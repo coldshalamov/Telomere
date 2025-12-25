@@ -1,0 +1,104 @@
+﻿The Lotus Codec: A High-Density Self-Delimiting Integer Code
+Abstract
+Self-delimiting integer codes are essential for data compression, serialization, and streaming protocols, but established schemes such as Elias Gamma/Delta/Omega and VQL lose density due to sentinel bits or byte alignment. We introduce the Lotus Codec, a five-field, prefix-free scheme that reclaims density by treating length as information instead of mere metadata. Lotus achieves near-binary efficiency at large scales while preserving strict self-delimiting structure and constant-time parsing.
+________________
+
+
+1. Introduction
+Universal self-delimiting codes let sequences of integers be parsed without external framing. The Elias family is elegant but incurs density loss through unary prefixes. VQL provides fixed-byte framing but wastes space with a minimum of 8 bits per codeword. The Lotus Codec is designed to overcome these inefficiencies by reclaiming length-based redundancy: bitstrings of the same binary value but different lengths (e.g., "0", "00", "000") represent distinct integers. This allows Lotus to asymptotically approach binary fixed-length density while remaining prefix-free.
+________________
+
+
+2. Codec Structure
+The Lotus encoding consists of five fields:
+1. Field 1 (1 bit): Arity-length prefix
+
+   * 0 → 1-bit arity field
+
+   * 1 → 2-bit arity field
+
+      2. Field 2 (1–2 bits): Arity
+
+         * 00 → arity = 1
+
+         * 01 → arity = 2
+
+         * 100 → arity = 3
+
+         * 101 → arity = 4
+
+         * 110 → arity = 5
+
+         * 111 → literal passthrough (no further fields; emit raw block)
+
+            3. Field 3 (3 bits): Jumpstarter
+
+               * Encodes the length of Field 4 as len(Field4) – 1.
+
+                  4. Field 4 (variable): Lotus-encoded length of Field 5.
+
+                  5. Field 5 (variable): Lotus payload, encoding value+1.
+
+Literal blocks terminate after Field 2, enabling immediate passthrough of raw data.
+________________
+
+
+3. The Lotus Primitive
+Lotus encodes integers using a recursive rule: at length L, there are 2^L available codewords. Each distinct bitstring is used, including those with redundant leading zeros. This means "0", "00", and "000" are not aliases but successive encodings.
+Examples for arity = 1:
+0000000 → 0
+0000001 → 1
+00000100 → 2
+00000101 → 3
+00000110 → 4
+00000111 → 5
+0000100000 → 6
+0000100001 → 7
+...
+This property — using length itself as a parameter — is what allows Lotus to reclaim density lost in conventional self-delimiting codes.
+________________
+
+
+4. Decoding
+Decoding is straightforward:
+                     * Field 1 determines Field 2 length.
+
+                     * Field 2 yields arity or literal stop.
+
+                     * If literal: emit raw block.
+
+                     * Else: Field 3 gives Field 4 length.
+
+                     * Field 4 encodes the payload length.
+
+                     * Field 5 encodes the payload value.
+
+The process terminates exactly at the end of the payload, with no continuation markers.
+
+________________
+
+
+5. Improvements Over Prior Codes
+                        * Elias Gamma/Delta/Omega: These treat length only as metadata, losing density to unary prefixes. Lotus uses length as data, achieving far higher density: e.g., at 2^{150}, Elias Delta requires ~162 bits while Lotus requires only 160 bits vs. 151 for raw binary (≈95% binary density).
+
+                        * VQL: Byte-aligned with an 8-bit minimum. Lotus starts at 5 bits and remains strictly shorter at all scales, beating VQL consistently.
+
+                        * Binary: Fixed-length binary is optimal but not self-delimiting. Lotus remains prefix-free while converging asymptotically to binary efficiency.
+
+________________
+
+
+6. Applications
+                           * Compression: As a building block in universal codes with minimal overhead.
+
+                           * Databases/Storage: Compact, self-describing record identifiers.
+
+                           * Networking: Efficient streaming protocols without byte-alignment waste.
+
+                           * Encoding Literals: Literal passthrough mode ensures clean intermixing of encoded integers and raw data blocks.
+
+________________
+
+
+7. Conclusion
+The Lotus Codec demonstrates that self-delimiting codes need not sacrifice density. By embedding length as a parameter, it achieves near-binary efficiency while retaining strict prefix-freeness and easy decoding. Compared to Elias and VQL, Lotus offers consistent savings, particularly at scale, making it a strong candidate for practical use in compression and protocol design.

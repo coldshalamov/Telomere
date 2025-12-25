@@ -1,0 +1,236 @@
+﻿it has to be self delimiting, there are only 5 fields, field 1 denotes the length of field 2 which is swe (first field 0 means the arity field is 1 bit, 1 means the arity field is 2 bits), meaning that 0 means 1, 1 means 2, 00 means 3, 01 means 4, 0 means 5, and 11 means a literal block and no further headers, because that's the prefix that we use to wrap every literal block when we start the compression
+a decoder has to know exactly when to stop, when the block they've reached is not a seed and only contains the 3 bytes of an actual block, so just emit the 3 bytes and move on to the next block
+
+
+since the 2nd field's length has to be defined by the first bit, it can only be 1 or 2 bits long, so it shifts the value such that 0 1 00 01 10 and 11 all mean different things
+It uses the length as a seperate parameter and reclaims some of the lost density that self delmiting codes lose to continuation sentinels
+
+
+
+
+
+
+0000000 is 0
+0000001 is 1
+00000100 is 2
+00000101 is 3
+00000110 is 4
+00000111 is 5
+0000100000is 6
+0000100001 is 7
+0000100010 is 8
+0000100011 is 9
+0000100100 is 10
+0000100101 is 11
+0000100110 is 12
+0000100111 is 13
+00001010000 is 14
+00001010001 is 15
+00001010010 is 16
+
+
+and so on
+
+
+If there was arity
+the beginning 2/3 bits would be
+01 for arity 2
+100 for arity 3
+101 for 4
+110 for 5
+111 for literal
+
+
+"""Telomere SWE Seed Codec
+
+
+This module encodes and decodes Telomere seeds using the fixed 5‑field,
+self‑delimiting header described in the protocol:
+
+
+Field1 (1 bit)  : arity‑length prefix (0 → 1‑bit arity, 1 → 2‑bit arity)
+Field2 (1‑2 bits): arity bits  (00→1‑block, 01→2‑block, 100→3‑block, 101→4‑block,
+                   110→5‑block, 111→literal passthrough)
+Field3 (3 bits) : jumpstarter = len(Field4) − 1 (binary)
+Field4 (var)    : SWE‑encoded length of payload (Field5)
+Field5 (var)    : SWE payload (encode(value+1))
+
+
+Literal blocks (arity=0) stop after Field2 (header = '111').
+"""
+from __future__ import annotations
+
+
+__all__ = [
+    "encode_swe_literal",
+    "decode_swe_literal",
+    "encode_seed",
+    "decode_seed",
+]
+
+
+# ---------------------------------------------------------------------------
+# SWE literal helpers
+# ---------------------------------------------------------------------------
+
+
+def _encode_int(x: int) -> str:
+    """Encode non‑negative integer *x* using the Telomere prefix‑free counter.
+
+
+    Length sequence: 2 codes of length 1, 4 of length 2, 8 of length 3, …
+    """
+    level = 1  # current code length in bits
+    total = 0  # number of codes covered so far
+    while True:
+        count = 1 << level  # 2**level codes of this length
+        if x < total + count:
+            offset = x - total
+            return format(offset, f"0{level}b")
+        total += count
+        level += 1
+
+
+
+
+def encode_swe_literal(n: int) -> str:
+    """Encode positive integer *n* (≥1) as a SWE literal bitstring."""
+    if n < 1:
+        raise ValueError("SWE literals are 1‑based (n ≥ 1)")
+    return _encode_int(n - 1)
+
+
+
+
+def decode_swe_literal(bits: str) -> int:
+    """Decode a SWE literal bitstring back to the original integer."""
+    L = len(bits)
+    base = (1 << L) - 2  # total codes of shorter length
+    return base + int(bits, 2) + 1
+
+
+# ---------------------------------------------------------------------------
+# Seed header helpers
+# ---------------------------------------------------------------------------
+
+
+_ARITY_TO_HEADER = {
+    1: "00",
+    2: "01",
+    3: "100",
+    4: "101",
+    5: "110",
+    0: "111",  # literal passthrough
+}
+
+
+_HEADER_TO_ARITY = {v: k for k, v in _ARITY_TO_HEADER.items()}
+
+
+
+
+def encode_seed(value: int, arity: int = 1) -> str:
+    """Encode *value* as a Telomere seed.
+
+
+    Parameters
+    ----------
+    value : int
+        The numeric seed value to encode (≥0).
+    arity : int, optional
+        Block arity (1‑5) or 0 for literal passthrough. Default is 1.
+    """
+    header = _ARITY_TO_HEADER.get(arity)
+    if header is None:
+        raise ValueError(f"Unsupported arity: {arity}")
+
+
+    # Literal blocks stop after header.
+    if header == "111":
+        return header
+
+
+    # Field5: payload = SWE(value + 1)
+    payload = encode_swe_literal(value + 1)
+
+
+    # Field4: SWE‑encoded length of payload
+    length_hdr = encode_swe_literal(len(payload))
+
+
+    # Field3: 3‑bit jumpstarter = len(Field4) − 1
+    jumpstarter = format(len(length_hdr) - 1, "03b")
+
+
+    return header + jumpstarter + length_hdr + payload
+
+
+
+
+def decode_seed(bits: str) -> int | None:
+    """Decode a Telomere seed bitstring.
+
+
+    Returns the integer value, or ``None`` for literal blocks.
+    """
+    if not bits:
+        raise ValueError("Empty bitstring")
+
+
+    # Field1+2: determine header length (2 or 3 bits)
+    header = bits[:2] if bits[:2] in ("00", "01") else bits[:3]
+    arity = _HEADER_TO_ARITY.get(header)
+    if arity is None:
+        raise ValueError(f"Invalid arity header: {header}")
+
+
+    # Literal block
+    if arity == 0:
+        return None
+
+
+    pos = len(header)
+
+
+    # Field3: jumpstarter → length of Field4
+    jump_val = int(bits[pos : pos + 3], 2) + 1
+    pos += 3
+
+
+    # Field4: SWE‑encoded length of payload
+    len_hdr_bits = bits[pos : pos + jump_val]
+    payload_len = decode_swe_literal(len_hdr_bits)
+    pos += jump_val
+
+
+    # Field5: payload
+    payload_bits = bits[pos : pos + payload_len]
+    if len(payload_bits) != payload_len:
+        raise ValueError("Bitstring ends before payload completes")
+
+
+    return decode_swe_literal(payload_bits) - 1
+
+
+# ---------------------------------------------------------------------------
+# Quick self‑test
+# ---------------------------------------------------------------------------
+if __name__ == "__main__":
+    # Table from user: values 0‑16, arity=1
+    table = [
+        "0000000", "0000001", "00000100", "00000101", "00000110", "00000111",
+        "0000100000", "0000100001", "0000100010", "0000100011", "0000100100",
+        "0000100101", "0000100110", "0000100111", "00001010000", "00001010001",
+        "00001010010",
+    ]
+    for i, exp in enumerate(table):
+        assert encode_seed(i, 1) == exp, f"Mismatch {i}: {encode_seed(i,1)} vs {exp}"
+        assert decode_seed(exp) == i
+
+
+    # Show encodings 1‑20
+    for i in range(1, 21):
+        print(f"{i:2d} → {encode_seed(i,1)}")
+
+
+    print("\nSelf‑test passed.")
