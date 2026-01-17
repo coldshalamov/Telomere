@@ -50,6 +50,7 @@ fn run() -> Result<(), CliError> {
                 hash_bits: args.hash_bits,
                 use_xxhash: false,
                 seed_expansions: std::collections::HashMap::new(),
+                enable_superposition: args.superposition,
             };
             let data = fs::read(&input_path)
                 .map_err(|e| io_cli_error("opening input file", &input_path, e))?;
@@ -129,6 +130,7 @@ fn run() -> Result<(), CliError> {
                 hash_bits: args.hash_bits,
                 use_xxhash: false,
                 seed_expansions: std::collections::HashMap::new(),
+                enable_superposition: args.superposition,
             };
             if input_path
                 .extension()
@@ -237,4 +239,7 @@ struct ActionArgs {
     /// Overwrite the output file if it already exists
     #[arg(long)]
     force: bool,
+    /// Enable superposition (keeping multiple candidates per block)
+    #[arg(long)]
+    superposition: bool,
 }

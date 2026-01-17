@@ -19,6 +19,8 @@ pub struct Config {
     pub use_xxhash: bool,
     /// Pre-expanded seed bitstreams indexed by seed index.
     pub seed_expansions: HashMap<usize, Vec<u8>>,
+    /// Whether to enable superposition (keeping multiple candidates per block).
+    pub enable_superposition: bool,
 }
 
 impl Default for Config {
@@ -30,6 +32,7 @@ impl Default for Config {
             hash_bits: 0,
             use_xxhash: false,
             seed_expansions: HashMap::new(),
+            enable_superposition: false,
         }
     }
 }

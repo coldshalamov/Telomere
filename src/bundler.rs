@@ -12,7 +12,7 @@ use crate::types::Candidate;
 
 /// Return the number of original blocks represented by a candidate.
 fn blocks_for(c: &Candidate) -> usize {
-    if c.arity >= 3 { (c.arity - 1) as usize } else { 1 }
+    c.arity as usize
 }
 
 /// Greedily merge adjacent spans when a strictly shorter bundle exists.
@@ -101,13 +101,13 @@ mod tests {
         ];
         // candidate covering first two blocks
         let mut cand_map = HashMap::new();
-        cand_map.insert((0, 2), Candidate { seed_index: 10, arity: 3, bit_len: 30 });
+        cand_map.insert((0, 2), Candidate { seed_index: 10, arity: 2, bit_len: 30 });
 
         let out = bundle_one_layer(&spans, &cand_map);
         assert_eq!(out.len(), 2);
         assert_eq!(out[0].0, 0);
         assert_eq!(out[0].1.seed_index, 10);
-        assert_eq!(out[0].1.arity, 3);
+        assert_eq!(out[0].1.arity, 2);
         assert_eq!(out[1].0, 2);
     }
 
@@ -119,7 +119,7 @@ mod tests {
             (2, Candidate { seed_index: 2, arity: 1, bit_len: 16 }),
         ];
         let mut cand_map = HashMap::new();
-        cand_map.insert((0, 2), Candidate { seed_index: 10, arity: 3, bit_len: 30 });
+        cand_map.insert((0, 2), Candidate { seed_index: 10, arity: 2, bit_len: 30 });
 
         let once = bundle_one_layer(&spans, &cand_map);
         let twice = bundle_one_layer(&once, &cand_map);
@@ -134,7 +134,7 @@ mod tests {
         ];
         // candidate requires three blocks but only two remain from index 1
         let mut cand_map = HashMap::new();
-        cand_map.insert((1, 3), Candidate { seed_index: 10, arity: 4, bit_len: 40 });
+        cand_map.insert((1, 3), Candidate { seed_index: 10, arity: 3, bit_len: 40 });
 
         let out = bundle_one_layer(&spans, &cand_map);
         assert_eq!(out, spans);
@@ -149,7 +149,7 @@ mod tests {
             }
             let mut cand_map = HashMap::new();
             if blocks >= 2 {
-                cand_map.insert((0, 2), Candidate { seed_index: 99, arity: 3, bit_len: 30 });
+                cand_map.insert((0, 2), Candidate { seed_index: 99, arity: 2, bit_len: 30 });
             }
             let once = bundle_one_layer(&spans, &cand_map);
             let twice = bundle_one_layer(&once, &cand_map);

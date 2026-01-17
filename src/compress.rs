@@ -6,6 +6,8 @@ use crate::seed::find_seed_match;
 use crate::superposition::SuperpositionManager;
 use crate::tlmr::{encode_tlmr_header, truncated_hash, TlmrHeader};
 use crate::TelomereError;
+use crate::bundler::bundle_one_layer;
+use std::collections::HashMap;
 use indicatif::{ProgressBar, ProgressStyle};
 
 /// Dummy in-memory table placeholder.
@@ -193,13 +195,64 @@ pub fn compress_multi_pass_with_config(
             }
         }
 
-        mgr.prune_end_of_pass();
+        if config.enable_superposition {
+            // No pruning before bundling to maximize options
+        } else {
+             mgr.prune_end_of_pass();
+        }
 
         if let Some(pb) = &maybe_pb {
             pb.finish_and_clear();
         }
 
-        // Build the next compressed stream from the pruned candidates.
+        // --- Bundling Phase ---
+        // 1. Construct base spans (best Arity=1 candidate for each block)
+        let mut base_spans = Vec::with_capacity(blocks.len());
+        let all_cands = mgr.all_superposed();
+        // Sort by block index to ensure we process in order
+        let mut all_cands_sorted = all_cands;
+        all_cands_sorted.sort_by_key(|(idx, _)| *idx);
+        
+        // We need a map for quick lookup if all_cands is sparse (though it shouldn't be for blocks)
+        // But all_cands is a Vec<(usize, ...)> so we can just iterate or map.
+        // Since we need to fill base_spans for 0..blocks.len(), let's use a HashMap for lookup.
+        let mut block_cand_map: HashMap<usize, Vec<crate::types::Candidate>> = HashMap::new();
+        for (idx, list) in all_cands_sorted {
+            let cands = list.into_iter().map(|(_, c)| c).collect();
+            block_cand_map.insert(idx, cands);
+        }
+
+        for i in 0..blocks.len() {
+            let cands = block_cand_map.get(&i).ok_or_else(|| {
+                TelomereError::Superposition(format!("no candidate at block {i}"))
+            })?;
+            
+            // Find best Arity=1
+            let best_arity_1 = cands.iter()
+                .filter(|c| c.arity == 1)
+                .min_by_key(|c| (c.bit_len, c.seed_index))
+                .ok_or_else(|| TelomereError::Superposition(format!("no arity 1 candidate at block {i}")))?;
+                
+            base_spans.push((i, best_arity_1.clone()));
+        }
+
+        // 2. Construct bundle candidates (Arity > 1)
+        let mut bundle_cands = HashMap::new();
+        for (i, cands) in &block_cand_map {
+            for c in cands {
+                if c.arity > 1 {
+                    // Key for bundler is (start_block, num_blocks)
+                    // num_blocks is c.arity
+                    bundle_cands.insert((*i, c.arity as usize), c.clone());
+                }
+            }
+        }
+
+        // 3. Run Bundler
+        let final_spans = bundle_one_layer(&base_spans, &bundle_cands);
+
+
+        // Build the next compressed stream from the bundled candidates.
         let last_block = if current.is_empty() {
             block_size
         } else {
@@ -213,22 +266,23 @@ pub fn compress_multi_pass_with_config(
         });
         let mut next = header.to_vec();
 
-        let mut i = 0usize;
-        while i < blocks.len() {
-            let cand = mgr.best_superposed(i).ok_or_else(|| {
-                TelomereError::Superposition(format!("no candidate at block {i}"))
-            })?;
-            if cand.seed_index == usize::MAX as u64 {
-                println!("Block {}: LITERAL (no compression)", i);
+        for (_idx, cand) in final_spans {
+             if cand.seed_index == usize::MAX as u64 {
+                //println!("Block {}: LITERAL (no compression)", _idx);
                 // literal
                 next.extend_from_slice(&encode_header(&Header::Literal)?);
-                next.extend_from_slice(blocks[i]);
-                i += 1;
+                // We need to retrieve the original data for this block.
+                // _idx is the block index.
+                if _idx < blocks.len() {
+                    next.extend_from_slice(blocks[_idx]);
+                } else {
+                     return Err(TelomereError::Internal("literal index out of bounds".into()));
+                }
             } else {
-                println!(
-                    "Block {}: COMPRESSED by seed {} (arity {})",
-                    i, cand.seed_index, cand.arity
-                );
+                //println!(
+                //    "Block {}: COMPRESSED by seed {} (arity {})",
+                //    _idx, cand.seed_index, cand.arity
+                //);
                 let arity = cand.arity as usize;
                 // Reconstruct seed bits from index
                 let seed_bytes = crate::index_to_seed(cand.seed_index as usize, config.max_seed_len)?;
@@ -240,7 +294,6 @@ pub fn compress_multi_pass_with_config(
                 }
                 let bits = encode_lotus_header(arity, &seed_bits, seed_bits.len())?;
                 next.extend(pack_bits(&bits));
-                i += arity;
                 // bytes themselves are reconstructed from seed, so nothing appended
             }
         }
