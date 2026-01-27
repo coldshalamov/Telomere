@@ -1,6 +1,5 @@
 //! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 use clap::Parser;
-use sha2::{Digest, Sha256};
 use std::{
     collections::HashSet,
     fs::OpenOptions,
@@ -8,6 +7,7 @@ use std::{
     path::Path,
 };
 use telomere::io_utils::io_cli_error;
+use telomere::hasher::{Blake3Expander, SeedExpander};
 
 #[derive(Parser)]
 struct Args {
@@ -69,9 +69,9 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
 
             let bytes_full = i.to_be_bytes();
             let seed_bytes = &bytes_full[8 - num_bytes..];
-            let mut hasher = Sha256::new();
-            hasher.update(seed_bytes);
-            let result = hasher.finalize();
+            
+            let expander = Blake3Expander;
+            let result = expander.digest(seed_bytes);
             let hash_hex = hex::encode(result);
             writeln!(writer, "{},{},{}", i, bits, hash_hex)
                 .map_err(|e| io_cli_error("writing output file", Path::new(filename), e))?;

@@ -1,6 +1,6 @@
 //! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
-use sha2::{Digest, Sha256};
 use thiserror::Error;
+use crate::hasher::SeedExpander;
 
 /// Representation of the Telomere 3-byte file header.
 ///
@@ -9,7 +9,7 @@ use thiserror::Error;
 /// - bits 0..=2   : protocol version
 /// - bits 3..=6   : block size code (stored value + 1 = actual block size)
 /// - bits 7..=10  : last block size code (stored value + 1 = bytes in final block)
-/// - bits 11..=23 : lowest 13 bits of the SHA-256 of the decompressed output
+/// - bits 11..=23 : lowest 13 bits of the SHA-256 (or selected hasher) of the decompressed output
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TlmrHeader {
     pub version: u8,
@@ -92,10 +92,10 @@ pub fn decode_tlmr_header(data: &[u8]) -> Result<TlmrHeader, TlmrError> {
     })
 }
 
-/// Compute the 13-bit truncated SHA-256 of the provided bytes.
-pub fn truncated_hash(data: &[u8]) -> u16 {
-    let digest = Sha256::digest(data);
-    let arr: [u8; 32] = digest.into();
+/// Compute the 13-bit truncated digest of the provided bytes using the given expander.
+pub fn truncated_hash(data: &[u8], expander: &dyn SeedExpander) -> u16 {
+    let digest = expander.digest(data);
+    let arr: [u8; 32] = digest;
     let low = ((arr[30] as u16) << 8) | arr[31] as u16;
     low & 0x1FFF
 }

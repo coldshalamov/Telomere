@@ -1,10 +1,13 @@
 //! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
-use telomere::{chunk_blocks, load_chunk, split_into_blocks, GpuSeedMatcher, TileMap};
+use telomere::{chunk_blocks, load_chunk, split_into_blocks, GpuSeedMatcher, TileMap, BlockId, BlockStore};
+use telomere::hasher::Sha256Expander;
 
 #[test]
 fn block_chunk_mapping() {
     let input: Vec<u8> = (0u8..64).collect();
-    let blocks = split_into_blocks(&input, 8); // 1 byte per block
+    let store = split_into_blocks(&input, 8);
+    let blocks: Vec<BlockId> = (0..store.blocks().len()).map(|i| BlockId(i as u32)).collect();
+    
     let chunks = chunk_blocks(&blocks, 10);
     assert_eq!(chunks.len(), 7);
     let map = TileMap::new(blocks.len(), 10);
@@ -19,18 +22,27 @@ fn block_chunk_mapping() {
 #[test]
 fn gpu_seed_match_stub() {
     let input: Vec<u8> = (0u8..16).collect();
-    let blocks = split_into_blocks(&input, 8); // 1 byte blocks
+    let store = split_into_blocks(&input, 8);
+    let blocks: Vec<BlockId> = (0..store.blocks().len()).map(|i| BlockId(i as u32)).collect();
+    
     let mut matcher = GpuSeedMatcher::new();
-    matcher.load_tile(&blocks);
-    let gpu_matches = matcher.seed_match(0, 16).unwrap();
+    matcher.load_tile(&store, &blocks);
+    
+    let expander = Sha256Expander;
+    let gpu_matches = matcher.seed_match(0, 16, &expander).unwrap();
+    
     // brute force on CPU for comparison
     let mut cpu_matches = Vec::new();
     for seed in 0usize..16 {
         let seed_byte = seed as u8;
-        for block in &blocks {
-            let expanded = expand_seed(&[seed_byte], block.data.len());
-            if expanded == block.data {
-                cpu_matches.push((seed, block.global_index));
+        for i in 0..store.blocks().len() {
+             let id = BlockId(i as u32);
+             let block_data = store.get_data(id);
+             let b_ref = store.get_block(id);
+             
+            let expanded = expand_seed(&[seed_byte], block_data.len());
+            if expanded == block_data {
+                cpu_matches.push((seed, b_ref.global_index as usize));
             }
         }
     }

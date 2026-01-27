@@ -3,6 +3,7 @@ use telomere::{
     compress, decode_tlmr_header, decompress_with_limit, encode_header, encode_tlmr_header,
     truncated_hash, Header, TlmrHeader, Config,
 };
+use telomere::hasher::Sha256Expander;
 
 fn cfg(bs: usize) -> Config {
     Config { block_size: bs, hash_bits: 13, ..Config::default() }
@@ -33,11 +34,13 @@ fn build_data(bytes: &[u8], bs: usize) -> Vec<u8> {
     } else {
         (bytes.len() - 1) % bs + 1
     };
+    
+    let expander = Sha256Expander;
     let hdr = encode_tlmr_header(&TlmrHeader {
         version: 0,
         block_size: bs,
         last_block_size: last,
-        output_hash: truncated_hash(bytes),
+        output_hash: truncated_hash(bytes, &expander),
     });
     let mut out = hdr.to_vec();
     let mut offset = 0usize;

@@ -30,11 +30,13 @@ pub fn compress_with_config(data: &[u8], config: &Config) -> Result<Vec<u8>, Tel
     } else {
         (data.len() - 1) % block_size + 1
     };
+    let expander = config.get_expander();
+
     let header = encode_tlmr_header(&TlmrHeader {
         version: 0,
         block_size,
         last_block_size: last_block,
-        output_hash: truncated_hash(data),
+        output_hash: truncated_hash(data, expander.as_ref()),
     });
     let mut out = header.to_vec();
     let mut offset = 0usize;
@@ -49,7 +51,7 @@ pub fn compress_with_config(data: &[u8], config: &Config) -> Result<Vec<u8>, Tel
             }
             let span_len = arity * block_size;
             let slice = &data[offset..offset + span_len];
-            if let Some(seed_idx) = find_seed_match(slice, config.max_seed_len, config.use_xxhash)?
+            if let Some(seed_idx) = find_seed_match(slice, config.max_seed_len, expander.as_ref())?
             {
                 // Convert seed index to bits
                 let seed_bytes = crate::index_to_seed(seed_idx, config.max_seed_len)?;
@@ -104,8 +106,30 @@ pub fn compress_multi_pass_with_config(
 
     const MAX_ARITY: usize = 6;
     let block_size = config.block_size;
+    
+    // Get expander once (assuming it doesn't change per pass)
+    let expander = config.get_expander();
+
+    // Memory monitoring
+    use sysinfo::{System, SystemExt};
+    let mut sys = if config.memory_limit != usize::MAX {
+        Some(System::new())
+    } else {
+        None
+    };
 
     while passes < max_passes {
+        if let Some(s) = &mut sys {
+            s.refresh_memory();
+            let used = s.used_memory() * 1024;
+            if used > config.memory_limit as u64 {
+                return Err(TelomereError::Internal(format!(
+                    "Memory limit exceeded: {} > {}",
+                    used, config.memory_limit
+                )));
+            }
+        }
+
         passes += 1;
 
         // Split the current stream into fixed sized blocks.
@@ -161,7 +185,7 @@ pub fn compress_multi_pass_with_config(
                 }
                 let span = &current[span_start..span_end];
                 if let Some(seed_idx) =
-                    find_seed_match(span, config.max_seed_len, config.use_xxhash)?
+                    find_seed_match(span, config.max_seed_len, expander.as_ref())?
                 {
                     // Convert seed index to bits
                     let seed_bytes = crate::index_to_seed(seed_idx, config.max_seed_len)?;
@@ -213,9 +237,6 @@ pub fn compress_multi_pass_with_config(
         let mut all_cands_sorted = all_cands;
         all_cands_sorted.sort_by_key(|(idx, _)| *idx);
         
-        // We need a map for quick lookup if all_cands is sparse (though it shouldn't be for blocks)
-        // But all_cands is a Vec<(usize, ...)> so we can just iterate or map.
-        // Since we need to fill base_spans for 0..blocks.len(), let's use a HashMap for lookup.
         let mut block_cand_map: HashMap<usize, Vec<crate::types::Candidate>> = HashMap::new();
         for (idx, list) in all_cands_sorted {
             let cands = list.into_iter().map(|(_, c)| c).collect();
@@ -241,8 +262,6 @@ pub fn compress_multi_pass_with_config(
         for (i, cands) in &block_cand_map {
             for c in cands {
                 if c.arity > 1 {
-                    // Key for bundler is (start_block, num_blocks)
-                    // num_blocks is c.arity
                     bundle_cands.insert((*i, c.arity as usize), c.clone());
                 }
             }
@@ -262,13 +281,12 @@ pub fn compress_multi_pass_with_config(
             version: 0,
             block_size,
             last_block_size: last_block,
-            output_hash: truncated_hash(&current),
+            output_hash: truncated_hash(&current, expander.as_ref()),
         });
         let mut next = header.to_vec();
 
         for (_idx, cand) in final_spans {
              if cand.seed_index == usize::MAX as u64 {
-                //println!("Block {}: LITERAL (no compression)", _idx);
                 // literal
                 next.extend_from_slice(&encode_header(&Header::Literal)?);
                 // We need to retrieve the original data for this block.
@@ -279,10 +297,6 @@ pub fn compress_multi_pass_with_config(
                      return Err(TelomereError::Internal("literal index out of bounds".into()));
                 }
             } else {
-                //println!(
-                //    "Block {}: COMPRESSED by seed {} (arity {})",
-                //    _idx, cand.seed_index, cand.arity
-                //);
                 let arity = cand.arity as usize;
                 // Reconstruct seed bits from index
                 let seed_bytes = crate::index_to_seed(cand.seed_index as usize, config.max_seed_len)?;
@@ -294,7 +308,6 @@ pub fn compress_multi_pass_with_config(
                 }
                 let bits = encode_lotus_header(arity, &seed_bits, seed_bits.len())?;
                 next.extend(pack_bits(&bits));
-                // bytes themselves are reconstructed from seed, so nothing appended
             }
         }
 
@@ -323,9 +336,11 @@ pub fn compress_block_with_config(
     if let Some(s) = stats.as_deref_mut() {
         s.tick_block();
     }
+    
+    let expander = config.get_expander();
 
     let slice = &input[..block_size];
-    if let Some(seed_idx) = find_seed_match(slice, config.max_seed_len, config.use_xxhash)? {
+    if let Some(seed_idx) = find_seed_match(slice, config.max_seed_len, expander.as_ref())? {
         let seed_bytes = crate::index_to_seed(seed_idx, config.max_seed_len)?;
         let mut seed_bits = Vec::with_capacity(seed_bytes.len() * 8);
         for byte in seed_bytes {

@@ -1,5 +1,4 @@
-//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
-use crate::block::Block;
+use crate::block::BlockId;
 use crate::TelomereError;
 
 /// A contiguous chunk of the global block table.
@@ -8,7 +7,7 @@ use crate::TelomereError;
 #[derive(Debug, Clone)]
 pub struct BlockChunk {
     pub start_index: usize,
-    pub blocks: Vec<Block>,
+    pub blocks: Vec<BlockId>,
 }
 
 /// Map global block indices to tiled chunks.
@@ -48,7 +47,7 @@ impl TileMap {
 }
 
 /// Split a flat block list into tiled chunks.
-pub fn chunk_blocks(blocks: &[Block], chunk_size: usize) -> Vec<BlockChunk> {
+pub fn chunk_blocks(blocks: &[BlockId], chunk_size: usize) -> Vec<BlockChunk> {
     let mut chunks = Vec::new();
     let mut idx = 0usize;
     while idx < blocks.len() {

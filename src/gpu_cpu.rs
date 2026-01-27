@@ -1,11 +1,17 @@
-use crate::block::Block;
+use crate::block::{BlockId, BlockStore};
 use crate::{GpuMatchRecord, TelomereError};
-use sha2::{Digest, Sha256};
+use crate::hasher::SeedExpander;
+
+struct SimulatedBlock {
+    data: Vec<u8>,
+    global_index: usize,
+    bit_length: usize,
+}
 
 /// Simple CPU-based simulation of the GPU seed matcher.
 #[derive(Default)]
 pub struct GpuSeedMatcher {
-    tile: Vec<Block>,
+    tile: Vec<SimulatedBlock>,
 }
 
 impl GpuSeedMatcher {
@@ -15,8 +21,16 @@ impl GpuSeedMatcher {
     }
 
     /// Load a block tile into the simulated GPU memory.
-    pub fn load_tile(&mut self, blocks: &[Block]) {
-        self.tile = blocks.to_vec();
+    pub fn load_tile(&mut self, store: &BlockStore, blocks: &[BlockId]) {
+        self.tile = blocks.iter().map(|&id| {
+            let b_ref = store.get_block(id);
+            let data = store.get_data(id).to_vec();
+            SimulatedBlock {
+                data,
+                global_index: b_ref.global_index as usize,
+                bit_length: b_ref.bit_len as usize,
+            }
+        }).collect();
     }
 
     /// Hash seeds on the fly and return match records.
@@ -24,13 +38,15 @@ impl GpuSeedMatcher {
         &self,
         start_seed: usize,
         end_seed: usize,
+        expander: &dyn SeedExpander,
     ) -> Result<Vec<GpuMatchRecord>, TelomereError> {
         let mut out = Vec::new();
         for seed in start_seed..end_seed {
             let seed_byte = seed as u8;
             for block in &self.tile {
-                let expanded = expand_seed(&[seed_byte], block.data.len());
-                if expanded == block.data {
+                // Use expander to check for match.
+                // Assuming seed is just 1 byte as per original logic.
+                if expander.prefix_matches(&[seed_byte], &block.data, block.bit_length) {
                     out.push(GpuMatchRecord {
                         seed_index: seed,
                         bundle_length: 1,
@@ -42,16 +58,4 @@ impl GpuSeedMatcher {
         }
         Ok(out)
     }
-}
-
-fn expand_seed(seed: &[u8], len: usize) -> Vec<u8> {
-    let mut out = Vec::with_capacity(len);
-    let mut cur = seed.to_vec();
-    while out.len() < len {
-        let digest: [u8; 32] = Sha256::digest(&cur).into();
-        out.extend_from_slice(&digest);
-        cur = digest.to_vec();
-    }
-    out.truncate(len);
-    out
 }

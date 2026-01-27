@@ -3,6 +3,7 @@ use telomere::{
     compress, decompress_with_limit, encode_header, encode_tlmr_header, truncated_hash, Header,
     TlmrHeader, Config,
 };
+use telomere::hasher::Sha256Expander;
 
 fn cfg(block: usize) -> Config {
     Config { block_size: block, hash_bits: 13, ..Config::default() }
@@ -30,11 +31,12 @@ fn passthrough_decompresses() {
     let block_size = 3;
     let header = encode_header(&Header::Literal).unwrap();
     let literal = vec![0x11; block_size];
+    let expander = Sha256Expander;
     let tlmr = encode_tlmr_header(&TlmrHeader {
         version: 0,
         block_size,
         last_block_size: block_size,
-        output_hash: truncated_hash(&literal),
+        output_hash: truncated_hash(&literal, &expander),
     });
     let mut data = tlmr.to_vec();
     data.extend_from_slice(&header);
@@ -48,11 +50,12 @@ fn passthrough_respects_limit() {
     let block_size = 3;
     let header = encode_header(&Header::Literal).unwrap();
     let literal = vec![0x22; block_size];
+    let expander = Sha256Expander;
     let tlmr = encode_tlmr_header(&TlmrHeader {
         version: 0,
         block_size,
         last_block_size: block_size,
-        output_hash: truncated_hash(&literal),
+        output_hash: truncated_hash(&literal, &expander),
     });
     let mut data = tlmr.to_vec();
     data.extend_from_slice(&header);
@@ -65,11 +68,12 @@ fn passthrough_prefix_safe() {
     let block_size = 3;
     let header = encode_header(&Header::Literal).unwrap();
     let literal = vec![0x33; 3 * block_size - 1];
+    let expander = Sha256Expander;
     let tlmr = encode_tlmr_header(&TlmrHeader {
         version: 0,
         block_size,
         last_block_size: (literal.len() % block_size).max(1),
-        output_hash: truncated_hash(&literal),
+        output_hash: truncated_hash(&literal, &expander),
     });
     let mut data = tlmr.to_vec();
     data.extend_from_slice(&header);
@@ -81,11 +85,12 @@ fn passthrough_prefix_safe() {
 fn passthrough_literals_basic() {
     let block_size = 3;
     let literals: Vec<u8> = (0u8..(block_size as u8 * 2)).collect();
+    let expander = Sha256Expander;
     let tlmr = encode_tlmr_header(&TlmrHeader {
         version: 0,
         block_size,
         last_block_size: block_size,
-        output_hash: truncated_hash(&literals),
+        output_hash: truncated_hash(&literals, &expander),
     });
     let mut data = tlmr.to_vec();
     data.extend_from_slice(&encode_header(&Header::Literal).unwrap());
@@ -100,11 +105,12 @@ fn passthrough_literals_basic() {
 fn passthrough_final_tail() {
     let block_size = 3;
     let literals: Vec<u8> = (0u8..5).collect();
+    let expander = Sha256Expander;
     let tlmr = encode_tlmr_header(&TlmrHeader {
         version: 0,
         block_size,
         last_block_size: literals.len(),
-        output_hash: truncated_hash(&literals),
+        output_hash: truncated_hash(&literals, &expander),
     });
     let mut data = tlmr.to_vec();
     data.extend_from_slice(&encode_header(&Header::Literal).unwrap());
@@ -119,11 +125,12 @@ fn missing_seed_index_fails() {
     // Emit an arity header without the required EVQL seed index
     let header = encode_header(&Header::Arity(3)).unwrap();
     let literal = vec![0u8; block_size];
+    let expander = Sha256Expander;
     let tlmr = encode_tlmr_header(&TlmrHeader {
         version: 0,
         block_size,
         last_block_size: block_size,
-        output_hash: truncated_hash(&literal),
+        output_hash: truncated_hash(&literal, &expander),
     });
     let mut data = tlmr.to_vec();
     data.extend_from_slice(&header);

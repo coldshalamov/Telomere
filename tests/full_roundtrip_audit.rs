@@ -1,8 +1,16 @@
 //! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 use telomere::{
-    compress, compress_multi_pass, decode_header, decode_tlmr_header, decompress, expand_seed,
+    compress, compress_multi_pass, decode_header, decode_tlmr_header, decompress,
     Config, Header,
 };
+use telomere::hasher::{SeedExpander, Sha256Expander};
+
+fn expand_seed(seed: &[u8], len: usize, _use_xxhash: bool) -> Vec<u8> {
+    let mut out = vec![0u8; len];
+    let expander = Sha256Expander;
+    expander.expand_into(seed, &mut out);
+    out
+}
 
 fn cfg(bs: usize) -> Config {
     Config {

@@ -1,245 +1,219 @@
 #![cfg_attr(not(feature = "gpu"), deny(unsafe_code))]
 //! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
-//!
-//! Compression and decompression are exposed as subcommands. This binary
-//! intentionally performs minimal argument handling before delegating to the
-//! library APIs found in this crate.
 
-use clap::{ArgGroup, Args, Parser, Subcommand};
-use std::{error::Error, fs, path::PathBuf, time::Instant};
+use clap::{Parser, Subcommand, ValueEnum};
+use std::{fs, path::PathBuf, time::Instant};
 use telomere::{
-    compress_multi_pass, decode_tlmr_header, decompress_with_limit,
-    io_utils::{extension_error, io_cli_error, simple_cli_error, telomere_cli_error, CliError},
-    truncated_hash, Config,
+    compress_multi_pass_with_config, decode_tlmr_header, decompress_with_limit,
+    truncated_hash, Config, HasherKind,
 };
+use tracing::{info, error, warn};
 
-fn print_cli_error(err: &CliError) {
-    eprintln!("{}", err.msg);
-    let mut src = err.source();
-    while let Some(s) = src {
-        eprintln!("Caused by: {}", s);
-        src = s.source();
+#[derive(Parser)]
+#[command(name = "telomere", author, version, about)]
+struct Cli {
+    #[command(subcommand)]
+    command: Commands,
+}
+
+#[derive(Subcommand)]
+enum Commands {
+    /// Compress a file
+    Compress(CompressArgs),
+    /// Decompress a file
+    Decompress(DecompressArgs),
+}
+
+#[derive(clap::Args)]
+struct CompressArgs {
+    /// Input file path
+    input: PathBuf,
+    /// Output file path
+    output: PathBuf,
+
+    /// Max seed length in bytes (1-40)
+    #[arg(long, default_value_t = 24)]
+    seed_depth: usize,
+
+    /// Max compression passes
+    #[arg(long, default_value_t = 149)]
+    passes: u32,
+
+    /// Save checkpoint every N minutes
+    #[arg(long, default_value_t = 10)]
+    checkpoint_every: u32,
+
+    /// Max RAM usage (e.g. "4GB", "80%")
+    #[arg(long, default_value = "80%")]
+    memory_limit: String,
+
+    /// Hash function
+    #[arg(long, value_enum, default_value_t = ArgHasher::Blake3)]
+    hasher: ArgHasher,
+
+    /// Resume from checkpoint file
+    #[arg(long)]
+    resume: Option<PathBuf>,
+
+    /// Verify output after compression
+    #[arg(long)]
+    verify: bool,
+    
+    /// Block size (legacy/tuning)
+    #[arg(long, default_value_t = 3)]
+    block_size: usize,
+}
+
+#[derive(clap::Args)]
+struct DecompressArgs {
+    /// Input file path
+    input: PathBuf,
+    /// Output file path
+    output: PathBuf,
+
+    /// Overwrite existing output
+    #[arg(long)]
+    force: bool,
+    
+    /// Hash function (override header/default)
+    #[arg(long, value_enum, default_value_t = ArgHasher::Blake3)]
+    hasher: ArgHasher,
+}
+
+#[derive(ValueEnum, Clone, Debug)]
+enum ArgHasher {
+    Blake3,
+    Sha256,
+}
+
+impl From<ArgHasher> for HasherKind {
+    fn from(val: ArgHasher) -> Self {
+        match val {
+            ArgHasher::Blake3 => HasherKind::Blake3,
+            ArgHasher::Sha256 => HasherKind::Sha256,
+        }
     }
 }
 
 fn main() {
+    // Initialize tracing (simple subscriber for now)
+    tracing_subscriber::fmt::init();
+
     if let Err(e) = run() {
-        print_cli_error(&e);
+        error!("Fatal error: {}", e);
         std::process::exit(1);
     }
 }
 
-fn run() -> Result<(), CliError> {
+fn run() -> Result<(), Box<dyn std::error::Error>> {
     let cli = Cli::parse();
+
     match cli.command {
-        Command::Compress(mut args) => {
-            let input_path = args
-                .input
-                .take()
-                .or(args.input_pos)
-                .ok_or_else(|| simple_cli_error("missing input path"))?;
-            let output_path = args
-                .output
-                .take()
-                .or(args.output_pos)
-                .ok_or_else(|| simple_cli_error("missing output path"))?;
+        Commands::Compress(args) => {
+            if args.resume.is_some() {
+                warn!("Resume functionality not yet implemented");
+            }
+
+            let memory_limit_bytes = parse_memory_limit(&args.memory_limit);
+
             let config = Config {
                 block_size: args.block_size,
-                max_seed_len: args.max_seed_len,
-                max_arity: args.max_arity,
-                hash_bits: args.hash_bits,
-                use_xxhash: false,
+                max_seed_len: args.seed_depth,
+                max_arity: 8, 
+                hash_bits: 13,
+                hasher: args.hasher.into(),
                 seed_expansions: std::collections::HashMap::new(),
-                enable_superposition: args.superposition,
+                enable_superposition: false, 
+                memory_limit: memory_limit_bytes,
             };
-            let data = fs::read(&input_path)
-                .map_err(|e| io_cli_error("opening input file", &input_path, e))?;
 
-            let start_time = Instant::now();
-            let (out, gains) =
-                telomere::compress_multi_pass_with_config(&data, &config, args.passes, args.status)
-                    .map_err(|e| telomere_cli_error("compression failed", e))?;
+            let input_data = fs::read(&args.input)?;
+            
+            info!("Compressing {} bytes...", input_data.len());
+            let start = Instant::now();
 
-            if out.is_empty() {
-                return Err(simple_cli_error("compression returned no data"));
+            let (out, gains) = compress_multi_pass_with_config(
+                &input_data, 
+                &config, 
+                args.passes as usize, 
+                true 
+            )?;
+
+            info!("Compressed in {:.2?}", start.elapsed());
+            for (i, gain) in gains.iter().enumerate() {
+                info!("Pass {}: saved {} bytes", i + 2, gain);
             }
 
-            if output_path.exists() && !args.force && !args.dry_run {
-                return Err(simple_cli_error(&format!(
-                    "Error: output file {} already exists (use --force to overwrite)",
-                    output_path.display()
-                )));
-            }
-
-            if !args.dry_run {
-                fs::write(&output_path, &out)
-                    .map_err(|e| io_cli_error("writing output file", &output_path, e))?;
-                eprintln!("✅ Wrote compressed output to {:?}", output_path);
-            } else {
-                eprintln!("(dry run) skipping file write");
-            }
-
-            let raw_len = data.len();
-            let compressed_len = out.len();
-            let percent = 100.0 * (1.0 - (compressed_len as f64 / raw_len as f64));
-            let elapsed = start_time.elapsed();
-
-            if args.json {
-                let cfg = Config {
-                    block_size: args.block_size,
-                    hash_bits: args.hash_bits,
-                    ..Config::default()
-                };
-                let (hash, err) = match decompress_with_limit(&out, &cfg, usize::MAX) {
-                    Ok(bytes) => (truncated_hash(&bytes), None::<String>),
-                    Err(e) => (0, Some(e.to_string())),
-                };
-                let out_json = serde_json::json!({
-                    "raw_bytes": raw_len,
-                    "compressed_bytes": compressed_len,
-                    "compression_ratio": compressed_len as f64 / raw_len as f64,
-                    "round_trip_hash": hash,
-                    "error": err,
-                });
-                match serde_json::to_string_pretty(&out_json) {
-                    Ok(s) => println!("{}", s),
-                    Err(e) => eprintln!("json serialization error: {e}"),
+            if args.verify {
+                info!("Verifying...");
+                let expander = config.get_expander();
+                let hash = truncated_hash(&out, expander.as_ref());
+                
+                let decompressed = decompress_with_limit(&out, &config, usize::MAX)?;
+                if decompressed != input_data {
+                    return Err("Verification failed: data mismatch".into());
                 }
-            } else if args.status {
-                for (idx, gain) in gains.iter().enumerate() {
-                    eprintln!("pass {} gained {} bytes", idx + 2, gain);
-                }
-                eprintln!("Compressed {:.2}% in {:.2?}", percent, elapsed);
+                info!("Verification successful. Hash: {}", hash);
             }
+
+            fs::write(&args.output, &out)?;
+            info!("Wrote {} bytes to {:?}", out.len(), args.output);
         }
-        Command::Decompress(mut args) => {
-            let input_path = args
-                .input
-                .take()
-                .or(args.input_pos)
-                .ok_or_else(|| simple_cli_error("missing input path"))?;
-            let output_path = args
-                .output
-                .take()
-                .or(args.output_pos)
-                .ok_or_else(|| simple_cli_error("missing output path"))?;
+        Commands::Decompress(args) => {
+             if args.output.exists() && !args.force {
+                return Err(format!("Output file {:?} exists (use --force to overwrite)", args.output).into());
+            }
+
+            let input_data = fs::read(&args.input)?;
+            let header = decode_tlmr_header(&input_data)?;
+            
             let config = Config {
-                block_size: args.block_size,
-                max_seed_len: args.max_seed_len,
-                max_arity: args.max_arity,
-                hash_bits: args.hash_bits,
-                use_xxhash: false,
-                seed_expansions: std::collections::HashMap::new(),
-                enable_superposition: args.superposition,
-            };
-            if input_path
-                .extension()
-                .and_then(|s| s.to_str())
-                .map_or(true, |ext| ext.to_ascii_lowercase() != "tlmr")
-            {
-                return Err(extension_error(&input_path));
-            }
-            if output_path.exists() && !args.force {
-                return Err(simple_cli_error(&format!(
-                    "Error: output file {} already exists (use --force to overwrite)",
-                    output_path.display()
-                )));
-            }
-            let data = fs::read(&input_path)
-                .map_err(|e| io_cli_error("opening input file", &input_path, e))?;
-            // Always decode header and use correct config to ensure strictness
-            let header = decode_tlmr_header(&data)
-                .map_err(|e| simple_cli_error(&format!("invalid header: {e}")))?;
-            let cfg = Config {
                 block_size: header.block_size,
-                hash_bits: args.hash_bits,
-                ..Config::default()
+                max_seed_len: 0, 
+                max_arity: 0,
+                hash_bits: 13, 
+                hasher: args.hasher.into(), 
+                seed_expansions: std::collections::HashMap::new(),
+                enable_superposition: false,
+                memory_limit: usize::MAX,
             };
-            let decompressed = decompress_with_limit(&data, &cfg, usize::MAX)
-                .map_err(|e| simple_cli_error(&format!("decompression failed: {e}")))?;
-            if !args.dry_run {
-                fs::write(&output_path, decompressed)
-                    .map_err(|e| io_cli_error("writing output file", &output_path, e))?;
-                eprintln!("✅ Wrote decompressed output to {:?}", output_path);
-            } else {
-                eprintln!("(dry run) skipping file write");
-            }
+
+            info!("Decompressing...");
+            let out = decompress_with_limit(&input_data, &config, usize::MAX)?;
+            
+            fs::write(&args.output, &out)?;
+            info!("Wrote decompressed data to {:?}", args.output);
         }
     }
 
     Ok(())
 }
 
-#[derive(Parser)]
-#[command(author, version, about)]
-struct Cli {
-    #[command(subcommand)]
-    command: Command,
-}
-
-#[derive(Subcommand)]
-enum Command {
-    /// Compress a file
-    #[command(alias = "c")]
-    Compress(ActionArgs),
-    /// Decompress a file
-    #[command(alias = "d")]
-    Decompress(ActionArgs),
-}
-
-#[derive(Args)]
-#[command(
-    group(
-        ArgGroup::new("input_src")
-            .required(true)
-            .args(["input", "input_pos"]),
-    ),
-    group(
-        ArgGroup::new("output_dst")
-            .required(true)
-            .args(["output", "output_pos"]),
-    )
-)]
-struct ActionArgs {
-    /// Input file path
-    #[arg(short, long, value_name = "FILE")]
-    input: Option<PathBuf>,
-    /// Output file path
-    #[arg(short, long, value_name = "FILE")]
-    output: Option<PathBuf>,
-    /// Input file path (positional)
-    #[arg(index = 1, value_name = "INPUT", conflicts_with = "input")]
-    input_pos: Option<PathBuf>,
-    /// Output file path (positional)
-    #[arg(index = 2, value_name = "OUTPUT", conflicts_with = "output")]
-    output_pos: Option<PathBuf>,
-    /// Compression block size
-    #[arg(long, default_value_t = 3)]
-    block_size: usize,
-    /// Maximum seed length
-    #[arg(long, default_value_t = 2)]
-    max_seed_len: usize,
-    /// Maximum arity
-    #[arg(long, default_value_t = 8)]
-    max_arity: u8,
-    /// Number of hash bits
-    #[arg(long, default_value_t = 13)]
-    hash_bits: usize,
-    /// Maximum compression passes
-    #[arg(long, default_value_t = 10)]
-    passes: usize,
-    #[clap(long, help = "Show live status bar during compression")]
-    status: bool,
-    /// Emit a JSON summary after completion
-    #[arg(long)]
-    json: bool,
-    /// Perform the operation but skip writing the output file
-    #[arg(long)]
-    dry_run: bool,
-    /// Overwrite the output file if it already exists
-    #[arg(long)]
-    force: bool,
-    /// Enable superposition (keeping multiple candidates per block)
-    #[arg(long)]
-    superposition: bool,
+fn parse_memory_limit(s: &str) -> usize {
+    use sysinfo::{System, SystemExt};
+    
+    let s = s.trim().to_uppercase();
+    if s.ends_with('%') {
+        let pct = s.trim_end_matches('%').parse::<f64>().unwrap_or(80.0);
+        let mut sys = System::new();
+        sys.refresh_memory();
+        (sys.total_memory() as f64 * pct / 100.0) as usize
+    } else {
+        let mut mul = 1.0;
+        let num_str;
+        if s.ends_with("GB") {
+            mul = 1e9;
+            num_str = s.trim_end_matches("GB");
+        } else if s.ends_with("MB") {
+            mul = 1e6;
+            num_str = s.trim_end_matches("MB");
+        } else if s.ends_with("KB") {
+            mul = 1e3;
+            num_str = s.trim_end_matches("KB");
+        } else {
+             num_str = &s;
+        }
+        let val = num_str.parse::<f64>().unwrap_or(1024.0 * 1024.0 * 1024.0); // Default 1GB? Or fallback.
+        (val * mul) as usize
+    }
 }

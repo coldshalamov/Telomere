@@ -22,6 +22,7 @@ mod candidate;
 mod config;
 mod gpu;
 mod hash_reader;
+pub mod hasher;
 mod header;
 mod hybrid;
 pub mod io_utils;
@@ -31,7 +32,6 @@ mod seed;
 mod seed_detect;
 mod seed_index;
 mod seed_logger;
-mod sha_cache;
 mod stats;
 pub mod superposition;
 mod tile;
@@ -39,9 +39,7 @@ pub mod types;
 mod swe;
 
 pub use block::{
-    apply_block_changes, collapse_branches, detect_bundles, finalize_table, group_by_bit_length,
-    prune_branches, run_all_passes, split_into_blocks, Block, BlockChange, BlockTable,
-    BranchStatus,
+    print_table_summary, split_into_blocks, BlockId, BlockRef, BlockStore, BranchStatus,
 };
 pub use block_indexer::{brute_force_seed_tables, IndexedBlock, SeedMatch};
 pub use bundle::{apply_bundle, BlockStatus, MutableBlock};
@@ -53,11 +51,12 @@ pub use compress::{
     compress_multi_pass_with_config, compress_with_config, TruncHashTable,
 };
 pub use compress_stats::{write_stats_csv, CompressionStats};
-pub use config::Config;
+pub use config::{Config, HasherKind};
 pub use error::TelomereError;
 pub use file_header::{decode_file_header, encode_file_header};
 pub use gpu::GpuSeedMatcher;
 pub use hash_reader::lookup_seed;
+pub use hasher::{SeedExpander, Blake3Expander, Sha256Expander, Sha256NiExpander};
 pub use header::{
     decode_header, decode_lotus_header, encode_header, encode_lotus_header, pack_bits, BitReader,
     DecodedHeader, Header,
@@ -66,13 +65,12 @@ pub use hybrid::{compress_hybrid, CpuMatchRecord, GpuMatchRecord};
 pub use io_utils::*;
 pub use live_window::{print_window, LiveStats};
 pub use path::*;
-pub use seed::{expand_seed, find_seed_match};
+pub use seed::find_seed_match;
 pub use seed_detect::{detect_seed_matches, MatchRecord};
 pub use seed_index::{index_to_seed, seed_to_index};
 pub use seed_logger::{
     log_seed, log_seed_to, resume_seed_index, resume_seed_index_from, HashEntry, ResourceLimits,
 };
-pub use sha_cache::*;
 pub use stats::Stats;
 pub use tile::{chunk_blocks, flush_chunk, load_chunk, BlockChunk, TileMap};
 pub use tlmr::{decode_tlmr_header, encode_tlmr_header, truncated_hash, TlmrError, TlmrHeader};
@@ -136,6 +134,12 @@ pub fn decompress_with_limit(
     let block_size = header.block_size;
     let last_block_size = header.last_block_size;
     let mut out = Vec::new();
+
+    // Select expander based on config. 
+    // Ideally this should be passed in or derived from separate config field, 
+    // but for now we'll assume a field on config will provide the helper.
+    let expander = config.get_expander();
+
     loop {
         if offset == input.len() {
             break;
@@ -170,11 +174,14 @@ pub fn decompress_with_limit(
             let arity = decoded.arity as usize;
             let span_len = arity * block_size;
             
-            let expanded = expand_seed(&encoded_seed_bytes, span_len, config.use_xxhash);
-            if out.len() + expanded.len() > limit {
+            if out.len() + span_len > limit {
                  return Err(TelomereError::Header("invalid header field".into()));
             }
-            out.extend_from_slice(&expanded);
+
+            // Expand directly into the output vector
+            let current_len = out.len();
+            out.resize(current_len + span_len, 0);
+            expander.expand_into(&encoded_seed_bytes, &mut out[current_len..]);
             
             offset += byte_len;
             bits_consumed += byte_len * 8;
@@ -187,7 +194,7 @@ pub fn decompress_with_limit(
     if bits_consumed != input.len() * 8 {
         return Err(TelomereError::Header("orphan/truncated bits".into()));
     }
-    let hash = truncated_hash(&out);
+    let hash = truncated_hash(&out, expander.as_ref());
     if hash != header.output_hash {
         return Err(TelomereError::Header("output hash mismatch".into()));
     }

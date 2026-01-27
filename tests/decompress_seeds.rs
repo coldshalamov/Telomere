@@ -1,4 +1,12 @@
-use telomere::{compress, decompress_with_limit, expand_seed, index_to_seed, Config};
+use telomere::{compress, decompress_with_limit, index_to_seed, Config};
+use telomere::hasher::{SeedExpander, Sha256Expander};
+
+fn expand_seed(seed: &[u8], len: usize, _use_xxhash: bool) -> Vec<u8> {
+    let mut out = vec![0u8; len];
+    let expander = Sha256Expander;
+    expander.expand_into(seed, &mut out);
+    out
+}
 
 fn cfg(bs: usize, max_seed_len: usize) -> Config {
     Config {

@@ -4,10 +4,10 @@
 //! returns all regions that correspond to a precomputed seed prefix.  It
 //! is a stepping stone toward a fully generative compressor.
 
-use sha2::{Digest, Sha256};
 use std::collections::HashMap;
 
 use crate::bundle::{BlockStatus, MutableBlock};
+use crate::hasher::SeedExpander;
 
 /// A record of a block that matched a known seed prefix.
 #[derive(Debug, Clone)]
@@ -22,10 +22,11 @@ pub fn detect_seed_matches(
     blocks: &[MutableBlock],
     seed_table: &HashMap<Vec<u8>, Vec<u8>>, // truncated -> full seed
     trunc_bits: u8,
+    expander: &dyn SeedExpander,
 ) -> Vec<MatchRecord> {
     let mut matches = Vec::new();
     for block in blocks.iter().filter(|b| b.status == BlockStatus::Active) {
-        let hash = Sha256::digest(&block.data);
+        let hash = expander.digest(&block.data);
         let trunc = &hash[..(trunc_bits as usize / 8)];
         if let Some(full_seed) = seed_table.get(trunc) {
             matches.push(MatchRecord {

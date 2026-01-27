@@ -1,8 +1,8 @@
 //! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 use std::collections::HashMap;
 
-use crate::seed::expand_seed;
 use crate::{index_to_seed, TelomereError};
+use crate::hasher::SeedExpander;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SeedMatch {
@@ -28,13 +28,19 @@ pub fn brute_force_seed_tables(
     data: &[u8],
     max_block_size: usize,
     max_seed_len: usize,
-    use_xxhash: bool,
+    expander: &dyn SeedExpander,
 ) -> Result<HashMap<usize, Vec<IndexedBlock>>, TelomereError> {
     let mut tables: HashMap<usize, Vec<IndexedBlock>> = HashMap::new();
     let mut limit: u128 = 0;
     for len in 1..=max_seed_len {
         limit += 1u128 << (8 * len);
     }
+    
+    // Safety
+     if limit > usize::MAX as u128 {
+        limit = usize::MAX as u128;
+    }
+
     for block_size in 1..=max_block_size {
         let mut blocks = Vec::new();
         let mut offset = 0usize;
@@ -45,7 +51,7 @@ pub fn brute_force_seed_tables(
             let mut matches = Vec::new();
             for s_idx in 0..limit {
                 let seed = index_to_seed(s_idx as usize, max_seed_len)?;
-                if expand_seed(&seed, slice.len(), use_xxhash) == slice {
+                if expander.prefix_matches(&seed, slice, slice.len() * 8) {
                     matches.push(s_idx as usize);
                 }
             }

@@ -1,7 +1,13 @@
-use crate::block::Block;
+use crate::block::{BlockId, BlockStore};
 use crate::{GpuMatchRecord, TelomereError};
 use ocl::{Buffer, ProQue};
 use sha2::{Digest, Sha256};
+
+struct LocalBlock {
+    data: Vec<u8>,
+    global_index: usize,
+    bit_length: usize,
+}
 
 /// GPU accelerated seed matcher backed by OpenCL.
 /// If OpenCL initialization fails at runtime the matcher falls back to
@@ -10,7 +16,7 @@ use sha2::{Digest, Sha256};
 #[derive(Default)]
 pub struct GpuSeedMatcher {
     pro_que: Option<ProQue>,
-    tile: Vec<Block>,
+    tile: Vec<LocalBlock>,
     block_offsets: Vec<u32>,
     block_lens: Vec<u32>,
     block_bytes: Vec<u8>,
@@ -20,8 +26,7 @@ pub struct GpuSeedMatcher {
 }
 
 impl GpuSeedMatcher {
-    /// Create a new matcher. If OpenCL context or kernel-build fails,
-    /// `pro_que` will be `None` and we’ll always fall back to CPU.
+    /// Create a new matcher.
     pub fn new() -> Self {
         let src = include_str!("kernels/seed_match.cl");
         let pro_que = ProQue::builder()
@@ -41,8 +46,17 @@ impl GpuSeedMatcher {
     }
 
     /// Upload a tile of blocks into GPU memory (if available).
-    pub fn load_tile(&mut self, blocks: &[Block]) {
-        self.tile = blocks.to_vec();
+    pub fn load_tile(&mut self, store: &BlockStore, blocks: &[BlockId]) {
+        self.tile = blocks.iter().map(|&id| {
+            let b_ref = store.get_block(id);
+            let data = store.get_data(id).to_vec();
+            LocalBlock {
+                data,
+                global_index: b_ref.global_index as usize,
+                bit_length: b_ref.bit_len as usize,
+            }
+        }).collect();
+
         self.block_offsets.clear();
         self.block_lens.clear();
         self.block_bytes.clear();
@@ -80,16 +94,24 @@ impl GpuSeedMatcher {
         &self,
         start_seed: usize,
         end_seed: usize,
+        expander: &dyn crate::hasher::SeedExpander,
     ) -> Result<Vec<GpuMatchRecord>, TelomereError> {
         // CPU fallback if GPU unavailable
         let pq = match &self.pro_que {
             Some(p) => p,
-            None => return self.cpu_seed_match(start_seed, end_seed),
+            None => return self.cpu_seed_match(start_seed, end_seed, expander),
         };
+
+        // Check compatibility
+        if expander.name() != "SHA256" && expander.name() != "SHA256-NI" {
+            // Fallback to CPU if hasher is not supported by GPU kernels
+            return self.cpu_seed_match(start_seed, end_seed, expander);
+        }
+
         let (block_buf, offset_buf, len_buf) =
             match (&self.block_buf, &self.offset_buf, &self.len_buf) {
                 (Some(b), Some(o), Some(l)) => (b, o, l),
-                _ => return self.cpu_seed_match(start_seed, end_seed),
+                _ => return self.cpu_seed_match(start_seed, end_seed, expander),
             };
 
         let seed_count = end_seed.saturating_sub(start_seed);
@@ -172,13 +194,13 @@ impl GpuSeedMatcher {
         &self,
         start_seed: usize,
         end_seed: usize,
+        expander: &dyn crate::hasher::SeedExpander,
     ) -> Result<Vec<GpuMatchRecord>, TelomereError> {
         let mut out = Vec::new();
         for seed in start_seed..end_seed {
             let seed_byte = seed as u8;
             for block in &self.tile {
-                let expanded = crate::expand_seed(&[seed_byte], block.data.len());
-                if expanded == block.data {
+                if expander.prefix_matches(&[seed_byte], &block.data, block.data.len() * 8) {
                     out.push(GpuMatchRecord {
                         seed_index: seed,
                         bundle_length: 1,

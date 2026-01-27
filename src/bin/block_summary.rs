@@ -5,7 +5,7 @@
 
 use std::{env, fs, path::Path};
 use telomere::io_utils::{io_cli_error, simple_cli_error};
-use telomere::{group_by_bit_length, split_into_blocks};
+use telomere::split_into_blocks;
 
 fn main() {
     if let Err(e) = run() {
@@ -30,10 +30,9 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         .map_err(|_| simple_cli_error("Invalid block size"))?;
 
     let bytes = fs::read(path).map_err(|e| io_cli_error("reading input file", path, e))?;
-    let blocks = split_into_blocks(&bytes, block_size);
-    let table = group_by_bit_length(blocks);
+    let store = split_into_blocks(&bytes, block_size);
 
-    for (bit_length, group) in table.iter() {
+    for (bit_length, group) in store.groups() {
         println!("{}-bit blocks: {}", bit_length, group.len());
     }
 
