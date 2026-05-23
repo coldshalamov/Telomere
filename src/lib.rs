@@ -24,6 +24,7 @@ mod gpu;
 mod hash_reader;
 pub mod hasher;
 mod header;
+mod lotus_core;
 mod hybrid;
 pub mod io_utils;
 mod live_window;
@@ -42,6 +43,7 @@ pub use block::{
     print_table_summary, split_into_blocks, BlockId, BlockRef, BlockStore, BranchStatus,
 };
 pub use block_indexer::{brute_force_seed_tables, IndexedBlock, SeedMatch};
+
 pub use bundle::{apply_bundle, BlockStatus, MutableBlock};
 pub use bundle_select::{select_bundles, AcceptedBundle, BundleRecord};
 pub use bundler::bundle_one_layer;
@@ -56,11 +58,11 @@ pub use error::TelomereError;
 pub use file_header::{decode_file_header, encode_file_header};
 pub use gpu::GpuSeedMatcher;
 pub use hash_reader::lookup_seed;
-pub use hasher::{SeedExpander, Blake3Expander, Sha256Expander, Sha256NiExpander};
 pub use header::{
     decode_header, decode_lotus_header, encode_header, encode_lotus_header, pack_bits, BitReader,
     DecodedHeader, Header,
 };
+pub use lotus_core::{lotus_encode_u64_framed, lotus_decode_u64, EncodedLotus, LotusError};
 pub use hybrid::{compress_hybrid, CpuMatchRecord, GpuMatchRecord};
 pub use io_utils::*;
 pub use live_window::{print_window, LiveStats};

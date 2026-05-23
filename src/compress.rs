@@ -40,15 +40,13 @@ pub fn compress_with_config(data: &[u8], config: &Config) -> Result<Vec<u8>, Tel
     });
     let mut out = header.to_vec();
     let mut offset = 0usize;
-    const MAX_ARITY: usize = 6;
+    const MAX_ARITY: usize = 5; // current Lotus arity encoding supports 1-5
     while offset < data.len() {
         let remaining = data.len() - offset;
         let max_bundle = (remaining / block_size).min(MAX_ARITY);
         let mut matched = false;
         for arity in (1..=max_bundle).rev() {
-            if arity == 2 {
-                continue; // reserved for literal marker
-            }
+
             let span_len = arity * block_size;
             let slice = &data[offset..offset + span_len];
             if let Some(seed_idx) = find_seed_match(slice, config.max_seed_len, expander.as_ref())?
@@ -104,9 +102,7 @@ pub fn compress_multi_pass_with_config(
     let mut gains = Vec::new();
     let mut passes = 0usize;
 
-    const MAX_ARITY: usize = 6;
-    let block_size = config.block_size;
-    
+    const MAX_ARITY: usize = 5; // current Lotus arity encoding supports 1-5
     // Get expander once (assuming it doesn't change per pass)
     let expander = config.get_expander();
 

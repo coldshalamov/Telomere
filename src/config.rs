@@ -37,10 +37,10 @@ pub struct Config {
 impl Default for Config {
     fn default() -> Self {
         Self {
-            block_size: 0,
-            max_seed_len: 0,
-            max_arity: 0,
-            hash_bits: 0,
+            block_size: 4,
+            max_seed_len: 3,
+            max_arity: 5, // Lotus arity encoding supports 1-5; 6+ requires format extension
+            hash_bits: 13, // TlmrHeader uses the low 13 bits of the output digest
             hasher: HasherKind::Blake3,
             seed_expansions: HashMap::new(),
             enable_superposition: false,

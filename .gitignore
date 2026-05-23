@@ -17,8 +17,6 @@ slice_seed_table.rs
 .vs/Telomere/v17/DocumentLayout.json
 .vs/Telomere/v17/.wsuo
 .vs/slnx.sqlite
-*.rs
-src/bin/seed_table.rs
 !src/bin/gloss_dump.rs
 !src/bin/block_histogram.rs
 !src/bin/compressor.rs

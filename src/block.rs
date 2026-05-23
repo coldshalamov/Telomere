@@ -170,6 +170,7 @@ pub fn split_into_blocks(input: &[u8], block_size_bits: usize) -> BlockStore {
 /// Simulate a compression pass (legacy compat).
 /// Note: This function previously mutated the table significantly.
 /// We'll adapt it to work with BlockStore.
+#[allow(dead_code)]
 pub fn simulate_pass(store: &mut BlockStore, seed_table: &HashMap<String, usize>) -> usize {
     let mut lengths: Vec<usize> = store.groups.keys().copied().collect();
     lengths.sort_unstable_by(|a, b| b.cmp(a));
@@ -231,6 +232,7 @@ pub fn print_table_summary(store: &BlockStore) {
     }
 }
 
+#[allow(dead_code)]
 pub fn group_by_bit_length(_blocks: Vec<BlockRef>) -> BlockStore {
     BlockStore::new() 
 }

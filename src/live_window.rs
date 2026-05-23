@@ -34,6 +34,7 @@ impl LiveStats {
 }
 
 /// Lightweight stat tracker for alternate use.
+#[allow(dead_code)]
 #[derive(Default)]
 pub struct Stats {
     pub total_blocks: u64,

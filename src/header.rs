@@ -95,8 +95,8 @@ impl<'a> BitReader<'a> {
 
 /// Encode the Lotus arity field returning the mode bit and arity bits.
 ///
-/// `arity` values of `1..=5` are valid non‑literal arities. A special value of
-/// `0xFF` encodes a literal passthrough.
+/// Valid arities: 1–5. A special value of `0xFF` encodes the literal passthrough
+/// marker. Arity 2 is a valid code point — it is NOT reserved as a literal marker.
 pub fn encode_lotus_arity_bits(arity: usize) -> Result<(bool, Vec<bool>), TelomereError> {
     let (mode, bits) = match arity {
         1 => (false, vec![false]),
@@ -106,7 +106,7 @@ pub fn encode_lotus_arity_bits(arity: usize) -> Result<(bool, Vec<bool>), Telome
         5 => (true, vec![true, false]),
         0xFF => (true, vec![true, true]),
         _ => {
-            return Err(TelomereError::Header("invalid Lotus arity".into()));
+            return Err(TelomereError::Header("invalid Lotus arity (must be 1-5 or 0xFF)".into()));
         }
     };
     Ok((mode, bits))
@@ -182,11 +182,11 @@ fn swe_lit_decode(bits: &[bool]) -> usize {
 pub fn encode_lotus_len_bits(payload_bit_len: usize) -> Result<(u8, Vec<bool>), TelomereError> {
     // Encode as a single zero-based SWE-literal codeword
     let len_bits = swe_lit_encode(payload_bit_len)?;
-    let L = len_bits.len(); // 1..=8
-    if !(1..=8).contains(&L) {
+    let l = len_bits.len(); // 1..=8
+    if !(1..=8).contains(&l) {
         return Err(TelomereError::Header("length header out of range".into()));
     }
-    let j = (L - 1) as u8; // 3-bit jumpstarter value
+    let j = (l - 1) as u8; // 3-bit jumpstarter value
     Ok((j, len_bits))
 }
 
@@ -204,14 +204,14 @@ pub fn decode_lotus_len_bits(
                 .read_bit()
                 .map_err(|_| TelomereError::Header("truncated header".into()))? as u8;
     }
-    let L = (j as usize) + 1;
-    if !(1..=8).contains(&L) {
+    let l = (j as usize) + 1;
+    if !(1..=8).contains(&l) {
         return Err(TelomereError::Header("length header out of range".into()));
     }
 
-    // Read exactly L bits → one SWE-literal codeword for payload_bit_len
-    let mut bits = Vec::with_capacity(L);
-    for _ in 0..L {
+    // Read exactly l bits → one SWE-literal codeword for payload_bit_len
+    let mut bits = Vec::with_capacity(l);
+    for _ in 0..l {
         bits.push(
             reader
                 .read_bit()
@@ -410,7 +410,7 @@ mod tests {
             (254, 8),
             (509, 8),
         ];
-        for (len, L) in cases {
+        for (len, l) in cases {
             let payload: Vec<bool> = std::iter::repeat(false).take(len).collect();
             let bits = encode_lotus_header(1, &payload, len).unwrap();
             let packed = pack_bits(&bits);
@@ -418,7 +418,7 @@ mod tests {
             assert_eq!(used, bits.len());
             assert!(!dec.is_literal);
             assert_eq!(dec.payload_bits.len(), len);
-            assert_eq!(dec.len_bits.len(), L);
+            assert_eq!(dec.len_bits.len(), l);
             assert_eq!(dec.len_bits.len(), dec.jumpstarter as usize + 1);
         }
         assert!(encode_lotus_len_bits(510).is_err());
