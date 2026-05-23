@@ -31,8 +31,8 @@ struct CompressArgs {
     /// Output file path
     output: PathBuf,
 
-    /// Max seed length in bytes (1-40)
-    #[arg(long, default_value_t = 24)]
+    /// Max seed length in bytes (1-3 for MVP; larger values are exponentially slower)
+    #[arg(long, default_value_t = 3)]
     seed_depth: usize,
 
     /// Max compression passes
@@ -119,7 +119,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
             let config = Config {
                 block_size: args.block_size,
                 max_seed_len: args.seed_depth,
-                max_arity: 8, 
+                max_arity: 5, // Lotus arity encoding supports 1-5
                 hash_bits: 13,
                 hasher: args.hasher.into(),
                 seed_expansions: std::collections::HashMap::new(),

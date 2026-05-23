@@ -1,4 +1,4 @@
-//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
+//! CLI roundtrip tests for the standalone compressor/decompressor binaries.
 use std::fs;
 use std::process::Command;
 
@@ -17,23 +17,24 @@ fn cli_roundtrip_compressor() {
         .args([
             input.to_str().unwrap(),
             compressed.to_str().unwrap(),
-            "--block-size",
-            "3",
+            "--block-size", "3",
+            "--max-seed-len", "1", // fast: 256 seeds per block
+            "--passes", "1",
             "--test",
         ])
         .status()
         .expect("compress failed");
-    assert!(status.success());
+    assert!(status.success(), "compressor returned failure");
 
     let status = Command::new(decomp)
         .args([compressed.to_str().unwrap(), output.to_str().unwrap()])
         .status()
         .expect("decompress failed");
-    assert!(status.success());
+    assert!(status.success(), "decompressor returned failure");
 
     let orig = fs::read(&input).unwrap();
     let out = fs::read(&output).unwrap();
-    assert_eq!(orig, out);
+    assert_eq!(orig, out, "roundtrip mismatch");
 }
 
 #[test]
@@ -47,5 +48,5 @@ fn decompress_errors_propagate() {
         .args([input.to_str().unwrap(), out.to_str().unwrap()])
         .status()
         .expect("run failed");
-    assert!(!status.success());
+    assert!(!status.success(), "decompressor should fail on bad input");
 }

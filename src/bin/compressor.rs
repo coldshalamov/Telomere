@@ -3,7 +3,7 @@ use clap::Parser;
 use std::fs;
 use std::path::PathBuf;
 use telomere::{
-    compress, decompress_with_limit, decode_tlmr_header, Config,
+    compress_multi_pass_with_config, decompress_with_limit, decode_tlmr_header, Config,
     io_utils::{io_cli_error, simple_cli_error},
 };
 
@@ -14,9 +14,15 @@ struct Args {
     input: PathBuf,
     /// Output file path
     output: PathBuf,
-    /// Block size to use during compression
+    /// Block size in bytes
     #[arg(long, default_value_t = 3)]
     block_size: usize,
+    /// Maximum seed length in bytes (1=fast, 3=default, higher=exponentially slower)
+    #[arg(long, default_value_t = 3)]
+    max_seed_len: usize,
+    /// Number of compression passes
+    #[arg(long, default_value_t = 5)]
+    passes: usize,
     /// Verify decompression after compressing
     #[arg(long)]
     test: bool,
@@ -31,27 +37,38 @@ fn main() {
 
 fn run() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
+    let config = Config {
+        block_size: args.block_size,
+        max_seed_len: args.max_seed_len,
+        hash_bits: 13,
+        ..Config::default()
+    };
     let data =
         fs::read(&args.input).map_err(|e| io_cli_error("reading input file", &args.input, e))?;
-    let compressed = compress(&data, args.block_size)
+    let (compressed, gains) = compress_multi_pass_with_config(&data, &config, args.passes, false)
         .map_err(|e| simple_cli_error(&format!("compression failed: {e}")))?;
 
-        if args.test {
+    if !gains.is_empty() {
+        for (i, saved) in gains.iter().enumerate() {
+            eprintln!("pass {}: saved {} bytes", i + 2, saved);
+        }
+    }
+
+    if args.test {
         let header = decode_tlmr_header(&compressed)
             .map_err(|e| simple_cli_error(&format!("invalid header: {e}")))?;
-        let config = Config {
+        let verify_cfg = Config {
             block_size: header.block_size,
             hash_bits: 13,
             ..Config::default()
         };
-        let decompressed = decompress_with_limit(&compressed, &config, usize::MAX)
+        let decompressed = decompress_with_limit(&compressed, &verify_cfg, usize::MAX)
             .map_err(|e| simple_cli_error(&format!("roundtrip failed: {e}")))?;
         if decompressed != data {
             return Err(simple_cli_error("roundtrip mismatch").into());
         }
-        eprintln!("✅ roundtrip verified");
+        eprintln!("✓ roundtrip verified");
     }
-
 
     fs::write(&args.output, &compressed)
         .map_err(|e| io_cli_error("writing output file", &args.output, e))?;

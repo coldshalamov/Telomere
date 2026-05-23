@@ -117,7 +117,7 @@ pub fn compress_multi_pass_with_config(
     while passes < max_passes {
         if let Some(s) = &mut sys {
             s.refresh_memory();
-            let used = s.used_memory() * 1024;
+            let used = s.used_memory(); // sysinfo 0.29: used_memory() returns bytes
             if used > config.memory_limit as u64 {
                 return Err(TelomereError::Internal(format!(
                     "Memory limit exceeded: {} > {}",
