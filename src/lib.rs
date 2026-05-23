@@ -50,9 +50,10 @@ pub use bundler::bundle_one_layer;
 pub use candidate::{prune_candidates, Block as CandidateBlock, Candidate};
 pub use compress::{
     compress, compress_block, compress_block_with_config, compress_multi_pass,
-    compress_multi_pass_with_config, compress_with_config, TruncHashTable,
+    compress_multi_pass_with_config, compress_with_config, compress_with_run_summary,
+    TruncHashTable,
 };
-pub use compress_stats::{write_stats_csv, CompressionStats};
+pub use compress_stats::{write_stats_csv, CompressionStats, PassStats, RunSummary};
 pub use config::{Config, HasherKind};
 pub use error::TelomereError;
 pub use file_header::{decode_file_header, encode_file_header};

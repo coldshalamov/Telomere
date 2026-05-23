@@ -1,5 +1,6 @@
 //! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
-use crate::compress_stats::CompressionStats;
+use crate::compress_stats::{CompressionStats, PassStats, RunSummary};
+use std::time::Instant;
 use crate::config::Config;
 use crate::header::{encode_header, encode_lotus_header, pack_bits, Header};
 use crate::seed::find_seed_match;
@@ -100,6 +101,7 @@ pub fn compress_multi_pass_with_config(
 ) -> Result<(Vec<u8>, Vec<usize>), TelomereError> {
     let mut current = data.to_vec();
     let mut gains = Vec::new();
+    let mut pass_stats: Vec<PassStats> = Vec::new();
     let mut passes = 0usize;
 
     const MAX_ARITY: usize = 5; // current Lotus arity encoding supports 1-5
@@ -127,6 +129,8 @@ pub fn compress_multi_pass_with_config(
         }
 
         passes += 1;
+        let pass_start = Instant::now();
+        let bytes_in = current.len();
 
         // Split the current stream into fixed sized blocks.
         let mut blocks: Vec<&[u8]> = Vec::new();
@@ -308,6 +312,7 @@ pub fn compress_multi_pass_with_config(
         }
 
         let saved = current.len().saturating_sub(next.len());
+        pass_stats.push(PassStats::new(passes, bytes_in, next.len(), pass_start.elapsed()));
         if saved == 0 && passes > 1 {
             break;
         }
@@ -318,6 +323,42 @@ pub fn compress_multi_pass_with_config(
     }
 
     Ok((current, gains))
+}
+
+/// Multi-pass compression with per-pass delta stats returned as a [`RunSummary`].
+///
+/// Each pass is timed independently. Returns the smallest output seen across all
+/// passes — if no pass was compressive, returns the first-pass output.
+pub fn compress_with_run_summary(
+    data: &[u8],
+    config: &Config,
+    max_passes: usize,
+) -> Result<(Vec<u8>, RunSummary), TelomereError> {
+    let original_bytes = data.len();
+    let mut current = data.to_vec();
+    let mut pass_stats = Vec::new();
+    let mut best: Vec<u8> = Vec::new();
+
+    for pass_num in 1..=max_passes {
+        let t0 = Instant::now();
+        let bytes_in = current.len();
+        let (next, _) = compress_multi_pass_with_config(&current, config, 1, false)?;
+        let elapsed = t0.elapsed();
+        let stat = PassStats::new(pass_num, bytes_in, next.len(), elapsed);
+        // Track the smallest output across all passes.
+        if best.is_empty() || next.len() < best.len() {
+            best = next.clone();
+        }
+        let converged = !stat.is_compressive() && pass_num > 1;
+        pass_stats.push(stat);
+        current = next;
+        if converged {
+            break;
+        }
+    }
+
+    let summary = RunSummary::new(original_bytes, pass_stats);
+    Ok((best, summary))
 }
 
 pub fn compress_block_with_config(

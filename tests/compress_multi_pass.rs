@@ -1,7 +1,7 @@
 //! Multi-pass compression tests.
 //! Uses Blake3Expander (same as default Config) to generate structured data.
 use telomere::hasher::{Blake3Expander, SeedExpander};
-use telomere::{compress_multi_pass_with_config, decompress, Config};
+use telomere::{compress_multi_pass_with_config, compress_with_run_summary, decompress, Config};
 
 fn fast_cfg(block_size: usize) -> Config {
     Config {
@@ -58,4 +58,33 @@ fn multi_pass_repetitive_data_roundtrip() {
     let (compressed, _) = compress_multi_pass_with_config(&data, &cfg, 3, false).unwrap();
     let decoded = decompress(&compressed, &cfg).expect("decompress failed");
     assert_eq!(decoded, data);
+}
+
+#[test]
+fn run_summary_has_correct_structure() {
+    let cfg = fast_cfg(1);
+    let data = expand(&[0x00], 8);
+    let (best, summary) = compress_with_run_summary(&data, &cfg, 5).unwrap();
+    // Summary must have at least 1 pass.
+    assert!(!summary.passes.is_empty());
+    // Best output must at least contain TlmrHeader (3 bytes).
+    assert!(best.len() >= 3);
+    // JSON must be valid.
+    let json = summary.to_json();
+    assert!(json.contains("passes"));
+    assert!(json.contains("original_bytes"));
+    // Verify roundtrip with the best output.
+    let decoded = decompress(&best, &cfg).expect("decompress best failed");
+    assert_eq!(decoded, data);
+}
+
+#[test]
+fn run_summary_delta_measurement() {
+    // For known-seed data, verify that delta measurement tracks bytes correctly.
+    let cfg = fast_cfg(1);
+    let data = expand(&[0x00], 4); // 4 one-byte blocks
+    let (_out, summary) = compress_with_run_summary(&data, &cfg, 3).unwrap();
+    let first = &summary.passes[0];
+    assert_eq!(first.bytes_in, data.len(), "pass 1 input = original data size");
+    assert_eq!(first.pass, 1);
 }

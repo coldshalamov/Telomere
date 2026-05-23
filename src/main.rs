@@ -58,7 +58,11 @@ struct CompressArgs {
     /// Verify output after compression
     #[arg(long)]
     verify: bool,
-    
+
+    /// Print JSON summary of per-pass statistics to stdout
+    #[arg(long)]
+    json: bool,
+
     /// Block size (legacy/tuning)
     #[arg(long, default_value_t = 3)]
     block_size: usize,
@@ -128,27 +132,26 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
             };
 
             let input_data = fs::read(&args.input)?;
-            
-            info!("Compressing {} bytes...", input_data.len());
-            let start = Instant::now();
 
-            let (out, gains) = compress_multi_pass_with_config(
-                &input_data, 
-                &config, 
-                args.passes as usize, 
-                true 
+            info!("Compressing {} bytes with seed_depth={} passes={}...",
+                  input_data.len(), args.seed_depth, args.passes);
+
+            let (out, summary) = telomere::compress_with_run_summary(
+                &input_data,
+                &config,
+                args.passes as usize,
             )?;
 
-            info!("Compressed in {:.2?}", start.elapsed());
-            for (i, gain) in gains.iter().enumerate() {
-                info!("Pass {}: saved {} bytes", i + 2, gain);
+            if args.json {
+                println!("{}", summary.to_json());
+            } else {
+                summary.print_summary();
             }
 
             if args.verify {
                 info!("Verifying...");
                 let expander = config.get_expander();
                 let hash = truncated_hash(&out, expander.as_ref());
-                
                 let decompressed = decompress_with_limit(&out, &config, usize::MAX)?;
                 if decompressed != input_data {
                     return Err("Verification failed: data mismatch".into());
