@@ -1,14 +1,19 @@
 //! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 //!
 //! Real seed search implementation using the SeedExpander trait.
-//! Seeds are enumerated deterministically: shortest first, then
-//! lexicographic big-endian order within each length.
+//! Seeds are enumerated deterministically: shortest first (1-byte, 2-byte, …),
+//! then lexicographic big-endian order within each length bucket.
+//!
+//! Parallelism: rayon is used within each length bucket.
+//! `find_first` preserves enumeration order so results are deterministic
+//! regardless of thread scheduling.
 
 use crate::hasher::SeedExpander;
 use crate::TelomereError;
+use rayon::prelude::*;
 
-/// Search for the smallest seed whose expansion matches `slice`.
-/// Returns the seed index if a compressive match is found.
+/// Search for the smallest seed (by enumeration order) whose expansion
+/// matches `slice` exactly.  Returns the global seed index if found.
 pub fn find_seed_match(
     slice: &[u8],
     max_seed_len: usize,
@@ -19,34 +24,38 @@ pub fn find_seed_match(
     }
 
     let target_bits = slice.len() * 8;
-
-    // Hierarchical search: 1-byte, 2-byte, 3-byte, ...
-    let mut global_idx: usize = 0;
+    let mut global_offset: usize = 0;
 
     for len in 1..=max_seed_len {
-        let seeds_in_this_len = 1usize << (8 * len);
+        let count = 1usize << (8 * len);
+        let offset = global_offset;
 
-        for local_idx in 0..seeds_in_this_len {
-            // Build the seed bytes for this local index
+        // Parallel search within this length bucket.
+        // find_first returns the lowest local_idx that satisfies the predicate,
+        // ensuring determinism across parallel runs.
+        let found = (0..count).into_par_iter().find_first(|&local_idx| {
             let mut seed = vec![0u8; len];
             let mut v = local_idx;
             for i in (0..len).rev() {
                 seed[i] = (v & 0xFF) as u8;
                 v >>= 8;
             }
-
-            // Fast path: check if the hash prefix matches
-            if expander.prefix_matches(&seed, slice, target_bits) {
-                // Verify exact match by expanding fully
-                let mut expanded = vec![0u8; slice.len()];
-                expander.expand_into(&seed, &mut expanded);
-                if expanded == slice {
-                    return Ok(Some(global_idx + local_idx));
-                }
+            // Fast reject: check prefix bits before full expansion.
+            if !expander.prefix_matches(&seed, slice, target_bits) {
+                return false;
             }
+            // Verify exact match (prefix_matches may have trailing-byte false positives
+            // only when bits%8 != 0, but we double-check for safety).
+            let mut expanded = vec![0u8; slice.len()];
+            expander.expand_into(&seed, &mut expanded);
+            expanded == slice
+        });
+
+        if let Some(local_idx) = found {
+            return Ok(Some(offset + local_idx));
         }
 
-        global_idx += seeds_in_this_len;
+        global_offset += count;
     }
 
     Ok(None)
@@ -98,14 +107,24 @@ mod tests {
         let mut target = [0u8; 1];
         expander.expand_into(&[0xFF], &mut target);
         // With max_seed_len=1, we search all 256 seeds.
-        // [0xFF] should appear at index 255 unless a shorter expansion collides.
+        // Verify that whatever we find correctly reconstructs the target.
         let idx = find_seed_match(&target, 1, &expander).unwrap();
-        // At minimum we found *some* seed; verify it reconstructs correctly.
         if let Some(i) = idx {
             let seed = index_to_seed(i, 1).unwrap();
             let mut check = [0u8; 1];
             expander.expand_into(&seed, &mut check);
             assert_eq!(check, target);
         }
+    }
+
+    #[test]
+    fn find_seed_match_parallel_deterministic() {
+        // Running find_seed_match twice on the same input must return the same index.
+        let expander = Blake3Expander;
+        let mut target = [0u8; 1];
+        expander.expand_into(&[0x42], &mut target);
+        let r1 = find_seed_match(&target, 1, &expander).unwrap();
+        let r2 = find_seed_match(&target, 1, &expander).unwrap();
+        assert_eq!(r1, r2, "parallel search must be deterministic");
     }
 }

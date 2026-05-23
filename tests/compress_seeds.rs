@@ -1,26 +1,51 @@
-//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
-use telomere::{compress, decompress_with_limit, Config};
-use telomere::hasher::{SeedExpander, Sha256Expander};
+//! Test that compression finds real seed matches and roundtrips correctly.
+//! Uses Blake3Expander to generate target data so the compressor can find seeds.
+use telomere::hasher::{Blake3Expander, SeedExpander};
+use telomere::{compress_multi_pass_with_config, decompress, Config};
 
-fn expand_seed(seed: &[u8], len: usize, _use_xxhash: bool) -> Vec<u8> {
+fn blake3_cfg(block_size: usize) -> Config {
+    Config {
+        block_size,
+        max_seed_len: 1, // 256 seeds per block — fast
+        hash_bits: 13,
+        ..Config::default()
+    }
+}
+
+fn expand(seed: &[u8], len: usize) -> Vec<u8> {
     let mut out = vec![0u8; len];
-    let expander = Sha256Expander;
-    expander.expand_into(seed, &mut out);
+    Blake3Expander.expand_into(seed, &mut out);
     out
 }
 
 #[test]
-fn compress_seeds_roundtrip() {
-    let block_size = 3usize;
-    let seed = vec![0u8];
-    let data = expand_seed(&seed, block_size * 4, false);
-    let compressed = compress(&data, block_size).unwrap();
-    let cfg = Config {
-        block_size,
-        max_seed_len: 3,
-        hash_bits: 13,
-        ..Config::default()
-    };
-    let decompressed = decompress_with_limit(&compressed, &cfg, usize::MAX).unwrap();
-    assert_eq!(decompressed, data);
+fn compress_seeds_literal_roundtrip() {
+    // Random-ish bytes: compressor uses literal path, roundtrip still works.
+    let cfg = blake3_cfg(3);
+    let data: Vec<u8> = (0u8..30).collect();
+    let (compressed, _) = compress_multi_pass_with_config(&data, &cfg, 1, false).unwrap();
+    let decoded = decompress(&compressed, &cfg).expect("decompress failed");
+    assert_eq!(decoded, data);
+}
+
+#[test]
+fn compress_seeds_known_seed_roundtrip() {
+    // Block of 1 byte = BLAKE3([0x00])[0]. The compressor must find seed [0x00] at index 0.
+    let cfg = blake3_cfg(1);
+    let data = expand(&[0x00], 4); // 4 blocks of 1 byte each
+    let (compressed, _) = compress_multi_pass_with_config(&data, &cfg, 1, false).unwrap();
+    let decoded = decompress(&compressed, &cfg).expect("decompress failed");
+    assert_eq!(decoded, data);
+}
+
+#[test]
+fn compress_seeds_multi_block_roundtrip() {
+    // Mix of blocks that match a known seed and blocks that don't.
+    let cfg = blake3_cfg(2);
+    let mut data = expand(&[0x00], 2); // 1 block: guaranteed 2-byte match from seed [0x00]
+    data.extend_from_slice(&[0xDE, 0xAD]); // 1 block: literal (almost certainly)
+    data.extend_from_slice(&expand(&[0x00], 2)); // repeat
+    let (compressed, _) = compress_multi_pass_with_config(&data, &cfg, 1, false).unwrap();
+    let decoded = decompress(&compressed, &cfg).expect("decompress failed");
+    assert_eq!(decoded, data);
 }

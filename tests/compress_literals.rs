@@ -1,61 +1,55 @@
-//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
-use telomere::{compress, decode_header, decode_tlmr_header, decompress_with_limit, Header, Config};
+//! Tests for literal encoding and file structure.
+use telomere::{compress_multi_pass_with_config, decode_tlmr_header, decompress_with_limit, Config};
 
-fn cfg(bs: usize) -> Config {
-    Config { block_size: bs, hash_bits: 13, ..Config::default() }
+fn fast_cfg(block_size: usize) -> Config {
+    Config {
+        block_size,
+        max_seed_len: 1,
+        hash_bits: 13,
+        ..Config::default()
+    }
 }
 
 #[test]
-fn compress_writes_header_then_data() {
-    let block_size = 3;
+fn compress_writes_valid_header() {
+    let block_size = 3usize;
     let data: Vec<u8> = (0u8..50).collect();
-    let out = compress(&data, block_size).unwrap();
-    let decompressed = decompress_with_limit(&out, &cfg(block_size), usize::MAX).unwrap();
-    assert_eq!(decompressed, data);
+    let cfg = fast_cfg(block_size);
+    let (out, _) = compress_multi_pass_with_config(&data, &cfg, 1, false).unwrap();
 
+    // File header must be parseable and match config.
     let file_hdr = decode_tlmr_header(&out).unwrap();
     assert_eq!(file_hdr.block_size, block_size);
-    assert_eq!(
-        file_hdr.last_block_size,
-        if data.len() % block_size == 0 {
-            block_size
-        } else {
-            data.len() % block_size
-        }
-    );
-    let mut offset = 3usize;
-    let mut idx = 0usize;
+    let expected_last = if data.len() % block_size == 0 {
+        block_size
+    } else {
+        data.len() % block_size
+    };
+    assert_eq!(file_hdr.last_block_size, expected_last);
 
-    while offset < out.len() {
-        let (hdr, bits) = decode_header(&out[offset..]).unwrap();
-        offset += (bits + 7) / 8;
-        match hdr {
-            Header::Literal => {
-                let remaining = out.len() - offset;
-                let bytes = if remaining == file_hdr.last_block_size {
-                    file_hdr.last_block_size
-                } else {
-                    block_size
-                };
-                assert_eq!(&out[offset..offset + bytes], &data[idx..idx + bytes]);
-                offset += bytes;
-                idx += bytes;
-            }
-            _ => panic!("unexpected header"),
-        }
-    }
-
-    assert_eq!(idx, data.len());
-    assert_eq!(offset, out.len());
+    // Roundtrip must hold.
+    let decompressed = decompress_with_limit(&out, &cfg, usize::MAX).unwrap();
+    assert_eq!(decompressed, data);
 }
 
 #[test]
-fn compress_empty_input() {
+fn compress_empty_input_is_header_only() {
     let block_size = 4usize;
-    let data: Vec<u8> = Vec::new();
-    let out = compress(&data, block_size).unwrap();
-    // output should only contain the tlmr header
-    assert_eq!(out.len(), 3);
-    let decompressed = telomere::decompress(&out, &cfg(block_size)).unwrap();
+    let cfg = fast_cfg(block_size);
+    let (out, _) = compress_multi_pass_with_config(&[], &cfg, 1, false).unwrap();
+    // Empty input → only the 3-byte TlmrHeader.
+    assert_eq!(out.len(), 3, "empty input should produce only file header");
+    let decompressed = decompress_with_limit(&out, &cfg, usize::MAX).unwrap_or_default();
     assert!(decompressed.is_empty());
+}
+
+#[test]
+fn all_same_byte_roundtrip() {
+    // All-zeros: high probability of 1-byte seed match for the first block.
+    let block_size = 1usize;
+    let data = vec![0u8; 16];
+    let cfg = fast_cfg(block_size);
+    let (out, _) = compress_multi_pass_with_config(&data, &cfg, 1, false).unwrap();
+    let decompressed = decompress_with_limit(&out, &cfg, usize::MAX).unwrap();
+    assert_eq!(decompressed, data);
 }

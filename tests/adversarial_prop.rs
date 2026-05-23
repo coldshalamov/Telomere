@@ -1,9 +1,15 @@
-//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
+//! Property-based adversarial tests using proptest.
+//! Uses max_seed_len=1 (256 seeds/block, < 1 ms) for speed.
 use proptest::prelude::*;
-use telomere::{compress, decompress, Config};
+use telomere::{compress_multi_pass_with_config, decompress, Config};
 
-fn cfg(bs: usize) -> Config {
-    Config { block_size: bs, hash_bits: 13, ..Config::default() }
+fn fast_cfg(block_size: usize) -> Config {
+    Config {
+        block_size,
+        max_seed_len: 1,
+        hash_bits: 13,
+        ..Config::default()
+    }
 }
 
 fn alternating(len: usize) -> Vec<u8> {
@@ -22,47 +28,57 @@ proptest! {
     #[test]
     fn zeros_roundtrip(len in 0usize..64, bs in 1usize..8) {
         let data = vec![0u8; len];
-        let c = compress(&data, bs).unwrap();
-        let out = decompress(&c, &cfg(bs)).unwrap();
+        let cfg = fast_cfg(bs);
+        let (c, _) = compress_multi_pass_with_config(&data, &cfg, 1, false).unwrap();
+        let out = decompress(&c, &cfg).unwrap();
         prop_assert_eq!(out, data);
     }
 
     #[test]
     fn ones_roundtrip(len in 0usize..64, bs in 1usize..8) {
         let data = vec![0xFFu8; len];
-        let c = compress(&data, bs).unwrap();
-        let out = decompress(&c, &cfg(bs)).unwrap();
+        let cfg = fast_cfg(bs);
+        let (c, _) = compress_multi_pass_with_config(&data, &cfg, 1, false).unwrap();
+        let out = decompress(&c, &cfg).unwrap();
         prop_assert_eq!(out, data);
     }
 
     #[test]
     fn alternating_roundtrip(len in 0usize..64, bs in 1usize..8) {
         let data = alternating(len);
-        let c = compress(&data, bs).unwrap();
-        let out = decompress(&c, &cfg(bs)).unwrap();
+        let cfg = fast_cfg(bs);
+        let (c, _) = compress_multi_pass_with_config(&data, &cfg, 1, false).unwrap();
+        let out = decompress(&c, &cfg).unwrap();
         prop_assert_eq!(out, data);
     }
 
     #[test]
     fn palindrome_roundtrip(data in proptest::collection::vec(any::<u8>(), 0..32), bs in 1usize..8) {
         let data = palindrome(data);
-        let c = compress(&data, bs).unwrap();
-        let out = decompress(&c, &cfg(bs)).unwrap();
+        let cfg = fast_cfg(bs);
+        let (c, _) = compress_multi_pass_with_config(&data, &cfg, 1, false).unwrap();
+        let out = decompress(&c, &cfg).unwrap();
         prop_assert_eq!(out, data);
     }
 
     #[test]
-    fn random_block_alignment(data in proptest::collection::vec(any::<u8>(), 0..64), bs in 1usize..8, pad in 0usize..8) {
+    fn random_block_alignment(
+        data in proptest::collection::vec(any::<u8>(), 0..64),
+        bs in 1usize..8,
+        pad in 0usize..8
+    ) {
         let mut d = data;
         d.extend(vec![0u8; pad]);
-        let c = compress(&d, bs).unwrap();
-        let out = decompress(&c, &cfg(bs)).unwrap();
+        let cfg = fast_cfg(bs);
+        let (c, _) = compress_multi_pass_with_config(&d, &cfg, 1, false).unwrap();
+        let out = decompress(&c, &cfg).unwrap();
         prop_assert_eq!(out, d);
     }
 
     #[test]
     fn decode_never_panics(data in proptest::collection::vec(any::<u8>(), 0..80)) {
-        let _ = std::panic::catch_unwind(|| { let _ = decompress(&data, &cfg(1)); }).ok();
+        let cfg = fast_cfg(1);
+        let _ = std::panic::catch_unwind(|| { let _ = decompress(&data, &cfg); }).ok();
     }
 }
 
@@ -71,7 +87,8 @@ fn literal_torture() {
     let block_size = 3usize;
     let len = block_size * 10 + 1;
     let data: Vec<u8> = (0..len as u8).collect();
-    let c = compress(&data, block_size).unwrap();
-    let out = decompress(&c, &cfg(block_size)).unwrap();
+    let cfg = fast_cfg(block_size);
+    let (c, _) = compress_multi_pass_with_config(&data, &cfg, 1, false).unwrap();
+    let out = decompress(&c, &cfg).unwrap();
     assert_eq!(out, data);
 }
