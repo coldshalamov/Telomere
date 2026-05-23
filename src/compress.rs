@@ -313,11 +313,12 @@ pub fn compress_multi_pass_with_config(
 
         let saved = current.len().saturating_sub(next.len());
         pass_stats.push(PassStats::new(passes, bytes_in, next.len(), pass_start.elapsed()));
-        if saved == 0 && passes > 1 {
-            break;
-        }
         if saved > 0 {
             gains.push(saved);
+        } else if passes > 1 {
+            // Stop after first non-improving pass (convergence).
+            // Higher-level callers (compress_with_run_summary) track K-pass convergence.
+            break;
         }
         current = next;
     }
