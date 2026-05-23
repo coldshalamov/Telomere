@@ -109,6 +109,12 @@ pub struct CompressionStats {
     interval: u64,
 }
 
+impl Default for CompressionStats {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl CompressionStats {
     pub fn new() -> Self {
         Self {

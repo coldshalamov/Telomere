@@ -405,9 +405,7 @@ pub fn compress_block_with_config(
 
 /// Wrapper using the CI default seed length of 3 bytes.
 pub fn compress(data: &[u8], block_size: usize) -> Result<Vec<u8>, TelomereError> {
-    let mut cfg = Config::default();
-    cfg.block_size = block_size;
-    cfg.max_seed_len = 3;
+    let cfg = Config { block_size, max_seed_len: 3, ..Config::default() };
     const MAX_PASSES: usize = 10;
     let (out, gains) = compress_multi_pass_with_config(data, &cfg, MAX_PASSES, false)?;
 
@@ -436,9 +434,7 @@ pub fn compress_multi_pass(
     max_passes: usize,
     show_status: bool,
 ) -> Result<(Vec<u8>, Vec<usize>), TelomereError> {
-    let mut cfg = Config::default();
-    cfg.block_size = block_size;
-    cfg.max_seed_len = 3;
+    let cfg = Config { block_size, max_seed_len: 3, ..Config::default() };
     compress_multi_pass_with_config(data, &cfg, max_passes, show_status)
 }
 
@@ -448,8 +444,6 @@ pub fn compress_block(
     block_size: usize,
     stats: Option<&mut CompressionStats>,
 ) -> Result<Option<(Header, usize)>, TelomereError> {
-    let mut cfg = Config::default();
-    cfg.block_size = block_size;
-    cfg.max_seed_len = 3;
+    let cfg = Config { block_size, max_seed_len: 3, ..Config::default() };
     compress_block_with_config(input, &cfg, stats)
 }

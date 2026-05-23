@@ -2,9 +2,9 @@
 //! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 
 use clap::{Parser, Subcommand, ValueEnum};
-use std::{fs, path::PathBuf, time::Instant};
+use std::{fs, path::PathBuf};
 use telomere::{
-    compress_multi_pass_with_config, decode_tlmr_header, decompress_with_limit,
+    decode_tlmr_header, decompress_with_limit,
     truncated_hash, Config, HasherKind,
 };
 use tracing::{info, error, warn};
