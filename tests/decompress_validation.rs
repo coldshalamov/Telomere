@@ -1,24 +1,25 @@
-//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
-use telomere::{compress, decompress_with_limit, Config};
+//! Validation tests: truncated and corrupted streams must be rejected.
+use telomere::{compress_multi_pass_with_config, decompress_with_limit, Config};
 
-fn cfg() -> Config {
-    Config { block_size: 3, hash_bits: 13, ..Config::default() }
+fn fast_cfg(block_size: usize) -> Config {
+    Config { block_size, max_seed_len: 1, hash_bits: 13, ..Config::default() }
 }
 
 #[test]
 fn test_invalid_truncated_file_fails() {
-    // Truncating a valid compressed file should trigger a decode error
     let data: Vec<u8> = (0u8..20).collect();
-    let mut input = compress(&data, 3).unwrap();
-    input.truncate(4); // simulate a truncated stream
-    assert!(decompress_with_limit(&input, &cfg(), 100).is_err());
+    let cfg = fast_cfg(3);
+    let (mut input, _) = compress_multi_pass_with_config(&data, &cfg, 1, false).unwrap();
+    input.truncate(4); // simulate truncated stream after file header
+    assert!(decompress_with_limit(&input, &cfg, 100).is_err());
 }
 
 #[test]
 fn test_wrong_hash_fails_decompression() {
-    // Corrupting any byte should lead to a hash mismatch during decompression
+    // Flip a bit in the output_hash portion of the TlmrHeader.
     let data: Vec<u8> = (0u8..10).collect();
-    let mut input = compress(&data, 3).unwrap();
-    input[2] ^= 0xFF; // flip a byte in the stream
-    assert!(decompress_with_limit(&input, &cfg(), 100).is_err());
+    let cfg = fast_cfg(3);
+    let (mut input, _) = compress_multi_pass_with_config(&data, &cfg, 1, false).unwrap();
+    input[2] ^= 0x01; // flip LSB in the hash field
+    assert!(decompress_with_limit(&input, &cfg, 100).is_err());
 }

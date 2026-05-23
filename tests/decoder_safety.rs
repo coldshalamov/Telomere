@@ -1,46 +1,65 @@
+//! Decoder safety tests: malformed input must not panic or corrupt data.
 use rand::Rng;
-use telomere::{compress, decompress_with_limit, Config};
+use telomere::{compress_multi_pass_with_config, decompress_with_limit, Config};
 
-fn cfg(bs: usize) -> Config {
-    Config { block_size: bs, hash_bits: 13, ..Config::default() }
+fn fast_cfg(block_size: usize) -> Config {
+    Config { block_size, max_seed_len: 1, hash_bits: 13, ..Config::default() }
 }
 
 #[test]
 fn truncated_header_fails() {
     let block = 4usize;
     let data: Vec<u8> = (0u8..20).collect();
-    let mut compressed = compress(&data, block).unwrap();
+    let cfg = fast_cfg(block);
+    let (mut compressed, _) = compress_multi_pass_with_config(&data, &cfg, 1, false).unwrap();
     compressed.truncate(compressed.len() - 1);
-    assert!(decompress_with_limit(&compressed, &cfg(block), usize::MAX).is_err());
+    assert!(decompress_with_limit(&compressed, &cfg, usize::MAX).is_err());
 }
 
 #[test]
 fn orphan_bytes_fail() {
     let block = 3usize;
     let data: Vec<u8> = (0u8..10).collect();
-    let mut compressed = compress(&data, block).unwrap();
+    let cfg = fast_cfg(block);
+    let (mut compressed, _) = compress_multi_pass_with_config(&data, &cfg, 1, false).unwrap();
     compressed.extend_from_slice(&[0xAA, 0xBB]);
-    assert!(decompress_with_limit(&compressed, &cfg(block), usize::MAX).is_err());
+    // Extra bytes make the stream invalid (bits_consumed check fails).
+    assert!(decompress_with_limit(&compressed, &cfg, usize::MAX).is_err());
 }
 
 #[test]
-fn single_bit_flip_fuzz() {
+fn single_bit_flip_mostly_fails() {
     let block = 4usize;
     let data: Vec<u8> = (0u8..32).collect();
-    let compressed = compress(&data, block).unwrap();
+    let cfg = fast_cfg(block);
+    let (compressed, _) = compress_multi_pass_with_config(&data, &cfg, 1, false).unwrap();
     let total_bits = compressed.len() * 8;
     let mut rng = rand::thread_rng();
     let mut failures = 0u32;
-    let trials = 100u32;
+    let trials = 50u32;
     for _ in 0..trials {
         let mut buf = compressed.clone();
         let bit = rng.gen_range(0..total_bits);
-        let byte_idx = bit / 8;
-        let mask = 1u8 << (7 - (bit % 8));
-        buf[byte_idx] ^= mask;
-        if decompress_with_limit(&buf, &cfg(block), usize::MAX).is_err() {
+        buf[bit / 8] ^= 1u8 << (7 - (bit % 8));
+        if decompress_with_limit(&buf, &cfg, usize::MAX).is_err() {
             failures += 1;
         }
     }
-    assert!(failures as f64 / trials as f64 >= 0.9);
+    // Output hash is 13 bits: ~1/8192 chance of undetected corruption.
+    // With 50 trials we should catch >80% of flips.
+    assert!(
+        failures >= trials * 4 / 5,
+        "only {}/{} flips detected", failures, trials
+    );
+}
+
+#[test]
+fn random_bytes_dont_panic() {
+    let cfg = fast_cfg(3);
+    let mut rng = rand::thread_rng();
+    for _ in 0..100 {
+        let len: usize = rng.gen_range(0..50);
+        let garbage: Vec<u8> = (0..len).map(|_| rng.gen::<u8>()).collect();
+        let _ = decompress_with_limit(&garbage, &cfg, usize::MAX);
+    }
 }

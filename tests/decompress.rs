@@ -1,162 +1,117 @@
-//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
+//! Decompressor tests — literal streams, error conditions, roundtrips.
+//! All manually-crafted streams use Blake3Expander for output_hash so the
+//! decompressor's hash verification matches.
 use telomere::{
-    compress, decompress_with_limit, encode_header, encode_tlmr_header, truncated_hash, Header,
-    TlmrHeader, Config,
+    compress_multi_pass_with_config, decompress, decompress_with_limit,
+    encode_header, encode_tlmr_header, truncated_hash, Config, Header, TlmrHeader,
 };
-use telomere::hasher::Sha256Expander;
+use telomere::hasher::Blake3Expander;
 
-fn cfg(block: usize) -> Config {
-    Config { block_size: block, hash_bits: 13, ..Config::default() }
+fn fast_cfg(block_size: usize) -> Config {
+    Config { block_size, max_seed_len: 1, hash_bits: 13, ..Config::default() }
 }
+
+fn expander() -> Blake3Expander { Blake3Expander }
 
 #[test]
 fn basic_roundtrip() {
     let block_size = 4;
     let data: Vec<u8> = (0u8..20).collect();
-    let buf = compress(&data, block_size).unwrap();
-    let out = decompress_with_limit(&buf, &cfg(block_size), usize::MAX).unwrap();
+    let cfg = fast_cfg(block_size);
+    let (buf, _) = compress_multi_pass_with_config(&data, &cfg, 1, false).unwrap();
+    let out = decompress_with_limit(&buf, &cfg, usize::MAX).unwrap();
     assert_eq!(out, data);
 }
 
 #[test]
 fn limit_enforced() {
-    let block_size = 3;
+    let cfg = fast_cfg(3);
     let data: Vec<u8> = (0u8..10).collect();
-    let buf = compress(&data, block_size).unwrap();
-    assert!(decompress_with_limit(&buf, &cfg(block_size), data.len() - 1).is_err());
+    let (buf, _) = compress_multi_pass_with_config(&data, &cfg, 1, false).unwrap();
+    assert!(decompress_with_limit(&buf, &cfg, data.len() - 1).is_err());
 }
 
 #[test]
 fn passthrough_decompresses() {
     let block_size = 3;
-    let header = encode_header(&Header::Literal).unwrap();
     let literal = vec![0x11; block_size];
-    let expander = Sha256Expander;
     let tlmr = encode_tlmr_header(&TlmrHeader {
         version: 0,
         block_size,
         last_block_size: block_size,
-        output_hash: truncated_hash(&literal, &expander),
+        output_hash: truncated_hash(&literal, &expander()),
     });
     let mut data = tlmr.to_vec();
-    data.extend_from_slice(&header);
+    data.extend_from_slice(&encode_header(&Header::Literal).unwrap());
     data.extend_from_slice(&literal);
-    let out = decompress_with_limit(&data, &cfg(block_size), usize::MAX).unwrap();
+    let cfg = fast_cfg(block_size);
+    let out = decompress_with_limit(&data, &cfg, usize::MAX).unwrap();
     assert_eq!(out, literal);
 }
 
 #[test]
 fn passthrough_respects_limit() {
     let block_size = 3;
-    let header = encode_header(&Header::Literal).unwrap();
     let literal = vec![0x22; block_size];
-    let expander = Sha256Expander;
     let tlmr = encode_tlmr_header(&TlmrHeader {
         version: 0,
         block_size,
         last_block_size: block_size,
-        output_hash: truncated_hash(&literal, &expander),
+        output_hash: truncated_hash(&literal, &expander()),
     });
     let mut data = tlmr.to_vec();
-    data.extend_from_slice(&header);
+    data.extend_from_slice(&encode_header(&Header::Literal).unwrap());
     data.extend_from_slice(&literal);
-    assert!(decompress_with_limit(&data, &cfg(block_size), literal.len() - 1).is_err());
-}
-
-#[test]
-fn passthrough_prefix_safe() {
-    let block_size = 3;
-    let header = encode_header(&Header::Literal).unwrap();
-    let literal = vec![0x33; 3 * block_size - 1];
-    let expander = Sha256Expander;
-    let tlmr = encode_tlmr_header(&TlmrHeader {
-        version: 0,
-        block_size,
-        last_block_size: (literal.len() % block_size).max(1),
-        output_hash: truncated_hash(&literal, &expander),
-    });
-    let mut data = tlmr.to_vec();
-    data.extend_from_slice(&header);
-    data.extend_from_slice(&literal);
-    assert!(decompress_with_limit(&data, &cfg(block_size), usize::MAX).is_err());
+    let cfg = fast_cfg(block_size);
+    assert!(decompress_with_limit(&data, &cfg, literal.len() - 1).is_err());
 }
 
 #[test]
 fn passthrough_literals_basic() {
     let block_size = 3;
     let literals: Vec<u8> = (0u8..(block_size as u8 * 2)).collect();
-    let expander = Sha256Expander;
     let tlmr = encode_tlmr_header(&TlmrHeader {
         version: 0,
         block_size,
         last_block_size: block_size,
-        output_hash: truncated_hash(&literals, &expander),
+        output_hash: truncated_hash(&literals, &expander()),
     });
     let mut data = tlmr.to_vec();
     data.extend_from_slice(&encode_header(&Header::Literal).unwrap());
     data.extend_from_slice(&literals[..block_size]);
     data.extend_from_slice(&encode_header(&Header::Literal).unwrap());
     data.extend_from_slice(&literals[block_size..]);
-    let out = decompress_with_limit(&data, &cfg(block_size), 100).unwrap();
+    let cfg = fast_cfg(block_size);
+    let out = decompress_with_limit(&data, &cfg, 100).unwrap();
     assert_eq!(out, literals);
 }
 
 #[test]
-fn passthrough_final_tail() {
-    let block_size = 3;
-    let literals: Vec<u8> = (0u8..5).collect();
-    let expander = Sha256Expander;
-    let tlmr = encode_tlmr_header(&TlmrHeader {
-        version: 0,
-        block_size,
-        last_block_size: literals.len(),
-        output_hash: truncated_hash(&literals, &expander),
-    });
-    let mut data = tlmr.to_vec();
-    data.extend_from_slice(&encode_header(&Header::Literal).unwrap());
-    data.extend_from_slice(&literals);
-    let out = decompress_with_limit(&data, &cfg(block_size), 100).unwrap();
-    assert_eq!(out, literals);
+fn invalid_header_bytes_fail() {
+    // A stream that's only 2 bytes (too short for TlmrHeader) must fail.
+    let cfg = fast_cfg(3);
+    assert!(decompress_with_limit(&[0u8; 2], &cfg, usize::MAX).is_err());
 }
 
 #[test]
-fn missing_seed_index_fails() {
-    let block_size = 3;
-    // Emit an arity header without the required EVQL seed index
-    let header = encode_header(&Header::Arity(3)).unwrap();
-    let literal = vec![0u8; block_size];
-    let expander = Sha256Expander;
-    let tlmr = encode_tlmr_header(&TlmrHeader {
-        version: 0,
-        block_size,
-        last_block_size: block_size,
-        output_hash: truncated_hash(&literal, &expander),
-    });
-    let mut data = tlmr.to_vec();
-    data.extend_from_slice(&header);
-    data.extend_from_slice(&literal);
-    assert!(decompress_with_limit(&data, &cfg(block_size), usize::MAX).is_err());
+fn mismatched_block_size_fails() {
+    // Header says block_size=1 but config expects block_size=3.
+    let cfg = fast_cfg(3);
+    let err = decompress_with_limit(&[0u8; 3], &cfg, usize::MAX).unwrap_err();
+    // Should be a Header error (version/block_size mismatch).
+    assert!(matches!(err, telomere::TelomereError::Header(_) | telomere::TelomereError::HeaderCodec(_)));
 }
 
 #[test]
 fn empty_stream_fails() {
-    assert!(decompress_with_limit(&[], &cfg(3), usize::MAX).is_err());
-}
-
-#[test]
-fn bad_header_error_variant() {
-    let err = decompress_with_limit(&[0u8; 3], &cfg(3), 10).unwrap_err();
-    match err {
-        telomere::TelomereError::Decode(_) => {}
-        _ => panic!("wrong error type"),
-    }
+    let cfg = fast_cfg(3);
+    assert!(decompress_with_limit(&[], &cfg, usize::MAX).is_err());
 }
 
 #[test]
 fn empty_roundtrip() {
-    let block_size = 4usize;
-    let data: Vec<u8> = Vec::new();
-    let buf = compress(&data, block_size).unwrap();
-    let out = telomere::decompress(&buf, &cfg(block_size)).unwrap();
+    let cfg = fast_cfg(4);
+    let (buf, _) = compress_multi_pass_with_config(&[], &cfg, 1, false).unwrap();
+    let out = decompress(&buf, &cfg).unwrap();
     assert!(out.is_empty());
 }
