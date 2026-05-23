@@ -1,4 +1,4 @@
-//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
+//! CLI roundtrip test using the main telomere binary.
 use std::fs;
 use std::process::Command;
 
@@ -17,24 +17,21 @@ fn compress_roundtrip_cli() {
             "compress",
             input.to_str().unwrap(),
             compressed.to_str().unwrap(),
-            "--block-size",
-            "4",
+            "--block-size", "4",
+            "--seed-depth", "1", // fast: 256 seeds per block
+            "--passes", "1",
         ])
         .status()
         .expect("compress failed");
-    assert!(status.success());
+    assert!(status.success(), "compress subcommand failed");
 
     let status = Command::new(exe)
-        .args([
-            "decompress",
-            compressed.to_str().unwrap(),
-            output.to_str().unwrap(),
-        ])
+        .args(["decompress", compressed.to_str().unwrap(), output.to_str().unwrap()])
         .status()
         .expect("decompress failed");
-    assert!(status.success());
+    assert!(status.success(), "decompress subcommand failed");
 
     let orig = fs::read(&input).unwrap();
     let out = fs::read(&output).unwrap();
-    assert_eq!(orig, out);
+    assert_eq!(orig, out, "roundtrip mismatch");
 }

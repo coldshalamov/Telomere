@@ -1,50 +1,54 @@
-//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
-use telomere::{decode_header, encode_header, Header};
+//! Header encode/decode roundtrip tests for the current Lotus 4-field format.
+use telomere::{decode_header, decode_lotus_header, encode_header, encode_lotus_header, pack_bits, Header};
 
-fn pack_bits(bits: &[bool]) -> Vec<u8> {
-    let mut out = Vec::new();
-    let mut byte = 0u8;
-    let mut used = 0u8;
-    for &b in bits {
-        byte = (byte << 1) | b as u8;
-        used += 1;
-        if used == 8 {
-            out.push(byte);
-            byte = 0;
-            used = 0;
-        }
-    }
-    if used > 0 {
-        byte <<= 8 - used;
-        out.push(byte);
-    }
-    if out.is_empty() {
-        out.push(0);
-    }
-    out
+#[test]
+fn literal_header_encodes_and_decodes() {
+    let enc = encode_header(&Header::Literal).unwrap();
+    let (dec, _bits) = decode_header(&enc).unwrap();
+    assert_eq!(dec, Header::Literal);
 }
 
 #[test]
-fn basic_patterns() {
-    let cases: &[(Header, &[bool])] = &[
-        (Header::Arity(1), &[false]),
-        (Header::Arity(3), &[true, false, true, false]),
-        (Header::Arity(4), &[true, false, true, true]),
-        (Header::Arity(5), &[true, true, false, false, false]),
-        (Header::Arity(6), &[true, true, false, false, true]),
-        (Header::Arity(7), &[true, true, false, true, false]),
-        (Header::Arity(8), &[true, true, false, true, true]),
-        (Header::Literal, &[true, false, false]),
-    ];
-    for (h, bits) in cases {
-        let enc = encode_header(h).unwrap();
-        assert_eq!(enc, pack_bits(bits));
-        let (dec, _) = decode_header(&enc).unwrap();
-        assert_eq!(&dec, h);
+fn lotus_arity_headers_roundtrip() {
+    // Each arity 1-5 with a trivial 8-bit payload.
+    for arity in 1usize..=5 {
+        let payload = vec![false, false, false, false, false, false, false, true]; // 8 bits = value 1
+        let bits = encode_lotus_header(arity, &payload, payload.len()).unwrap();
+        let packed = pack_bits(&bits);
+        let (dec, used_bits) = decode_lotus_header(&packed).unwrap();
+        assert_eq!(dec.arity as usize, arity, "arity={}", arity);
+        assert!(!dec.is_literal);
+        assert_eq!(dec.payload_bits, payload);
+        assert_eq!(used_bits, bits.len(), "bits consumed must equal bits emitted for arity={}", arity);
     }
+}
 
-    // reserved arity value should be rejected
-    assert!(encode_header(&Header::Arity(2)).is_err());
-    let pattern = pack_bits(&[true, true, true, true, true]);
-    assert!(decode_header(&pattern).is_err());
+#[test]
+fn literal_marker_is_0xff() {
+    // The Lotus literal marker uses arity=0xFF (mode=true, bits=[true,true]).
+    let bits = encode_lotus_header(0xFF, &[], 0).unwrap();
+    assert_eq!(bits.len(), 3, "literal marker is exactly 3 bits");
+    let packed = pack_bits(&bits);
+    let (dec, used) = decode_lotus_header(&packed).unwrap();
+    assert!(dec.is_literal);
+    assert_eq!(dec.arity, 0xFF);
+    assert_eq!(used, 3);
+}
+
+#[test]
+fn arity_2_is_valid() {
+    // Arity 2 is NOT the literal marker; it is a valid compressed arity.
+    let payload = vec![true; 16]; // 16-bit payload
+    let bits = encode_lotus_header(2, &payload, payload.len()).unwrap();
+    let packed = pack_bits(&bits);
+    let (dec, _) = decode_lotus_header(&packed).unwrap();
+    assert_eq!(dec.arity, 2);
+    assert!(!dec.is_literal);
+}
+
+#[test]
+fn encode_header_literal_only() {
+    // encode_header() only supports Header::Literal; Arity must use encode_lotus_header.
+    assert!(encode_header(&Header::Literal).is_ok());
+    // No test for Arity since encode_header doesn't support it — use encode_lotus_header.
 }

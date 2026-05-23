@@ -73,17 +73,24 @@ pub struct Sha256Expander;
 impl SeedExpander for Sha256Expander {
     #[inline]
     fn expand_into(&self, seed: &[u8], out: &mut [u8]) {
-        let mut pos = 0usize;
-        let mut counter: u64 = 0;
-        while pos < out.len() {
-            let mut h = Sha256::new();
-            h.update(seed);
-            h.update(counter.to_le_bytes());
-            let hash = h.finalize();
-            let take = (out.len() - pos).min(32);
-            out[pos..pos + take].copy_from_slice(&hash[..take]);
-            pos += take;
-            counter += 1;
+        // First 32 bytes: plain SHA256(seed) — matches the "natural" SHA256 of seed.
+        // Continuation beyond 32 bytes: SHA256(seed || counter_le) for counter 1, 2, …
+        let first = Sha256::digest(seed);
+        let n = out.len().min(32);
+        out[..n].copy_from_slice(&first[..n]);
+        if out.len() > 32 {
+            let mut counter: u64 = 1;
+            let mut pos = 32usize;
+            while pos < out.len() {
+                let mut h = Sha256::new();
+                h.update(seed);
+                h.update(counter.to_le_bytes());
+                let hash = h.finalize();
+                let take = (out.len() - pos).min(32);
+                out[pos..pos + take].copy_from_slice(&hash[..take]);
+                pos += take;
+                counter += 1;
+            }
         }
     }
 
