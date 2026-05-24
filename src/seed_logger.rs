@@ -23,25 +23,26 @@ pub struct ResourceLimits {
     pub max_memory_bytes: u64,
 }
 
-
-
 /// Return an error if writing an entry would exceed resource limits.
-fn check_limits(limits: &ResourceLimits, path: &Path, entry_bytes: u64) -> Result<(), crate::TelomereError> {
-
+fn check_limits(
+    limits: &ResourceLimits,
+    path: &Path,
+    entry_bytes: u64,
+) -> Result<(), crate::TelomereError> {
     // first (and only) disk-limit check
-let current = std::fs::metadata(path).map(|m| m.len()).unwrap_or(0);
-if current + entry_bytes > limits.max_disk_bytes {
-    return Err(crate::TelomereError::Io(io::Error::new(
-        io::ErrorKind::Other,
-        format!(
-            "disk limit exceeded: {} + {} > {}",
-            current, entry_bytes, limits.max_disk_bytes
-        ),
-    )));
-}
+    let current = std::fs::metadata(path).map(|m| m.len()).unwrap_or(0);
+    if current + entry_bytes > limits.max_disk_bytes {
+        return Err(crate::TelomereError::Io(io::Error::new(
+            io::ErrorKind::Other,
+            format!(
+                "disk limit exceeded: {} + {} > {}",
+                current, entry_bytes, limits.max_disk_bytes
+            ),
+        )));
+    }
 
-// ---- RAM check stays as-is ----
-let mut sys = System::new();
+    // ---- RAM check stays as-is ----
+    let mut sys = System::new();
 
     sys.refresh_memory();
     let used = sys.used_memory() * 1024;
@@ -106,7 +107,11 @@ pub fn log_seed_to(
     if let Some(l) = limits {
         check_limits(l, path, bytes.len() as u64)?;
     }
-    let mut file = OpenOptions::new().create(true).append(true).open(path).map_err(crate::TelomereError::from)?;
+    let mut file = OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(path)
+        .map_err(crate::TelomereError::from)?;
     file.write_all(&bytes).map_err(crate::TelomereError::from)?;
     Ok(())
 }

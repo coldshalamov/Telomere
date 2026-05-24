@@ -1,23 +1,36 @@
 //! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
+use telomere::hasher::Sha256Expander;
 use telomere::{
     compress, decode_tlmr_header, decompress_with_limit, encode_header, encode_tlmr_header,
-    truncated_hash, Header, TlmrHeader, Config,
+    truncated_hash_bits, Config, HasherKind, Header, TlmrHeader, LOTUS_PRESET_VERSION,
+    TLMR_FORMAT_VERSION,
 };
-use telomere::hasher::Sha256Expander;
 
 fn cfg(bs: usize) -> Config {
-    Config { block_size: bs, hash_bits: 13, ..Config::default() }
+    Config {
+        block_size: bs,
+        hash_bits: 13,
+        ..Config::default()
+    }
 }
 
 #[test]
 fn header_bit_roundtrip() {
-    for version in 0u8..=7 {
+    for hasher in [HasherKind::Blake3, HasherKind::Sha256] {
         for bs in 1usize..=16 {
-            for last in 1usize..=16 {
+            for last in 1usize..=bs {
                 let h = TlmrHeader {
-                    version,
+                    version: TLMR_FORMAT_VERSION,
+                    lotus_preset: LOTUS_PRESET_VERSION,
+                    hasher,
                     block_size: bs,
                     last_block_size: last,
+                    max_seed_len: 1,
+                    max_arity: 5,
+                    hash_bits: 13,
+                    layer_count: 1,
+                    original_len: 10,
+                    payload_len: 12,
                     output_hash: 0x1FFF,
                 };
                 let enc = encode_tlmr_header(&h);
@@ -28,28 +41,66 @@ fn header_bit_roundtrip() {
     }
 }
 
+#[test]
+fn tlmr_v1_header_golden_bytes() {
+    let h = TlmrHeader {
+        version: TLMR_FORMAT_VERSION,
+        lotus_preset: LOTUS_PRESET_VERSION,
+        hasher: HasherKind::Blake3,
+        block_size: 4,
+        last_block_size: 2,
+        max_seed_len: 1,
+        max_arity: 5,
+        hash_bits: 13,
+        layer_count: 1,
+        original_len: 10,
+        payload_len: 15,
+        output_hash: 0x0123,
+    };
+    let enc = encode_tlmr_header(&h);
+    assert_eq!(
+        enc,
+        vec![
+            0x54, 0x4C, 0x4D, 0x52, 0x01, 0x28, 0x01, 0x01, 0x00, 0x04, 0x00, 0x02, 0x01, 0x05,
+            0x0D, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A, 0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x0F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x23,
+        ]
+    );
+    assert_eq!(decode_tlmr_header(&enc).unwrap(), h);
+}
+
 fn build_data(bytes: &[u8], bs: usize) -> Vec<u8> {
     let last = if bytes.is_empty() {
         bs
     } else {
         (bytes.len() - 1) % bs + 1
     };
-    
+
     let expander = Sha256Expander;
-    let hdr = encode_tlmr_header(&TlmrHeader {
-        version: 0,
-        block_size: bs,
-        last_block_size: last,
-        output_hash: truncated_hash(bytes, &expander),
-    });
-    let mut out = hdr.to_vec();
+    let mut payload = Vec::new();
     let mut offset = 0usize;
     while offset < bytes.len() {
-        out.extend_from_slice(&encode_header(&Header::Literal).unwrap());
+        payload.extend_from_slice(&encode_header(&Header::Literal).unwrap());
         let len = bs.min(bytes.len() - offset);
-        out.extend_from_slice(&bytes[offset..offset + len]);
+        payload.extend_from_slice(&bytes[offset..offset + len]);
         offset += len;
     }
+    let hdr = encode_tlmr_header(&TlmrHeader {
+        version: TLMR_FORMAT_VERSION,
+        lotus_preset: LOTUS_PRESET_VERSION,
+        hasher: HasherKind::Sha256,
+        block_size: bs,
+        last_block_size: last,
+        max_seed_len: 1,
+        max_arity: 5,
+        hash_bits: 13,
+        layer_count: 1,
+        original_len: bytes.len() as u64,
+        payload_len: payload.len() as u64,
+        output_hash: truncated_hash_bits(bytes, &expander, 13),
+    });
+    let mut out = hdr;
+    out.extend(payload);
     out
 }
 

@@ -1,7 +1,7 @@
 //! Property tests for find_seed_match: the search must find any seed whose
 //! expansion matches the target.  Uses Blake3Expander consistently.
-use telomere::{find_seed_match, index_to_seed};
 use telomere::hasher::{Blake3Expander, SeedExpander};
+use telomere::{find_seed_match, index_to_seed};
 
 fn expand(seed: &[u8], len: usize) -> Vec<u8> {
     let mut out = vec![0u8; len];
@@ -33,9 +33,7 @@ fn found_seed_always_reconstructs_correctly() {
     // For any data, if find_seed_match returns Some(idx), the reconstructed seed
     // must expand to the original data.
     let expander = Blake3Expander;
-    let test_cases: &[&[u8]] = &[
-        &[0x00], &[0xFF], &[0x42], &[0x00, 0x00], &[0x01, 0x02],
-    ];
+    let test_cases: &[&[u8]] = &[&[0x00], &[0xFF], &[0x42], &[0x00, 0x00], &[0x01, 0x02]];
     for &data in test_cases {
         if let Ok(Some(idx)) = find_seed_match(data, 1, &expander) {
             let seed = index_to_seed(idx, 1).unwrap();

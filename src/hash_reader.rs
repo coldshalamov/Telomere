@@ -110,7 +110,11 @@ mod tests {
     #[test]
     fn handles_zero_len_seed() {
         // zero length should be ignored and return None
-        let entries = [Entry { prefix: [1, 2, 3], len: 0, seed: [0; 4] }];
+        let entries = [Entry {
+            prefix: [1, 2, 3],
+            len: 0,
+            seed: [0; 4],
+        }];
         let bytes: &[u8] = bytemuck::cast_slice(&entries);
         assert!(lookup_seed(bytes, [1, 2, 3]).is_none());
     }

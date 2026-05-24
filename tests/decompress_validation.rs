@@ -2,7 +2,12 @@
 use telomere::{compress_multi_pass_with_config, decompress_with_limit, Config};
 
 fn fast_cfg(block_size: usize) -> Config {
-    Config { block_size, max_seed_len: 1, hash_bits: 13, ..Config::default() }
+    Config {
+        block_size,
+        max_seed_len: 1,
+        hash_bits: 13,
+        ..Config::default()
+    }
 }
 
 #[test]

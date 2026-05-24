@@ -3,6 +3,7 @@
 use telomere::hasher::{Blake3Expander, SeedExpander};
 use telomere::{
     compress_multi_pass_with_config, decode_header, decode_tlmr_header, decompress, Config, Header,
+    TLMR_HEADER_LEN,
 };
 
 fn fast_cfg(block_size: usize) -> Config {
@@ -37,7 +38,7 @@ fn single_block_literal_roundtrip() {
     let (compressed, _) = compress_multi_pass_with_config(&data, &cfg, 1, false).unwrap();
     let header = decode_tlmr_header(&compressed).unwrap();
     assert_eq!(header.block_size, 4);
-    let _ = decode_header(&compressed[3..]).unwrap();
+    let _ = decode_header(&compressed[TLMR_HEADER_LEN..]).unwrap();
     let out = decompress(&compressed, &cfg).expect("decompress failed");
     assert_eq!(out, data);
 }
@@ -61,10 +62,10 @@ fn header_stream_structure_valid() {
     data.extend_from_slice(&[0x10, 0x20, 0x30]);
     let (compressed, _) = compress_multi_pass_with_config(&data, &cfg, 1, false).unwrap();
     let header = decode_tlmr_header(&compressed).unwrap();
-    let mut offset = 3usize;
+    let mut offset = TLMR_HEADER_LEN;
     while offset < compressed.len() {
         let (h, bits) = decode_header(&compressed[offset..]).unwrap();
-        offset += (bits + 7) / 8;
+        offset += bits.div_ceil(8);
         match h {
             Header::Literal => {
                 let remaining = compressed.len() - offset;

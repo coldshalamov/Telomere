@@ -1,7 +1,7 @@
 //! Tests for SuperpositionManager (current API).
+use rand::seq::SliceRandom;
 use telomere::superposition::{InsertResult, SuperpositionManager};
 use telomere::types::Candidate;
-use rand::seq::SliceRandom;
 
 #[test]
 fn superposed_label_promotion() {

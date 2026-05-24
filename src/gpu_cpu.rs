@@ -1,6 +1,6 @@
 use crate::block::{BlockId, BlockStore};
-use crate::{GpuMatchRecord, TelomereError};
 use crate::hasher::SeedExpander;
+use crate::{GpuMatchRecord, TelomereError};
 
 struct SimulatedBlock {
     data: Vec<u8>,
@@ -22,15 +22,18 @@ impl GpuSeedMatcher {
 
     /// Load a block tile into the simulated GPU memory.
     pub fn load_tile(&mut self, store: &BlockStore, blocks: &[BlockId]) {
-        self.tile = blocks.iter().map(|&id| {
-            let b_ref = store.get_block(id);
-            let data = store.get_data(id).to_vec();
-            SimulatedBlock {
-                data,
-                global_index: b_ref.global_index as usize,
-                bit_length: b_ref.bit_len as usize,
-            }
-        }).collect();
+        self.tile = blocks
+            .iter()
+            .map(|&id| {
+                let b_ref = store.get_block(id);
+                let data = store.get_data(id).to_vec();
+                SimulatedBlock {
+                    data,
+                    global_index: b_ref.global_index as usize,
+                    bit_length: b_ref.bit_len as usize,
+                }
+            })
+            .collect();
     }
 
     /// Hash seeds on the fly and return match records.

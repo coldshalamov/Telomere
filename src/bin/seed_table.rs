@@ -7,8 +7,8 @@ use std::{
     io::{BufRead, BufReader, BufWriter, Write},
     path::Path,
 };
-use telomere::io_utils::io_cli_error;
 use telomere::hasher::{Blake3Expander, SeedExpander};
+use telomere::io_utils::io_cli_error;
 
 #[derive(Parser)]
 struct Args {
@@ -70,7 +70,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
 
             let bytes_full = i.to_be_bytes();
             let seed_bytes = &bytes_full[8 - num_bytes..];
-            
+
             let expander = Blake3Expander;
             let result = expander.digest(seed_bytes);
             let hash_hex = hex::encode(result);

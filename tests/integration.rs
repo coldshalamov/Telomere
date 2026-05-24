@@ -17,9 +17,12 @@ fn cli_roundtrip() {
             "compress",
             input.to_str().unwrap(),
             compressed.to_str().unwrap(),
-            "--block-size", "3",
-            "--seed-depth", "1", // fast: 256 seeds per block
-            "--passes", "1",
+            "--block-size",
+            "3",
+            "--seed-depth",
+            "1", // fast: 256 seeds per block
+            "--passes",
+            "1",
         ])
         .output()
         .expect("failed to run compress");
@@ -30,7 +33,11 @@ fn cli_roundtrip() {
     );
 
     let decompress = Command::new(exe)
-        .args(["decompress", compressed.to_str().unwrap(), output.to_str().unwrap()])
+        .args([
+            "decompress",
+            compressed.to_str().unwrap(),
+            output.to_str().unwrap(),
+        ])
         .output()
         .expect("failed to run decompress");
     assert!(

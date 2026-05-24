@@ -47,7 +47,7 @@ fn fixed_roundtrip_empty() {
 fn fixed_roundtrip_repetitive() {
     // Repetitive data is the best case for the generative approach.
     let block_size = 2usize;
-    let input: Vec<u8> = std::iter::repeat(0xAAu8).take(20).collect();
+    let input: Vec<u8> = std::iter::repeat_n(0xAAu8, 20).collect();
     let cfg = fast_cfg(block_size);
     let (out, _) = compress_multi_pass_with_config(&input, &cfg, 3, false).unwrap();
     let decoded = decompress(&out, &cfg).expect("decompress failed on repetitive input");

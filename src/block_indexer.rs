@@ -1,8 +1,8 @@
 //! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 use std::collections::HashMap;
 
-use crate::{index_to_seed, TelomereError};
 use crate::hasher::SeedExpander;
+use crate::{index_to_seed, TelomereError};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SeedMatch {
@@ -35,9 +35,9 @@ pub fn brute_force_seed_tables(
     for len in 1..=max_seed_len {
         limit += 1u128 << (8 * len);
     }
-    
+
     // Safety
-     if limit > usize::MAX as u128 {
+    if limit > usize::MAX as u128 {
         limit = usize::MAX as u128;
     }
 

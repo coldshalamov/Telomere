@@ -95,13 +95,41 @@ mod tests {
     fn merge_single_opportunity() {
         // three literal blocks
         let spans = vec![
-            (0, Candidate { seed_index: 0, arity: 1, bit_len: 16 }),
-            (1, Candidate { seed_index: 1, arity: 1, bit_len: 16 }),
-            (2, Candidate { seed_index: 2, arity: 1, bit_len: 16 }),
+            (
+                0,
+                Candidate {
+                    seed_index: 0,
+                    arity: 1,
+                    bit_len: 16,
+                },
+            ),
+            (
+                1,
+                Candidate {
+                    seed_index: 1,
+                    arity: 1,
+                    bit_len: 16,
+                },
+            ),
+            (
+                2,
+                Candidate {
+                    seed_index: 2,
+                    arity: 1,
+                    bit_len: 16,
+                },
+            ),
         ];
         // candidate covering first two blocks
         let mut cand_map = HashMap::new();
-        cand_map.insert((0, 2), Candidate { seed_index: 10, arity: 2, bit_len: 30 });
+        cand_map.insert(
+            (0, 2),
+            Candidate {
+                seed_index: 10,
+                arity: 2,
+                bit_len: 30,
+            },
+        );
 
         let out = bundle_one_layer(&spans, &cand_map);
         assert_eq!(out.len(), 2);
@@ -114,12 +142,40 @@ mod tests {
     #[test]
     fn idempotence() {
         let spans = vec![
-            (0, Candidate { seed_index: 0, arity: 1, bit_len: 16 }),
-            (1, Candidate { seed_index: 1, arity: 1, bit_len: 16 }),
-            (2, Candidate { seed_index: 2, arity: 1, bit_len: 16 }),
+            (
+                0,
+                Candidate {
+                    seed_index: 0,
+                    arity: 1,
+                    bit_len: 16,
+                },
+            ),
+            (
+                1,
+                Candidate {
+                    seed_index: 1,
+                    arity: 1,
+                    bit_len: 16,
+                },
+            ),
+            (
+                2,
+                Candidate {
+                    seed_index: 2,
+                    arity: 1,
+                    bit_len: 16,
+                },
+            ),
         ];
         let mut cand_map = HashMap::new();
-        cand_map.insert((0, 2), Candidate { seed_index: 10, arity: 2, bit_len: 30 });
+        cand_map.insert(
+            (0, 2),
+            Candidate {
+                seed_index: 10,
+                arity: 2,
+                bit_len: 30,
+            },
+        );
 
         let once = bundle_one_layer(&spans, &cand_map);
         let twice = bundle_one_layer(&once, &cand_map);
@@ -129,12 +185,33 @@ mod tests {
     #[test]
     fn reject_incomplete_span() {
         let spans = vec![
-            (0, Candidate { seed_index: 0, arity: 1, bit_len: 16 }),
-            (1, Candidate { seed_index: 1, arity: 1, bit_len: 16 }),
+            (
+                0,
+                Candidate {
+                    seed_index: 0,
+                    arity: 1,
+                    bit_len: 16,
+                },
+            ),
+            (
+                1,
+                Candidate {
+                    seed_index: 1,
+                    arity: 1,
+                    bit_len: 16,
+                },
+            ),
         ];
         // candidate requires three blocks but only two remain from index 1
         let mut cand_map = HashMap::new();
-        cand_map.insert((1, 3), Candidate { seed_index: 10, arity: 3, bit_len: 40 });
+        cand_map.insert(
+            (1, 3),
+            Candidate {
+                seed_index: 10,
+                arity: 3,
+                bit_len: 40,
+            },
+        );
 
         let out = bundle_one_layer(&spans, &cand_map);
         assert_eq!(out, spans);

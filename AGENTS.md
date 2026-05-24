@@ -1,60 +1,71 @@
-# Telomere — Agent Conventions
+# Telomere - Agent Conventions
 
-## Project overview
-Telomere is a stateless lossless generative compression protocol. Each block is replaced
-by a shorter seed whose hash expansion (BLAKE3 XOF or SHA-256) reproduces the original bytes.
-Lotus 4-field headers encode (arity, seed) pairs in a self-delimiting bit stream.
+## Project Overview
 
-## Architecture map
+Telomere is an experimental stateless lossless generative compression prototype.
+The active `.tlmr` v1 writer emits one-layer-decodable files only. Each
+compressed record stores a Lotus `(arity, seed)` pair whose selected hasher
+expansion reproduces the original bytes; unmatched bytes are literal records.
+
+Canonical docs:
+
+- `docs/ARCHITECTURE.md`
+- `docs/FORMAT.md`
+- `docs/RESULTS.md`
+- `docs/RELEASE_CHECKLIST.md`
+
+## Architecture Map
 
 | Module | Purpose |
-|--------|---------|
-| `src/hasher.rs` | `SeedExpander` trait + Blake3/SHA256 implementations |
-| `src/seed.rs` | `find_seed_match` — rayon-parallel brute-force seed search |
-| `src/seed_index.rs` | Canonical index↔seed bijection (length-ordered, big-endian) |
-| `src/header.rs` | Lotus 4-field header: encode/decode (arity 1-5, literal=0xFF) |
-| `src/compress.rs` | Single-pass and multi-pass compression pipeline |
-| `src/compress_stats.rs` | PassStats / RunSummary for per-pass delta measurement |
-| `src/config.rs` | Runtime config: block_size, max_seed_len, hasher, memory_limit |
-| `src/tlmr.rs` | 3-byte TlmrHeader (version, block_size, last_block_size, hash13) |
-| `src/superposition.rs` | Multi-candidate tracking per block, pruned at pass boundary |
-| `src/bundler.rs` | Greedy span bundling (arity 2-5) |
-| `src/block.rs` | BlockStore arena + BlockRef metadata |
-| `src/main.rs` | `telomere compress`/`decompress` CLI with --json, --seed-depth |
-| `src/bin/compressor.rs` | Standalone `compressor` binary |
-| `src/bin/decompressor.rs` | Standalone `decompressor` binary |
+| --- | --- |
+| `src/hasher.rs` | `SeedExpander` trait plus BLAKE3/SHA-256 implementations |
+| `src/seed.rs` | rayon-parallel brute-force seed search |
+| `src/seed_index.rs` | canonical index-to-seed bijection |
+| `src/header.rs` | Lotus record codec, arity 1-5 plus literal 0xFF |
+| `src/tlmr.rs` | 40-byte `.tlmr` v1 header |
+| `src/compress.rs` | one-layer compression and run summaries |
+| `src/config.rs` | runtime config and validation |
+| `src/lib.rs` | public API and decompression |
+| `src/main.rs` | supported `telomere` CLI |
 
-## Critical constraints
+## Critical Constraints
 
-### Never change these without understanding implications
-- **Seed enumeration order** — consensus critical: 1-byte seeds first (0..255), then 2-byte, etc.
-  Changing this breaks all existing compressed files. Defined in `seed_index.rs`.
-- **Lotus arity encoding** — arity 1-5 are valid; arity 2 is NOT reserved; literal marker is 0xFF.
-  Defined in `header.rs::encode_lotus_arity_bits`.
-- **TlmrHeader format** — 3 bytes, fixed layout (version 3b, block_size 4b, last_block_size 4b, hash 13b).
-- **Hash choice** — BLAKE3 and SHA-256 use different seeds for the same block.
-  The chosen hasher MUST be recorded in the file header for portability (not yet implemented).
+- Seed enumeration order is consensus-critical: 1-byte seeds first, then 2-byte,
+  then 3-byte, each bucket in big-endian order.
+- Lotus arity 2 is valid. It is not reserved.
+- Literal marker is `0xFF`.
+- `.tlmr` v1 header is 40 bytes and records hasher kind, Lotus preset, layer
+  count, lengths, and output hash.
+- `.tlmr` v1 seed payloads must be byte-aligned.
+- `.tlmr` v1 `layer_count` is always `1`; do not emit recursive output without
+  a new format version and decoder support.
+- The header-selected hasher is authoritative during decompression.
 
-### Performance rules for tests
-- **Never use max_seed_len=3 in unit/integration tests** — 16M hash iterations per block ≈ 2s/block.
-- Always use `fast_cfg(max_seed_len=1)` in tests for speed (256 seeds/block, microseconds).
-- Reserve max_seed_len≥2 for slow/benchmark tests explicitly marked `#[ignore]`.
+## Test And Performance Rules
 
-### Hasher semantics
-- `Blake3Expander::expand_into(seed, out)` — BLAKE3 XOF: `hasher.finalize_xof().fill(out)`
-- `Sha256Expander::expand_into(seed, out)` — plain SHA256(seed) for ≤32 bytes; counter mode for more
-- `prefix_matches(seed, target, bits)` — expand to `(bits+7)/8` bytes, compare prefix
-- `SeedExpander: Send + Sync` — required for rayon parallelism in `find_seed_match`
+- Use `max_seed_len = 1` in normal unit and integration tests.
+- Do not add ignored tests to make `cargo test --all-targets` look green.
+- Seed depth 2 is slow-ish; seed depth 3 is expensive.
+- Random data is expected to bloat, not compress.
+- Negative delta claims must come from generated artifacts or planted/structured
+  test data.
 
-## Current state (2026-05-23)
-- M0 + M1 complete: real hasher, 106 tests, rayon parallelism, zero warnings
-- M2 in progress: PassStats/RunSummary/--json wired; convergence detection needs K=3 passes
-- GPU path: marked #[ignore], unverified — see RESEARCH_PLAN.md section 4.6
-- Negative delta: only achievable on structured/repetitive data, NOT random input
+## Removed From Active Architecture
 
-## Workflow conventions
-- Tests: use `compress_multi_pass_with_config` not `compress()` (which forces max_seed_len=3)
-- Test data: generate with `Blake3Expander.expand_into(seed, &mut buf)` so hasher is consistent
-- Commits: Conventional Commits (`feat:`, `fix:`, `test:`, `chore:`)
-- No hand-written benchmark tables in docs — generate from code
-- Dead code (gloss.rs, bloom.rs, swe.rs) tracked for section 7 cleanup — don't delete without plan
+- gloss tables and gloss binaries
+- bloom filter stubs
+- broken fuzz crate targets
+- the old active 3-byte file header
+- speculative recursive convergence claims
+
+## Verification Before Completion
+
+Run these gates after protocol or docs changes:
+
+```powershell
+cargo fmt --all -- --check
+cargo clippy --all-targets -- -D warnings
+cargo test --all-targets
+cargo check --features gpu --all-targets
+python scripts/doc_lint.py
+```

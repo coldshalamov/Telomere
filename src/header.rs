@@ -10,7 +10,7 @@
 //! * **arity** – encodes block arity or a literal marker.
 //! * **jumpstarter** – a 3‑bit value describing the width of the following
 //!   length field.
-//! * **len_bits** – a single SWE-literal codeword (zero-based) of length
+//! * **len_bits** – a single Lotus length codeword (zero-based) of length
 //!   `L = jumpstarter + 1` bits; codes are contiguous across `L`
 //!   (`0..1`, `2..5`, `6..13`, …).
 //! * **payload** – present only for non-literals (seed bits). Literal headers
@@ -89,7 +89,6 @@ impl<'a> BitReader<'a> {
     }
 }
 
-
 // ---------------------------------------------------------------------------
 // Lotus arity helpers
 
@@ -106,7 +105,9 @@ pub fn encode_lotus_arity_bits(arity: usize) -> Result<(bool, Vec<bool>), Telome
         5 => (true, vec![true, false]),
         0xFF => (true, vec![true, true]),
         _ => {
-            return Err(TelomereError::Header("invalid Lotus arity (must be 1-5 or 0xFF)".into()));
+            return Err(TelomereError::Header(
+                "invalid Lotus arity (must be 1-5 or 0xFF)".into(),
+            ));
         }
     };
     Ok((mode, bits))
@@ -136,9 +137,9 @@ pub fn decode_lotus_arity_bits(
 // ---------------------------------------------------------------------------
 // Lotus length helpers -------------------------------------------------------
 
-// Encode zero-based SWE literal bits for integer `n` (n >= 0).
+// Encode zero-based Lotus length bits for integer `n` (n >= 0).
 // Length sequence: 2 codes of length 1, 4 of length 2, 8 of length 3, ...
-fn swe_lit_encode(n: usize) -> Result<Vec<bool>, TelomereError> {
+fn lotus_len_code_encode(n: usize) -> Result<Vec<bool>, TelomereError> {
     let mut level: usize = 1;
     let mut total: usize = 0;
     let x = n; // zero-based index
@@ -163,11 +164,11 @@ fn swe_lit_encode(n: usize) -> Result<Vec<bool>, TelomereError> {
     }
 }
 
-// Decode zero-based SWE literal given its bits (we already know L = bits.len()).
-fn swe_lit_decode(bits: &[bool]) -> usize {
+// Decode a zero-based Lotus length codeword given its bits (we already know L = bits.len()).
+fn lotus_len_code_decode(bits: &[bool]) -> usize {
     let l = bits.len();
     let base = (1usize << l) - 2; // total codes of shorter lengths
-    // parse bits as big-endian int
+                                  // parse bits as big-endian int
     let mut v = 0usize;
     for &b in bits {
         v = (v << 1) | (b as usize);
@@ -177,11 +178,11 @@ fn swe_lit_decode(bits: &[bool]) -> usize {
 
 /// Field4 encoder: returns `(jumpstarter, len_bits)`
 //
-// With `L ∈ [1..=8]`, the zero-based SWE-literal can represent
+// With `L ∈ [1..=8]`, the zero-based Lotus length code can represent
 // `payload_bit_len ∈ [0..=509]`. `510+` is out of range and must error.
 pub fn encode_lotus_len_bits(payload_bit_len: usize) -> Result<(u8, Vec<bool>), TelomereError> {
-    // Encode as a single zero-based SWE-literal codeword
-    let len_bits = swe_lit_encode(payload_bit_len)?;
+    // Encode as a single zero-based Lotus length codeword.
+    let len_bits = lotus_len_code_encode(payload_bit_len)?;
     let l = len_bits.len(); // 1..=8
     if !(1..=8).contains(&l) {
         return Err(TelomereError::Header("length header out of range".into()));
@@ -195,7 +196,7 @@ pub fn decode_lotus_len_bits(
 ) -> Result<(usize, u8, Vec<bool>), TelomereError> {
     // Jumpstarter is exactly 3 bits; L = j + 1 must be in [1..=8].
     // We then read exactly L bits and decode a single zero-based
-    // SWE-literal codeword.
+    // Lotus length codeword.
     // Read exactly 3 bits of jumpstarter
     let mut j = 0u8;
     for _ in 0..3 {
@@ -209,7 +210,7 @@ pub fn decode_lotus_len_bits(
         return Err(TelomereError::Header("length header out of range".into()));
     }
 
-    // Read exactly l bits → one SWE-literal codeword for payload_bit_len
+    // Read exactly l bits for payload_bit_len.
     let mut bits = Vec::with_capacity(l);
     for _ in 0..l {
         bits.push(
@@ -218,7 +219,7 @@ pub fn decode_lotus_len_bits(
                 .map_err(|_| TelomereError::Header("truncated header".into()))?,
         );
     }
-    let payload_bit_len = swe_lit_decode(&bits);
+    let payload_bit_len = lotus_len_code_decode(&bits);
     Ok((payload_bit_len, j, bits))
 }
 
@@ -322,8 +323,10 @@ pub fn encode_header(header: &Header) -> Result<Vec<u8>, TelomereError> {
         Header::Literal => {
             let bits = encode_lotus_header(0xFF, &[], 0)?;
             Ok(pack_bits(&bits))
-        },
-        _ => Err(TelomereError::Header("encode_header only supports Literal, use encode_lotus_header for Arity".into())),
+        }
+        _ => Err(TelomereError::Header(
+            "encode_header only supports Literal, use encode_lotus_header for Arity".into(),
+        )),
     }
 }
 
@@ -411,7 +414,7 @@ mod tests {
             (509, 8),
         ];
         for (len, l) in cases {
-            let payload: Vec<bool> = std::iter::repeat(false).take(len).collect();
+            let payload: Vec<bool> = std::iter::repeat_n(false, len).collect();
             let bits = encode_lotus_header(1, &payload, len).unwrap();
             let packed = pack_bits(&bits);
             let (dec, used) = decode_lotus_header(&packed).unwrap();

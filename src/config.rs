@@ -1,6 +1,8 @@
 //! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
-use std::collections::HashMap;
 use crate::hasher::{Blake3Expander, SeedExpander, Sha256Expander, Sha256NiExpander};
+use crate::tlmr::{MAX_ARITY, MAX_BLOCK_SIZE, MAX_HASH_BITS, MAX_SEED_LEN};
+use crate::TelomereError;
+use std::collections::HashMap;
 
 /// Enum representing the chosen hasher for seed expansion.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -10,6 +12,15 @@ pub enum HasherKind {
     Sha256Ni,
 }
 
+impl HasherKind {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            HasherKind::Blake3 => "blake3",
+            HasherKind::Sha256 | HasherKind::Sha256Ni => "sha256",
+        }
+    }
+}
+
 /// Runtime configuration parameters for the compressor and decompressor.
 #[derive(Debug, Clone)]
 pub struct Config {
@@ -17,8 +28,7 @@ pub struct Config {
     pub block_size: usize,
     /// Maximum allowed seed length in bytes.
     ///
-    /// The default unit tests use a value of `3` but larger seeds may be
-    /// configured for real compression workloads.
+    /// Seed depth 1 is fast, 2 is slow-ish, and 3 is expensive.
     pub max_seed_len: usize,
     /// Maximum bundle arity (number of blocks per seed span).
     pub max_arity: u8,
@@ -38,9 +48,9 @@ impl Default for Config {
     fn default() -> Self {
         Self {
             block_size: 4,
-            max_seed_len: 3,
+            max_seed_len: 1,
             max_arity: 5, // Lotus arity encoding supports 1-5; 6+ requires format extension
-            hash_bits: 13, // TlmrHeader uses the low 13 bits of the output digest
+            hash_bits: 13,
             hasher: HasherKind::Blake3,
             seed_expansions: HashMap::new(),
             enable_superposition: false,
@@ -50,6 +60,36 @@ impl Default for Config {
 }
 
 impl Config {
+    /// Validate runtime settings against the active `.tlmr` v1 format limits.
+    pub fn validate(&self) -> Result<(), TelomereError> {
+        if !(1..=MAX_BLOCK_SIZE).contains(&self.block_size) {
+            return Err(TelomereError::Config(format!(
+                "block_size must be in 1..={MAX_BLOCK_SIZE}"
+            )));
+        }
+        if !(1..=MAX_SEED_LEN).contains(&self.max_seed_len) {
+            return Err(TelomereError::Config(format!(
+                "max_seed_len must be in 1..={MAX_SEED_LEN}"
+            )));
+        }
+        if !(1..=MAX_ARITY).contains(&self.max_arity) {
+            return Err(TelomereError::Config(format!(
+                "max_arity must be in 1..={MAX_ARITY}"
+            )));
+        }
+        if !(1..=MAX_HASH_BITS).contains(&self.hash_bits) {
+            return Err(TelomereError::Config(format!(
+                "hash_bits must be in 1..={MAX_HASH_BITS}"
+            )));
+        }
+        if self.memory_limit == 0 {
+            return Err(TelomereError::Config(
+                "memory_limit must be greater than zero".into(),
+            ));
+        }
+        Ok(())
+    }
+
     /// Returns a boxed seed expander based on the configuration.
     pub fn get_expander(&self) -> Box<dyn SeedExpander> {
         match self.hasher {

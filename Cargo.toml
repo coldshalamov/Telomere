@@ -37,10 +37,6 @@ proptest = "1.4"
 criterion = { version = "0.5", features = ["html_reports"] }
 
 [[bin]]
-name = "gloss_tool"
-path = "src/bin/gloss_tool.rs"
-
-[[bin]]
 name = "compressor"
 path = "src/bin/compressor.rs"
 
@@ -51,14 +47,6 @@ path = "src/bin/decompressor.rs"
 [[bin]]
 name = "hash_precompute"
 path = "src/bin/hash_precompute.rs"
-
-[[bin]]
-name = "gloss_debug_dump"
-path = "src/bin/gloss_debug_dump.rs"
-
-[[bin]]
-name = "gloss_by_pass_dump"
-path = "src/bin/gloss_by_pass_dump.rs"
 
 [[bin]]
 name = "seed_table"
@@ -73,10 +61,6 @@ name = "hash_dump"
 path = "src/bin/hash_dump.rs"
 
 [[bin]]
-name = "gloss_dump"
-path = "src/bin/gloss_dump.rs"
-
-[[bin]]
 name = "block_histogram"
 path = "src/bin/block_histogram.rs"
 
@@ -87,8 +71,6 @@ path = "src/bin/hash_find.rs"
 [features]
 # GPU accelerated seed matching. Off by default.
 gpu = ["ocl"]
-# Bloom filter based pruning. Placeholder for future optimization.
-bloom = []
 coverage = []
 
 [profile.release]

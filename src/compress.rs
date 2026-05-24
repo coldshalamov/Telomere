@@ -1,15 +1,17 @@
 //! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
+use crate::bundler::bundle_one_layer;
 use crate::compress_stats::{CompressionStats, PassStats, RunSummary};
-use std::time::Instant;
 use crate::config::Config;
 use crate::header::{encode_header, encode_lotus_header, pack_bits, Header};
 use crate::seed::find_seed_match;
 use crate::superposition::SuperpositionManager;
-use crate::tlmr::{encode_tlmr_header, truncated_hash, TlmrHeader};
+use crate::tlmr::{
+    encode_tlmr_header, truncated_hash_bits, TlmrHeader, LOTUS_PRESET_VERSION, TLMR_FORMAT_VERSION,
+};
 use crate::TelomereError;
-use crate::bundler::bundle_one_layer;
-use std::collections::HashMap;
 use indicatif::{ProgressBar, ProgressStyle};
+use std::collections::HashMap;
+use std::time::Instant;
 
 /// Dummy in-memory table placeholder.
 #[derive(Default, serde::Serialize, serde::Deserialize)]
@@ -18,66 +20,13 @@ pub struct TruncHashTable {
     pub set: std::collections::HashSet<u64>,
 }
 
-
 /// Compress the input using literal passthrough blocks and arity-based seed compression.
 ///
 /// Seeds are enumerated deterministically from length `1..=config.max_seed_len`.
 /// The search order is consensus critical and must remain stable across
 /// implementations.
 pub fn compress_with_config(data: &[u8], config: &Config) -> Result<Vec<u8>, TelomereError> {
-    let block_size = config.block_size;
-    let last_block = if data.is_empty() {
-        block_size
-    } else {
-        (data.len() - 1) % block_size + 1
-    };
-    let expander = config.get_expander();
-
-    let header = encode_tlmr_header(&TlmrHeader {
-        version: 0,
-        block_size,
-        last_block_size: last_block,
-        output_hash: truncated_hash(data, expander.as_ref()),
-    });
-    let mut out = header.to_vec();
-    let mut offset = 0usize;
-    const MAX_ARITY: usize = 5; // current Lotus arity encoding supports 1-5
-    while offset < data.len() {
-        let remaining = data.len() - offset;
-        let max_bundle = (remaining / block_size).min(MAX_ARITY);
-        let mut matched = false;
-        for arity in (1..=max_bundle).rev() {
-
-            let span_len = arity * block_size;
-            let slice = &data[offset..offset + span_len];
-            if let Some(seed_idx) = find_seed_match(slice, config.max_seed_len, expander.as_ref())?
-            {
-                // Convert seed index to bits
-                let seed_bytes = crate::index_to_seed(seed_idx, config.max_seed_len)?;
-                let mut seed_bits = Vec::with_capacity(seed_bytes.len() * 8);
-                for byte in seed_bytes {
-                    for i in (0..8).rev() {
-                        seed_bits.push(((byte >> i) & 1) != 0);
-                    }
-                }
-                
-                // Encode using Lotus header
-                let total_bits_vec = encode_lotus_header(arity, &seed_bits, seed_bits.len())?;
-                if (total_bits_vec.len() + 7) / 8 < span_len {
-                    out.extend(pack_bits(&total_bits_vec));
-                    offset += span_len;
-                    matched = true;
-                    break;
-                }
-            }
-        }
-        if !matched {
-            let chunk = remaining.min(block_size);
-            out.extend_from_slice(&encode_header(&Header::Literal)?);
-            out.extend_from_slice(&data[offset..offset + chunk]);
-            offset += chunk;
-        }
-    }
+    let (out, _) = compress_multi_pass_with_config(data, config, 1, false)?;
     Ok(out)
 }
 
@@ -99,12 +48,21 @@ pub fn compress_multi_pass_with_config(
     max_passes: usize,
     show_status: bool,
 ) -> Result<(Vec<u8>, Vec<usize>), TelomereError> {
+    config.validate()?;
+    if max_passes == 0 {
+        return Err(TelomereError::Config(
+            "max_passes must be greater than zero".into(),
+        ));
+    }
+
+    // `.tlmr` v1 is intentionally one-layer-decodable. The pass argument is
+    // accepted for CLI compatibility, but recursive output is not emitted until
+    // a future format version records and decodes nested layers.
+    let pass_limit = max_passes.min(1);
     let mut current = data.to_vec();
     let mut gains = Vec::new();
-    let mut pass_stats: Vec<PassStats> = Vec::new();
     let mut passes = 0usize;
 
-    const MAX_ARITY: usize = 5; // current Lotus arity encoding supports 1-5
     // Get expander once (assuming it doesn't change per pass)
     let expander = config.get_expander();
 
@@ -116,7 +74,7 @@ pub fn compress_multi_pass_with_config(
         None
     };
 
-    while passes < max_passes {
+    while passes < pass_limit {
         if let Some(s) = &mut sys {
             s.refresh_memory();
             let used = s.used_memory(); // sysinfo 0.29: used_memory() returns bytes
@@ -129,9 +87,6 @@ pub fn compress_multi_pass_with_config(
         }
 
         passes += 1;
-        let pass_start = Instant::now();
-        let bytes_in = current.len();
-
         // Split the current stream into fixed sized blocks.
         let mut blocks: Vec<&[u8]> = Vec::new();
         let mut offset = 0usize;
@@ -173,11 +128,8 @@ pub fn compress_multi_pass_with_config(
 
             // Seed matches for spans starting at this block.
             let remaining = current.len().saturating_sub(idx * block_size);
-            let max_bundle = (remaining / block_size).min(MAX_ARITY);
+            let max_bundle = (remaining / block_size).min(config.max_arity as usize);
             for arity in 1..=max_bundle {
-                if arity == 2 {
-                    continue; // reserved for literal marker
-                }
                 let span_start = idx * block_size;
                 let span_end = span_start + arity * block_size;
                 if span_end > current.len() {
@@ -191,14 +143,14 @@ pub fn compress_multi_pass_with_config(
                     let seed_bytes = crate::index_to_seed(seed_idx, config.max_seed_len)?;
                     let mut seed_bits = Vec::with_capacity(seed_bytes.len() * 8);
                     for byte in seed_bytes {
-                         for i in (0..8).rev() {
+                        for i in (0..8).rev() {
                             seed_bits.push(((byte >> i) & 1) != 0);
                         }
                     }
-                    
+
                     let total_bits_vec = encode_lotus_header(arity, &seed_bits, seed_bits.len())?;
                     let total_bits = total_bits_vec.len();
-                    
+
                     if (total_bits + 7) / 8 < span.len() {
                         let _ = mgr.insert_superposed(
                             idx,
@@ -222,7 +174,7 @@ pub fn compress_multi_pass_with_config(
         if config.enable_superposition {
             // No pruning before bundling to maximize options
         } else {
-             mgr.prune_end_of_pass();
+            mgr.prune_end_of_pass();
         }
 
         if let Some(pb) = &maybe_pb {
@@ -236,7 +188,7 @@ pub fn compress_multi_pass_with_config(
         // Sort by block index to ensure we process in order
         let mut all_cands_sorted = all_cands;
         all_cands_sorted.sort_by_key(|(idx, _)| *idx);
-        
+
         let mut block_cand_map: HashMap<usize, Vec<crate::types::Candidate>> = HashMap::new();
         for (idx, list) in all_cands_sorted {
             let cands = list.into_iter().map(|(_, c)| c).collect();
@@ -247,14 +199,22 @@ pub fn compress_multi_pass_with_config(
             let cands = block_cand_map.get(&i).ok_or_else(|| {
                 TelomereError::Superposition(format!("no candidate at block {i}"))
             })?;
-            
-            // Find best Arity=1
-            let best_arity_1 = cands.iter()
+
+            // Find best Arity=1. If pruning kept only a longer bundle candidate
+            // at this start index, synthesize the literal fallback so the
+            // bundler still has a gap-free base layer.
+            let best_arity_1 = cands
+                .iter()
                 .filter(|c| c.arity == 1)
                 .min_by_key(|c| (c.bit_len, c.seed_index))
-                .ok_or_else(|| TelomereError::Superposition(format!("no arity 1 candidate at block {i}")))?;
-                
-            base_spans.push((i, best_arity_1.clone()));
+                .cloned()
+                .unwrap_or(crate::types::Candidate {
+                    seed_index: usize::MAX as u64,
+                    arity: 1,
+                    bit_len: blocks[i].len() * 8 + 3,
+                });
+
+            base_spans.push((i, best_arity_1));
         }
 
         // 2. Construct bundle candidates (Arity > 1)
@@ -270,49 +230,61 @@ pub fn compress_multi_pass_with_config(
         // 3. Run Bundler
         let final_spans = bundle_one_layer(&base_spans, &bundle_cands);
 
-
         // Build the next compressed stream from the bundled candidates.
         let last_block = if current.is_empty() {
             block_size
         } else {
             (current.len() - 1) % block_size + 1
         };
-        let header = encode_tlmr_header(&TlmrHeader {
-            version: 0,
-            block_size,
-            last_block_size: last_block,
-            output_hash: truncated_hash(&current, expander.as_ref()),
-        });
-        let mut next = header.to_vec();
+        let mut payload = Vec::new();
 
         for (_idx, cand) in final_spans {
-             if cand.seed_index == usize::MAX as u64 {
+            if cand.seed_index == usize::MAX as u64 {
                 // literal
-                next.extend_from_slice(&encode_header(&Header::Literal)?);
+                payload.extend_from_slice(&encode_header(&Header::Literal)?);
                 // We need to retrieve the original data for this block.
                 // _idx is the block index.
                 if _idx < blocks.len() {
-                    next.extend_from_slice(blocks[_idx]);
+                    payload.extend_from_slice(blocks[_idx]);
                 } else {
-                     return Err(TelomereError::Internal("literal index out of bounds".into()));
+                    return Err(TelomereError::Internal(
+                        "literal index out of bounds".into(),
+                    ));
                 }
             } else {
                 let arity = cand.arity as usize;
                 // Reconstruct seed bits from index
-                let seed_bytes = crate::index_to_seed(cand.seed_index as usize, config.max_seed_len)?;
+                let seed_bytes =
+                    crate::index_to_seed(cand.seed_index as usize, config.max_seed_len)?;
                 let mut seed_bits = Vec::with_capacity(seed_bytes.len() * 8);
                 for byte in seed_bytes {
-                     for i in (0..8).rev() {
+                    for i in (0..8).rev() {
                         seed_bits.push(((byte >> i) & 1) != 0);
                     }
                 }
                 let bits = encode_lotus_header(arity, &seed_bits, seed_bits.len())?;
-                next.extend(pack_bits(&bits));
+                payload.extend(pack_bits(&bits));
             }
         }
 
+        let header = encode_tlmr_header(&TlmrHeader {
+            version: TLMR_FORMAT_VERSION,
+            lotus_preset: LOTUS_PRESET_VERSION,
+            hasher: config.hasher,
+            block_size,
+            last_block_size: last_block,
+            max_seed_len: config.max_seed_len,
+            max_arity: config.max_arity,
+            hash_bits: config.hash_bits,
+            layer_count: 1,
+            original_len: current.len() as u64,
+            payload_len: payload.len() as u64,
+            output_hash: truncated_hash_bits(&current, expander.as_ref(), config.hash_bits),
+        });
+        let mut next = header;
+        next.extend(payload);
+
         let saved = current.len().saturating_sub(next.len());
-        pass_stats.push(PassStats::new(passes, bytes_in, next.len(), pass_start.elapsed()));
         if saved > 0 {
             gains.push(saved);
         } else if passes > 1 {
@@ -335,31 +307,17 @@ pub fn compress_with_run_summary(
     config: &Config,
     max_passes: usize,
 ) -> Result<(Vec<u8>, RunSummary), TelomereError> {
-    let original_bytes = data.len();
-    let mut current = data.to_vec();
-    let mut pass_stats = Vec::new();
-    let mut best: Vec<u8> = Vec::new();
-
-    for pass_num in 1..=max_passes {
-        let t0 = Instant::now();
-        let bytes_in = current.len();
-        let (next, _) = compress_multi_pass_with_config(&current, config, 1, false)?;
-        let elapsed = t0.elapsed();
-        let stat = PassStats::new(pass_num, bytes_in, next.len(), elapsed);
-        // Track the smallest output across all passes.
-        if best.is_empty() || next.len() < best.len() {
-            best = next.clone();
-        }
-        let converged = !stat.is_compressive() && pass_num > 1;
-        pass_stats.push(stat);
-        current = next;
-        if converged {
-            break;
-        }
+    if max_passes == 0 {
+        return Err(TelomereError::Config(
+            "max_passes must be greater than zero".into(),
+        ));
     }
-
+    let original_bytes = data.len();
+    let t0 = Instant::now();
+    let (out, _) = compress_multi_pass_with_config(data, config, max_passes, false)?;
+    let pass_stats = vec![PassStats::new(1, original_bytes, out.len(), t0.elapsed())];
     let summary = RunSummary::new(original_bytes, pass_stats);
-    Ok((best, summary))
+    Ok((out, summary))
 }
 
 pub fn compress_block_with_config(
@@ -374,7 +332,7 @@ pub fn compress_block_with_config(
     if let Some(s) = stats.as_deref_mut() {
         s.tick_block();
     }
-    
+
     let expander = config.get_expander();
 
     let slice = &input[..block_size];
@@ -382,12 +340,12 @@ pub fn compress_block_with_config(
         let seed_bytes = crate::index_to_seed(seed_idx, config.max_seed_len)?;
         let mut seed_bits = Vec::with_capacity(seed_bytes.len() * 8);
         for byte in seed_bytes {
-             for i in (0..8).rev() {
+            for i in (0..8).rev() {
                 seed_bits.push(((byte >> i) & 1) != 0);
             }
         }
         let total_bits_vec = encode_lotus_header(1, &seed_bits, seed_bits.len())?;
-        
+
         if (total_bits_vec.len() + 7) / 8 < block_size {
             if let Some(s) = stats.as_deref_mut() {
                 s.maybe_log(slice, slice, false);
@@ -406,7 +364,11 @@ pub fn compress_block_with_config(
 
 /// Wrapper using the CI default seed length of 3 bytes.
 pub fn compress(data: &[u8], block_size: usize) -> Result<Vec<u8>, TelomereError> {
-    let cfg = Config { block_size, max_seed_len: 3, ..Config::default() };
+    let cfg = Config {
+        block_size,
+        max_seed_len: 1,
+        ..Config::default()
+    };
     const MAX_PASSES: usize = 10;
     let (out, gains) = compress_multi_pass_with_config(data, &cfg, MAX_PASSES, false)?;
 
@@ -435,7 +397,11 @@ pub fn compress_multi_pass(
     max_passes: usize,
     show_status: bool,
 ) -> Result<(Vec<u8>, Vec<usize>), TelomereError> {
-    let cfg = Config { block_size, max_seed_len: 3, ..Config::default() };
+    let cfg = Config {
+        block_size,
+        max_seed_len: 1,
+        ..Config::default()
+    };
     compress_multi_pass_with_config(data, &cfg, max_passes, show_status)
 }
 
@@ -445,6 +411,10 @@ pub fn compress_block(
     block_size: usize,
     stats: Option<&mut CompressionStats>,
 ) -> Result<Option<(Header, usize)>, TelomereError> {
-    let cfg = Config { block_size, max_seed_len: 3, ..Config::default() };
+    let cfg = Config {
+        block_size,
+        max_seed_len: 1,
+        ..Config::default()
+    };
     compress_block_with_config(input, &cfg, stats)
 }

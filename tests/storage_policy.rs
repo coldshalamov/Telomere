@@ -22,11 +22,8 @@ fn only_persist_selected_seeds() {
 
     let mut file = fs::File::open(path).unwrap();
     let mut entries = Vec::new();
-    loop {
-        match bincode::deserialize_from::<_, HashEntry>(&mut file) {
-            Ok(e) => entries.push(e),
-            Err(_) => break,
-        }
+    while let Ok(e) = bincode::deserialize_from::<_, HashEntry>(&mut file) {
+        entries.push(e);
     }
     assert_eq!(entries.len(), 3);
     for (i, e) in entries.iter().enumerate() {

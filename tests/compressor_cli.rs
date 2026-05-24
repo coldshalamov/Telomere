@@ -17,9 +17,12 @@ fn cli_roundtrip_compressor() {
         .args([
             input.to_str().unwrap(),
             compressed.to_str().unwrap(),
-            "--block-size", "3",
-            "--max-seed-len", "1", // fast: 256 seeds per block
-            "--passes", "1",
+            "--block-size",
+            "3",
+            "--max-seed-len",
+            "1", // fast: 256 seeds per block
+            "--passes",
+            "1",
             "--test",
         ])
         .status()

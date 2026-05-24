@@ -1,17 +1,56 @@
 //! Decompressor tests — literal streams, error conditions, roundtrips.
 //! All manually-crafted streams use Blake3Expander for output_hash so the
 //! decompressor's hash verification matches.
-use telomere::{
-    compress_multi_pass_with_config, decompress, decompress_with_limit,
-    encode_header, encode_tlmr_header, truncated_hash, Config, Header, TlmrHeader,
-};
 use telomere::hasher::Blake3Expander;
+use telomere::{
+    compress_multi_pass_with_config, decompress, decompress_with_limit, encode_header,
+    encode_lotus_header, encode_tlmr_header, pack_bits, truncated_hash_bits, Config, HasherKind,
+    Header, TlmrHeader, LOTUS_PRESET_VERSION, TLMR_FORMAT_VERSION,
+};
 
 fn fast_cfg(block_size: usize) -> Config {
-    Config { block_size, max_seed_len: 1, hash_bits: 13, ..Config::default() }
+    Config {
+        block_size,
+        max_seed_len: 1,
+        hash_bits: 13,
+        ..Config::default()
+    }
 }
 
-fn expander() -> Blake3Expander { Blake3Expander }
+fn expander() -> Blake3Expander {
+    Blake3Expander
+}
+
+fn literal_file(bytes: &[u8], block_size: usize) -> Vec<u8> {
+    let mut payload = Vec::new();
+    let mut offset = 0usize;
+    while offset < bytes.len() {
+        payload.extend_from_slice(&encode_header(&Header::Literal).unwrap());
+        let len = block_size.min(bytes.len() - offset);
+        payload.extend_from_slice(&bytes[offset..offset + len]);
+        offset += len;
+    }
+    let last = if bytes.is_empty() {
+        block_size
+    } else {
+        (bytes.len() - 1) % block_size + 1
+    };
+    let header = encode_tlmr_header(&TlmrHeader {
+        version: TLMR_FORMAT_VERSION,
+        lotus_preset: LOTUS_PRESET_VERSION,
+        hasher: HasherKind::Blake3,
+        block_size,
+        last_block_size: last,
+        max_seed_len: 1,
+        max_arity: 5,
+        hash_bits: 13,
+        layer_count: 1,
+        original_len: bytes.len() as u64,
+        payload_len: payload.len() as u64,
+        output_hash: truncated_hash_bits(bytes, &expander(), 13),
+    });
+    [header, payload].concat()
+}
 
 #[test]
 fn basic_roundtrip() {
@@ -35,15 +74,7 @@ fn limit_enforced() {
 fn passthrough_decompresses() {
     let block_size = 3;
     let literal = vec![0x11; block_size];
-    let tlmr = encode_tlmr_header(&TlmrHeader {
-        version: 0,
-        block_size,
-        last_block_size: block_size,
-        output_hash: truncated_hash(&literal, &expander()),
-    });
-    let mut data = tlmr.to_vec();
-    data.extend_from_slice(&encode_header(&Header::Literal).unwrap());
-    data.extend_from_slice(&literal);
+    let data = literal_file(&literal, block_size);
     let cfg = fast_cfg(block_size);
     let out = decompress_with_limit(&data, &cfg, usize::MAX).unwrap();
     assert_eq!(out, literal);
@@ -53,15 +84,7 @@ fn passthrough_decompresses() {
 fn passthrough_respects_limit() {
     let block_size = 3;
     let literal = vec![0x22; block_size];
-    let tlmr = encode_tlmr_header(&TlmrHeader {
-        version: 0,
-        block_size,
-        last_block_size: block_size,
-        output_hash: truncated_hash(&literal, &expander()),
-    });
-    let mut data = tlmr.to_vec();
-    data.extend_from_slice(&encode_header(&Header::Literal).unwrap());
-    data.extend_from_slice(&literal);
+    let data = literal_file(&literal, block_size);
     let cfg = fast_cfg(block_size);
     assert!(decompress_with_limit(&data, &cfg, literal.len() - 1).is_err());
 }
@@ -70,17 +93,7 @@ fn passthrough_respects_limit() {
 fn passthrough_literals_basic() {
     let block_size = 3;
     let literals: Vec<u8> = (0u8..(block_size as u8 * 2)).collect();
-    let tlmr = encode_tlmr_header(&TlmrHeader {
-        version: 0,
-        block_size,
-        last_block_size: block_size,
-        output_hash: truncated_hash(&literals, &expander()),
-    });
-    let mut data = tlmr.to_vec();
-    data.extend_from_slice(&encode_header(&Header::Literal).unwrap());
-    data.extend_from_slice(&literals[..block_size]);
-    data.extend_from_slice(&encode_header(&Header::Literal).unwrap());
-    data.extend_from_slice(&literals[block_size..]);
+    let data = literal_file(&literals, block_size);
     let cfg = fast_cfg(block_size);
     let out = decompress_with_limit(&data, &cfg, 100).unwrap();
     assert_eq!(out, literals);
@@ -99,7 +112,10 @@ fn mismatched_block_size_fails() {
     let cfg = fast_cfg(3);
     let err = decompress_with_limit(&[0u8; 3], &cfg, usize::MAX).unwrap_err();
     // Should be a Header error (version/block_size mismatch).
-    assert!(matches!(err, telomere::TelomereError::Header(_) | telomere::TelomereError::HeaderCodec(_)));
+    assert!(matches!(
+        err,
+        telomere::TelomereError::Header(_) | telomere::TelomereError::HeaderCodec(_)
+    ));
 }
 
 #[test]
@@ -114,4 +130,34 @@ fn empty_roundtrip() {
     let (buf, _) = compress_multi_pass_with_config(&[], &cfg, 1, false).unwrap();
     let out = decompress(&buf, &cfg).unwrap();
     assert!(out.is_empty());
+}
+
+#[test]
+fn non_byte_aligned_seed_payload_is_rejected() {
+    let block_size = 1;
+    let seed_bits = vec![true];
+    let lotus_bits = encode_lotus_header(1, &seed_bits, seed_bits.len()).unwrap();
+    let payload = pack_bits(&lotus_bits);
+    let header = encode_tlmr_header(&TlmrHeader {
+        version: TLMR_FORMAT_VERSION,
+        lotus_preset: LOTUS_PRESET_VERSION,
+        hasher: HasherKind::Blake3,
+        block_size,
+        last_block_size: block_size,
+        max_seed_len: 1,
+        max_arity: 5,
+        hash_bits: 13,
+        layer_count: 1,
+        original_len: block_size as u64,
+        payload_len: payload.len() as u64,
+        output_hash: 0,
+    });
+    let mut file = header;
+    file.extend(payload);
+
+    let err = decompress_with_limit(&file, &fast_cfg(block_size), usize::MAX).unwrap_err();
+    assert!(
+        err.to_string().contains("non-byte-aligned seed payloads"),
+        "unexpected error: {err}"
+    );
 }

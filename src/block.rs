@@ -72,7 +72,7 @@ impl BlockStore {
         #[cfg(feature = "gpu")]
         let digest = {
             // Placeholder: Use actual hasher if needed
-             [0u8; 32]
+            [0u8; 32]
         };
         #[cfg(not(feature = "gpu"))]
         let digest = {
@@ -117,7 +117,7 @@ impl BlockStore {
     pub fn blocks(&self) -> &[BlockRef] {
         &self.blocks
     }
-    
+
     /// Iterate over groups.
     pub fn groups(&self) -> impl Iterator<Item = (&usize, &Vec<BlockId>)> {
         self.groups.iter()
@@ -127,15 +127,15 @@ impl BlockStore {
     pub fn get_group(&self, len: usize) -> Option<&Vec<BlockId>> {
         self.groups.get(&len)
     }
-    
+
     pub fn group_mut(&mut self, len: usize) -> &mut Vec<BlockId> {
-         self.groups.entry(len).or_default()
+        self.groups.entry(len).or_default()
     }
 
     pub fn group_count(&self) -> usize {
         self.groups.len()
     }
-    
+
     pub fn iter_mut_groups(&mut self) -> impl Iterator<Item = (&usize, &mut Vec<BlockId>)> {
         self.groups.iter_mut()
     }
@@ -181,7 +181,9 @@ pub fn simulate_pass(store: &mut BlockStore, seed_table: &HashMap<String, usize>
         // We need to iterate and potentially move blocks to a new group (len=16).
         // Since we can't easily move while iterating the HashMap, we extract indices.
         let group_ids = store.groups.get(&len).cloned().unwrap_or_default(); // Scan copy
-        if group_ids.is_empty() { continue; }
+        if group_ids.is_empty() {
+            continue;
+        }
 
         let mut next_group_indices = Vec::new();
         let mut matched_indices = Vec::new();
@@ -190,28 +192,28 @@ pub fn simulate_pass(store: &mut BlockStore, seed_table: &HashMap<String, usize>
             // let _data = store.get_data(id).to_vec(); // Unused
             // Use digest from metadata
             let digest = store.get_block(id).digest;
-            let hex = hex::encode(digest); 
-            
+            let hex = hex::encode(digest);
+
             if let Some(&seed_idx) = seed_table.get(&hex) {
-                 matched_indices.push((id, seed_idx));
-                 matches += 1;
+                matched_indices.push((id, seed_idx));
+                matches += 1;
             } else {
-                 next_group_indices.push(id);
+                next_group_indices.push(id);
             }
         }
 
         // Apply changes
         if !matched_indices.is_empty() {
-             for (id, seed_idx) in matched_indices {
-                 let block = store.get_block_mut(id);
-                 block.seed_index = Some(seed_idx as u64);
-                 block.arity = Some(1);
-                 block.bit_len = 16;
-                 
-                 store.groups.entry(16).or_default().push(id);
-             }
-             // Update the original group to only contain unmatched
-             store.groups.insert(len, next_group_indices);
+            for (id, seed_idx) in matched_indices {
+                let block = store.get_block_mut(id);
+                block.seed_index = Some(seed_idx as u64);
+                block.arity = Some(1);
+                block.bit_len = 16;
+
+                store.groups.entry(16).or_default().push(id);
+            }
+            // Update the original group to only contain unmatched
+            store.groups.insert(len, next_group_indices);
         }
     }
     matches
@@ -225,14 +227,17 @@ pub fn print_table_summary(store: &BlockStore) {
         let b = store.get_block(*id);
         (b.global_index, b.branch_label)
     });
-    
+
     for id in all_ids {
         let b = store.get_block(id);
-        println!("{}{}: {} bits ({:?})", b.global_index, b.branch_label, b.bit_len, b.status);
+        println!(
+            "{}{}: {} bits ({:?})",
+            b.global_index, b.branch_label, b.bit_len, b.status
+        );
     }
 }
 
 #[allow(dead_code)]
 pub fn group_by_bit_length(_blocks: Vec<BlockRef>) -> BlockStore {
-    BlockStore::new() 
+    BlockStore::new()
 }

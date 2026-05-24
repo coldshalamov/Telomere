@@ -3,8 +3,9 @@ use clap::Parser;
 use std::fs;
 use std::path::PathBuf;
 use telomere::{
-    compress_multi_pass_with_config, decompress_with_limit, decode_tlmr_header, Config,
+    compress_multi_pass_with_config, decode_tlmr_header, decompress_with_limit,
     io_utils::{io_cli_error, simple_cli_error},
+    Config,
 };
 
 /// Compress a file using the Telomere MVP pipeline.
@@ -15,13 +16,13 @@ struct Args {
     /// Output file path
     output: PathBuf,
     /// Block size in bytes
-    #[arg(long, default_value_t = 3)]
+    #[arg(long, default_value_t = 4)]
     block_size: usize,
-    /// Maximum seed length in bytes (1=fast, 3=default, higher=exponentially slower)
-    #[arg(long, default_value_t = 3)]
+    /// Maximum seed length in bytes (1=fast, 2=slow-ish, 3=expensive)
+    #[arg(long, default_value_t = 1)]
     max_seed_len: usize,
     /// Number of compression passes
-    #[arg(long, default_value_t = 5)]
+    #[arg(long, default_value_t = 1)]
     passes: usize,
     /// Verify decompression after compressing
     #[arg(long)]
@@ -43,6 +44,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
         hash_bits: 13,
         ..Config::default()
     };
+    config.validate()?;
     let data =
         fs::read(&args.input).map_err(|e| io_cli_error("reading input file", &args.input, e))?;
     let (compressed, gains) = compress_multi_pass_with_config(&data, &config, args.passes, false)
@@ -59,7 +61,10 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
             .map_err(|e| simple_cli_error(&format!("invalid header: {e}")))?;
         let verify_cfg = Config {
             block_size: header.block_size,
-            hash_bits: 13,
+            max_seed_len: header.max_seed_len,
+            max_arity: header.max_arity,
+            hash_bits: header.hash_bits,
+            hasher: header.hasher,
             ..Config::default()
         };
         let decompressed = decompress_with_limit(&compressed, &verify_cfg, usize::MAX)

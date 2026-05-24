@@ -1,5 +1,8 @@
 //! Boundary condition tests for the compressor.
-use telomere::{compress_multi_pass_with_config, decode_header, decode_tlmr_header, decompress_with_limit, Config, Header};
+use telomere::{
+    compress_multi_pass_with_config, decode_header, decode_tlmr_header, decompress_with_limit,
+    Config, Header, TLMR_HEADER_LEN,
+};
 
 fn fast_cfg(block_size: usize) -> Config {
     Config {
@@ -21,12 +24,12 @@ fn partial_block_at_end_is_literal() {
     assert_eq!(hdr.block_size, block_size);
     assert_eq!(hdr.last_block_size, 1);
 
-    let mut offset = 3usize;
+    let mut offset = TLMR_HEADER_LEN;
     let mut headers = Vec::new();
     while offset < compressed.len() {
         let slice = &compressed[offset..];
         let (h, bits) = decode_header(slice).unwrap();
-        let byte_len = (bits + 7) / 8;
+        let byte_len = bits.div_ceil(8);
         offset += byte_len;
         if let Header::Literal = &h {
             let remaining = compressed.len() - offset;
@@ -61,5 +64,5 @@ fn empty_input() {
     let cfg = fast_cfg(4);
     let (compressed, _) = compress_multi_pass_with_config(&[], &cfg, 1, false).unwrap();
     let out = decompress_with_limit(&compressed, &cfg, usize::MAX).unwrap_or_default();
-    assert_eq!(out, vec![]);
+    assert_eq!(out, vec![0u8; 0]);
 }

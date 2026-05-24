@@ -1,7 +1,7 @@
 //! Property-based launch tests: roundtrip across many input sizes and configs.
 //! Uses max_seed_len=1 for speed. Focuses on roundtrip correctness, not compression ratio.
 use proptest::prelude::*;
-use telomere::{compress_multi_pass_with_config, decompress, Config};
+use telomere::{compress_multi_pass_with_config, decompress, Config, TLMR_HEADER_LEN};
 
 fn fast_cfg(block_size: usize) -> Config {
     Config {
@@ -24,7 +24,6 @@ proptest! {
         let (compressed, _) = compress_multi_pass_with_config(&data, &cfg, passes, false).unwrap();
         let decompressed = decompress(&compressed, &cfg).unwrap();
         prop_assert_eq!(decompressed.as_slice(), data.as_slice());
-        // Compressed stream must at least contain the 3-byte TlmrHeader.
-        prop_assert!(compressed.len() >= 3);
+        prop_assert!(compressed.len() >= TLMR_HEADER_LEN);
     }
 }

@@ -1,7 +1,9 @@
 //! Test that compression finds real seed matches and roundtrips correctly.
 //! Uses Blake3Expander to generate target data so the compressor can find seeds.
 use telomere::hasher::{Blake3Expander, SeedExpander};
-use telomere::{compress_multi_pass_with_config, decompress, Config};
+use telomere::{
+    compress_multi_pass_with_config, decode_lotus_header, decompress, Config, TLMR_HEADER_LEN,
+};
 
 fn blake3_cfg(block_size: usize) -> Config {
     Config {
@@ -46,6 +48,26 @@ fn compress_seeds_multi_block_roundtrip() {
     data.extend_from_slice(&[0xDE, 0xAD]); // 1 block: literal (almost certainly)
     data.extend_from_slice(&expand(&[0x00], 2)); // repeat
     let (compressed, _) = compress_multi_pass_with_config(&data, &cfg, 1, false).unwrap();
+    let decoded = decompress(&compressed, &cfg).expect("decompress failed");
+    assert_eq!(decoded, data);
+}
+
+#[test]
+fn compressor_emits_arity_2_when_it_is_the_first_compressive_span() {
+    let cfg = Config {
+        block_size: 2,
+        max_seed_len: 1,
+        max_arity: 2,
+        hash_bits: 13,
+        ..Config::default()
+    };
+    let data = expand(&[0x42], 4);
+
+    let (compressed, _) = compress_multi_pass_with_config(&data, &cfg, 1, false).unwrap();
+    let (first, _) = decode_lotus_header(&compressed[TLMR_HEADER_LEN..]).unwrap();
+
+    assert!(!first.is_literal);
+    assert_eq!(first.arity, 2, "arity 2 is a valid compressed span");
     let decoded = decompress(&compressed, &cfg).expect("decompress failed");
     assert_eq!(decoded, data);
 }

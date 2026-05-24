@@ -29,7 +29,11 @@ pub struct BitWriter {
 
 impl BitWriter {
     pub fn new() -> Self {
-        Self { buffer: Vec::new(), pending: 0, pending_bits: 0 }
+        Self {
+            buffer: Vec::new(),
+            pending: 0,
+            pending_bits: 0,
+        }
     }
 
     pub fn write_bits(&mut self, value: u64, mut width: usize) -> Result<(), LotusError> {
@@ -122,11 +126,7 @@ pub fn lotus_encode_u64_framed(
     Ok(EncodedLotus { bytes, bit_len })
 }
 
-pub fn lotus_decode_u64(
-    bytes: &[u8],
-    _j_bits: u8,
-    _tiers: u8,
-) -> Result<(u64, usize), LotusError> {
+pub fn lotus_decode_u64(bytes: &[u8], _j_bits: u8, _tiers: u8) -> Result<(u64, usize), LotusError> {
     // Placeholder – real decode lives in header.rs until migration
     if bytes.is_empty() {
         return Err(LotusError::UnexpectedEof);

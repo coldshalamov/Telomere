@@ -40,4 +40,3 @@ pub struct TlmrBatchHeader {
     /// bytes (`u16`).
     pub hash_low13: u16,
 }
-

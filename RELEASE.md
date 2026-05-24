@@ -1,10 +1,6 @@
-# Release Checklist
+# Release Notes
 
-Follow this checklist before publishing a new Telomere release.
+No production release has been cut from the `.tlmr` v1 format yet.
 
-- [ ] `cargo clippy --all-targets -- -D warnings`
-- [ ] `cargo test --release` for all supported targets
-- [ ] `cargo deny check`
-- [ ] Run fuzz harnesses for 72h with no crashes
-- [ ] Build release binary and record SHA-256 hash
-- [ ] Document reproducible build steps
+Before any release, complete [docs/RELEASE_CHECKLIST.md](docs/RELEASE_CHECKLIST.md)
+and regenerate [docs/RESULTS.md](docs/RESULTS.md).

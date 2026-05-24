@@ -3,7 +3,12 @@ use rand::Rng;
 use telomere::{compress_multi_pass_with_config, decompress_with_limit, Config};
 
 fn fast_cfg(block_size: usize) -> Config {
-    Config { block_size, max_seed_len: 1, hash_bits: 13, ..Config::default() }
+    Config {
+        block_size,
+        max_seed_len: 1,
+        hash_bits: 13,
+        ..Config::default()
+    }
 }
 
 #[test]
@@ -49,7 +54,9 @@ fn single_bit_flip_mostly_fails() {
     // With 50 trials we should catch >80% of flips.
     assert!(
         failures >= trials * 4 / 5,
-        "only {}/{} flips detected", failures, trials
+        "only {}/{} flips detected",
+        failures,
+        trials
     );
 }
 

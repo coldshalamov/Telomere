@@ -1,6 +1,5 @@
 //! GPU tiling and block chunk tests.
 //! Note: split_into_blocks takes block_size in BITS.
-//! GPU seed_match test is #[ignore] until GPU path is validated.
 use telomere::{chunk_blocks, load_chunk, split_into_blocks, BlockId, TileMap};
 
 #[test]
@@ -32,10 +31,4 @@ fn tile_map_global_mapping() {
     assert_eq!(map.map_global(10), Some((1, 0)));
     assert_eq!(map.map_global(24), Some((2, 4)));
     assert_eq!(map.map_global(25), None); // out of range
-}
-
-#[test]
-#[ignore = "GPU path not yet validated — requires OpenCL hardware and --features gpu"]
-fn gpu_seed_match_stub() {
-    panic!("GPU test should not run without --ignored flag");
 }

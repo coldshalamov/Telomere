@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TELOMERE — Compression Telemetry / RUN 0042</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap"
+  rel="stylesheet"
+/>
+<style>
+  :root {
+    --bg:        #0a0b0d;
+    --bg-2:      #101216;
+    --bg-3:      #15181d;
+    --rule:      #2a2f36;
+    --rule-soft: #1b1f25;
+    --bone:      #ece6d6;
+    --bone-dim:  #a8a294;
+    --iron:      #6b6e73;
+    --iron-dim:  #3e4147;
+    --amber:     #ffb547;
+    --amber-hot: #ffd58a;
+    --amber-dim: #8a6a3a;
+    --amber-glow: rgba(255, 181, 71, 0.22);
+    --red:       #ff6a5a;
+    --teal-cold: #5aa89a;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--bg);
+    color: var(--bone);
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 11.5px;
+    font-weight: 400;
+    line-height: 1.5;
+    letter-spacing: 0.015em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* faint scanlines, like a CRT instrument */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image: repeating-linear-gradient(
+      0deg,
+      rgba(255,255,255,0.014) 0px,
+      rgba(255,255,255,0.014) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    z-index: 100;
+    mix-blend-mode: overlay;
+  }
+
+  /* film grain */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='matrix' values='0 0 0 0 0.93  0 0 0 0 0.90  0 0 0 0 0.84  0 0 0 0.55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    opacity: 0.035;
+    z-index: 101;
+    mix-blend-mode: screen;
+  }
+
+  /* shared chrome ---------------------------------------------------- */
+
+  .rule        { border-color: var(--rule); }
+  .rule-soft   { border-color: var(--rule-soft); }
+
+  .label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9.5px;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--iron);
+  }
+  .label.hot    { color: var(--amber); }
+  .label.bone   { color: var(--bone-dim); }
+
+  .micro {
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--iron);
+  }
+
+  .num {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum' 1, 'zero' 1;
+  }
+
+  .hot   { color: var(--amber); }
+  .bone  { color: var(--bone); }
+  .dim   { color: var(--bone-dim); }
+  .iron  { color: var(--iron); }
+  .red   { color: var(--red); }
+  .teal  { color: var(--teal-cold); }
+
+  /* layout ----------------------------------------------------------- */
+
+  .frame {
+    max-width: 1480px;
+    margin: 0 auto;
+    padding: 32px 40px 48px;
+    position: relative;
+  }
+
+  /* corner ticks — gives the page that "framed plate" feel */
+  .frame::before,
+  .frame::after {
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border: 1px solid var(--rule);
+    pointer-events: none;
+  }
+  .frame::before {
+    top: 28px;
+    left: 36px;
+    border-right: none;
+    border-bottom: none;
+  }
+  .frame::after {
+    bottom: 44px;
+    right: 36px;
+    border-left: none;
+    border-top: none;
+  }
+
+  /* top bar */
+  .topbar {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 32px;
+  }
+  .marque {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 26px;
+    color: var(--bone);
+    letter-spacing: 0.005em;
+  }
+  .marque sup {
+    font-style: normal;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.22em;
+    color: var(--amber);
+    margin-left: 10px;
+    vertical-align: 0.55em;
+  }
+  .topbar .meta {
+    display: flex;
+    gap: 32px;
+    align-items: baseline;
+  }
+  .meta .pair { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+  .meta .pair .v { color: var(--bone); font-size: 11.5px; }
+  .meta .pair .k { font-size: 8.5px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--iron); }
+
+  .pulse {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: var(--amber);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--amber-glow), 0 0 2px var(--amber);
+    margin-right: 8px;
+    vertical-align: 1px;
+    animation: pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.45; transform: scale(0.85); }
+    50%      { opacity: 1;    transform: scale(1.05); }
+  }
+
+  /* HEADLINE area --------------------------------------------------- */
+
+  .headline {
+    display: grid;
+    grid-template-columns: 1.05fr 2fr;
+    gap: 48px;
+    align-items: end;
+    padding-bottom: 30px;
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 40px;
+  }
+
+  .run-id {
+    display: flex;
+    align-items: flex-end;
+    gap: 18px;
+  }
+  .run-id .glyph {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 108px;
+    line-height: 0.85;
+    color: var(--bone);
+    letter-spacing: -0.01em;
+  }
+  .run-id .sub { padding-bottom: 8px; }
+  .run-id .sub .t1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 19px;
+    color: var(--amber);
+    line-height: 1;
+    margin-bottom: 6px;
+    letter-spacing: 0.01em;
+  }
+  .run-id .sub .t2 {
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--iron);
+  }
+
+  .kpis {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--rule-soft);
+    border: 1px solid var(--rule-soft);
+  }
+  .kpi {
+    background: var(--bg);
+    padding: 16px 18px 18px;
+    position: relative;
+  }
+  .kpi .k {
+    font-size: 8.5px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--iron);
+    margin-bottom: 14px;
+  }
+  .kpi .v {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 28px;
+    font-weight: 300;
+    color: var(--bone);
+    line-height: 1;
+    letter-spacing: -0.01em;
+  }
+  .kpi .v .unit {
+    font-size: 11px;
+    color: var(--iron);
+    margin-left: 6px;
+    letter-spacing: 0.1em;
+  }
+  .kpi .trend {
+    margin-top: 10px;
+    font-size: 9.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--bone-dim);
+  }
+  .kpi .trend .arrow { color: var(--amber); margin-right: 4px; }
+  .kpi.alt .v { color: var(--amber); text-shadow: 0 0 14px var(--amber-glow); }
+  .kpi .nub {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    font-size: 8px;
+    letter-spacing: 0.18em;
+    color: var(--iron-dim);
+  }
+
+  /* MAIN GRID ------------------------------------------------------- */
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1.65fr 1fr;
+    gap: 32px;
+  }
+
+  .panel {
+    background: var(--bg);
+    border: 1px solid var(--rule);
+    position: relative;
+  }
+  .panel-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 14px 18px 12px;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  .panel-head .title {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 16px;
+    color: var(--bone);
+  }
+  .panel-head .tag {
+    font-size: 8.5px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--iron);
+  }
+
+  .panel-body { padding: 18px 18px 22px; }
+
+  /* convergence chart */
+  .conv-wrap { position: relative; }
+  .conv-legend {
+    display: flex;
+    gap: 22px;
+    font-size: 9.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--iron);
+    margin-bottom: 14px;
+    padding-left: 4px;
+  }
+  .conv-legend .sw {
+    display: inline-block;
+    width: 14px;
+    height: 1px;
+    margin-right: 8px;
+    vertical-align: 3px;
+  }
+  .conv-legend .sw.in   { background: var(--iron); height: 1px; }
+  .conv-legend .sw.out  { background: var(--amber); box-shadow: 0 0 6px var(--amber-glow); height: 1px; }
+  .conv-legend .sw.delta{ background: var(--bone-dim); height: 1px; }
+
+  svg.chart { display: block; width: 100%; }
+
+  .axis line, .axis path { stroke: var(--rule); stroke-width: 1; }
+  .axis .tick { stroke: var(--rule-soft); }
+  .axis text  {
+    fill: var(--iron);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.1em;
+  }
+
+  /* block heatmap */
+  .heat-grid {
+    display: grid;
+    grid-template-columns: repeat(64, 1fr);
+    gap: 1px;
+    background: var(--rule-soft);
+    padding: 1px;
+    margin: 6px 0 12px;
+    border: 1px solid var(--rule-soft);
+  }
+  .cell {
+    aspect-ratio: 1 / 1;
+    background: var(--bg-3);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+  }
+  .cell:hover { transform: scale(1.4); z-index: 2; outline: 1px solid var(--amber); }
+  /* legend bins */
+  .cell.l0 { background: #1a1d22; }                 /* literal / miss */
+  .cell.l1 { background: #3a2e1a; }                 /* seed len 1 */
+  .cell.l2 { background: #6b4a1f; }
+  .cell.l3 { background: #a87026; }
+  .cell.l4 { background: #ffb547; box-shadow: 0 0 4px var(--amber-glow); }
+
+  .heat-legend {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--iron);
+    margin-top: 8px;
+  }
+  .heat-legend .swatch {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border: 1px solid var(--rule);
+    margin-right: 6px;
+    vertical-align: -2px;
+  }
+
+  /* right column */
+  .right { display: flex; flex-direction: column; gap: 32px; }
+
+  /* seed length distribution */
+  .dist-row {
+    display: grid;
+    grid-template-columns: 32px 1fr 64px;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--rule-soft);
+  }
+  .dist-row:last-child { border-bottom: none; }
+  .dist-row .k {
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    color: var(--bone-dim);
+  }
+  .dist-row .bar {
+    height: 6px;
+    background: var(--bg-3);
+    position: relative;
+    overflow: hidden;
+  }
+  .dist-row .bar .fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    background: linear-gradient(90deg, var(--amber-dim), var(--amber));
+    box-shadow: inset 0 0 6px rgba(0,0,0,0.4);
+    animation: bar-in 0.9s cubic-bezier(.2,.7,.1,1) backwards;
+  }
+  @keyframes bar-in { from { width: 0 !important; } }
+  .dist-row .v {
+    text-align: right;
+    font-size: 11px;
+    color: var(--bone);
+  }
+  .dist-row .v .pc { color: var(--iron); margin-left: 6px; font-size: 9.5px; }
+
+  /* pass log */
+  .log-list {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--rule-soft);
+  }
+  .log-row {
+    display: grid;
+    grid-template-columns: 60px 50px 1fr auto;
+    align-items: baseline;
+    gap: 14px;
+    padding: 9px 0 8px;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  .log-row .t { font-size: 10px; color: var(--iron); letter-spacing: 0.08em; }
+  .log-row .lvl {
+    font-size: 8.5px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--bone-dim);
+  }
+  .log-row .lvl.ok   { color: var(--teal-cold); }
+  .log-row .lvl.hit  { color: var(--amber); }
+  .log-row .lvl.warn { color: var(--red); }
+  .log-row .m   { font-size: 10.5px; color: var(--bone); }
+  .log-row .v   { font-size: 10.5px; color: var(--amber); letter-spacing: 0.06em; }
+
+  /* footer */
+  .footer {
+    margin-top: 48px;
+    padding-top: 18px;
+    border-top: 1px solid var(--rule);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 9.5px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--iron);
+  }
+  .footer .colophon {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 12px;
+    letter-spacing: 0.01em;
+    text-transform: none;
+    color: var(--bone-dim);
+  }
+
+  /* page entrance — staggered */
+  .reveal { opacity: 0; transform: translateY(8px); animation: reveal 0.7s cubic-bezier(.2,.7,.1,1) forwards; }
+  .reveal.d1 { animation-delay: 0.05s; }
+  .reveal.d2 { animation-delay: 0.15s; }
+  .reveal.d3 { animation-delay: 0.28s; }
+  .reveal.d4 { animation-delay: 0.42s; }
+  .reveal.d5 { animation-delay: 0.58s; }
+  @keyframes reveal { to { opacity: 1; transform: translateY(0); } }
+
+  /* slim screens — keep readable, no spec breakdown attempted */
+  @media (max-width: 1100px) {
+    .grid { grid-template-columns: 1fr; }
+    .headline { grid-template-columns: 1fr; gap: 28px; }
+    .kpis { grid-template-columns: repeat(2, 1fr); }
+    .run-id .glyph { font-size: 84px; }
+    .heat-grid { grid-template-columns: repeat(32, 1fr); }
+  }
+</style>
+</head>
+<body>
+  <div class="frame">
+
+    <!-- top bar -->
+    <header class="topbar reveal d1">
+      <div class="marque">Telomere<sup>—01</sup></div>
+      <div class="meta">
+        <div class="pair">
+          <span class="v"><span class="pulse"></span>BLAKE3 / XOF</span>
+          <span class="k">Hasher</span>
+        </div>
+        <div class="pair">
+          <span class="v num">block=4 · seed≤3 · h=13</span>
+          <span class="k">Config</span>
+        </div>
+        <div class="pair">
+          <span class="v num">2026-05-24 · 14:02:11Z</span>
+          <span class="k">Telemetry</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- headline -->
+    <section class="headline reveal d2">
+      <div class="run-id">
+        <div class="glyph">0042</div>
+        <div class="sub">
+          <div class="t1">enwik8 / first 16 KiB</div>
+          <div class="t2">Run · 3 passes · converged at p3</div>
+        </div>
+      </div>
+
+      <div class="kpis">
+        <div class="kpi">
+          <div class="nub num">I.</div>
+          <div class="k">Bytes in</div>
+          <div class="v num">16,384<span class="unit">B</span></div>
+          <div class="trend"><span class="arrow">·</span>SRC</div>
+        </div>
+        <div class="kpi alt">
+          <div class="nub num">II.</div>
+          <div class="k">Bytes out</div>
+          <div class="v num">12,734<span class="unit">B</span></div>
+          <div class="trend"><span class="arrow">↘</span>−3,650 B</div>
+        </div>
+        <div class="kpi">
+          <div class="nub num">III.</div>
+          <div class="k">Ratio</div>
+          <div class="v num">0.777<span class="unit">×</span></div>
+          <div class="trend"><span class="arrow">·</span>22.3 % saved</div>
+        </div>
+        <div class="kpi">
+          <div class="nub num">IV.</div>
+          <div class="k">Hit rate</div>
+          <div class="v num">38.4<span class="unit">%</span></div>
+          <div class="trend"><span class="arrow">↗</span>+11.2 pp pass-on-pass</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- main grid -->
+    <main class="grid">
+
+      <!-- LEFT: hero chart + heatmap -->
+      <div class="left" style="display:flex; flex-direction:column; gap:32px;">
+
+        <!-- CONVERGENCE CHART -->
+        <section class="panel reveal d3">
+          <div class="panel-head">
+            <div>
+              <div class="title">Convergence — bytes per pass</div>
+            </div>
+            <div class="tag">FIG · 01</div>
+          </div>
+          <div class="panel-body">
+            <div class="conv-legend">
+              <span><span class="sw in"></span>bytes_in</span>
+              <span><span class="sw out"></span>bytes_out</span>
+              <span><span class="sw delta"></span>δ %</span>
+            </div>
+
+            <div class="conv-wrap">
+              <svg class="chart" viewBox="0 0 760 320" preserveAspectRatio="none" aria-label="Convergence chart">
+                <!-- frame -->
+                <g class="axis" transform="translate(56,18)">
+                  <!-- y grid -->
+                  <g stroke="var(--rule-soft)" stroke-dasharray="2 4">
+                    <line x1="0" y1="0"   x2="660" y2="0" />
+                    <line x1="0" y1="60"  x2="660" y2="60" />
+                    <line x1="0" y1="120" x2="660" y2="120" />
+                    <line x1="0" y1="180" x2="660" y2="180" />
+                    <line x1="0" y1="240" x2="660" y2="240" />
+                  </g>
+                  <!-- y axis -->
+                  <line x1="0" y1="0" x2="0" y2="260" stroke="var(--rule)" />
+                  <!-- x axis -->
+                  <line x1="0" y1="260" x2="660" y2="260" stroke="var(--rule)" />
+
+                  <!-- y ticks (bytes) -->
+                  <g font-size="9.5" fill="var(--iron)" font-family="IBM Plex Mono">
+                    <text x="-12" y="4"   text-anchor="end">18 000</text>
+                    <text x="-12" y="64"  text-anchor="end">16 000</text>
+                    <text x="-12" y="124" text-anchor="end">14 000</text>
+                    <text x="-12" y="184" text-anchor="end">12 000</text>
+                    <text x="-12" y="244" text-anchor="end">10 000</text>
+                  </g>
+
+                  <!-- x ticks (pass) -->
+                  <g font-size="9.5" fill="var(--iron)" font-family="IBM Plex Mono" letter-spacing="0.12em">
+                    <text x="0"   y="278" text-anchor="middle">P0</text>
+                    <text x="220" y="278" text-anchor="middle">P1</text>
+                    <text x="440" y="278" text-anchor="middle">P2</text>
+                    <text x="660" y="278" text-anchor="middle">P3</text>
+                  </g>
+
+                  <!-- bytes_in baseline (flat) -->
+                  <line x1="0" y1="48" x2="660" y2="48" stroke="var(--iron)" stroke-width="1" stroke-dasharray="3 3" opacity="0.65"/>
+                  <text x="664" y="51" font-size="9.5" fill="var(--iron)" font-family="IBM Plex Mono">16 384 B  (src)</text>
+
+                  <!-- bytes_out curve -->
+                  <!-- P0 = 16384 (y=48), P1=14102, P2=13247, P3=12734 -->
+                  <!-- y mapping: bytes_out 18000 -> 0, 10000 -> 240. scale = 240/8000 = 0.03 per byte -->
+                  <!-- P0 y = (18000-16384)*0.03 = 48.48
+                       P1 y = (18000-14102)*0.03 = 116.94
+                       P2 y = (18000-13247)*0.03 = 142.59
+                       P3 y = (18000-12734)*0.03 = 157.98 -->
+                  <path d="M 0 48 L 220 117 L 440 143 L 660 158"
+                        fill="none" stroke="var(--amber)" stroke-width="1.5"
+                        stroke-linecap="square" stroke-linejoin="miter"
+                        style="filter: drop-shadow(0 0 6px var(--amber-glow));" />
+                  <!-- markers -->
+                  <g fill="var(--bg)" stroke="var(--amber)" stroke-width="1.4">
+                    <rect x="-4" y="44"    width="8" height="8" />
+                    <rect x="216" y="113"  width="8" height="8" />
+                    <rect x="436" y="139"  width="8" height="8" />
+                    <rect x="656" y="154"  width="8" height="8" />
+                  </g>
+
+                  <!-- δ% bars (secondary) -->
+                  <!-- delta P1 = 13.9%, P2 = 6.06%, P3 = 3.87% -->
+                  <!-- scale so 20% = 60px of bar -->
+                  <g>
+                    <rect x="200" y="220" width="40" height="40" fill="var(--bone-dim)" opacity="0.18"/>
+                    <rect x="420" y="242" width="40" height="18" fill="var(--bone-dim)" opacity="0.18"/>
+                    <rect x="640" y="248" width="40" height="12" fill="var(--bone-dim)" opacity="0.18"/>
+                  </g>
+                  <g font-size="9.5" fill="var(--bone-dim)" font-family="IBM Plex Mono">
+                    <text x="220" y="214" text-anchor="middle">−13.9%</text>
+                    <text x="440" y="236" text-anchor="middle">−6.1%</text>
+                    <text x="660" y="242" text-anchor="middle">−3.9%</text>
+                  </g>
+
+                  <!-- annotation: converged -->
+                  <g transform="translate(540, 100)" font-family="Cormorant Garamond" font-style="italic">
+                    <line x1="0" y1="0" x2="60" y2="0" stroke="var(--amber)" stroke-dasharray="2 2"/>
+                    <line x1="60" y1="0" x2="60" y2="50" stroke="var(--amber)" stroke-dasharray="2 2"/>
+                    <text x="0" y="-6" font-size="13" fill="var(--amber)">converged</text>
+                    <text x="0" y="8" font-size="9" fill="var(--iron)" font-family="IBM Plex Mono" letter-spacing="0.16em">δ &lt; 5% · k=1</text>
+                  </g>
+                </g>
+              </svg>
+            </div>
+
+            <!-- pass values strip -->
+            <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:1px; background:var(--rule-soft); margin-top:18px; border:1px solid var(--rule-soft);">
+              <div style="background:var(--bg); padding:10px 12px;">
+                <div class="micro">Pass P0 · source</div>
+                <div class="num bone" style="font-size:15px; margin-top:4px;">16,384 B</div>
+                <div class="micro" style="margin-top:4px;">δ —</div>
+              </div>
+              <div style="background:var(--bg); padding:10px 12px;">
+                <div class="micro">Pass P1</div>
+                <div class="num bone" style="font-size:15px; margin-top:4px;">14,102 B</div>
+                <div class="micro hot" style="margin-top:4px;">δ −13.9 %</div>
+              </div>
+              <div style="background:var(--bg); padding:10px 12px;">
+                <div class="micro">Pass P2</div>
+                <div class="num bone" style="font-size:15px; margin-top:4px;">13,247 B</div>
+                <div class="micro hot" style="margin-top:4px;">δ −6.1 %</div>
+              </div>
+              <div style="background:var(--bg); padding:10px 12px;">
+                <div class="micro">Pass P3 · final</div>
+                <div class="num hot" style="font-size:15px; margin-top:4px;">12,734 B</div>
+                <div class="micro hot" style="margin-top:4px;">δ −3.9 %</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- BLOCK HEATMAP -->
+        <section class="panel reveal d4">
+          <div class="panel-head">
+            <div class="title">Block lattice — 4 096 blocks, coloured by terminal seed length</div>
+            <div class="tag">FIG · 02</div>
+          </div>
+          <div class="panel-body">
+            <div class="heat-grid" id="heatGrid" aria-hidden="true"></div>
+            <div class="heat-legend">
+              <span><span class="swatch" style="background:#1a1d22"></span>literal</span>
+              <span><span class="swatch" style="background:#3a2e1a"></span>seed=1</span>
+              <span><span class="swatch" style="background:#6b4a1f"></span>seed=2</span>
+              <span><span class="swatch" style="background:#a87026"></span>seed=3</span>
+              <span><span class="swatch" style="background:#ffb547; box-shadow:0 0 6px var(--amber-glow)"></span>bundle</span>
+              <span style="margin-left:auto;" class="dim">scan order · row-major · cell = 1 block (4 B)</span>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- RIGHT column -->
+      <div class="right">
+
+        <!-- SEED LENGTH DISTRIBUTION -->
+        <section class="panel reveal d3">
+          <div class="panel-head">
+            <div class="title">Seed length distribution</div>
+            <div class="tag">DIST · A</div>
+          </div>
+          <div class="panel-body">
+            <div class="dist-row">
+              <div class="k num">L=0</div>
+              <div class="bar"><div class="fill" style="width:62%; background:linear-gradient(90deg, #2a2e34, #5a5e64);"></div></div>
+              <div class="v num">2 521<span class="pc">61.6%</span></div>
+            </div>
+            <div class="dist-row">
+              <div class="k num">L=1</div>
+              <div class="bar"><div class="fill" style="width:24%;"></div></div>
+              <div class="v num">988<span class="pc">24.1%</span></div>
+            </div>
+            <div class="dist-row">
+              <div class="k num">L=2</div>
+              <div class="bar"><div class="fill" style="width:11%;"></div></div>
+              <div class="v num">441<span class="pc">10.8%</span></div>
+            </div>
+            <div class="dist-row">
+              <div class="k num">L=3</div>
+              <div class="bar"><div class="fill" style="width:3.5%;"></div></div>
+              <div class="v num">146<span class="pc">3.5%</span></div>
+            </div>
+            <div class="dist-row">
+              <div class="k num">BND</div>
+              <div class="bar"><div class="fill" style="width:1.2%; background:linear-gradient(90deg, #c9963f, var(--amber-hot));"></div></div>
+              <div class="v num hot">36<span class="pc" style="color:var(--amber-dim)">0.9%</span></div>
+            </div>
+
+            <div style="margin-top:18px; padding-top:14px; border-top:1px dashed var(--rule); display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+              <div>
+                <div class="micro">Mean seed</div>
+                <div class="num bone" style="font-size:14px; margin-top:2px;">0.59 B</div>
+              </div>
+              <div>
+                <div class="micro">Saved by bundle</div>
+                <div class="num hot" style="font-size:14px; margin-top:2px;">412 B</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- PASS LOG -->
+        <section class="panel reveal d4">
+          <div class="panel-head">
+            <div class="title">Pass log</div>
+            <div class="tag">STREAM</div>
+          </div>
+          <div class="panel-body">
+            <div class="log-list">
+              <div class="log-row">
+                <span class="t num">14:02:08</span>
+                <span class="lvl ok">init</span>
+                <span class="m">hasher = blake3 / xof · 13-bit prefix</span>
+                <span class="v num">—</span>
+              </div>
+              <div class="log-row">
+                <span class="t num">14:02:08</span>
+                <span class="lvl">p0</span>
+                <span class="m">loaded source · 4 096 blocks</span>
+                <span class="v num">16,384 B</span>
+              </div>
+              <div class="log-row">
+                <span class="t num">14:02:09</span>
+                <span class="lvl hit">p1</span>
+                <span class="m">find_seed_match · 1 575 matches / 4 096</span>
+                <span class="v num">−2 282 B</span>
+              </div>
+              <div class="log-row">
+                <span class="t num">14:02:10</span>
+                <span class="lvl hit">p2</span>
+                <span class="m">bundler · arity 2–4 over residue</span>
+                <span class="v num">−855 B</span>
+              </div>
+              <div class="log-row">
+                <span class="t num">14:02:11</span>
+                <span class="lvl hit">p3</span>
+                <span class="m">find_seed_match · second sweep</span>
+                <span class="v num">−513 B</span>
+              </div>
+              <div class="log-row">
+                <span class="t num">14:02:11</span>
+                <span class="lvl ok">halt</span>
+                <span class="m">δ &lt; 5% for k=1 — converged</span>
+                <span class="v num">12,734 B</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+    </main>
+
+    <!-- footer -->
+    <footer class="footer reveal d5">
+      <div>build f46394c · 106 tests · 0 warnings</div>
+      <div class="colophon">Telomere — generative compression telemetry, plate i</div>
+      <div>specimen 0042 / 0042</div>
+    </footer>
+
+  </div>
+
+<script>
+  // Build a 4096-cell heatmap (64 × 64). Bias towards "literal" then trail off.
+  (function () {
+    const N = 4096;
+    const grid = document.getElementById('heatGrid');
+    if (!grid) return;
+
+    // Reproducible pseudo-random: xmur3 + sfc32
+    function xmur3(s) {
+      let h = 1779033703 ^ s.length;
+      for (let i = 0; i < s.length; i++) {
+        h = Math.imul(h ^ s.charCodeAt(i), 3432918353);
+        h = (h << 13) | (h >>> 19);
+      }
+      return function () {
+        h = Math.imul(h ^ (h >>> 16), 2246822507);
+        h = Math.imul(h ^ (h >>> 13), 3266489909);
+        return (h ^= h >>> 16) >>> 0;
+      };
+    }
+    function mulberry32(a) {
+      return function () {
+        let t = (a += 0x6D2B79F5);
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+    const seed = xmur3('telomere-0042');
+    const rand = mulberry32(seed());
+
+    // Distribution targets (rough): 61.6 / 24.1 / 10.8 / 3.5 / 0.9 / + literal mix
+    // We'll bake "literal" into l0, seeds 1..3 into l1..l3, bundle into l4.
+    function pick(r) {
+      if (r < 0.616) return 'l0';
+      if (r < 0.857) return 'l1';
+      if (r < 0.965) return 'l2';
+      if (r < 0.991) return 'l3';
+      return 'l4';
+    }
+
+    // Add a few "structured" runs — bands of seed-1 / seed-2 to make the plate look real.
+    const cells = new Array(N);
+    for (let i = 0; i < N; i++) cells[i] = pick(rand());
+
+    // Inject 3 clusters of brighter activity (simulates a structured region)
+    function paintCluster(startRow, startCol, w, h, weights) {
+      for (let r = 0; r < h; r++) {
+        for (let c = 0; c < w; c++) {
+          const idx = (startRow + r) * 64 + (startCol + c);
+          if (idx < N) {
+            const v = rand();
+            let cum = 0;
+            for (const [k, p] of weights) {
+              cum += p;
+              if (v < cum) { cells[idx] = k; break; }
+            }
+          }
+        }
+      }
+    }
+    paintCluster( 6,  8, 18, 6, [['l1', 0.30], ['l2', 0.34], ['l3', 0.22], ['l4', 0.10], ['l0', 0.04]]);
+    paintCluster(36, 22, 12, 5, [['l2', 0.42], ['l3', 0.30], ['l4', 0.18], ['l1', 0.08], ['l0', 0.02]]);
+    paintCluster(52, 40, 10, 9, [['l1', 0.55], ['l2', 0.25], ['l3', 0.10], ['l4', 0.04], ['l0', 0.06]]);
+
+    // Build DOM in one shot.
+    const frag = document.createDocumentFragment();
+    for (let i = 0; i < N; i++) {
+      const d = document.createElement('div');
+      d.className = 'cell ' + cells[i];
+      // light entrance — only a few sample cells animate to keep it cheap
+      frag.appendChild(d);
+    }
+    grid.appendChild(frag);
+
+    // Counter flip on the headline number — small detail
+    const out = document.querySelector('.kpi.alt .v');
+    if (out) {
+      const target = 12734;
+      let cur = 16384;
+      const t0 = performance.now();
+      const dur = 900;
+      function step(now) {
+        const k = Math.min(1, (now - t0) / dur);
+        const e = 1 - Math.pow(1 - k, 3);
+        const v = Math.round(16384 + (target - 16384) * e);
+        out.firstChild.nodeValue = v.toLocaleString('en-US');
+        if (k < 1) requestAnimationFrame(step);
+      }
+      // preserve <span class="unit"> as second child
+      out.innerHTML = '16,384<span class="unit">B</span>';
+      requestAnimationFrame(step);
+    }
+  })();
+</script>
+</body>
+</html>

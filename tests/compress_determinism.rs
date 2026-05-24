@@ -1,5 +1,5 @@
 //! Verify that compression is deterministic: same input + config → identical output.
-use telomere::{compress_multi_pass_with_config, Config};
+use telomere::{compress_multi_pass_with_config, decode_tlmr_header, Config};
 
 fn fast_cfg(block_size: usize) -> Config {
     Config {
@@ -16,7 +16,10 @@ fn test_compression_deterministic() {
     let cfg = fast_cfg(3);
     let (out1, _) = compress_multi_pass_with_config(&input, &cfg, 1, false).unwrap();
     let (out2, _) = compress_multi_pass_with_config(&input, &cfg, 1, false).unwrap();
-    assert_eq!(out1, out2, "identical inputs must produce identical compressed output");
+    assert_eq!(
+        out1, out2,
+        "identical inputs must produce identical compressed output"
+    );
 }
 
 #[test]
@@ -35,6 +38,10 @@ fn test_different_configs_different_output() {
     let cfg4 = fast_cfg(4);
     let (out3, _) = compress_multi_pass_with_config(&input, &cfg3, 1, false).unwrap();
     let (out4, _) = compress_multi_pass_with_config(&input, &cfg4, 1, false).unwrap();
-    // Different block sizes encode different TlmrHeaders — outputs differ.
-    assert_ne!(out3[0..3], out4[0..3], "different block sizes produce different file headers");
+    let hdr3 = decode_tlmr_header(&out3).unwrap();
+    let hdr4 = decode_tlmr_header(&out4).unwrap();
+    assert_ne!(
+        hdr3.block_size, hdr4.block_size,
+        "different block sizes produce different file headers"
+    );
 }

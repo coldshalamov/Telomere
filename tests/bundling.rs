@@ -20,8 +20,8 @@ fn apply_bundle_marks_and_inserts() {
     apply_bundle(&mut table, &[2, 3, 4], 1, 3, 16);
 
     // original blocks 2..=4 should be marked removed
-    for idx in 2..=4 {
-        assert_eq!(table[idx].status, BlockStatus::Removed);
+    for block in table.iter().take(5).skip(2) {
+        assert_eq!(block.status, BlockStatus::Removed);
     }
 
     // a new active block is appended with expected fields

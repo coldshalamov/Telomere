@@ -1,38 +1,43 @@
-//! GPU determinism test — requires GPU feature and verified hardware.
-//! Marked #[ignore] until GPU path is validated (see research plan section 4.6).
-use std::fs;
-use std::process::Command;
+//! CPU/GPU matcher parity guard.
+//!
+//! The `gpu` feature is research-only. This test does not claim GPU output is
+//! production-trusted; it requires any enabled GPU backend to agree with the
+//! canonical CPU seed search for a small deterministic tile.
+
+use telomere::hasher::{SeedExpander, Sha256Expander};
+use telomere::{find_seed_match, split_into_blocks, BlockId, GpuSeedMatcher};
 
 #[test]
-#[ignore = "GPU path not yet verified; requires --features gpu and OpenCL hardware"]
-fn compress_identical_with_and_without_gpu() {
-    use rand::{Rng, SeedableRng};
-    let dir = tempfile::tempdir().unwrap();
-    let input = dir.path().join("input.bin");
-    let cpu_out = dir.path().join("cpu.tlmr");
-    let gpu_out = dir.path().join("gpu.tlmr");
+fn gpu_matcher_agrees_with_cpu_seed_search_on_small_tile() {
+    let expander = Sha256Expander;
+    let mut data = Vec::new();
+    for seed in [0x00u8, 0x01, 0x02] {
+        let mut byte = [0u8; 1];
+        expander.expand_into(&[seed], &mut byte);
+        data.extend_from_slice(&byte);
+    }
 
-    let mut rng = rand::rngs::StdRng::seed_from_u64(42);
-    let data: Vec<u8> = (0..1024).map(|_| rng.gen()).collect(); // small for now
-    fs::write(&input, &data).unwrap();
+    let store = split_into_blocks(&data, 8);
+    let blocks: Vec<BlockId> = (0..store.blocks().len())
+        .map(|i| BlockId(i as u32))
+        .collect();
 
-    let status = Command::new("cargo")
-        .args(["run", "--quiet", "--release", "--bin", "compressor", "--",
-               input.to_str().unwrap(), cpu_out.to_str().unwrap(),
-               "--max-seed-len", "1", "--passes", "1"])
-        .status()
-        .expect("cpu run");
-    assert!(status.success());
+    let mut matcher = GpuSeedMatcher::new();
+    matcher.load_tile(&store, &blocks);
+    let gpu_matches = matcher.seed_match(0, 256, &expander).unwrap();
 
-    let status = Command::new("cargo")
-        .args(["run", "--quiet", "--release", "--features", "gpu", "--bin", "compressor", "--",
-               input.to_str().unwrap(), gpu_out.to_str().unwrap(),
-               "--max-seed-len", "1", "--passes", "1"])
-        .status()
-        .expect("gpu run");
-    assert!(status.success());
-
-    let cpu_bytes = fs::read(cpu_out).unwrap();
-    let gpu_bytes = fs::read(gpu_out).unwrap();
-    assert_eq!(cpu_bytes, gpu_bytes);
+    for block in blocks {
+        let bytes = store.get_data(block);
+        let expected = find_seed_match(bytes, 1, &expander).unwrap();
+        if let Some(seed_index) = expected {
+            assert!(
+                gpu_matches.iter().any(|record| {
+                    record.seed_index == seed_index
+                        && record.block_indices == vec![block.0 as usize]
+                }),
+                "GPU matcher missed CPU seed {seed_index} for block {}",
+                block.0
+            );
+        }
+    }
 }

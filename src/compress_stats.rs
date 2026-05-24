@@ -81,10 +81,7 @@ impl RunSummary {
     pub fn print_summary(&self) {
         eprintln!(
             "Compression: {} → {} bytes ({:+.2}%) in {}ms",
-            self.original_bytes,
-            self.final_bytes,
-            self.total_delta_pct,
-            self.total_duration_ms
+            self.original_bytes, self.final_bytes, self.total_delta_pct, self.total_duration_ms
         );
         for p in &self.passes {
             eprintln!(
@@ -131,8 +128,14 @@ impl CompressionStats {
     pub fn with_csv(path: &str) -> Result<Self, crate::TelomereError> {
         let file = File::create(path).map_err(crate::TelomereError::from)?;
         let mut wtr = Writer::from_writer(file);
-        wtr.write_record(&["seconds", "total_blocks", "compressed_blocks", "greedy", "fallback"])
-            .map_err(|e| crate::TelomereError::Io(std::io::Error::new(std::io::ErrorKind::Other, e)))?;
+        wtr.write_record(&[
+            "seconds",
+            "total_blocks",
+            "compressed_blocks",
+            "greedy",
+            "fallback",
+        ])
+        .map_err(|e| crate::TelomereError::Io(std::io::Error::new(std::io::ErrorKind::Other, e)))?;
         Ok(Self {
             start_time: Instant::now(),
             total_blocks: 0,
@@ -204,8 +207,15 @@ pub fn write_stats_csv(stats: &CompressionStats, path: &str) -> Result<(), crate
     let elapsed = stats.start_time.elapsed().as_secs_f32();
     let ratio = stats.compressed_blocks as f32 / stats.total_blocks.max(1) as f32;
     let mut wtr = Writer::from_writer(File::create(path).map_err(crate::TelomereError::from)?);
-    wtr.write_record(&["time_s", "total_blocks", "compressed_blocks", "ratio", "greedy", "fallback"])
-        .map_err(|e| crate::TelomereError::Io(std::io::Error::new(std::io::ErrorKind::Other, e)))?;
+    wtr.write_record(&[
+        "time_s",
+        "total_blocks",
+        "compressed_blocks",
+        "ratio",
+        "greedy",
+        "fallback",
+    ])
+    .map_err(|e| crate::TelomereError::Io(std::io::Error::new(std::io::ErrorKind::Other, e)))?;
     wtr.write_record(&[
         format!("{:.2}", elapsed),
         stats.total_blocks.to_string(),

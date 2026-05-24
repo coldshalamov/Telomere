@@ -4,8 +4,9 @@ use clap::Parser;
 use std::fs;
 use std::path::PathBuf;
 use telomere::{
-    decompress_with_limit, decode_tlmr_header, Config,
+    decode_tlmr_header, decompress_with_limit,
     io_utils::{extension_error, io_cli_error, simple_cli_error},
+    Config,
 };
 
 /// Decompress a Telomere file created by the compressor.
@@ -36,8 +37,16 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     }
     let data =
         fs::read(&args.input).map_err(|e| io_cli_error("reading input file", &args.input, e))?;
-    let header = decode_tlmr_header(&data).map_err(|e| simple_cli_error(&format!("invalid header: {e}")))?;
-    let config = Config { block_size: header.block_size, hash_bits: 13, ..Config::default() };
+    let header =
+        decode_tlmr_header(&data).map_err(|e| simple_cli_error(&format!("invalid header: {e}")))?;
+    let config = Config {
+        block_size: header.block_size,
+        max_seed_len: header.max_seed_len,
+        max_arity: header.max_arity,
+        hash_bits: header.hash_bits,
+        hasher: header.hasher,
+        ..Config::default()
+    };
     let decompressed = decompress_with_limit(&data, &config, usize::MAX)
         .map_err(|e| simple_cli_error(&format!("decompression failed: {e}")))?;
     fs::write(&args.output, &decompressed)

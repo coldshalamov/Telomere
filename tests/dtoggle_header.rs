@@ -1,11 +1,32 @@
 //! Header encode/decode roundtrip tests for the current Lotus 4-field format.
-use telomere::{decode_header, decode_lotus_header, encode_header, encode_lotus_header, pack_bits, Header};
+use telomere::{
+    decode_header, decode_lotus_header, encode_header, encode_lotus_arity_bits,
+    encode_lotus_header, pack_bits, Header,
+};
 
 #[test]
 fn literal_header_encodes_and_decodes() {
     let enc = encode_header(&Header::Literal).unwrap();
     let (dec, _bits) = decode_header(&enc).unwrap();
     assert_eq!(dec, Header::Literal);
+}
+
+#[test]
+fn lotus_arity_field_golden_vectors() {
+    let cases = [
+        (1usize, false, vec![false]),
+        (2usize, false, vec![true]),
+        (3usize, true, vec![false, false]),
+        (4usize, true, vec![false, true]),
+        (5usize, true, vec![true, false]),
+        (0xFFusize, true, vec![true, true]),
+    ];
+
+    for (arity, expected_mode, expected_bits) in cases {
+        let (mode, bits) = encode_lotus_arity_bits(arity).unwrap();
+        assert_eq!(mode, expected_mode, "mode for arity {arity}");
+        assert_eq!(bits, expected_bits, "bits for arity {arity}");
+    }
 }
 
 #[test]
@@ -19,7 +40,12 @@ fn lotus_arity_headers_roundtrip() {
         assert_eq!(dec.arity as usize, arity, "arity={}", arity);
         assert!(!dec.is_literal);
         assert_eq!(dec.payload_bits, payload);
-        assert_eq!(used_bits, bits.len(), "bits consumed must equal bits emitted for arity={}", arity);
+        assert_eq!(
+            used_bits,
+            bits.len(),
+            "bits consumed must equal bits emitted for arity={}",
+            arity
+        );
     }
 }
 
