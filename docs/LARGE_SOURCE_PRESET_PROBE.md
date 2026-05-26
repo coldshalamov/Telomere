@@ -16,25 +16,27 @@ Claim boundary: `learned-rust-source-heldout-v0` excludes the held-out `result.r
 - Best trained seed minus control bytes: `0`
 - Best trained source seed delta bytes: `264`
 - Best trained source seed minus control bytes: `-8015`
+- Best trained source fixed-span projection bytes: `-913`
 - Best oracle seed delta bytes: `-4389`
 - Best oracle seed minus control bytes: `-7676`
 - Conclusion: `large held-out source is coverage-limited, not random-limited: trained public tokens create hundreds of exact spans but remain slightly positive; oracle coverage becomes cleanly profitable`
 
 ## Comparisons
 
-| Corpus | Registry | Frame | Seed delta | Public-preset delta | Selected spans | Best control delta | Seed minus control | Clean seed win |
+| Corpus | Registry | Frame | Seed delta | Fixed-span projection | Selected spans | Best control delta | Seed minus control | Clean seed win |
 | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | --- |
-| rust-result-heldout | `learned-rust-source-heldout-v0` | `external-byte` | 321 | 313 | 856 | 8336 | -8015 | `False` |
-| rust-result-heldout | `learned-rust-source-heldout-v0` | `lotus-bit` | 264 | 256 | 856 | 8279 | -8015 | `False` |
-| same-size-random | `learned-rust-source-heldout-v0` | `external-byte` | 53 | 45 | 0 | 53 | 0 | `False` |
-| same-size-random | `learned-rust-source-heldout-v0` | `lotus-bit` | 52 | 44 | 0 | 52 | 0 | `False` |
-| rust-result-heldout | `oracle-result-source-v0` | `external-byte` | -4389 | -4397 | 818 | 3287 | -7676 | `True` |
-| rust-result-heldout | `oracle-result-source-v0` | `lotus-bit` | -4352 | -4360 | 818 | 3324 | -7676 | `True` |
-| same-size-random | `oracle-result-source-v0` | `external-byte` | 53 | 45 | 0 | 53 | 0 | `False` |
-| same-size-random | `oracle-result-source-v0` | `lotus-bit` | 52 | 44 | 0 | 52 | 0 | `False` |
+| rust-result-heldout | `learned-rust-source-heldout-v0` | `external-byte` | 321 | -856 | 856 | 8336 | -8015 | `False` |
+| rust-result-heldout | `learned-rust-source-heldout-v0` | `lotus-bit` | 264 | -913 | 856 | 8279 | -8015 | `False` |
+| same-size-random | `learned-rust-source-heldout-v0` | `external-byte` | 53 | 53 | 0 | 53 | 0 | `False` |
+| same-size-random | `learned-rust-source-heldout-v0` | `lotus-bit` | 52 | 52 | 0 | 52 | 0 | `False` |
+| rust-result-heldout | `oracle-result-source-v0` | `external-byte` | -4389 | -5513 | 818 | 3287 | -7676 | `True` |
+| rust-result-heldout | `oracle-result-source-v0` | `lotus-bit` | -4352 | -5476 | 818 | 3324 | -7676 | `True` |
+| same-size-random | `oracle-result-source-v0` | `external-byte` | 53 | 53 | 0 | 53 | 0 | `False` |
+| same-size-random | `oracle-result-source-v0` | `lotus-bit` | 52 | 52 | 0 | 52 | 0 | `False` |
 
 Interpretation:
 
 - The trained held-out source registry creates hundreds of exact seed spans and beats same-token controls by kilobytes, but current accounting remains slightly positive.
+- A fixed-span seed layer that omits per-record `span_len` would project the trained source row negative because every selected codeword span has the descriptor-known length.
 - The oracle source registry becomes cleanly negative while same-token controls bloat, proving that better source coverage can make the seed-span mechanism profitable at this scale.
 - The next source architecture should focus on a native public source preset or parser-informed token registry, not deeper random search.
