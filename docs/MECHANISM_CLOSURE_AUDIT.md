@@ -48,6 +48,6 @@ The JSON `source_hashes` map pins this closure audit to exact upstream evidence 
 - `public_preset_control_rerun_sha256`: `ac56eb622366b727a2346f72573408648bb9d239bf6322e3f518fcbe245479d3`
 - `superposition_telemetry_sha256`: `447e382fb222d915f1d913e72a0a0d2bcd3eae6bb81e2a72d2acc7b030370f57`
 - `lattice_selection_heldout_probe_sha256`: `91622e2d97f4f621e36f6034273497476f9ca933615f7c73d1f34e2576499a7a`
-- `recursive_structured_fixtures_sha256`: `2ab670c13d562e52f470ebec0ae5d61db29a82350c21780f064b741b3e1e0fac`
-- `long_span_bundle_gate_sha256`: `68e74aede8d58394b117282713bb6001df946a3d4d8f717aaaa60f20ad3fcd76`
+- `recursive_structured_fixtures_sha256`: `ba0e35650a6daa742994b881563bfbeb64f5519ff942e967dd3cfb0d250fc67d`
+- `long_span_bundle_gate_sha256`: `2e8d89a7835508e0cf6c19e18b4fde448589770f17b7cecb9425eb5ea996eb02`
 - `mechanism_closure_generator_sha256`: `199655a45117d168ca57ec8ec8b99690a3122c90398121e2926062ad67233d16`

@@ -142,8 +142,8 @@ The next viable research move is not compute; it is to choose and specify one ma
 ## Source Artifacts
 
 The JSON `source_hashes` map pins this design registry to exact upstream evidence and generator files below.
-- `whitepaper_sha256`: `94a2f9f6a7e190632eb22c184237381f332ce1b651a8d3291e5b20f55ceb9f0a`
-- `mechanism_closure_audit_sha256`: `738fdc537c09da2b5ff1e9856081f4b54331c36d8d77bdd453f05e38918bbf4c`
+- `whitepaper_sha256`: `ff3bfa05be1789537ed7e922452c372b50a548c7119e4230940b63c0a4ed0131`
+- `mechanism_closure_audit_sha256`: `c0c1e2d0a82aef143ef9372f7d2109d36acfe9bc61dcd0ce6181ceb8d5809e08`
 - `search_frontier_gate_sha256`: `9d39bd91dcd1d735b313fe9a40c82cec2ec37a97c5596b8ab30976d170bff9d5`
 - `mechanism_experiment_ranking_sha256`: `31800d430dde4b360873778de3a8437fcc836ff8fef6c3886a53eedfc550f18d`
 - `public_preset_control_rerun_sha256`: `ac56eb622366b727a2346f72573408648bb9d239bf6322e3f518fcbe245479d3`

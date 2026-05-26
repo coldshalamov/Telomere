@@ -1,0 +1,140 @@
+{
+  "accounting_rule": "charge frozen public codebook once per evaluated package",
+  "claim_boundary": "non-planted public-preset package evidence; not a finalized .tlmr format extension or universal natural-corpus compression claim",
+  "generated_by": "scripts/generate_public_preset_package_accounting.py",
+  "runs": [
+    {
+      "controls": [
+        {
+          "fully_charged_delta_bytes": -204503,
+          "selected_count": 0,
+          "variant": "random-codeword"
+        },
+        {
+          "fully_charged_delta_bytes": -204272,
+          "selected_count": 0,
+          "variant": "out-of-budget-codeword"
+        }
+      ],
+      "id": "calgary_to_canterbury_tokens32",
+      "role": "best compact Canterbury package run",
+      "seed_alignment_dividend_bytes_vs_best_control": -101749,
+      "source": "target/thesis_runs/frozen_codebook_experiment/calgary_to_canterbury_tokens32_package_accounting.json",
+      "summary": {
+        "codebook_bytes_json_compact": 10002,
+        "files": 11,
+        "framed_delta_bytes": -219048,
+        "fully_charged_package_bytes": 2504763,
+        "fully_charged_package_delta_bytes": -306021,
+        "fully_charged_package_ratio": 0.891126,
+        "inner_tlmr_delta_bytes": -316727,
+        "input_bytes": 2810784,
+        "inverse_failures": 0,
+        "selected_count": 9568,
+        "standalone_fully_charged_sum_delta_bytes": -206001,
+        "telomere_failures": 0,
+        "token_replacements": 9568
+      }
+    },
+    {
+      "controls": [
+        {
+          "fully_charged_delta_bytes": -175079,
+          "selected_count": 0,
+          "variant": "random-codeword"
+        },
+        {
+          "fully_charged_delta_bytes": -174176,
+          "selected_count": 0,
+          "variant": "out-of-budget-codeword"
+        }
+      ],
+      "id": "calgary_to_canterbury_tokens128",
+      "role": "larger-table Canterbury comparison",
+      "seed_alignment_dividend_bytes_vs_best_control": -109839,
+      "source": "target/thesis_runs/frozen_codebook_experiment/calgary_to_canterbury_package_accounting.json",
+      "summary": {
+        "codebook_bytes_json_compact": 34598,
+        "files": 11,
+        "framed_delta_bytes": -223820,
+        "fully_charged_package_bytes": 2526769,
+        "fully_charged_package_delta_bytes": -284015,
+        "fully_charged_package_ratio": 0.898955,
+        "inner_tlmr_delta_bytes": -319317,
+        "input_bytes": 2810784,
+        "inverse_failures": 0,
+        "selected_count": 9486,
+        "standalone_fully_charged_sum_delta_bytes": 61965,
+        "telomere_failures": 0,
+        "token_replacements": 9486
+      }
+    },
+    {
+      "controls": [
+        {
+          "fully_charged_delta_bytes": -5189,
+          "selected_count": 0,
+          "variant": "random-codeword"
+        },
+        {
+          "fully_charged_delta_bytes": -4734,
+          "selected_count": 0,
+          "variant": "out-of-budget-codeword"
+        }
+      ],
+      "id": "calgary_to_silesia_under7mb_tokens64",
+      "role": "best compact Silesia under-7MB package run",
+      "seed_alignment_dividend_bytes_vs_best_control": -33358,
+      "source": "target/thesis_runs/frozen_codebook_experiment/calgary_to_silesia_under7mb_tokens64_package_accounting.json",
+      "summary": {
+        "codebook_bytes_json_compact": 18200,
+        "files": 3,
+        "framed_delta_bytes": -31552,
+        "fully_charged_package_bytes": 18086582,
+        "fully_charged_package_delta_bytes": -38092,
+        "fully_charged_package_ratio": 0.997898,
+        "inner_tlmr_delta_bytes": -56484,
+        "input_bytes": 18124674,
+        "inverse_failures": 0,
+        "selected_count": 2618,
+        "standalone_fully_charged_sum_delta_bytes": -1692,
+        "telomere_failures": 0,
+        "token_replacements": 2618
+      }
+    },
+    {
+      "controls": [
+        {
+          "fully_charged_delta_bytes": 17609,
+          "selected_count": 0,
+          "variant": "random-codeword"
+        },
+        {
+          "fully_charged_delta_bytes": 18512,
+          "selected_count": 0,
+          "variant": "out-of-budget-codeword"
+        }
+      ],
+      "id": "calgary_to_silesia_under7mb_tokens128",
+      "role": "larger-table Silesia under-7MB comparison",
+      "seed_alignment_dividend_bytes_vs_best_control": -40206,
+      "source": "target/thesis_runs/frozen_codebook_experiment/calgary_to_silesia_under7mb_package_accounting.json",
+      "summary": {
+        "codebook_bytes_json_compact": 34598,
+        "files": 3,
+        "framed_delta_bytes": -31552,
+        "fully_charged_package_bytes": 18102980,
+        "fully_charged_package_delta_bytes": -21694,
+        "fully_charged_package_ratio": 0.998803,
+        "inner_tlmr_delta_bytes": -56484,
+        "input_bytes": 18124674,
+        "inverse_failures": 0,
+        "selected_count": 2618,
+        "standalone_fully_charged_sum_delta_bytes": 47502,
+        "telomere_failures": 0,
+        "token_replacements": 2618
+      }
+    }
+  ],
+  "source_experiment": "scripts/run_frozen_codebook_experiment.py"
+}

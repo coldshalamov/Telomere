@@ -578,7 +578,7 @@ def evaluate_raw_file(
     return row
 
 
-def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
+def summarize(rows: list[dict[str, Any]], *, codebook_size: int) -> dict[str, Any]:
     total_input = sum(row["input_bytes"] for row in rows)
     amortized_ratios = [
         row["amortized_public_package_bytes"] / row["input_bytes"]
@@ -621,8 +621,9 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
         else None,
         "zlib_1_bytes": sum(row["zlib"][0]["bytes"] for row in rows),
         "zlib_9_bytes": sum(row["zlib"][1]["bytes"] for row in rows),
+        "codebook_bytes_json_compact": codebook_size,
     }
-    for key in ("inner_tlmr_bytes", "amortized_public_package_bytes", "fully_charged_package_bytes"):
+    for key in ("inner_tlmr_bytes", "amortized_public_package_bytes"):
         if any(key not in row for row in rows):
             summary[key] = None
             continue
@@ -630,6 +631,25 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
         summary[key] = value
         summary[key.replace("_bytes", "_delta_bytes")] = value - total_input
         summary[key.replace("_bytes", "_ratio")] = round(value / total_input, 6) if total_input else 0
+    if summary.get("amortized_public_package_bytes") is None:
+        summary["fully_charged_package_bytes"] = None
+        summary["fully_charged_package_delta_bytes"] = None
+        summary["fully_charged_package_ratio"] = None
+    else:
+        # Package economics charge the frozen public codebook once for the
+        # evaluated bundle. Per-row standalone accounting remains available on
+        # each row as fully_charged_package_bytes/fully_charged_delta_bytes.
+        fully_charged = summary["amortized_public_package_bytes"] + codebook_size
+        summary["fully_charged_package_bytes"] = fully_charged
+        summary["fully_charged_package_delta_bytes"] = fully_charged - total_input
+        summary["fully_charged_package_ratio"] = round(fully_charged / total_input, 6) if total_input else 0
+        if all("fully_charged_package_bytes" in row for row in rows):
+            standalone_sum = sum(row["fully_charged_package_bytes"] for row in rows)
+            summary["standalone_fully_charged_sum_bytes"] = standalone_sum
+            summary["standalone_fully_charged_sum_delta_bytes"] = standalone_sum - total_input
+            summary["standalone_fully_charged_sum_ratio"] = (
+                round(standalone_sum / total_input, 6) if total_input else 0
+            )
     for key in ("zlib_1_bytes", "zlib_9_bytes"):
         value = summary[key]
         summary[key.replace("_bytes", "_delta_bytes")] = value - total_input
@@ -827,7 +847,7 @@ def evaluate_codebook_variant(
             "token_count": len(codebook),
             "tokens": codebook,
         },
-        "summary": summarize(rows),
+        "summary": summarize(rows, codebook_size=len(frozen_codebook_bytes)),
         "rows": rows,
     }
 

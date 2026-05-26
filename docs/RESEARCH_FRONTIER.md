@@ -149,14 +149,14 @@ A gated-compute override requires a new generated evidence artifact, an explicit
 ## Source Artifacts
 
 The JSON `source_hashes` map pins this trigger board to the exact upstream evidence files below.
-- `research_decision_sha256`: `4a51e19374ac30dd3ed06b584c924fe8261b4879080a7b25e1f428c08dbbcaa2`
-- `experiment_queue_sha256`: `a7fa3696351787c1075e7cb1eef91279b73123fd7047f545140fea345b9cdf62`
-- `goal_audit_sha256`: `f4ad8e687c50812d33252ef9a5e56bca7c64284c0e8846d846e99ac33a0a5607`
-- `research_scorecard_sha256`: `96b2171667f1a9e7d23f13be73dde047e02e8fb9e6cd062b10427aba5e94eef0`
-- `long_span_bundle_gate_sha256`: `68e74aede8d58394b117282713bb6001df946a3d4d8f717aaaa60f20ad3fcd76`
+- `research_decision_sha256`: `3ab827859e42c2a86169dd76cb3cfadcf657362f41c0e43986939e750711a7d1`
+- `experiment_queue_sha256`: `d4622ce733da52eaf4ac44af5725ed23323f3f6172d92e92d26c085c908be5e6`
+- `goal_audit_sha256`: `258a13e966b6be84a04932b6355e2060c4fe5ed9bb9da6eea0947e65aacbd84f`
+- `research_scorecard_sha256`: `638a7f995339ba35a7807a8500a75370d7b01a6e6029b7cb573aedfc69afa7a1`
+- `long_span_bundle_gate_sha256`: `2e8d89a7835508e0cf6c19e18b4fde448589770f17b7cecb9425eb5ea996eb02`
 - `search_frontier_gate_sha256`: `9d39bd91dcd1d735b313fe9a40c82cec2ec37a97c5596b8ab30976d170bff9d5`
 - `heldout_corpus_expansion_sha256`: `a6e91a2d9d2d96b89510e4a81a685983ef394be930bfc71fde2c970c5beed149`
-- `acceleration_report_sha256`: `1e89e14b95fbe6824aa4fb8aa070327bcedbcc808e4fd6cb1b71931d1206f5f8`
-- `recursive_structured_fixtures_sha256`: `2ab670c13d562e52f470ebec0ae5d61db29a82350c21780f064b741b3e1e0fac`
-- `scale_performance_report_sha256`: `fe90df91a2f992edf6f10bc115517bd9870755fd4b5e85aa0ec9a09fde1b319d`
-- `viability_sha256`: `3fb8c563c8f180263feba11c3b01bd6f7faafb17b7f1d57dee61f2428477a208`
+- `acceleration_report_sha256`: `6e9abc13b527c55113f8ea428dfa2ecbeb754b40038fa370a848bb5b6d921b00`
+- `recursive_structured_fixtures_sha256`: `ba0e35650a6daa742994b881563bfbeb64f5519ff942e967dd3cfb0d250fc67d`
+- `scale_performance_report_sha256`: `7ed20e3912fc1917957e27a7f21fd11d234b22887fc2a9ab27f3df0bd238f321`
+- `viability_sha256`: `95a2789e7b263e8526728726943a4f0b48caa5e73a3175b80ff388982d56a9f5`

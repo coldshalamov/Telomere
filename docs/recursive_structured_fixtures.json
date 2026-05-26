@@ -1,6 +1,6 @@
 {
   "generated_by": "scripts/generate_recursive_structured_fixtures.py",
-  "generated_at": "2026-05-26T06:46:38.396481+00:00",
+  "generated_at": "2026-05-26T07:35:37.955537+00:00",
   "format_version": 1,
   "source_artifact_hashes": {
     "format_doc_sha256": "802bafc40345c7aa0e7245eafb1ea668e438b5fa5d95ee4768abc8fe1d717b81",
@@ -8,7 +8,7 @@
     "sweeps_sha256": "803c32715becd4eca7f52b5282fceaab539b953365ef223b477f3d5a6355dce7",
     "mechanism_experiment_ranking_sha256": "31800d430dde4b360873778de3a8437fcc836ff8fef6c3886a53eedfc550f18d",
     "streaming_engine_sha256": "c8527365c61fb9dd1ad202590a276c1b2c54ba0a97efc41b855c772122f31776",
-    "v2_format_sha256": "c6939c760783828304c37c7b9194dbcd2cf25cd775cc253ecaebd97ef264d1ee",
+    "v2_format_sha256": "3aebbfe582b0ec159384fefb79faed52641faf11c2c4dd1ae641bd38fbd67e58",
     "streaming_tests_sha256": "1a47d5093fec66db0a541d73592211f6c3cd544172badeac74113ef54b1ea473"
   },
   "fixture_manifest_sha256": "324378c8e5f252e17c436984638f27d781f68c382aca43c9e51a74ccdee75f81",
@@ -138,7 +138,7 @@
           "delta_pct": 3.0244,
           "decoded_exact": true,
           "output_sha256": "49ba590b2eee44ef22c72ef8480c1ac151b0286904761d6b7cebb4095fa140f9",
-          "compress_ms": 765.119,
+          "compress_ms": 630.851,
           "telemetry": {
             "layer_count": 1,
             "layer_payload_bytes": [
@@ -164,7 +164,7 @@
           "delta_pct": 3.0244,
           "decoded_exact": true,
           "output_sha256": "49ba590b2eee44ef22c72ef8480c1ac151b0286904761d6b7cebb4095fa140f9",
-          "compress_ms": 38.26,
+          "compress_ms": 26.005,
           "telemetry": {
             "layer_count": 1,
             "layer_payload_bytes": [
@@ -190,7 +190,7 @@
           "delta_pct": 3.0244,
           "decoded_exact": true,
           "output_sha256": "49ba590b2eee44ef22c72ef8480c1ac151b0286904761d6b7cebb4095fa140f9",
-          "compress_ms": 32.749,
+          "compress_ms": 24.025,
           "telemetry": {
             "layer_count": 1,
             "layer_payload_bytes": [
@@ -239,7 +239,7 @@
           "delta_pct": -62.9883,
           "decoded_exact": true,
           "output_sha256": "68e4de7abb3f22b5f1ef0a847f07f3e8585129405edb0df3a2846ee55010b39b",
-          "compress_ms": 61.04,
+          "compress_ms": 34.838,
           "telemetry": {
             "layer_count": 1,
             "layer_payload_bytes": [
@@ -265,7 +265,7 @@
           "delta_pct": -62.9883,
           "decoded_exact": true,
           "output_sha256": "68e4de7abb3f22b5f1ef0a847f07f3e8585129405edb0df3a2846ee55010b39b",
-          "compress_ms": 46.082,
+          "compress_ms": 29.946,
           "telemetry": {
             "layer_count": 1,
             "layer_payload_bytes": [
@@ -314,7 +314,7 @@
           "delta_pct": 0.4696,
           "decoded_exact": true,
           "output_sha256": "6bac0296d1d52e80382cf8cafecd068db8ac8ba86d43646f72be9672a2ee6045",
-          "compress_ms": 124.233,
+          "compress_ms": 42.206,
           "telemetry": {
             "layer_count": 1,
             "layer_payload_bytes": [
@@ -340,7 +340,7 @@
           "delta_pct": 0.4696,
           "decoded_exact": true,
           "output_sha256": "6bac0296d1d52e80382cf8cafecd068db8ac8ba86d43646f72be9672a2ee6045",
-          "compress_ms": 132.269,
+          "compress_ms": 52.838,
           "telemetry": {
             "layer_count": 1,
             "layer_payload_bytes": [
@@ -389,7 +389,7 @@
           "delta_pct": 0.3994,
           "decoded_exact": true,
           "output_sha256": "46db7c311374b9685ad0f7fdb23b56c9fc4b68e50ca6a2a7c381a05c01b6afc2",
-          "compress_ms": 131.905,
+          "compress_ms": 69.601,
           "telemetry": {
             "layer_count": 1,
             "layer_payload_bytes": [
@@ -415,7 +415,7 @@
           "delta_pct": 0.3994,
           "decoded_exact": true,
           "output_sha256": "46db7c311374b9685ad0f7fdb23b56c9fc4b68e50ca6a2a7c381a05c01b6afc2",
-          "compress_ms": 168.739,
+          "compress_ms": 101.505,
           "telemetry": {
             "layer_count": 1,
             "layer_payload_bytes": [
@@ -464,7 +464,7 @@
           "delta_pct": 0.1064,
           "decoded_exact": true,
           "output_sha256": "01bc9224eb0e719e46f96c9edd8480dc66941d2e67e62fa4aafa0202cc95c7d1",
-          "compress_ms": 200.854,
+          "compress_ms": 187.855,
           "telemetry": {
             "layer_count": 1,
             "layer_payload_bytes": [
@@ -490,7 +490,7 @@
           "delta_pct": 0.1064,
           "decoded_exact": true,
           "output_sha256": "01bc9224eb0e719e46f96c9edd8480dc66941d2e67e62fa4aafa0202cc95c7d1",
-          "compress_ms": 281.009,
+          "compress_ms": 173.849,
           "telemetry": {
             "layer_count": 1,
             "layer_payload_bytes": [

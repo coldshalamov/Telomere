@@ -54,17 +54,17 @@ Do not mark the active goal complete until every requirement is complete or prov
 ## Source Artifacts
 
 The JSON `source_hashes` map pins this completion audit to the exact upstream evidence files below.
-- `whitepaper_sha256`: `94a2f9f6a7e190632eb22c184237381f332ce1b651a8d3291e5b20f55ceb9f0a`
+- `whitepaper_sha256`: `ff3bfa05be1789537ed7e922452c372b50a548c7119e4230940b63c0a4ed0131`
 - `architecture_sha256`: `1ddd790688cc827f60dc25539bf3d33b5dfab8dee758680169acbc6570ef2c7f`
 - `format_sha256`: `802bafc40345c7aa0e7245eafb1ea668e438b5fa5d95ee4768abc8fe1d717b81`
 - `research_program_sha256`: `cbe3599df6bf657c69dae9ea5754efba891c1d7cd66731b73aad8132955c70d9`
 - `results_sha256`: `225465824966499a8d15a5721e0698c30ae83053d072dbec6c6b21558523f9ba`
-- `viability_sha256`: `3fb8c563c8f180263feba11c3b01bd6f7faafb17b7f1d57dee61f2428477a208`
-- `research_scorecard_sha256`: `96b2171667f1a9e7d23f13be73dde047e02e8fb9e6cd062b10427aba5e94eef0`
-- `goal_audit_sha256`: `f4ad8e687c50812d33252ef9a5e56bca7c64284c0e8846d846e99ac33a0a5607`
-- `research_decision_sha256`: `4a51e19374ac30dd3ed06b584c924fe8261b4879080a7b25e1f428c08dbbcaa2`
-- `research_frontier_sha256`: `786b92019e7f7e03f0f3da0186812bc1113e61ae931d1df5bd17a0ff45c0465c`
-- `natural_corpus_proof_matrix_sha256`: `503aacd1dff3e6a6a50613c496b74e7fcc602a6d107cad6e1a3a8da52e0ed315`
-- `production_proof_matrix_sha256`: `dfe1f5fe26a347ebfafaf80763057263de9fb7f20828ab8e4c6b8b12402d6782`
-- `research_team_protocol_sha256`: `573d3abd9e7468885b2767945de52ab788e39833327049cf37bd4fc449b70d11`
-- `ui_workflow_smoke_sha256`: `ccf263cfc0fac703616c6fee57dba9e244213ae5c43464b57b93ef12f8b667b7`
+- `viability_sha256`: `95a2789e7b263e8526728726943a4f0b48caa5e73a3175b80ff388982d56a9f5`
+- `research_scorecard_sha256`: `638a7f995339ba35a7807a8500a75370d7b01a6e6029b7cb573aedfc69afa7a1`
+- `goal_audit_sha256`: `258a13e966b6be84a04932b6355e2060c4fe5ed9bb9da6eea0947e65aacbd84f`
+- `research_decision_sha256`: `3ab827859e42c2a86169dd76cb3cfadcf657362f41c0e43986939e750711a7d1`
+- `research_frontier_sha256`: `6e87d3913e5bd9ac7895ad85bed230230dd5d98ac3db1420dd613845c2e12f59`
+- `natural_corpus_proof_matrix_sha256`: `7d106a2914f947a7b9fedb929057b99e79f7571805f94d590ca7e958dfa9476c`
+- `production_proof_matrix_sha256`: `3c82541ecdb016d89039a187dc01ed13d5f4812b80e9981111838840974490f5`
+- `research_team_protocol_sha256`: `2e8a040ccd5cacb5b25c5497ab44bd1cbc14962a3e6924e99d9d1781ca7fc478`
+- `ui_workflow_smoke_sha256`: `a3b1a460ec74a18718c7a06ad71f5ced01d7f5e83710bca988e1c74886147d4c`

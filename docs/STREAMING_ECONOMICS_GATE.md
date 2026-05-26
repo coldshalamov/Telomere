@@ -75,10 +75,10 @@ Streaming is the scalable CPU matcher path and planted-scale evidence, not natur
 
 - `results_sha256`: `225465824966499a8d15a5721e0698c30ae83053d072dbec6c6b21558523f9ba`
 - `results_doc_sha256`: `991eb6a9a04f751cc571a04157e3b0a71139d7af0b5539dc4e80ff0084f9eba0`
-- `scale_performance_report_sha256`: `fe90df91a2f992edf6f10bc115517bd9870755fd4b5e85aa0ec9a09fde1b319d`
+- `scale_performance_report_sha256`: `7ed20e3912fc1917957e27a7f21fd11d234b22887fc2a9ab27f3df0bd238f321`
 - `scale_performance_doc_sha256`: `8a484de382a0838b8136584c40932fa88aabf436b29cf1b3183471493f10a9ab`
-- `bounded_streaming_memory_gate_sha256`: `d502c2a55569ef69800d3cc57494edb752828686b1022230d26246deb53afa52`
-- `bounded_streaming_memory_gate_doc_sha256`: `d0959023fda395c2bd77c1a4134761223f9859a44a8b4333841e7aa3fed85b09`
+- `bounded_streaming_memory_gate_sha256`: `c6858a6619589e04f0842bbd8cdd2dabaaf9c0faf235e5245acf4f0281498cc0`
+- `bounded_streaming_memory_gate_doc_sha256`: `2766771bef0819fa7de1eb55f5c8d3b00a469aefaa95b936d8d64871a0f359ab`
 - `search_frontier_gate_sha256`: `9d39bd91dcd1d735b313fe9a40c82cec2ec37a97c5596b8ab30976d170bff9d5`
 - `search_frontier_gate_doc_sha256`: `4e68614cfe623bd9b4949023de7a1d89bb56d91ed61587ff4b9775f3f755aaf2`
 - `streaming_engine_sha256`: `c8527365c61fb9dd1ad202590a276c1b2c54ba0a97efc41b855c772122f31776`
