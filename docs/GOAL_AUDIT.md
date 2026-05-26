@@ -367,8 +367,8 @@ This section lists unresolved `open` and `blocked-by-evidence` requirements.
 
 - `results_sha256`: `225465824966499a8d15a5721e0698c30ae83053d072dbec6c6b21558523f9ba`
 - `sweeps_sha256`: `803c32715becd4eca7f52b5282fceaab539b953365ef223b477f3d5a6355dce7`
-- `viability_sha256`: `94d60bfcebc377e82c3d9c1c409ecff81708ef679c61f7b00f917b0856ac2ff4`
-- `research_scorecard_sha256`: `165f9354ac1f0d81f4f7886ada309e6ef7484fd0abc2ca34dd3eced24d1f61dc`
+- `viability_sha256`: `231e727acf4d575288e3832c64263c49f12e2f9c8b647a1cc6efd46bcc4f7ccf`
+- `research_scorecard_sha256`: `f862df2922d52e4ec2c6af0c822e21a2ba3ed61c00b6c0860dfe480248921886`
 - `corpus_matrix_sha256`: `2a9f8506a3c9e6aa47c0e91c1e15bf1951f9af0d0b3cb64129982e06a27e7bd2`
 - `corpus_generalization_probe_sha256`: `4b687748c439a8f27897d7c7346cd088e41fa155de4c74aa190e48696c8359dd`
 - `heldout_corpus_expansion_sha256`: `5abffdc19be1d202575340ba0004bdae88f27c6eb06aa60cb6a8651f790a965c`
@@ -469,7 +469,7 @@ This section lists unresolved `open` and `blocked-by-evidence` requirements.
 - `docs/RECURSIVE_STRUCTURED_FIXTURES.md_sha256`: `f184accd962c5405f3c0bd3fe56d8ef2bf875d013a0c60e7a54e7f8378f6423d`
 - `docs/RELEASE_CHECKLIST.md_sha256`: `42ac71c4640fba2acaa3d5b18cdf5fe2f5d841b5fb55abff76afe1c7854dbdb8`
 - `docs/RESEARCH_PROGRAM.md_sha256`: `cbe3599df6bf657c69dae9ea5754efba891c1d7cd66731b73aad8132955c70d9`
-- `docs/RESEARCH_SCORECARD.md_sha256`: `eb55b5acdb5c75881a15a1bddec93de773899ef4ca3c2cf4697d91d2c5167041`
+- `docs/RESEARCH_SCORECARD.md_sha256`: `7413bebe09fbc76046368ac445241d7568d0d3c0e16c287aa45d587f47057eb7`
 - `docs/RESIDUAL_PAYLOAD_COMPRESSIBILITY.md_sha256`: `f72c533b5e1fd03d9db69dc8595154b9fde3d44045591900ad6698d9d2ad082c`
 - `docs/RESULTS.md_sha256`: `991eb6a9a04f751cc571a04157e3b0a71139d7af0b5539dc4e80ff0084f9eba0`
 - `docs/SCALE_PERFORMANCE.md_sha256`: `5b2c9637659b380acde77e1352e32c38378a5f2e3c4fd5530879fb3d9da5c5c4`

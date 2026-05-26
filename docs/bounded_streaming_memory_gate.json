@@ -1,6 +1,6 @@
 {
   "generated_by": "scripts/generate_bounded_streaming_memory_gate.py",
-  "generated_at": "2026-05-26T14:08:06.466491+00:00",
+  "generated_at": "2026-05-26T14:22:33.361538+00:00",
   "format_version": 1,
   "scope": {
     "kind": "bounded streaming memory gate",

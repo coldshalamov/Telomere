@@ -1,6 +1,6 @@
 {
   "generated_by": "scripts/generate_streaming_economics_gate.py",
-  "generated_at": "2026-05-26T14:08:06.614252+00:00",
+  "generated_at": "2026-05-26T14:22:33.492747+00:00",
   "format_version": 1,
   "scope": {
     "kind": "streaming economics gate",
@@ -17,7 +17,7 @@
     "results_doc_sha256": "991eb6a9a04f751cc571a04157e3b0a71139d7af0b5539dc4e80ff0084f9eba0",
     "scale_performance_report_sha256": "b14646b969fc65e6c3c52584107e3478ed6e28671e6f0ce058f70f80d13819f7",
     "scale_performance_doc_sha256": "5b2c9637659b380acde77e1352e32c38378a5f2e3c4fd5530879fb3d9da5c5c4",
-    "bounded_streaming_memory_gate_sha256": "8ce51dd90fe919c8576d1020700b079ce9bee7be42fe9dce24125fbac343ce77",
+    "bounded_streaming_memory_gate_sha256": "c4130a9cbf25201cd681ecbddf5dd2e465576aa319a677cfe834694ad543668e",
     "bounded_streaming_memory_gate_doc_sha256": "9d942a79603241852d9e605e26eeb1db870797d1a6b2ac7b21926c894c080746",
     "search_frontier_gate_sha256": "aab9351032df10d7998c3a0e04306bb9d0f344b5d0556cc721592c7b8793737f",
     "search_frontier_gate_doc_sha256": "9ccbf6a2e7561bc163e8481281356d1cce0cc3a4799302397b969f87911d8cb4",

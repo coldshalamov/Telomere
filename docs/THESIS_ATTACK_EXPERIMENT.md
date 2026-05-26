@@ -7,7 +7,7 @@ This records a focused mechanism experiment, not a production or natural-corpus 
 
 - Rows: `144`
 - Non-planted rows with exact selected spans: `35`
-- Non-planted profitable rows after charged `.tlmr` accounting: `19`
+- Non-planted profitable rows after charged `.tlmr` accounting: `29`
 - Non-seed codeword control rows with exact selected spans: `0`
 - Non-seed codeword control rows profitable after charged accounting: `0`
 - Seed rows beating all same-token codeword controls: `17`
@@ -86,15 +86,15 @@ This records a focused mechanism experiment, not a production or natural-corpus 
 | `structured-json` | `public-learned-global-out-of-budget-codeword-v0` | 6814 | 6817 | 0 | 0 | 6857 | 6857 | 0 | 43 | 0 |
 | `external-json-schema` | `identity` | 1382 | 1382 | 0 | 0 | 1413 | 1414 | -1 | 32 | 0 |
 | `external-json-schema` | `xor-delta1` | 1382 | 1382 | 0 | 0 | 1414 | 1415 | -1 | 33 | 0 |
-| `external-json-schema` | `public-preset-framed-v0` | 1382 | 1659 | 25 | 100 | 1698 | 1458 | 240 | 76 | 25 |
-| `external-json-schema` | `public-preset-selective-v0` | 1382 | 1413 | 4 | 16 | 1452 | 1416 | 36 | 34 | 4 |
-| `external-json-schema` | `public-preset-framed-random-codeword-v0` | 1382 | 1659 | 0 | 0 | 1698 | 1699 | -1 | 317 | 25 |
-| `external-json-schema` | `public-preset-selective-random-codeword-v0` | 1382 | 1413 | 0 | 0 | 1452 | 1453 | -1 | 71 | 4 |
-| `external-json-schema` | `public-preset-framed-out-of-budget-codeword-v0` | 1382 | 1659 | 0 | 0 | 1698 | 1699 | -1 | 317 | 25 |
-| `external-json-schema` | `public-preset-selective-out-of-budget-codeword-v0` | 1382 | 1413 | 0 | 0 | 1452 | 1453 | -1 | 71 | 4 |
-| `external-json-schema` | `public-preset-selective-native-v0` | 1382 | 1382 | 4 | 16 | 1457 | 1421 | 36 | 39 | 4 |
-| `external-json-schema` | `public-preset-dense-native-v0` | 1382 | 1382 | 25 | 100 | 1694 | 1453 | 241 | 71 | 25 |
-| `external-json-schema` | `public-preset-compact-native-v0` | 1382 | 1382 | 25 | 25 | 1394 | 1445 | -51 | 63 | 25 |
+| `external-json-schema` | `public-preset-framed-v0` | 1382 | 1547 | 30 | 120 | 1586 | 1302 | 284 | -80 | 30 |
+| `external-json-schema` | `public-preset-selective-v0` | 1382 | 1465 | 23 | 92 | 1504 | 1289 | 215 | -93 | 23 |
+| `external-json-schema` | `public-preset-framed-random-codeword-v0` | 1382 | 1547 | 0 | 0 | 1586 | 1587 | -1 | 205 | 30 |
+| `external-json-schema` | `public-preset-selective-random-codeword-v0` | 1382 | 1465 | 0 | 0 | 1504 | 1505 | -1 | 123 | 23 |
+| `external-json-schema` | `public-preset-framed-out-of-budget-codeword-v0` | 1382 | 1547 | 0 | 0 | 1586 | 1587 | -1 | 205 | 30 |
+| `external-json-schema` | `public-preset-selective-out-of-budget-codeword-v0` | 1382 | 1465 | 0 | 0 | 1504 | 1505 | -1 | 123 | 23 |
+| `external-json-schema` | `public-preset-selective-native-v0` | 1382 | 1382 | 23 | 92 | 1503 | 1288 | 215 | -94 | 23 |
+| `external-json-schema` | `public-preset-dense-native-v0` | 1382 | 1382 | 30 | 120 | 1583 | 1298 | 285 | -84 | 30 |
+| `external-json-schema` | `public-preset-compact-native-v0` | 1382 | 1382 | 30 | 30 | 1223 | 1287 | -64 | -95 | 30 |
 | `external-json-schema` | `public-learned-global-v0` | 1382 | 1465 | 23 | 92 | 1504 | 1279 | 225 | -103 | 23 |
 | `external-json-schema` | `public-learned-lfo-v0` | 1382 | 1385 | 0 | 0 | 1424 | 1425 | -1 | 43 | 0 |
 | `external-json-schema` | `public-learned-global-random-codeword-v0` | 1382 | 1465 | 0 | 0 | 1504 | 1505 | -1 | 123 | 23 |
@@ -103,15 +103,15 @@ This records a focused mechanism experiment, not a production or natural-corpus 
 | `external-json-schema` | `public-learned-lfo-out-of-budget-codeword-v0` | 1382 | 1385 | 0 | 0 | 1424 | 1425 | -1 | 43 | 0 |
 | `external-csv` | `identity` | 379 | 379 | 0 | 0 | 410 | 410 | 0 | 31 | 0 |
 | `external-csv` | `xor-delta1` | 379 | 379 | 0 | 0 | 411 | 411 | 0 | 32 | 0 |
-| `external-csv` | `public-preset-framed-v0` | 379 | 418 | 11 | 44 | 457 | 345 | 112 | -34 | 11 |
-| `external-csv` | `public-preset-selective-v0` | 379 | 418 | 11 | 44 | 457 | 345 | 112 | -34 | 11 |
-| `external-csv` | `public-preset-framed-random-codeword-v0` | 379 | 418 | 0 | 0 | 457 | 457 | 0 | 78 | 11 |
-| `external-csv` | `public-preset-selective-random-codeword-v0` | 379 | 418 | 0 | 0 | 457 | 457 | 0 | 78 | 11 |
-| `external-csv` | `public-preset-framed-out-of-budget-codeword-v0` | 379 | 418 | 0 | 0 | 457 | 457 | 0 | 78 | 11 |
-| `external-csv` | `public-preset-selective-out-of-budget-codeword-v0` | 379 | 418 | 0 | 0 | 457 | 457 | 0 | 78 | 11 |
-| `external-csv` | `public-preset-selective-native-v0` | 379 | 379 | 11 | 44 | 458 | 347 | 111 | -32 | 11 |
-| `external-csv` | `public-preset-dense-native-v0` | 379 | 379 | 11 | 44 | 458 | 346 | 112 | -33 | 11 |
-| `external-csv` | `public-preset-compact-native-v0` | 379 | 379 | 11 | 11 | 326 | 346 | -20 | -33 | 11 |
+| `external-csv` | `public-preset-framed-v0` | 379 | 413 | 11 | 44 | 452 | 345 | 107 | -34 | 11 |
+| `external-csv` | `public-preset-selective-v0` | 379 | 413 | 11 | 44 | 452 | 345 | 107 | -34 | 11 |
+| `external-csv` | `public-preset-framed-random-codeword-v0` | 379 | 413 | 0 | 0 | 452 | 452 | 0 | 73 | 11 |
+| `external-csv` | `public-preset-selective-random-codeword-v0` | 379 | 413 | 0 | 0 | 452 | 452 | 0 | 73 | 11 |
+| `external-csv` | `public-preset-framed-out-of-budget-codeword-v0` | 379 | 413 | 0 | 0 | 452 | 452 | 0 | 73 | 11 |
+| `external-csv` | `public-preset-selective-out-of-budget-codeword-v0` | 379 | 413 | 0 | 0 | 452 | 452 | 0 | 73 | 11 |
+| `external-csv` | `public-preset-selective-native-v0` | 379 | 379 | 11 | 44 | 453 | 347 | 106 | -32 | 11 |
+| `external-csv` | `public-preset-dense-native-v0` | 379 | 379 | 11 | 44 | 453 | 346 | 107 | -33 | 11 |
+| `external-csv` | `public-preset-compact-native-v0` | 379 | 379 | 11 | 11 | 321 | 341 | -20 | -38 | 11 |
 | `external-csv` | `public-learned-global-v0` | 379 | 427 | 10 | 40 | 466 | 365 | 101 | -14 | 10 |
 | `external-csv` | `public-learned-lfo-v0` | 379 | 382 | 0 | 0 | 421 | 421 | 0 | 42 | 0 |
 | `external-csv` | `public-learned-global-random-codeword-v0` | 379 | 427 | 0 | 0 | 466 | 466 | 0 | 87 | 10 |
@@ -120,15 +120,15 @@ This records a focused mechanism experiment, not a production or natural-corpus 
 | `external-csv` | `public-learned-lfo-out-of-budget-codeword-v0` | 379 | 382 | 0 | 0 | 421 | 421 | 0 | 42 | 0 |
 | `external-csv-heldout` | `identity` | 348 | 348 | 0 | 0 | 379 | 379 | 0 | 31 | 0 |
 | `external-csv-heldout` | `xor-delta1` | 348 | 348 | 0 | 0 | 380 | 380 | 0 | 32 | 0 |
-| `external-csv-heldout` | `public-preset-framed-v0` | 348 | 401 | 10 | 40 | 440 | 339 | 101 | -9 | 10 |
-| `external-csv-heldout` | `public-preset-selective-v0` | 348 | 401 | 10 | 40 | 440 | 339 | 101 | -9 | 10 |
-| `external-csv-heldout` | `public-preset-framed-random-codeword-v0` | 348 | 401 | 0 | 0 | 440 | 440 | 0 | 92 | 10 |
-| `external-csv-heldout` | `public-preset-selective-random-codeword-v0` | 348 | 401 | 0 | 0 | 440 | 440 | 0 | 92 | 10 |
-| `external-csv-heldout` | `public-preset-framed-out-of-budget-codeword-v0` | 348 | 401 | 0 | 0 | 440 | 440 | 0 | 92 | 10 |
-| `external-csv-heldout` | `public-preset-selective-out-of-budget-codeword-v0` | 348 | 401 | 0 | 0 | 440 | 440 | 0 | 92 | 10 |
-| `external-csv-heldout` | `public-preset-selective-native-v0` | 348 | 348 | 10 | 40 | 441 | 341 | 100 | -7 | 10 |
-| `external-csv-heldout` | `public-preset-dense-native-v0` | 348 | 348 | 10 | 40 | 441 | 340 | 101 | -8 | 10 |
-| `external-csv-heldout` | `public-preset-compact-native-v0` | 348 | 348 | 10 | 10 | 321 | 340 | -19 | -8 | 10 |
+| `external-csv-heldout` | `public-preset-framed-v0` | 348 | 396 | 10 | 40 | 435 | 339 | 96 | -9 | 10 |
+| `external-csv-heldout` | `public-preset-selective-v0` | 348 | 396 | 10 | 40 | 435 | 339 | 96 | -9 | 10 |
+| `external-csv-heldout` | `public-preset-framed-random-codeword-v0` | 348 | 396 | 0 | 0 | 435 | 435 | 0 | 87 | 10 |
+| `external-csv-heldout` | `public-preset-selective-random-codeword-v0` | 348 | 396 | 0 | 0 | 435 | 435 | 0 | 87 | 10 |
+| `external-csv-heldout` | `public-preset-framed-out-of-budget-codeword-v0` | 348 | 396 | 0 | 0 | 435 | 435 | 0 | 87 | 10 |
+| `external-csv-heldout` | `public-preset-selective-out-of-budget-codeword-v0` | 348 | 396 | 0 | 0 | 435 | 435 | 0 | 87 | 10 |
+| `external-csv-heldout` | `public-preset-selective-native-v0` | 348 | 348 | 10 | 40 | 436 | 341 | 95 | -7 | 10 |
+| `external-csv-heldout` | `public-preset-dense-native-v0` | 348 | 348 | 10 | 40 | 436 | 340 | 96 | -8 | 10 |
+| `external-csv-heldout` | `public-preset-compact-native-v0` | 348 | 348 | 10 | 10 | 316 | 335 | -19 | -13 | 10 |
 | `external-csv-heldout` | `public-learned-global-v0` | 348 | 396 | 10 | 40 | 435 | 334 | 101 | -14 | 10 |
 | `external-csv-heldout` | `public-learned-lfo-v0` | 348 | 351 | 0 | 0 | 390 | 390 | 0 | 42 | 0 |
 | `external-csv-heldout` | `public-learned-global-random-codeword-v0` | 348 | 396 | 0 | 0 | 435 | 435 | 0 | 87 | 10 |
@@ -154,15 +154,15 @@ This records a focused mechanism experiment, not a production or natural-corpus 
 | `external-http` | `public-learned-lfo-out-of-budget-codeword-v0` | 537 | 540 | 0 | 0 | 579 | 579 | 0 | 42 | 0 |
 | `external-json-schema-heldout` | `identity` | 1382 | 1382 | 0 | 0 | 1413 | 1414 | -1 | 32 | 0 |
 | `external-json-schema-heldout` | `xor-delta1` | 1382 | 1382 | 0 | 0 | 1414 | 1415 | -1 | 33 | 0 |
-| `external-json-schema-heldout` | `public-preset-framed-v0` | 1382 | 1646 | 24 | 96 | 1685 | 1455 | 230 | 73 | 24 |
-| `external-json-schema-heldout` | `public-preset-selective-v0` | 1382 | 1413 | 4 | 16 | 1452 | 1416 | 36 | 34 | 4 |
-| `external-json-schema-heldout` | `public-preset-framed-random-codeword-v0` | 1382 | 1646 | 0 | 0 | 1685 | 1686 | -1 | 304 | 24 |
-| `external-json-schema-heldout` | `public-preset-selective-random-codeword-v0` | 1382 | 1413 | 0 | 0 | 1452 | 1453 | -1 | 71 | 4 |
-| `external-json-schema-heldout` | `public-preset-framed-out-of-budget-codeword-v0` | 1382 | 1646 | 0 | 0 | 1685 | 1686 | -1 | 304 | 24 |
-| `external-json-schema-heldout` | `public-preset-selective-out-of-budget-codeword-v0` | 1382 | 1413 | 0 | 0 | 1452 | 1453 | -1 | 71 | 4 |
-| `external-json-schema-heldout` | `public-preset-selective-native-v0` | 1382 | 1382 | 4 | 16 | 1457 | 1421 | 36 | 39 | 4 |
-| `external-json-schema-heldout` | `public-preset-dense-native-v0` | 1382 | 1382 | 24 | 96 | 1681 | 1450 | 231 | 68 | 24 |
-| `external-json-schema-heldout` | `public-preset-compact-native-v0` | 1382 | 1382 | 24 | 24 | 1393 | 1443 | -50 | 61 | 24 |
+| `external-json-schema-heldout` | `public-preset-framed-v0` | 1382 | 1543 | 29 | 116 | 1582 | 1307 | 275 | -75 | 29 |
+| `external-json-schema-heldout` | `public-preset-selective-v0` | 1382 | 1461 | 22 | 88 | 1500 | 1294 | 206 | -88 | 22 |
+| `external-json-schema-heldout` | `public-preset-framed-random-codeword-v0` | 1382 | 1543 | 0 | 0 | 1582 | 1583 | -1 | 201 | 29 |
+| `external-json-schema-heldout` | `public-preset-selective-random-codeword-v0` | 1382 | 1461 | 0 | 0 | 1500 | 1501 | -1 | 119 | 22 |
+| `external-json-schema-heldout` | `public-preset-framed-out-of-budget-codeword-v0` | 1382 | 1543 | 0 | 0 | 1582 | 1583 | -1 | 201 | 29 |
+| `external-json-schema-heldout` | `public-preset-selective-out-of-budget-codeword-v0` | 1382 | 1461 | 0 | 0 | 1500 | 1501 | -1 | 119 | 22 |
+| `external-json-schema-heldout` | `public-preset-selective-native-v0` | 1382 | 1382 | 22 | 88 | 1499 | 1293 | 206 | -89 | 22 |
+| `external-json-schema-heldout` | `public-preset-dense-native-v0` | 1382 | 1382 | 29 | 116 | 1579 | 1303 | 276 | -79 | 29 |
+| `external-json-schema-heldout` | `public-preset-compact-native-v0` | 1382 | 1382 | 29 | 29 | 1231 | 1292 | -61 | -90 | 29 |
 | `external-json-schema-heldout` | `public-learned-global-v0` | 1382 | 1461 | 22 | 88 | 1500 | 1285 | 215 | -97 | 22 |
 | `external-json-schema-heldout` | `public-learned-lfo-v0` | 1382 | 1385 | 0 | 0 | 1424 | 1425 | -1 | 43 | 0 |
 | `external-json-schema-heldout` | `public-learned-global-random-codeword-v0` | 1382 | 1461 | 0 | 0 | 1500 | 1501 | -1 | 119 | 22 |
@@ -211,24 +211,24 @@ This records a focused mechanism experiment, not a production or natural-corpus 
 | structured-json | `public-preset-framed-v0` | -141 | 560 | 5540 | 5540 | -5681 | `True` |
 | structured-json | `public-preset-selective-v0` | -678 | 160 | 923 | 923 | -1601 | `True` |
 | structured-json | `public-learned-global-v0` | 43 | 0 | 43 | 43 | 0 | `True` |
-| external-json-schema | `public-preset-framed-v0` | 76 | 25 | 317 | 317 | -241 | `True` |
-| external-json-schema | `public-preset-selective-v0` | 34 | 4 | 71 | 71 | -37 | `True` |
+| external-json-schema | `public-preset-framed-v0` | -80 | 30 | 205 | 205 | -285 | `True` |
+| external-json-schema | `public-preset-selective-v0` | -93 | 23 | 123 | 123 | -216 | `True` |
 | external-json-schema | `public-learned-global-v0` | -103 | 23 | 123 | 123 | -226 | `True` |
 | external-json-schema | `public-learned-lfo-v0` | 43 | 0 | 43 | 43 | 0 | `True` |
-| external-csv | `public-preset-framed-v0` | -34 | 11 | 78 | 78 | -112 | `True` |
-| external-csv | `public-preset-selective-v0` | -34 | 11 | 78 | 78 | -112 | `True` |
+| external-csv | `public-preset-framed-v0` | -34 | 11 | 73 | 73 | -107 | `True` |
+| external-csv | `public-preset-selective-v0` | -34 | 11 | 73 | 73 | -107 | `True` |
 | external-csv | `public-learned-global-v0` | -14 | 10 | 87 | 87 | -101 | `True` |
 | external-csv | `public-learned-lfo-v0` | 42 | 0 | 42 | 42 | 0 | `True` |
-| external-csv-heldout | `public-preset-framed-v0` | -9 | 10 | 92 | 92 | -101 | `True` |
-| external-csv-heldout | `public-preset-selective-v0` | -9 | 10 | 92 | 92 | -101 | `True` |
+| external-csv-heldout | `public-preset-framed-v0` | -9 | 10 | 87 | 87 | -96 | `True` |
+| external-csv-heldout | `public-preset-selective-v0` | -9 | 10 | 87 | 87 | -96 | `True` |
 | external-csv-heldout | `public-learned-global-v0` | -14 | 10 | 87 | 87 | -101 | `True` |
 | external-csv-heldout | `public-learned-lfo-v0` | 42 | 0 | 42 | 42 | 0 | `True` |
 | external-http | `public-preset-framed-v0` | 28 | 8 | 103 | 103 | -75 | `True` |
 | external-http | `public-preset-selective-v0` | 20 | 4 | 57 | 57 | -37 | `True` |
 | external-http | `public-learned-global-v0` | 42 | 0 | 42 | 42 | 0 | `True` |
 | external-http | `public-learned-lfo-v0` | 42 | 0 | 42 | 42 | 0 | `True` |
-| external-json-schema-heldout | `public-preset-framed-v0` | 73 | 24 | 304 | 304 | -231 | `True` |
-| external-json-schema-heldout | `public-preset-selective-v0` | 34 | 4 | 71 | 71 | -37 | `True` |
+| external-json-schema-heldout | `public-preset-framed-v0` | -75 | 29 | 201 | 201 | -276 | `True` |
+| external-json-schema-heldout | `public-preset-selective-v0` | -88 | 22 | 119 | 119 | -207 | `True` |
 | external-json-schema-heldout | `public-learned-global-v0` | -97 | 22 | 119 | 119 | -216 | `True` |
 | external-json-schema-heldout | `public-learned-lfo-v0` | 43 | 0 | 43 | 43 | 0 | `True` |
 | external-source | `public-preset-framed-v0` | 128 | 15 | 265 | 265 | -137 | `True` |

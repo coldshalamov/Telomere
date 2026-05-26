@@ -72,10 +72,10 @@ No ready ungated experiments remain; do not spend on gated compute or production
 
 ## Source Artifacts
 
-- `experiment_queue_sha256`: `e8dd0c4c01f857ef191d23894e008f96744d39fa71e9803e114030dc1aa68402`
-- `goal_audit_sha256`: `5e9179c80ce73b8a34592643145f9344c3b96bffd457c96d9d5b97193e63ec70`
-- `research_scorecard_sha256`: `165f9354ac1f0d81f4f7886ada309e6ef7484fd0abc2ca34dd3eced24d1f61dc`
-- `viability_sha256`: `94d60bfcebc377e82c3d9c1c409ecff81708ef679c61f7b00f917b0856ac2ff4`
+- `experiment_queue_sha256`: `48f4e3445924e24553cfbb34bf823c0b11737e56da10509d86c120e93d5be2a0`
+- `goal_audit_sha256`: `183a1237ed88dae875436dcfea3195214e91faeaf2b05d4fff7fea8a2a0d46a9`
+- `research_scorecard_sha256`: `f862df2922d52e4ec2c6af0c822e21a2ba3ed61c00b6c0860dfe480248921886`
+- `viability_sha256`: `231e727acf4d575288e3832c64263c49f12e2f9c8b647a1cc6efd46bcc4f7ccf`
 - `long_span_bundle_gate_sha256`: `290b4a0817f5c0fbd875dd7f010a15113acc0aaa56426226d334e6dcf73cf5b1`
 - `search_frontier_gate_sha256`: `aab9351032df10d7998c3a0e04306bb9d0f344b5d0556cc721592c7b8793737f`
 - `acceleration_report_sha256`: `623b59981cf78e7a22d54fb4111b663fc2975c5a923ae3bf8ff288d9f42b1207`

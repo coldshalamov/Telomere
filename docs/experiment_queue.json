@@ -1,9 +1,9 @@
 {
   "generated_by": "scripts/generate_experiment_queue.py",
-  "generated_at": "2026-05-26T14:08:09.100135+00:00",
+  "generated_at": "2026-05-26T14:22:35.850579+00:00",
   "format_version": 1,
   "artifact_hashes": {
-    "research_scorecard_sha256": "165f9354ac1f0d81f4f7886ada309e6ef7484fd0abc2ca34dd3eced24d1f61dc",
+    "research_scorecard_sha256": "f862df2922d52e4ec2c6af0c822e21a2ba3ed61c00b6c0860dfe480248921886",
     "nearmiss_forecast_sha256": "4e854b9d778cff34b8dbb7d3b41d029e16e549461fa9f4c631bd4a977b42420f",
     "prefix_ladder_sha256": "bc83b2cefe34bf85f7662d737176101f4fec16208b834a405da1ce4caf1eb965",
     "depth3_prefix_probe_sha256": "0abd8a526292cbb458ba06d53dc7e2a8fde5442a7238b32baf20949ca0a89505",
@@ -25,7 +25,7 @@
     "superposition_telemetry_sha256": "9ddabe8ca34b90e6a765536a43012781d969a7153c6261d09bf59a452b725711",
     "recursive_structured_fixtures_sha256": "74f7cd8ae7350ad130c17996b0724f251168638fce3325079d71a96deccf3614",
     "scale_performance_report_sha256": "b14646b969fc65e6c3c52584107e3478ed6e28671e6f0ce058f70f80d13819f7",
-    "bounded_streaming_memory_gate_sha256": "8ce51dd90fe919c8576d1020700b079ce9bee7be42fe9dce24125fbac343ce77",
+    "bounded_streaming_memory_gate_sha256": "c4130a9cbf25201cd681ecbddf5dd2e465576aa319a677cfe834694ad543668e",
     "ui_workflow_smoke_sha256": "4609482b394bc5d9d3f7f8ef33210cd6983690c2af7add9e5816ca515371f52f",
     "fifth_byte_residual_sha256": "10f68eaada96a1eec67588fc618d29b2b0356ead260367e80396654e3de7094c",
     "fifth_byte_steering_sha256": "4c671b912708cd5db7c6dda39bd74c7ab42c171679dacf8dcb40946d043579b7",
@@ -56,9 +56,9 @@
     "alignment_arity_discovery_sha256": "d7ef17dc66b36d0b2b4cd7c4506fca31c332818b3dc16a191e944d70bde0b630",
     "transformed_match_discovery_sha256": "1e63c81d86787306038846928dba7db3878879b1498bb827a4c7aa939191f69e",
     "lead_exact_discovery_sha256": "f047de324c385dba641287443f0f6b4ceeb1f88ebf090e0063810c7d911d40aa",
-    "viability_sha256": "94d60bfcebc377e82c3d9c1c409ecff81708ef679c61f7b00f917b0856ac2ff4",
+    "viability_sha256": "231e727acf4d575288e3832c64263c49f12e2f9c8b647a1cc6efd46bcc4f7ccf",
     "acceleration_report_sha256": "623b59981cf78e7a22d54fb4111b663fc2975c5a923ae3bf8ff288d9f42b1207",
-    "goal_audit_sha256": "5e9179c80ce73b8a34592643145f9344c3b96bffd457c96d9d5b97193e63ec70",
+    "goal_audit_sha256": "183a1237ed88dae875436dcfea3195214e91faeaf2b05d4fff7fea8a2a0d46a9",
     "sweeps_sha256": "803c32715becd4eca7f52b5282fceaab539b953365ef223b477f3d5a6355dce7"
   },
   "overall_status": "not production-proven",
