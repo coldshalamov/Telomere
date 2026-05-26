@@ -18,6 +18,7 @@ pub const V2_MAGIC_VERSION_LEN: usize = 5;
 pub const V2_SEED_ORDER_VERSION: u8 = 1;
 pub const V2_TIER_POLICY_SEED_SPAN: u8 = 1;
 pub const V2_TIER_POLICY_PUBLIC_PRESET_SELECTIVE: u8 = 2;
+pub const V2_TIER_POLICY_FIXED_SEED_SPAN: u8 = 3;
 pub const MAX_V2_SEED_LEN: usize = 6;
 
 /// Lotus-encoded tag values for v2 record framing. Encoded with the shared
@@ -113,6 +114,26 @@ impl TlmrV2LayerDescriptor {
             span_step: PUBLIC_PRESET_SELECTIVE_VERSION,
         }
     }
+
+    pub fn for_fixed_seed_span_decoded_bytes(
+        decoded: &[u8],
+        hasher: HasherKind,
+        max_seed_len: usize,
+        fixed_span_len: usize,
+        span_step: usize,
+        hash_bits: usize,
+    ) -> Self {
+        let expander = hasher.get_expander();
+        Self {
+            decoded_len: decoded.len() as u64,
+            decoded_hash: truncated_hash_bits(decoded, expander.as_ref(), hash_bits),
+            max_seed_len,
+            max_span_len: fixed_span_len,
+            block_size: fixed_span_len,
+            tier_policy: V2_TIER_POLICY_FIXED_SEED_SPAN,
+            span_step,
+        }
+    }
 }
 
 /// Standalone Lotus-encoded v2 record. `bytes` holds the byte-aligned tail
@@ -155,6 +176,28 @@ pub fn v2_seed_span_record_into_writer(
     // Encode span_len - 1 so the common case (span_len=1 -> value 0) sits in
     // Lotus's smallest tier.
     lotus_encode_into_writer((span_len - 1) as u64, LOTUS_J_BITS, LOTUS_TIERS, writer)
+        .map_err(lotus_err)?;
+    lotus_encode_into_writer(seed_index as u64, LOTUS_J_BITS, LOTUS_TIERS, writer)
+        .map_err(lotus_err)?;
+    Ok(writer.bits_written() - start)
+}
+
+/// Streaming encoder for a fixed-span seed record. The span length is not
+/// stored per record; decoders recover it from the layer descriptor's
+/// `max_span_len` when `tier_policy == V2_TIER_POLICY_FIXED_SEED_SPAN`.
+pub fn v2_fixed_seed_span_record_into_writer(
+    writer: &mut BitWriter,
+    seed: &[u8],
+    max_seed_len: usize,
+) -> Result<usize, TelomereError> {
+    if seed.is_empty() || seed.len() > max_seed_len {
+        return Err(TelomereError::Header(
+            "v2 seed length out of range for max_seed_len".into(),
+        ));
+    }
+    let seed_index = seed_to_index(seed, max_seed_len);
+    let start = writer.bits_written();
+    lotus_encode_into_writer(V2_RECORD_TAG_SEED_SPAN, LOTUS_J_BITS, LOTUS_TIERS, writer)
         .map_err(lotus_err)?;
     lotus_encode_into_writer(seed_index as u64, LOTUS_J_BITS, LOTUS_TIERS, writer)
         .map_err(lotus_err)?;
@@ -249,6 +292,26 @@ pub fn v2_seed_span_record_bit_len(
     let seed_bits =
         lotus_encoded_bit_len(seed_index as u64, LOTUS_J_BITS, LOTUS_TIERS).map_err(lotus_err)?;
     Ok(tag_bits + span_bits + seed_bits)
+}
+
+/// Returns the bit length of a fixed-span seed record. This omits the
+/// per-record span length because the layer descriptor fixes it for the
+/// whole payload.
+pub fn v2_fixed_seed_span_record_bit_len(
+    seed: &[u8],
+    max_seed_len: usize,
+) -> Result<usize, TelomereError> {
+    if seed.is_empty() || seed.len() > max_seed_len {
+        return Err(TelomereError::Header(
+            "v2 seed length out of range for max_seed_len".into(),
+        ));
+    }
+    let seed_index = seed_to_index(seed, max_seed_len);
+    let tag_bits = lotus_encoded_bit_len(V2_RECORD_TAG_SEED_SPAN, LOTUS_J_BITS, LOTUS_TIERS)
+        .map_err(lotus_err)?;
+    let seed_bits =
+        lotus_encoded_bit_len(seed_index as u64, LOTUS_J_BITS, LOTUS_TIERS).map_err(lotus_err)?;
+    Ok(tag_bits + seed_bits)
 }
 
 /// Ceil-divided byte count for a seed-span record, for candidate scoring
@@ -627,11 +690,18 @@ pub fn decode_v2_payload(
     descriptor: &TlmrV2LayerDescriptor,
     hasher: HasherKind,
 ) -> Result<Vec<u8>, TelomereError> {
-    if descriptor.tier_policy != V2_TIER_POLICY_SEED_SPAN {
+    if descriptor.tier_policy != V2_TIER_POLICY_SEED_SPAN
+        && descriptor.tier_policy != V2_TIER_POLICY_FIXED_SEED_SPAN
+    {
         return Err(TelomereError::Header(
             "v2 payload decoder requires seed-span tier policy".into(),
         ));
     }
+    let fixed_span_len = if descriptor.tier_policy == V2_TIER_POLICY_FIXED_SEED_SPAN {
+        Some(descriptor.max_span_len)
+    } else {
+        None
+    };
     let decoded_len: usize = descriptor
         .decoded_len
         .try_into()
@@ -668,14 +738,18 @@ pub fn decode_v2_payload(
             lotus_decode_from_reader(&mut reader, LOTUS_J_BITS, LOTUS_TIERS).map_err(lotus_err)?;
         match tag {
             t if t == V2_RECORD_TAG_SEED_SPAN => {
-                let (span_minus_one, _) =
-                    lotus_decode_from_reader(&mut reader, LOTUS_J_BITS, LOTUS_TIERS)
-                        .map_err(lotus_err)?;
-                let span_minus_one = usize::try_from(span_minus_one)
-                    .map_err(|_| TelomereError::Header("v2 seed span overflow".into()))?;
-                let span_len = span_minus_one
-                    .checked_add(1)
-                    .ok_or_else(|| TelomereError::Header("v2 seed span overflow".into()))?;
+                let span_len = if let Some(span_len) = fixed_span_len {
+                    span_len
+                } else {
+                    let (span_minus_one, _) =
+                        lotus_decode_from_reader(&mut reader, LOTUS_J_BITS, LOTUS_TIERS)
+                            .map_err(lotus_err)?;
+                    let span_minus_one = usize::try_from(span_minus_one)
+                        .map_err(|_| TelomereError::Header("v2 seed span overflow".into()))?;
+                    span_minus_one
+                        .checked_add(1)
+                        .ok_or_else(|| TelomereError::Header("v2 seed span overflow".into()))?
+                };
                 if span_len == 0 || span_len > descriptor.max_span_len {
                     return Err(TelomereError::Header("invalid v2 seed span".into()));
                 }
@@ -764,7 +838,9 @@ fn decode_v2_layer(
     hasher: HasherKind,
 ) -> Result<Vec<u8>, TelomereError> {
     match descriptor.tier_policy {
-        V2_TIER_POLICY_SEED_SPAN => decode_v2_payload(payload, descriptor, hasher),
+        V2_TIER_POLICY_SEED_SPAN | V2_TIER_POLICY_FIXED_SEED_SPAN => {
+            decode_v2_payload(payload, descriptor, hasher)
+        }
         V2_TIER_POLICY_PUBLIC_PRESET_SELECTIVE => {
             let decoded_len: usize = descriptor.decoded_len.try_into().map_err(|_| {
                 TelomereError::Header("v2 transform layer length out of range".into())
@@ -951,6 +1027,15 @@ pub fn decode_layer_descriptor_from(
                 && (1..=u16::MAX as usize).contains(&block_size)
                 && span_step == PUBLIC_PRESET_SELECTIVE_VERSION
         }
+        V2_TIER_POLICY_FIXED_SEED_SPAN => {
+            max_seed_len != 0
+                && max_seed_len <= MAX_V2_SEED_LEN
+                && max_span_len != 0
+                && max_span_len <= u16::MAX as usize
+                && block_size == max_span_len
+                && span_step != 0
+                && span_step <= max_span_len
+        }
         _ => false,
     };
     if !valid_policy || decoded_hash & !hash_mask(hash_bits) != 0 {
@@ -1023,6 +1108,39 @@ mod tests {
             max_seed_len,
             span_len,
             span_len,
+            13,
+        );
+        let decoded = decode_v2_payload(&payload, &descriptor, HasherKind::Sha256).unwrap();
+        assert_eq!(decoded, expanded);
+    }
+
+    #[test]
+    fn v2_fixed_seed_span_record_omits_span_len() {
+        let seed = [0x00u8];
+        let normal_bits = v2_seed_span_record_bit_len(16, &seed, 1).unwrap();
+        let fixed_bits = v2_fixed_seed_span_record_bit_len(&seed, 1).unwrap();
+        assert_eq!(fixed_bits, 12);
+        assert_eq!(normal_bits - fixed_bits, 11);
+    }
+
+    #[test]
+    fn v2_fixed_seed_span_record_roundtrip_via_layer_payload() {
+        let max_seed_len = 1;
+        let seed = vec![0x00u8];
+        let span_len = 16usize;
+        let expander = HasherKind::Sha256.get_expander();
+        let mut expanded = vec![0u8; span_len];
+        expander.expand_into(&seed, &mut expanded);
+
+        let mut writer = BitWriter::new();
+        v2_fixed_seed_span_record_into_writer(&mut writer, &seed, max_seed_len).unwrap();
+        let payload = writer.into_bytes();
+        let descriptor = TlmrV2LayerDescriptor::for_fixed_seed_span_decoded_bytes(
+            &expanded,
+            HasherKind::Sha256,
+            max_seed_len,
+            span_len,
+            1,
             13,
         );
         let decoded = decode_v2_payload(&payload, &descriptor, HasherKind::Sha256).unwrap();

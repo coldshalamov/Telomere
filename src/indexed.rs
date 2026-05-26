@@ -1,8 +1,9 @@
 use crate::config::HasherKind;
 use crate::seed_expansion_index::{SeedLookup, SEED_ORDER_VERSION};
 use crate::tlmr_v2::{
-    encode_v2_file, v2_literal_record_into_writer, v2_seed_span_record_into_writer,
-    validate_v2_search_config, validate_v2_span_step, TlmrV2LayerDescriptor,
+    encode_v2_file, v2_fixed_seed_span_record_into_writer, v2_literal_record_into_writer,
+    v2_seed_span_record_into_writer, validate_v2_search_config, validate_v2_span_step,
+    TlmrV2LayerDescriptor,
 };
 use crate::TelomereError;
 use lotus::BitWriter;
@@ -836,8 +837,37 @@ pub(crate) fn encode_layer_records(
     selected: &[IndexedCandidate],
     max_seed_len: usize,
 ) -> Result<Vec<u8>, TelomereError> {
+    encode_layer_records_with_fixed_span(data, selected, max_seed_len, None)
+}
+
+pub(crate) fn encode_fixed_span_layer_records(
+    data: &[u8],
+    selected: &[IndexedCandidate],
+    max_seed_len: usize,
+    fixed_span_len: usize,
+) -> Result<Vec<u8>, TelomereError> {
+    encode_layer_records_with_fixed_span(data, selected, max_seed_len, Some(fixed_span_len))
+}
+
+fn encode_layer_records_with_fixed_span(
+    data: &[u8],
+    selected: &[IndexedCandidate],
+    max_seed_len: usize,
+    fixed_span_len: Option<usize>,
+) -> Result<Vec<u8>, TelomereError> {
     let mut selected = selected.to_vec();
     selected.sort_by_key(|candidate| candidate.start);
+    if let Some(fixed_span_len) = fixed_span_len {
+        if fixed_span_len == 0
+            || selected
+                .iter()
+                .any(|candidate| candidate.span_len != fixed_span_len)
+        {
+            return Err(TelomereError::Header(
+                "fixed-span layer received non-fixed candidate".into(),
+            ));
+        }
+    }
     let by_start: HashMap<usize, IndexedCandidate> = selected
         .into_iter()
         .map(|candidate| (candidate.start, candidate))
@@ -851,12 +881,16 @@ pub(crate) fn encode_layer_records(
     let mut pos = 0usize;
     while pos < data.len() {
         if let Some(candidate) = by_start.get(&pos) {
-            v2_seed_span_record_into_writer(
-                &mut writer,
-                candidate.span_len,
-                &candidate.seed,
-                max_seed_len,
-            )?;
+            if fixed_span_len.is_some() {
+                v2_fixed_seed_span_record_into_writer(&mut writer, &candidate.seed, max_seed_len)?;
+            } else {
+                v2_seed_span_record_into_writer(
+                    &mut writer,
+                    candidate.span_len,
+                    &candidate.seed,
+                    max_seed_len,
+                )?;
+            }
             pos += candidate.span_len;
             continue;
         }

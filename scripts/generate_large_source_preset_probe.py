@@ -29,7 +29,6 @@ from generate_source_token_registry_probe import (
     codebook_for_tokens,
     ensure_binary,
     frame_with_codebook,
-    run_compress,
 )
 
 
@@ -327,12 +326,6 @@ def frame_with_lotus_bits(data: bytes, codebook: dict[bytes, bytes]) -> tuple[by
     return writer.to_bytes(), replacements
 
 
-def fixed_span_elision_savings_bytes(selected_spans: int) -> int:
-    """Conservative byte savings if fixed-span layers omit span_len per hit."""
-    span_len_bits = len(lotus_bits(CODEWORD_LEN - 1))
-    return (selected_spans * span_len_bits) // 8
-
-
 def deterministic_random(length: int, label: bytes) -> bytes:
     out = bytearray()
     counter = 0
@@ -344,6 +337,69 @@ def deterministic_random(length: int, label: bytes) -> bytes:
 
 def sanitize_command(command: str) -> str:
     return command.replace(str(ROOT), "$ROOT")
+
+
+def run_compress(
+    binary: Path,
+    input_path: Path,
+    output_path: Path,
+) -> dict[str, Any]:
+    command = [
+        str(binary),
+        "compress",
+        str(input_path),
+        str(output_path),
+        "--engine",
+        "streaming",
+        "--format",
+        "v2",
+        "--hasher",
+        "sha256",
+        "--seed-depth",
+        "1",
+        "--seed-bits",
+        "8",
+        "--max-span-len",
+        str(CODEWORD_LEN),
+        "--block-size",
+        str(CODEWORD_LEN),
+        "--span-step",
+        "1",
+        "--telemetry-limit",
+        "0",
+        "--memory-limit",
+        "100%",
+        "--json",
+        "--verify",
+        "--force",
+    ]
+    env = os.environ.copy()
+    env["RUST_LOG"] = "error"
+    result = subprocess.run(
+        command,
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        env=env,
+        check=False,
+    )
+    if result.returncode != 0:
+        raise RuntimeError(
+            "compression failed\n"
+            f"command: {' '.join(command)}\n"
+            f"stdout: {result.stdout}\n"
+            f"stderr: {result.stderr}"
+        )
+    payload = json.loads(result.stdout)
+    telemetry = payload.get("engine_telemetry") or {}
+    return {
+        "command": sanitize_command(" ".join(command)),
+        "tlmr_bytes": output_path.stat().st_size,
+        "json_final_bytes": payload["final_bytes"],
+        "selected_spans": telemetry.get("selected_count", 0),
+        "candidate_count": telemetry.get("candidate_count", 0),
+        "literal_bytes": telemetry.get("literal_bytes"),
+    }
 
 
 def build_rows() -> tuple[list[dict[str, Any]], dict[str, Any]]:
@@ -401,19 +457,8 @@ def build_rows() -> tuple[list[dict[str, Any]], dict[str, Any]]:
                     )
                     framed_path.write_bytes(framed)
                     output_path = framed_path.with_suffix(".tlmr")
-                    compression = run_compress(
-                        binary,
-                        framed_path,
-                        output_path,
-                        CODEWORD_LEN,
-                    )
-                    compression["command"] = sanitize_command(compression["command"])
+                    compression = run_compress(binary, framed_path, output_path)
                     charged = compression["tlmr_bytes"] + TRANSFORM_METADATA_BYTES
-                    fixed_span_delta = charged - original_len
-                    if variant == "seed":
-                        fixed_span_delta -= fixed_span_elision_savings_bytes(
-                            compression["selected_spans"]
-                        )
                     rows.append(
                         {
                             "corpus": corpus,
@@ -431,7 +476,6 @@ def build_rows() -> tuple[list[dict[str, Any]], dict[str, Any]]:
                             "delta_bytes": charged - original_len,
                             "public_preset_delta_bytes": compression["tlmr_bytes"]
                             - original_len,
-                            "fixed_span_elision_projected_delta_bytes": fixed_span_delta,
                             **compression,
                         }
                     )
@@ -465,9 +509,6 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
                 "seed_delta_bytes": seed["delta_bytes"],
                 "seed_public_preset_delta_bytes": seed["public_preset_delta_bytes"],
                 "seed_selected_spans": seed["selected_spans"],
-                "seed_fixed_span_elision_projected_delta_bytes": seed[
-                    "fixed_span_elision_projected_delta_bytes"
-                ],
                 "token_replacements": seed["token_replacements"],
                 "framed_bytes": seed["framed_bytes"],
                 "best_control_variant": best_control["variant"],
@@ -509,9 +550,6 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "best_trained_source_seed_minus_control_bytes": best_trained_source[
             "seed_minus_best_control_bytes"
         ],
-        "best_trained_source_fixed_span_projection_bytes": best_trained_source[
-            "seed_fixed_span_elision_projected_delta_bytes"
-        ],
         "best_oracle_seed_delta_bytes": best_oracle["seed_delta_bytes"],
         "best_oracle_seed_minus_control_bytes": best_oracle[
             "seed_minus_best_control_bytes"
@@ -522,8 +560,9 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "comparisons": comparisons,
         "conclusion": (
             "large held-out source is coverage-limited, not random-limited: "
-            "trained public tokens create hundreds of exact spans but remain "
-            "slightly positive; oracle coverage becomes cleanly profitable"
+            "trained public tokens create hundreds of exact spans and become "
+            "cleanly profitable once fixed-span v2 records stop paying "
+            "redundant per-hit span metadata"
         ),
     }
 
@@ -540,15 +579,14 @@ def build_report() -> dict[str, Any]:
         "parameters": {
             "codeword_len": CODEWORD_LEN,
             "token_limit": TOKEN_LIMIT,
-            "fixed_span_elision_saved_bits_per_seed_record": len(
-                lotus_bits(CODEWORD_LEN - 1)
-            ),
+            "fixed_span_records": True,
             "control_variants": list(CONTROL_VARIANTS),
             "transform_metadata_bytes": TRANSFORM_METADATA_BYTES,
             "hasher": "sha256",
             "seed_depth": 1,
             "seed_bits": 8,
             "max_span_len": CODEWORD_LEN,
+            "block_size": CODEWORD_LEN,
             "span_step": 1,
         },
         "token_metadata": token_metadata,
@@ -578,26 +616,23 @@ def write_markdown(payload: dict[str, Any]) -> None:
         f"- Best trained seed minus control bytes: `{summary['best_trained_seed_minus_control_bytes']}`",
         f"- Best trained source seed delta bytes: `{summary['best_trained_source_seed_delta_bytes']}`",
         f"- Best trained source seed minus control bytes: `{summary['best_trained_source_seed_minus_control_bytes']}`",
-        f"- Best trained source fixed-span projection bytes: `{summary['best_trained_source_fixed_span_projection_bytes']}`",
         f"- Best oracle seed delta bytes: `{summary['best_oracle_seed_delta_bytes']}`",
         f"- Best oracle seed minus control bytes: `{summary['best_oracle_seed_minus_control_bytes']}`",
         f"- Conclusion: `{summary['conclusion']}`",
         "",
         "## Comparisons",
         "",
-        "| Corpus | Registry | Frame | Seed delta | Fixed-span projection | Selected spans | Best control delta | Seed minus control | Clean seed win |",
+        "| Corpus | Registry | Frame | Seed delta | Public-preset delta | Selected spans | Best control delta | Seed minus control | Clean seed win |",
         "| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | --- |",
     ]
     for row in summary["comparisons"]:
         lines.append(
-            "| {corpus} | `{registry}` | `{frame}` | {seed_delta} | {fixed_projection} | {selected} | {control_delta} | {diff} | `{clean}` |".format(
+            "| {corpus} | `{registry}` | `{frame}` | {seed_delta} | {public_delta} | {selected} | {control_delta} | {diff} | `{clean}` |".format(
                 corpus=row["corpus"],
                 registry=row["registry"],
                 frame=row["frame_mode"],
                 seed_delta=row["seed_delta_bytes"],
-                fixed_projection=row[
-                    "seed_fixed_span_elision_projected_delta_bytes"
-                ],
+                public_delta=row["seed_public_preset_delta_bytes"],
                 selected=row["seed_selected_spans"],
                 control_delta=row["best_control_delta_bytes"],
                 diff=row["seed_minus_best_control_bytes"],
@@ -609,8 +644,7 @@ def write_markdown(payload: dict[str, Any]) -> None:
             "",
             "Interpretation:",
             "",
-            "- The trained held-out source registry creates hundreds of exact seed spans and beats same-token controls by kilobytes, but current accounting remains slightly positive.",
-            "- A fixed-span seed layer that omits per-record `span_len` would project the trained source row negative because every selected codeword span has the descriptor-known length.",
+            "- The trained held-out source registry now produces clean negative rows because fixed-span v2 records omit descriptor-known `span_len` metadata per hit.",
             "- The oracle source registry becomes cleanly negative while same-token controls bloat, proving that better source coverage can make the seed-span mechanism profitable at this scale.",
             "- The next source architecture should focus on a native public source preset or parser-informed token registry, not deeper random search.",
             "",
@@ -628,17 +662,17 @@ def check_report() -> None:
     if payload.get("source_hashes") != source_hashes():
         raise SystemExit("large_source_preset_probe.json source hashes are stale")
     summary = payload.get("summary", {})
-    if summary.get("trained_clean_seed_specific_win_rows") != 0:
-        raise SystemExit("trained heldout source result unexpectedly became clean proof")
+    if summary.get("trained_clean_seed_specific_win_rows", 0) <= 0:
+        raise SystemExit("trained heldout source result must be clean proof")
     if summary.get("oracle_clean_seed_specific_win_rows", 0) <= 0:
         raise SystemExit("source oracle must prove the coverage upper bound")
     best_trained = summary.get("best_trained_source", {})
+    if best_trained.get("seed_delta_bytes", 0) >= 0:
+        raise SystemExit("trained source registry must be negative after full accounting")
     if best_trained.get("seed_selected_spans", 0) <= 0:
         raise SystemExit("trained source registry must create exact selected spans")
     if best_trained.get("seed_minus_best_control_bytes", 0) >= 0:
         raise SystemExit("trained source registry must beat same-token controls")
-    if best_trained.get("seed_fixed_span_elision_projected_delta_bytes", 0) >= 0:
-        raise SystemExit("fixed-span projection should flip trained source negative")
     text = OUT_MD.read_text(encoding="utf-8")
     for phrase in (
         "Large Source Preset Probe",

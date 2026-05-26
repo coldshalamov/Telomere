@@ -346,13 +346,13 @@ This section lists unresolved `open` and `blocked-by-evidence` requirements.
 
 - `cargo_toml_sha256`: `a623beee089b74ee04fd55ad5a972ad89e4599d98967958a4c0537ff7ddc132d`
 - `main_cli_sha256`: `cec67be677176128f4f413478587999b5219f55729ebf59bd094f5b6f93dba7e`
-- `lib_sha256`: `321821347dd7c915773f83d381382876e3d738671071cfda686727938632cc66`
+- `lib_sha256`: `f3270c8aee059fa2de086bb4cdc5bd9d95fa0306add46bdd943a07a63c8d0dea`
 - `compress_sha256`: `67a45bb5044910c42844c3be9b52fbde0e3a1e6b555504cc9a9106bd60f5aa80`
 - `config_sha256`: `399e8e1584c7bbd05035977d8174fb827793eb20b2f5f7e88517d92afea00344`
 - `v1_header_sha256`: `06d73f313080bbc2651250e246e24917a0f9adf040681d18b55576136b4c493b`
-- `v2_format_sha256`: `3aebbfe582b0ec159384fefb79faed52641faf11c2c4dd1ae641bd38fbd67e58`
-- `indexed_engine_sha256`: `c53dd350709c8b1b075e968cc60417f62e01c6d197fc577bc772e6bbae9f6120`
-- `streaming_engine_sha256`: `79d26ea5afa1477eed56a94472f6880fdd573453a434a4c6485cdf757acb5ed8`
+- `v2_format_sha256`: `4f3095e294fe89537d823284571536ef4271e51615f58dffb3b936462b9ec14f`
+- `indexed_engine_sha256`: `58ff71e20cb980266b92f65588b01a81d7983c40df2ed0a349a43a93b606f6f7`
+- `streaming_engine_sha256`: `929c939d95e9977e96d9ccae68c309a12f4f9a6628b4f062856d70e895fd4191`
 - `seed_index_sha256`: `1a6eb505808d2e05868d6e10c967e491825adbd3bbe1010c45f3ddc64dbdac65`
 - `gpu_sha256`: `1bc8aeabdc261989b00614da5dbb049124535253f0a7a486cc609860d1ea8d8d`
 - `whitepaper_sha256`: `ff3bfa05be1789537ed7e922452c372b50a548c7119e4230940b63c0a4ed0131`
@@ -361,14 +361,14 @@ This section lists unresolved `open` and `blocked-by-evidence` requirements.
 - `ui_readme_sha256`: `172056d040ea6105da9522fcb228dae9ee3a97de0d9c8cb4c8d0f593f81304b0`
 - `cli_tests_sha256`: `9753c22a831a8e27ab58b672b7e8b0c19eb7baff30dc7e640c1e2ed2cb27efcf`
 - `indexed_v2_tests_sha256`: `8a496865dcd3964f64b1f9abbb61925a8cec6dbee1ab8082229fa778a2a1ccb6`
-- `streaming_tests_sha256`: `1a47d5093fec66db0a541d73592211f6c3cd544172badeac74113ef54b1ea473`
+- `streaming_tests_sha256`: `e3b438db54b50fc5d2c00ae53ca5a6a2ac0fd53c0e76c4931c463051362ae758`
 
 ## Artifact Hashes
 
 - `results_sha256`: `225465824966499a8d15a5721e0698c30ae83053d072dbec6c6b21558523f9ba`
 - `sweeps_sha256`: `803c32715becd4eca7f52b5282fceaab539b953365ef223b477f3d5a6355dce7`
-- `viability_sha256`: `0d84f29873d28a9e1819e534787d80f8a039f8b9d512032c36d4486094c2b837`
-- `research_scorecard_sha256`: `c7933918a7fc578af9ba11ba4096c61a7d00eaf9d071bdeb76a620c90e392697`
+- `viability_sha256`: `c4f7a07d981a900a2b94183d7b444d36ba7e10708cf3c8e904f29c71c86855c7`
+- `research_scorecard_sha256`: `480223c5c15eab3fd9fddaad56cc54e36ff160429ec3840df434da97e9fab1aa`
 - `corpus_matrix_sha256`: `2a9f8506a3c9e6aa47c0e91c1e15bf1951f9af0d0b3cb64129982e06a27e7bd2`
 - `corpus_generalization_probe_sha256`: `dea34274c490f6bc1d5c10b4e9393f8a53d02e44740fe8defaa72e3113e0b5cd`
 - `heldout_corpus_expansion_sha256`: `01a2ab439e60ff6f0cdb4f116ce893282a576cca51527c0a8abb93259a60425f`
@@ -392,11 +392,11 @@ This section lists unresolved `open` and `blocked-by-evidence` requirements.
 - `expander_salt_ensemble_sha256`: `b1964816f8ade396c3f82e9b1c1d7db222506446c3ea8b18b0bd5f47dc0b9887`
 - `schema_native_public_dictionaries_sha256`: `7736c18343de946d3853eee253c83a9497e2f9f5fd209aaf9e20bd443f9fa478`
 - `schema_native_public_dictionary_replication_sha256`: `fbfc1074f874380442b5fc9e8ce57cc952f764473c992837773369d0728beebe`
-- `superposition_telemetry_sha256`: `ac468c19dd0bed985110538f3f27fd79cea59332f65322f2be15571997ee01aa`
-- `long_span_bundle_gate_sha256`: `a579cd30d361c4023ceeac73e58d4fb2be92a63ab6df58bb5ce18f3da4ec2f8d`
-- `recursive_structured_fixtures_sha256`: `4bf8fc5493b708c28039c7b3a2d61bb875cc26f368d78eb4ef4d68c935837a67`
-- `scale_performance_report_sha256`: `c0ed7d303139e360f1fa128ff9f207db22990c5f5f937945f94ede25bfd7b5e3`
-- `ui_workflow_smoke_sha256`: `ff136eef61deb921f425296bbb56c313e6e4915ce6430777074a2275f5481e03`
+- `superposition_telemetry_sha256`: `9a860a10ed0a8100e97a6604d11aab196d9cf5fcf5a552fc4c8a59d0ace506b5`
+- `long_span_bundle_gate_sha256`: `c8c48d55dd0ac688459acbf3e83d30c5fa99e3c959d49b57ddc6350217543f67`
+- `recursive_structured_fixtures_sha256`: `8b6cea02284d3fada83db72c3134bbaa46bcade40ba245f205a14e48f34a383f`
+- `scale_performance_report_sha256`: `9fdc2913d249bf9739c7ecd0ad6870cdbf203090fb4d60c07615b30cc09ea11f`
+- `ui_workflow_smoke_sha256`: `6713e90e003d4c112142b0d658a667d3bd83cd36e93c86b0707ecb60e361108a`
 - `fifth_byte_steering_sha256`: `0912df3b99a4de7bad4cbe7730f67456766bda6098b6b58be5cb273b4fa5a4e9`
 - `contextual_fifth_byte_steering_sha256`: `9af6f8167f51596840783bf31a7cf6a15e37e15c7f308a941de0982cf4502c4b`
 - `structural_transform_search_sha256`: `293e4ad4e8e67b2c5f88159fa2f76df93d018d8bdf1615bba34f6ac40ce42809`
@@ -466,13 +466,13 @@ This section lists unresolved `open` and `blocked-by-evidence` requirements.
 - `docs/PACKED_SIDECAR_REPLICATION.md_sha256`: `b113091df710924d8308bc2e7a664f050ae43ea20e6df6d9ae94ec39a8407211`
 - `docs/PREFIX_LADDER.md_sha256`: `fb0766683dd562ad383b400b261059f309a0751142a1fdc062c131989389d1b6`
 - `docs/RECORD_CONTEXT_TRANSFORM_SEARCH.md_sha256`: `4ea580a6293bfda34b1680ff6ca8b38637c5c773d3a628f3b9f2844a8c75b3ff`
-- `docs/RECURSIVE_STRUCTURED_FIXTURES.md_sha256`: `9f6b88ee2f7b500ebb08fd123265f7d3a3bcd8cf058df02294d05e172b4260f0`
+- `docs/RECURSIVE_STRUCTURED_FIXTURES.md_sha256`: `0bbe6c8348747c381b8ce3dc782919db3208ad0db304aae5b48d860b9be3737c`
 - `docs/RELEASE_CHECKLIST.md_sha256`: `42ac71c4640fba2acaa3d5b18cdf5fe2f5d841b5fb55abff76afe1c7854dbdb8`
 - `docs/RESEARCH_PROGRAM.md_sha256`: `cbe3599df6bf657c69dae9ea5754efba891c1d7cd66731b73aad8132955c70d9`
-- `docs/RESEARCH_SCORECARD.md_sha256`: `f32677c930df383fffc9fd20fca4942239b0c843980ca1abea168935ee08e32c`
+- `docs/RESEARCH_SCORECARD.md_sha256`: `a9ebb88b9447ab74598832c8cd5fe10db62081a048b62ed60670666caabc57e1`
 - `docs/RESIDUAL_PAYLOAD_COMPRESSIBILITY.md_sha256`: `f72c533b5e1fd03d9db69dc8595154b9fde3d44045591900ad6698d9d2ad082c`
 - `docs/RESULTS.md_sha256`: `991eb6a9a04f751cc571a04157e3b0a71139d7af0b5539dc4e80ff0084f9eba0`
-- `docs/SCALE_PERFORMANCE.md_sha256`: `5b2c9637659b380acde77e1352e32c38378a5f2e3c4fd5530879fb3d9da5c5c4`
+- `docs/SCALE_PERFORMANCE.md_sha256`: `f0beb0d6feed61f1ba80c181888333972c5f7b973dab419dda28fdcfb8add167`
 - `docs/SCHEMA_NATIVE_PUBLIC_DICTIONARIES.md_sha256`: `69bd2695b34555dfff84ea993ee6c05387c5f039d976f9a97c6dbad21a509f62`
 - `docs/SCHEMA_NATIVE_PUBLIC_DICTIONARY_REPLICATION.md_sha256`: `fb3ffed32e195522569aa0a376fdd26fd21751ceb0de04850b10da51a31eb0a1`
 - `docs/SEARCH_FRONTIER_GATE.md_sha256`: `5131027c3545d58a27b6aeb8dcd4b26c62a9eb7fdee2c5689ff19ce487aba89c`
@@ -481,7 +481,7 @@ This section lists unresolved `open` and `blocked-by-evidence` requirements.
 - `docs/SIDECAR_BREAK_EVEN.md_sha256`: `07156ba36795add1d1f3a1cef107087e20445339b58807185e36f454c167971d`
 - `docs/SIDECAR_RECORD_OVERHEAD.md_sha256`: `202e89f9cbe5e4241dbb0958e4f71755818f4f6a5c895c93e9bdacc098b79bb3`
 - `docs/STRUCTURAL_TRANSFORM_SEARCH.md_sha256`: `d4b99bde3ce2d25dd41b398dfeb337aae896921cba8327d8e0abc7659f2e713e`
-- `docs/SUPERPOSITION_TELEMETRY.md_sha256`: `2ce0ff89a3fa86b4abe7eab06bc314dcf96ed1d767fba1eaed599a61a0640b69`
+- `docs/SUPERPOSITION_TELEMETRY.md_sha256`: `b2b52d2717e9f77566cb9db66109e852dee2870ee147ebcb05d31f2c724bc55f`
 - `docs/SWEEPS.md_sha256`: `c8329a1e20118975ead3439ee99901cbfcc90f92311a0ff88b61af46b721d27a`
 - `docs/THEORY.md_sha256`: `371c1760e4aa87d03ecc0806c3ac3d8c63f01f48f78dd6a9ccc8f0aad25e73c3`
 - `docs/TOKEN_DICTIONARY_TRANSFORM_SEARCH.md_sha256`: `ef333bc868e076a20c90cabc87f6a16a119a8566ac801ea0aa1d5065826aad1f`
@@ -490,7 +490,7 @@ This section lists unresolved `open` and `blocked-by-evidence` requirements.
 - `docs/TRANSFORM_VALIDATION.md_sha256`: `7697ab557b21bc6641cedcc3d8b9d8804c8abd91214ffaf8050eeac3e9d2430c`
 - `docs/Telomere Whitepaper V2.md_sha256`: `ff3bfa05be1789537ed7e922452c372b50a548c7119e4230940b63c0a4ed0131`
 - `docs/UI_WORKFLOW_SMOKE.md_sha256`: `080c036e335451a2a3e5d3b1e37e46bfd061721374783d4fcf3be26d9755c2dc`
-- `docs/VIABILITY.md_sha256`: `c735e195033f9cd866c7e3f911db5845c81ac758ca05d47570ec77c3d7072356`
+- `docs/VIABILITY.md_sha256`: `cb1af9d101bbaca18c89c2f37de74aee7381ebe87a1137d09c67f68f3b150157`
 - `docs/WHOLE_STREAM_RESIDUAL_VECTOR_PROBE.md_sha256`: `dcc9f799527cc3396c1f0b1e0e247dff389501bcea926d8e3574f045af55482c`
 - `docs/adr/0002-gpu-acceleration-status.md_sha256`: `356bfef901f79b955f3771cc6b4637261f193d081855a6aec18392d72a00214c`
 - `docs/affine_transform_search.json_sha256`: `b0a13f597e786ed2839200438cd6ac416cc83f9d25e0122f8069332013deca15`
@@ -511,7 +511,7 @@ This section lists unresolved `open` and `blocked-by-evidence` requirements.
 - `docs/grammar_channel_match_discovery.json_sha256`: `0356e6bc36339e3b2bfb6f753fef167c4aeb0915fd6eb6ecaeff946f7f5a2f54`
 - `docs/heldout_corpus_expansion.json_sha256`: `01a2ab439e60ff6f0cdb4f116ce893282a576cca51527c0a8abb93259a60425f`
 - `docs/lead_exact_discovery.json_sha256`: `7826d7439905a6765c1bf0fbfeb87b65c8a4cb78d28a8c37455bd54199301f6d`
-- `docs/long_span_bundle_gate.json_sha256`: `a579cd30d361c4023ceeac73e58d4fb2be92a63ab6df58bb5ce18f3da4ec2f8d`
+- `docs/long_span_bundle_gate.json_sha256`: `c8c48d55dd0ac688459acbf3e83d30c5fa99e3c959d49b57ddc6350217543f67`
 - `docs/match_discovery.json_sha256`: `dbbacb8490741545d80b9332931202f7fd3a2ef98c718af5f266c88226343dff`
 - `docs/mechanism_experiment_ranking.json_sha256`: `4d131f0947b07ff66a5f215e0acb5482bc5b9519600f2b02f13c0b3ef7b055fb`
 - `docs/numeric_value_channel_match_discovery.json_sha256`: `8fa4caa2b5dea6b2b7bbbc24b8f08064511ccde238aaa19316aa389407fc511c`
@@ -519,10 +519,10 @@ This section lists unresolved `open` and `blocked-by-evidence` requirements.
 - `docs/packed_sidecar_descriptor.json_sha256`: `eec4477c3fbfcacdac17b1fb48b4b9a11c717d6da1aa37fd3ae9c0e02a5d67f2`
 - `docs/packed_sidecar_replication.json_sha256`: `d87bc291881cc900a30e68552986e20ef71c037746d89c3b19c94e3bc1da1f5f`
 - `docs/record_context_transform_search.json_sha256`: `19111c0b3c7cdb3afe1e66344c119dff187d5915c3ac559d3ee6cb0c6815ccc9`
-- `docs/recursive_structured_fixtures.json_sha256`: `4bf8fc5493b708c28039c7b3a2d61bb875cc26f368d78eb4ef4d68c935837a67`
+- `docs/recursive_structured_fixtures.json_sha256`: `8b6cea02284d3fada83db72c3134bbaa46bcade40ba245f205a14e48f34a383f`
 - `docs/residual_payload_compressibility.json_sha256`: `f30f6f2fd5eba6e1310e90d0b554ed78fc9617b8e50f9daa4dc5e754b7cd7358`
 - `docs/results.json_sha256`: `225465824966499a8d15a5721e0698c30ae83053d072dbec6c6b21558523f9ba`
-- `docs/scale_performance_report.json_sha256`: `c0ed7d303139e360f1fa128ff9f207db22990c5f5f937945f94ede25bfd7b5e3`
+- `docs/scale_performance_report.json_sha256`: `9fdc2913d249bf9739c7ecd0ad6870cdbf203090fb4d60c07615b30cc09ea11f`
 - `docs/schema_native_public_dictionaries.json_sha256`: `7736c18343de946d3853eee253c83a9497e2f9f5fd209aaf9e20bd443f9fa478`
 - `docs/schema_native_public_dictionary_replication.json_sha256`: `fbfc1074f874380442b5fc9e8ce57cc952f764473c992837773369d0728beebe`
 - `docs/search_frontier_gate.json_sha256`: `bd06b160c2dda144c49709449e1607d7332bf0d2b7873177e2e6c06ec3c9d114`
@@ -531,10 +531,10 @@ This section lists unresolved `open` and `blocked-by-evidence` requirements.
 - `docs/sidecar_break_even.json_sha256`: `e2498c85a3780baea9ad3d4eea37c9c430d8c97e4cac4a1d80bec11cb333b173`
 - `docs/sidecar_record_overhead.json_sha256`: `d719f3a2b7d9466290224a87aa5aff5d427ef6b893d7a0655211cbfa27d98c50`
 - `docs/structural_transform_search.json_sha256`: `293e4ad4e8e67b2c5f88159fa2f76df93d018d8bdf1615bba34f6ac40ce42809`
-- `docs/superposition_telemetry.json_sha256`: `ac468c19dd0bed985110538f3f27fd79cea59332f65322f2be15571997ee01aa`
+- `docs/superposition_telemetry.json_sha256`: `9a860a10ed0a8100e97a6604d11aab196d9cf5fcf5a552fc4c8a59d0ace506b5`
 - `docs/token_dictionary_transform_search.json_sha256`: `ea97c7205e447c99bbef2f26062120ca8644eb1c89a9b1030f245fdc771f0eba`
 - `docs/transformed_match_discovery.json_sha256`: `bba81480bb2b2ae5c6a35d5f289724b33522d2f24e7aff806676b6a8cf8268ec`
-- `docs/ui_workflow_smoke.json_sha256`: `ff136eef61deb921f425296bbb56c313e6e4915ce6430777074a2275f5481e03`
+- `docs/ui_workflow_smoke.json_sha256`: `6713e90e003d4c112142b0d658a667d3bd83cd36e93c86b0707ecb60e361108a`
 - `docs/whole_stream_residual_vector_probe.json_sha256`: `95e4cb5512dd5dc4c89317c50e6065a8c5132e0c58ece0a6989f56c3150b80c7`
 - `scripts/doc_lint.py_sha256`: `b073b4311068e3dfc746496c832447fe7c89b67503d7e59bf1c5ad96f28d3357`
 - `scripts/generate_exact_short_hit_bundle_economics.py_sha256`: `4e34d469847d8e990b94bcf4f9ba64bcaa97079b76035462b1b4fbd5b07d438a`
@@ -555,18 +555,18 @@ This section lists unresolved `open` and `blocked-by-evidence` requirements.
 - `src/compress.rs_sha256`: `67a45bb5044910c42844c3be9b52fbde0e3a1e6b555504cc9a9106bd60f5aa80`
 - `src/config.rs_sha256`: `399e8e1584c7bbd05035977d8174fb827793eb20b2f5f7e88517d92afea00344`
 - `src/header.rs_sha256`: `7d5c38c174db854384368adf7e6afdc92729f1c3b9b3925284c795f4c2f4470f`
-- `src/indexed.rs_sha256`: `c53dd350709c8b1b075e968cc60417f62e01c6d197fc577bc772e6bbae9f6120`
-- `src/lib.rs_sha256`: `321821347dd7c915773f83d381382876e3d738671071cfda686727938632cc66`
+- `src/indexed.rs_sha256`: `58ff71e20cb980266b92f65588b01a81d7983c40df2ed0a349a43a93b606f6f7`
+- `src/lib.rs_sha256`: `f3270c8aee059fa2de086bb4cdc5bd9d95fa0306add46bdd943a07a63c8d0dea`
 - `src/main.rs_sha256`: `cec67be677176128f4f413478587999b5219f55729ebf59bd094f5b6f93dba7e`
 - `src/seed_expansion_index.rs_sha256`: `1a6eb505808d2e05868d6e10c967e491825adbd3bbe1010c45f3ddc64dbdac65`
-- `src/streaming.rs_sha256`: `79d26ea5afa1477eed56a94472f6880fdd573453a434a4c6485cdf757acb5ed8`
+- `src/streaming.rs_sha256`: `929c939d95e9977e96d9ccae68c309a12f4f9a6628b4f062856d70e895fd4191`
 - `src/tlmr.rs_sha256`: `06d73f313080bbc2651250e246e24917a0f9adf040681d18b55576136b4c493b`
-- `src/tlmr_v2.rs_sha256`: `3aebbfe582b0ec159384fefb79faed52641faf11c2c4dd1ae641bd38fbd67e58`
+- `src/tlmr_v2.rs_sha256`: `4f3095e294fe89537d823284571536ef4271e51615f58dffb3b936462b9ec14f`
 - `tests/cli_tests.rs_sha256`: `9753c22a831a8e27ab58b672b7e8b0c19eb7baff30dc7e640c1e2ed2cb27efcf`
 - `tests/decompress.rs_sha256`: `95b3238060bdb36eebfb5a6e368e7047e654cc242d1f20ddaaf32a3d7401693b`
 - `tests/gpu_determinism.rs_sha256`: `669b4e4b275bd4eb59fee192f29526b77514688baee10c1d5603f85133ae23a6`
 - `tests/indexed_v2.rs_sha256`: `8a496865dcd3964f64b1f9abbb61925a8cec6dbee1ab8082229fa778a2a1ccb6`
-- `tests/streaming.rs_sha256`: `1a47d5093fec66db0a541d73592211f6c3cd544172badeac74113ef54b1ea473`
+- `tests/streaming.rs_sha256`: `e3b438db54b50fc5d2c00ae53ca5a6a2ac0fd53c0e76c4931c463051362ae758`
 - `tests/tlmr_header.rs_sha256`: `8f32f50f4e1127803f2247c2e29d8a870661e133e6aba99f2dd43d3ae81d8c81`
 - `ui/README.md_sha256`: `172056d040ea6105da9522fcb228dae9ee3a97de0d9c8cb4c8d0f593f81304b0`
 - `ui/index.html_sha256`: `d3f95b6095c5ac07cee28092bd88ec296955b26558cc47ab0287753a994c0e19`

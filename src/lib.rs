@@ -135,12 +135,14 @@ pub use tlmr::{
 pub use tlmr_v2::{
     decode_layer_descriptor_from, decode_tlmr_v2_header, decode_tlmr_v2_layer_descriptors,
     decode_v2_header_and_descriptors, encode_header_into_writer, encode_layer_descriptor_into,
-    encode_tlmr_v2_header, encode_v2_file, encode_v2_file_with_bit_len, v2_literal_record,
+    encode_tlmr_v2_header, encode_v2_file, encode_v2_file_with_bit_len,
+    v2_fixed_seed_span_record_bit_len, v2_fixed_seed_span_record_into_writer, v2_literal_record,
     v2_literal_record_into_writer, v2_seed_span_record, v2_seed_span_record_bit_len,
     v2_seed_span_record_byte_len, v2_seed_span_record_into_writer, EncodedV2Record, TlmrV2Header,
     TlmrV2LayerDescriptor, LOTUS_PRESET_V2, TLMR_V2_FORMAT_VERSION, V2_MAGIC_VERSION_LEN,
     V2_RECORD_TAG_LITERAL, V2_RECORD_TAG_SEED_SPAN, V2_SEED_ORDER_VERSION,
-    V2_TIER_POLICY_PUBLIC_PRESET_SELECTIVE, V2_TIER_POLICY_SEED_SPAN,
+    V2_TIER_POLICY_FIXED_SEED_SPAN, V2_TIER_POLICY_PUBLIC_PRESET_SELECTIVE,
+    V2_TIER_POLICY_SEED_SPAN,
 };
 
 pub fn print_compression_status(original: usize, compressed: usize) {

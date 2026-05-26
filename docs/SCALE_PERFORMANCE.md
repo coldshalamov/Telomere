@@ -42,4 +42,4 @@ Current 16 MiB planted-density scaling is explainable but memory-heavy.
 - `sweeps_sha256`: `803c32715becd4eca7f52b5282fceaab539b953365ef223b477f3d5a6355dce7`
 - `sweeps_doc_sha256`: `c8329a1e20118975ead3439ee99901cbfcc90f92311a0ff88b61af46b721d27a`
 - `sweep_generator_sha256`: `d35c6ce744a2ca923ef3ea2b1157375d4660e205ce8edd1f4f8f674a399f11ca`
-- `streaming_engine_sha256`: `79d26ea5afa1477eed56a94472f6880fdd573453a434a4c6485cdf757acb5ed8`
+- `streaming_engine_sha256`: `929c939d95e9977e96d9ccae68c309a12f4f9a6628b4f062856d70e895fd4191`

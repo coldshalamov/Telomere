@@ -61,7 +61,7 @@ Recursive v2 later-layer gains remain unpromoted outside planted/alignment contr
 - `results_sha256`: `225465824966499a8d15a5721e0698c30ae83053d072dbec6c6b21558523f9ba`
 - `sweeps_sha256`: `803c32715becd4eca7f52b5282fceaab539b953365ef223b477f3d5a6355dce7`
 - `mechanism_experiment_ranking_sha256`: `4d131f0947b07ff66a5f215e0acb5482bc5b9519600f2b02f13c0b3ef7b055fb`
-- `streaming_engine_sha256`: `79d26ea5afa1477eed56a94472f6880fdd573453a434a4c6485cdf757acb5ed8`
-- `v2_format_sha256`: `3aebbfe582b0ec159384fefb79faed52641faf11c2c4dd1ae641bd38fbd67e58`
-- `streaming_tests_sha256`: `1a47d5093fec66db0a541d73592211f6c3cd544172badeac74113ef54b1ea473`
+- `streaming_engine_sha256`: `929c939d95e9977e96d9ccae68c309a12f4f9a6628b4f062856d70e895fd4191`
+- `v2_format_sha256`: `4f3095e294fe89537d823284571536ef4271e51615f58dffb3b936462b9ec14f`
+- `streaming_tests_sha256`: `e3b438db54b50fc5d2c00ae53ca5a6a2ac0fd53c0e76c4931c463051362ae758`
 - `fixture_manifest_sha256`: `324378c8e5f252e17c436984638f27d781f68c382aca43c9e51a74ccdee75f81`

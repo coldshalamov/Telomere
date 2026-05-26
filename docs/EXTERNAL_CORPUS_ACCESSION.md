@@ -78,7 +78,7 @@ The current external corpus manifest has validated manifest-only entries. This i
 
 The JSON `source_hashes` map pins this accession ledger to exact upstream files below.
 - `external_manifest_sha256`: `322b45e65198225d2a6bd630ac54d1dbf7d7f12593241f9d16ddb54ab06623b8`
-- `frozen_rank_source_candidates_sha256`: `48f40e9545a0e1a34a9ac388cacb3288aac08640c6bb28947d4218c28a0b83cd`
-- `natural_corpus_reopen_manifest_sha256`: `6e75736e7ee7b39cda844cf38c9d959636d7266976c5fd2bd51ae05f233a8246`
-- `natural_corpus_proof_matrix_sha256`: `5a529a33f841075567061937975cb5b79012e55b8f92c44e25a5bca248d83aae`
+- `frozen_rank_source_candidates_sha256`: `0e8c335f4375b1628797eb1b1041890b382ee90f01768bac27aebbbdfadc9a78`
+- `natural_corpus_reopen_manifest_sha256`: `873df04535c7fafc61802b9594f75e5317ce8306bd085418b01eef3ba3e73fe9`
+- `natural_corpus_proof_matrix_sha256`: `46105a189113d8e7f95b22caac41132608e33ef2eabc8a6dba2195349e3024d2`
 - `search_frontier_gate_sha256`: `bd06b160c2dda144c49709449e1607d7332bf0d2b7873177e2e6c06ec3c9d114`

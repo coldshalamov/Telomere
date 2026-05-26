@@ -1,6 +1,6 @@
 {
   "generated_by": "scripts/generate_research_team_packet.py",
-  "generated_at": "2026-05-26T17:49:51.666515+00:00",
+  "generated_at": "2026-05-26T20:02:50.310205+00:00",
   "format_version": 1,
   "scope": {
     "kind": "research team operating packet",
@@ -13,15 +13,15 @@
     "overrides_search_frontier_gate": false
   },
   "source_hashes": {
-    "research_hypotheses_sha256": "d4abdfa9018d6aa992c115d0e7d9516c821056713621f57bb96ace18392124b9",
-    "research_team_protocol_sha256": "516ce867021f4366e8582fd6111cd27f5d0dd428d6c307337a0d166ba1080b6b",
-    "blocked_requirement_dispatch_sha256": "3c1f0f1c63076def9972b419861ca25f5abeb614621049b827e764e56a04e88a",
-    "goal_completion_audit_sha256": "c9ffa0072f052218b3946b87c432c261adac0f87676b4d8f2c5d97bc93bad359",
-    "research_frontier_sha256": "a2864df9b71dd19f9fae7a7bafe453b1a90a6574dc2cca9d0f1d394781f5de23",
+    "research_hypotheses_sha256": "8e1ed8fb0ccb1d8b2aa1232ce8dd790da00c073515df978f68b7eac23a71213a",
+    "research_team_protocol_sha256": "4e1d14476723dc1cd5d144aad0657a38749b3275b09ea924672bd52c9f973a04",
+    "blocked_requirement_dispatch_sha256": "bac68c2039807d48d69d6caaf5a44801ce51b293694fe27262dbc51db4f2e8de",
+    "goal_completion_audit_sha256": "9a2c62fec89470210b845f2cc02b412ba15e4d697ad42596529fad1be13c7b98",
+    "research_frontier_sha256": "89bc5a7596b1d46064f829d6a0097ae5e8be8a778ce8701b408c5aed33edea20",
     "mechanism_experiment_ranking_sha256": "4d131f0947b07ff66a5f215e0acb5482bc5b9519600f2b02f13c0b3ef7b055fb",
-    "natural_corpus_proof_matrix_sha256": "5a529a33f841075567061937975cb5b79012e55b8f92c44e25a5bca248d83aae",
-    "external_corpus_accession_sha256": "56ca6524fed9af5b46738e41bc7c4bf1e81d7ebc141b024c283eaf324a7952dd",
-    "production_proof_matrix_sha256": "7df42f6fb39ce0b020b18dd755fd9c469795324cfe06af0791e30b145b7d5751"
+    "natural_corpus_proof_matrix_sha256": "46105a189113d8e7f95b22caac41132608e33ef2eabc8a6dba2195349e3024d2",
+    "external_corpus_accession_sha256": "2406d79fc123d36086e0b29769fc8760fdca71342c274fc7d953b2998d61453b",
+    "production_proof_matrix_sha256": "92fab890d8f0798e69e36b3a4bec73125872df574c2392f24ad4fcdaf1796056"
   },
   "summary": {
     "agent_count": 6,

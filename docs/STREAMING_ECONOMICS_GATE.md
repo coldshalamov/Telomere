@@ -75,15 +75,15 @@ Streaming is the scalable CPU matcher path and planted-scale evidence, not natur
 
 - `results_sha256`: `225465824966499a8d15a5721e0698c30ae83053d072dbec6c6b21558523f9ba`
 - `results_doc_sha256`: `991eb6a9a04f751cc571a04157e3b0a71139d7af0b5539dc4e80ff0084f9eba0`
-- `scale_performance_report_sha256`: `c0ed7d303139e360f1fa128ff9f207db22990c5f5f937945f94ede25bfd7b5e3`
-- `scale_performance_doc_sha256`: `5b2c9637659b380acde77e1352e32c38378a5f2e3c4fd5530879fb3d9da5c5c4`
-- `bounded_streaming_memory_gate_sha256`: `455e80b9f5a04c9703026a49902823d94c2fb898c8b5e3fe561aa15d5128fedf`
-- `bounded_streaming_memory_gate_doc_sha256`: `b4b2a4fa85c88387de2b602e2d8eba753f89c257ebd38e5db09410e5cc29c6fe`
+- `scale_performance_report_sha256`: `9fdc2913d249bf9739c7ecd0ad6870cdbf203090fb4d60c07615b30cc09ea11f`
+- `scale_performance_doc_sha256`: `f0beb0d6feed61f1ba80c181888333972c5f7b973dab419dda28fdcfb8add167`
+- `bounded_streaming_memory_gate_sha256`: `7725f897cc2a23180e027dfcd3d839627ec850a218078175c4cf07d78287ddcc`
+- `bounded_streaming_memory_gate_doc_sha256`: `b9d896edcd37b406b617e2c4bb5bc887a935ededff4e67a80d26ad044a93027b`
 - `search_frontier_gate_sha256`: `bd06b160c2dda144c49709449e1607d7332bf0d2b7873177e2e6c06ec3c9d114`
 - `search_frontier_gate_doc_sha256`: `5131027c3545d58a27b6aeb8dcd4b26c62a9eb7fdee2c5689ff19ce487aba89c`
-- `streaming_engine_sha256`: `79d26ea5afa1477eed56a94472f6880fdd573453a434a4c6485cdf757acb5ed8`
-- `indexed_engine_sha256`: `c53dd350709c8b1b075e968cc60417f62e01c6d197fc577bc772e6bbae9f6120`
-- `streaming_tests_sha256`: `1a47d5093fec66db0a541d73592211f6c3cd544172badeac74113ef54b1ea473`
+- `streaming_engine_sha256`: `929c939d95e9977e96d9ccae68c309a12f4f9a6628b4f062856d70e895fd4191`
+- `indexed_engine_sha256`: `58ff71e20cb980266b92f65588b01a81d7983c40df2ed0a349a43a93b606f6f7`
+- `streaming_tests_sha256`: `e3b438db54b50fc5d2c00ae53ca5a6a2ac0fd53c0e76c4931c463051362ae758`
 - `indexed_v2_tests_sha256`: `8a496865dcd3964f64b1f9abbb61925a8cec6dbee1ab8082229fa778a2a1ccb6`
 - `results_generator_sha256`: `433470027e2b83a1b716d23de6a02c21c06c5dc69cb011aedb8bcf9d6f2af87d`
 - `scale_generator_sha256`: `3d2855b0db3d16affeb33ee7403f4d9e09b0b3eb17ec50c03ab85c4bb48461ff`

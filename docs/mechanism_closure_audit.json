@@ -1,6 +1,6 @@
 {
   "generated_by": "scripts/generate_mechanism_closure_audit.py",
-  "generated_at": "2026-05-26T17:24:12.717194+00:00",
+  "generated_at": "2026-05-26T20:00:00.614298+00:00",
   "format_version": 1,
   "scope": {
     "kind": "post-experiment mechanism closure audit",
@@ -23,10 +23,10 @@
     "schema_native_public_dictionary_replication_sha256": "fbfc1074f874380442b5fc9e8ce57cc952f764473c992837773369d0728beebe",
     "public_preset_promotion_gate_sha256": "94889bd4a0e3e56151559e01bac1e720acfb3a60ddeabef7af2921ad6ffa4da5",
     "public_preset_control_rerun_sha256": "430a379cbde2377a787ea5a54ac29277814ede5f6308a95e9084350f72db8da0",
-    "superposition_telemetry_sha256": "ac468c19dd0bed985110538f3f27fd79cea59332f65322f2be15571997ee01aa",
-    "lattice_selection_heldout_probe_sha256": "715b3781bc6512e9ef899df246e5704aefcc52b7f43bf035e77db59a4e14c3ce",
-    "recursive_structured_fixtures_sha256": "4bf8fc5493b708c28039c7b3a2d61bb875cc26f368d78eb4ef4d68c935837a67",
-    "long_span_bundle_gate_sha256": "a579cd30d361c4023ceeac73e58d4fb2be92a63ab6df58bb5ce18f3da4ec2f8d",
+    "superposition_telemetry_sha256": "9a860a10ed0a8100e97a6604d11aab196d9cf5fcf5a552fc4c8a59d0ace506b5",
+    "lattice_selection_heldout_probe_sha256": "8d3b6d42cb835bfacbc4e823e93b2760a3eef968e58c72cddb4c24a2caac67de",
+    "recursive_structured_fixtures_sha256": "8b6cea02284d3fada83db72c3134bbaa46bcade40ba245f205a14e48f34a383f",
+    "long_span_bundle_gate_sha256": "c8c48d55dd0ac688459acbf3e83d30c5fa99e3c959d49b57ddc6350217543f67",
     "mechanism_closure_generator_sha256": "199655a45117d168ca57ec8ec8b99690a3122c90398121e2926062ad67233d16"
   },
   "summary": {

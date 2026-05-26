@@ -149,11 +149,11 @@ Viability verdict: **research-viable, not production-proven**.
 - `expander_salt_ensemble_sha256`: `b1964816f8ade396c3f82e9b1c1d7db222506446c3ea8b18b0bd5f47dc0b9887`
 - `schema_native_public_dictionaries_sha256`: `7736c18343de946d3853eee253c83a9497e2f9f5fd209aaf9e20bd443f9fa478`
 - `schema_native_public_dictionary_replication_sha256`: `fbfc1074f874380442b5fc9e8ce57cc952f764473c992837773369d0728beebe`
-- `superposition_telemetry_sha256`: `ac468c19dd0bed985110538f3f27fd79cea59332f65322f2be15571997ee01aa`
-- `long_span_bundle_gate_sha256`: `a579cd30d361c4023ceeac73e58d4fb2be92a63ab6df58bb5ce18f3da4ec2f8d`
-- `recursive_structured_fixtures_sha256`: `4bf8fc5493b708c28039c7b3a2d61bb875cc26f368d78eb4ef4d68c935837a67`
-- `scale_performance_report_sha256`: `c0ed7d303139e360f1fa128ff9f207db22990c5f5f937945f94ede25bfd7b5e3`
-- `ui_workflow_smoke_sha256`: `ff136eef61deb921f425296bbb56c313e6e4915ce6430777074a2275f5481e03`
+- `superposition_telemetry_sha256`: `9a860a10ed0a8100e97a6604d11aab196d9cf5fcf5a552fc4c8a59d0ace506b5`
+- `long_span_bundle_gate_sha256`: `c8c48d55dd0ac688459acbf3e83d30c5fa99e3c959d49b57ddc6350217543f67`
+- `recursive_structured_fixtures_sha256`: `8b6cea02284d3fada83db72c3134bbaa46bcade40ba245f205a14e48f34a383f`
+- `scale_performance_report_sha256`: `9fdc2913d249bf9739c7ecd0ad6870cdbf203090fb4d60c07615b30cc09ea11f`
+- `ui_workflow_smoke_sha256`: `6713e90e003d4c112142b0d658a667d3bd83cd36e93c86b0707ecb60e361108a`
 - `fifth_byte_residual_sha256`: `e7d87f24bca8d04f50245fcdaae440f8141e6c0e7fe174d85ab53da666b91abf`
 - `fifth_byte_steering_sha256`: `0912df3b99a4de7bad4cbe7730f67456766bda6098b6b58be5cb273b4fa5a4e9`
 - `contextual_fifth_byte_steering_sha256`: `9af6f8167f51596840783bf31a7cf6a15e37e15c7f308a941de0982cf4502c4b`
@@ -179,4 +179,4 @@ Viability verdict: **research-viable, not production-proven**.
 - `alignment_arity_discovery_sha256`: `a99701608fb38b3d476a332772b4c4eb69fcfda52ddccf1d32de6cd7bfa0cb8f`
 - `transformed_match_discovery_sha256`: `bba81480bb2b2ae5c6a35d5f289724b33522d2f24e7aff806676b6a8cf8268ec`
 - `lead_exact_discovery_sha256`: `7826d7439905a6765c1bf0fbfeb87b65c8a4cb78d28a8c37455bd54199301f6d`
-- `viability_sha256`: `0d84f29873d28a9e1819e534787d80f8a039f8b9d512032c36d4486094c2b837`
+- `viability_sha256`: `c4f7a07d981a900a2b94183d7b444d36ba7e10708cf3c8e904f29c71c86855c7`

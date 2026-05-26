@@ -9,7 +9,7 @@ use telomere::{
     find_streaming_candidates_profit_window_with_span_step,
     find_streaming_candidates_with_span_step,
     find_streaming_candidates_with_span_step_and_seed_limit, seed_limit_from_bits, Config,
-    HasherKind, V2_TIER_POLICY_PUBLIC_PRESET_SELECTIVE,
+    HasherKind, V2_TIER_POLICY_FIXED_SEED_SPAN, V2_TIER_POLICY_PUBLIC_PRESET_SELECTIVE,
 };
 
 fn sha_expand(seed: &[u8], len: usize) -> Vec<u8> {
@@ -207,6 +207,65 @@ fn public_preset_selective_log_tokens_win_under_full_accounting() {
     assert!(
         encoded.len() < data.len(),
         "dense public log preset fixture should beat full v2 accounting"
+    );
+}
+
+#[test]
+fn streaming_single_tier_uses_fixed_span_records() {
+    let data = sha_expand(&[0x00], 16);
+
+    let (encoded, telemetry) = compress_streaming_v2_with_span_step_and_telemetry(
+        &data,
+        HasherKind::Sha256,
+        1,
+        16,
+        16,
+        1,
+        5,
+        1,
+        13,
+    )
+    .unwrap();
+    let decoded = decompress_with_limit(&encoded, &Config::default(), usize::MAX).unwrap();
+    assert_eq!(decoded, data);
+
+    let descriptors = decode_tlmr_v2_layer_descriptors(&encoded).unwrap();
+    assert_eq!(descriptors[0].tier_policy, V2_TIER_POLICY_FIXED_SEED_SPAN);
+    assert_eq!(telemetry.selected_count, 1);
+    assert_eq!(telemetry.selected_spans[0].span_len, 16);
+    assert_eq!(
+        telemetry.selected_spans[0].encoded_len, 2,
+        "fixed-span seed_index=0 should omit the 11-bit span_len field"
+    );
+}
+
+#[test]
+fn streaming_fixed_span_cost_gate_keeps_two_byte_hits() {
+    let data = sha_expand(&[0x00], 2);
+
+    let (encoded, telemetry) = compress_streaming_v2_with_span_step_and_telemetry(
+        &data,
+        HasherKind::Sha256,
+        1,
+        2,
+        2,
+        1,
+        5,
+        1,
+        13,
+    )
+    .unwrap();
+    let decoded = decompress_with_limit(&encoded, &Config::default(), usize::MAX).unwrap();
+    assert_eq!(decoded, data);
+
+    let descriptors = decode_tlmr_v2_layer_descriptors(&encoded).unwrap();
+    assert_eq!(descriptors[0].tier_policy, V2_TIER_POLICY_FIXED_SEED_SPAN);
+    assert_eq!(telemetry.candidate_count, 1);
+    assert_eq!(telemetry.selected_count, 1);
+    assert_eq!(telemetry.selected_spans[0].span_len, 2);
+    assert_eq!(
+        telemetry.selected_spans[0].encoded_len, 2,
+        "fixed-span seed_index=0 is bit-profitable for a 2-byte span"
     );
 }
 

@@ -1,7 +1,8 @@
 use crate::config::HasherKind;
 use crate::indexed::{
-    encode_layer_records, estimate_target_table_bytes, estimate_target_table_upper_bound_for_tiers,
-    select_weighted_candidates, selected_span_telemetry, IndexedCandidate, SelectedSpanTelemetry,
+    encode_fixed_span_layer_records, encode_layer_records, estimate_target_table_bytes,
+    estimate_target_table_upper_bound_for_tiers, select_weighted_candidates,
+    selected_span_telemetry, IndexedCandidate, SelectedSpanTelemetry,
 };
 use crate::public_preset::{
     public_preset_selective_framed, PublicPresetTransformStats, PUBLIC_PRESET_CODEWORD_LEN,
@@ -10,8 +11,8 @@ use crate::public_preset::{
 use crate::seed_index::index_to_seed;
 use crate::tlmr::MAX_ARITY;
 use crate::tlmr_v2::{
-    decode_v2_header_and_descriptors, encode_v2_file, validate_v2_search_config,
-    validate_v2_span_step, TlmrV2LayerDescriptor, MAX_V2_SEED_LEN,
+    decode_v2_header_and_descriptors, encode_v2_file, v2_fixed_seed_span_record_bit_len,
+    validate_v2_search_config, validate_v2_span_step, TlmrV2LayerDescriptor, MAX_V2_SEED_LEN,
 };
 use crate::TelomereError;
 use serde::Serialize;
@@ -364,15 +365,29 @@ fn compress_streaming_v2_with_chunk_option_and_telemetry(
 
         merge_telemetry(&mut aggregate, &telemetry);
         aggregate.layers.push(telemetry);
-        layers_inner_to_outer.push(TlmrV2LayerDescriptor::for_decoded_bytes_with_span_step(
-            &current,
-            hasher,
-            max_seed_len,
-            max_span_len,
-            block_size,
-            span_step,
-            hash_bits,
-        ));
+        let descriptor = if let Some(fixed_span_len) =
+            fixed_span_len_for_layer(current.len(), max_span_len, block_size, max_arity)
+        {
+            TlmrV2LayerDescriptor::for_fixed_seed_span_decoded_bytes(
+                &current,
+                hasher,
+                max_seed_len,
+                fixed_span_len,
+                span_step,
+                hash_bits,
+            )
+        } else {
+            TlmrV2LayerDescriptor::for_decoded_bytes_with_span_step(
+                &current,
+                hasher,
+                max_seed_len,
+                max_span_len,
+                block_size,
+                span_step,
+                hash_bits,
+            )
+        };
+        layers_inner_to_outer.push(descriptor);
         current = payload;
     }
 
@@ -534,6 +549,31 @@ pub fn find_streaming_candidates_with_span_step_and_seed_limit(
     max_arity: u8,
     seed_limit: Option<usize>,
 ) -> Result<(Vec<IndexedCandidate>, StreamingTelemetry), TelomereError> {
+    find_streaming_candidates_with_span_step_seed_limit_and_fixed_cost(
+        data,
+        hasher,
+        max_seed_len,
+        max_span_len,
+        block_size,
+        span_step,
+        max_arity,
+        seed_limit,
+        None,
+    )
+}
+
+#[allow(clippy::too_many_arguments)]
+fn find_streaming_candidates_with_span_step_seed_limit_and_fixed_cost(
+    data: &[u8],
+    hasher: HasherKind,
+    max_seed_len: usize,
+    max_span_len: usize,
+    block_size: usize,
+    span_step: usize,
+    max_arity: u8,
+    seed_limit: Option<usize>,
+    fixed_span_len: Option<usize>,
+) -> Result<(Vec<IndexedCandidate>, StreamingTelemetry), TelomereError> {
     validate_streaming_config(
         max_seed_len,
         max_span_len,
@@ -558,6 +598,7 @@ pub fn find_streaming_candidates_with_span_step_and_seed_limit(
         max_span_len,
         &mut tiers,
         seed_limit,
+        fixed_span_len,
     )
 }
 
@@ -596,6 +637,33 @@ pub fn find_streaming_candidates_chunked_with_span_step_and_seed_limit(
     max_arity: u8,
     target_chunk_bytes: usize,
     seed_limit: Option<usize>,
+) -> Result<(Vec<IndexedCandidate>, StreamingTelemetry), TelomereError> {
+    find_streaming_candidates_chunked_with_span_step_seed_limit_and_fixed_cost(
+        data,
+        hasher,
+        max_seed_len,
+        max_span_len,
+        block_size,
+        span_step,
+        max_arity,
+        target_chunk_bytes,
+        seed_limit,
+        None,
+    )
+}
+
+#[allow(clippy::too_many_arguments)]
+fn find_streaming_candidates_chunked_with_span_step_seed_limit_and_fixed_cost(
+    data: &[u8],
+    hasher: HasherKind,
+    max_seed_len: usize,
+    max_span_len: usize,
+    block_size: usize,
+    span_step: usize,
+    max_arity: u8,
+    target_chunk_bytes: usize,
+    seed_limit: Option<usize>,
+    fixed_span_len: Option<usize>,
 ) -> Result<(Vec<IndexedCandidate>, StreamingTelemetry), TelomereError> {
     validate_streaming_config(
         max_seed_len,
@@ -638,6 +706,7 @@ pub fn find_streaming_candidates_chunked_with_span_step_and_seed_limit(
             max_span_len,
             &mut tiers,
             seed_limit,
+            fixed_span_len,
         )?;
         all_candidates.append(&mut candidates);
         merge_scan_telemetry(&mut aggregate, telemetry);
@@ -668,7 +737,21 @@ pub fn find_streaming_candidates_profit_window_with_span_step(
         max_span_len,
         &mut tiers,
         None,
+        None,
     )
+}
+
+fn streaming_seed_record_bit_len(
+    span_len: usize,
+    seed: &[u8],
+    max_seed_len: usize,
+    fixed_span_len: Option<usize>,
+) -> Result<usize, TelomereError> {
+    if fixed_span_len == Some(span_len) {
+        v2_fixed_seed_span_record_bit_len(seed, max_seed_len)
+    } else {
+        crate::tlmr_v2::v2_seed_span_record_bit_len(span_len, seed, max_seed_len)
+    }
 }
 
 fn scan_streaming_tiers(
@@ -678,6 +761,7 @@ fn scan_streaming_tiers(
     max_span_len: usize,
     tiers: &mut [SpanTier],
     seed_limit: Option<usize>,
+    fixed_span_len: Option<usize>,
 ) -> Result<(Vec<IndexedCandidate>, StreamingTelemetry), TelomereError> {
     validate_seed_limit(max_seed_len, seed_limit)?;
     let tier_count = tiers.len();
@@ -706,10 +790,11 @@ fn scan_streaming_tiers(
                     continue;
                 };
                 tier.candidate_hits_raw += starts.len();
-                let encoded_bits = crate::tlmr_v2::v2_seed_span_record_bit_len(
+                let encoded_bits = streaming_seed_record_bit_len(
                     tier.span_len,
                     &seed,
                     max_seed_len,
+                    fixed_span_len,
                 )?;
                 // Bit-accurate profit gate: compare on-wire bit cost to span
                 // bit length. The `encoded_len` field below remains in bytes
@@ -834,8 +919,9 @@ fn encode_streaming_layer(
     target_chunk_bytes: Option<usize>,
     seed_limit: Option<usize>,
 ) -> Result<(Vec<u8>, StreamingLayerTelemetry), TelomereError> {
+    let fixed_span_len = fixed_span_len_for_layer(data.len(), max_span_len, block_size, max_arity);
     let (candidates, mut telemetry) = if let Some(target_chunk_bytes) = target_chunk_bytes {
-        find_streaming_candidates_chunked_with_span_step_and_seed_limit(
+        find_streaming_candidates_chunked_with_span_step_seed_limit_and_fixed_cost(
             data,
             hasher,
             max_seed_len,
@@ -845,9 +931,10 @@ fn encode_streaming_layer(
             max_arity,
             target_chunk_bytes,
             seed_limit,
+            fixed_span_len,
         )?
     } else {
-        find_streaming_candidates_with_span_step_and_seed_limit(
+        find_streaming_candidates_with_span_step_seed_limit_and_fixed_cost(
             data,
             hasher,
             max_seed_len,
@@ -856,6 +943,7 @@ fn encode_streaming_layer(
             span_step,
             max_arity,
             seed_limit,
+            fixed_span_len,
         )?
     };
     let selected = select_weighted_candidates(candidates).items;
@@ -873,7 +961,11 @@ fn encode_streaming_layer(
         }
         telemetry.seed_len_counts[len] += 1;
     }
-    let payload = encode_layer_records(data, &selected, max_seed_len)?;
+    let payload = if let Some(fixed_span_len) = fixed_span_len {
+        encode_fixed_span_layer_records(data, &selected, max_seed_len, fixed_span_len)?
+    } else {
+        encode_layer_records(data, &selected, max_seed_len)?
+    };
     let layer = StreamingLayerTelemetry {
         pass,
         bytes_in: data.len(),
@@ -1024,6 +1116,20 @@ fn streaming_tier_lengths(
         .map(|arity| block_size.saturating_mul(arity as usize))
         .filter(|span_len| *span_len <= max_span_len && *span_len <= input_len)
         .collect()
+}
+
+fn fixed_span_len_for_layer(
+    input_len: usize,
+    max_span_len: usize,
+    block_size: usize,
+    max_arity: u8,
+) -> Option<usize> {
+    let tiers = streaming_tier_lengths(input_len, max_span_len, block_size, max_arity);
+    if tiers.len() == 1 {
+        Some(tiers[0])
+    } else {
+        None
+    }
 }
 
 fn profit_window_tier_lengths(input_len: usize, max_span_len: usize) -> Vec<usize> {

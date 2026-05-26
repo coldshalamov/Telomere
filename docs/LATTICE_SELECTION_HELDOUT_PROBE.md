@@ -75,7 +75,7 @@ The deterministic fixture result remains useful as selector correctness evidence
 
 The JSON `source_hashes` map pins this probe to exact upstream evidence and generator files below.
 - `candidate_lattice_doc_sha256`: `cb0af2a7c7b1ce173e726588bc1ac197ace7432e1eae2cbfca77f96d398b3be3`
-- `superposition_telemetry_sha256`: `ac468c19dd0bed985110538f3f27fd79cea59332f65322f2be15571997ee01aa`
+- `superposition_telemetry_sha256`: `9a860a10ed0a8100e97a6604d11aab196d9cf5fcf5a552fc4c8a59d0ace506b5`
 - `schema_native_public_dictionary_replication_sha256`: `fbfc1074f874380442b5fc9e8ce57cc952f764473c992837773369d0728beebe`
 - `public_preset_control_rerun_sha256`: `430a379cbde2377a787ea5a54ac29277814ede5f6308a95e9084350f72db8da0`
 - `schema_native_replication_generator_sha256`: `95a66e921cb98a06059b831b5e847d9c7a4525c79812ca72877c2275595c45c6`

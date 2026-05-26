@@ -149,14 +149,14 @@ A gated-compute override requires a new generated evidence artifact, an explicit
 ## Source Artifacts
 
 The JSON `source_hashes` map pins this trigger board to the exact upstream evidence files below.
-- `research_decision_sha256`: `9b5de8be630c2cb54ebdb922e14e83bed5b013acaf9cbcb013f830fa2f82eb29`
-- `experiment_queue_sha256`: `fcc8f8af8185c35e173b27c2563e1ed76b0aff1309ebf72879f48b2b9b795ba2`
-- `goal_audit_sha256`: `437625c4b32a66952aa3590cd6bf76ecec407dbf452263f243fde1bb1c1d9499`
-- `research_scorecard_sha256`: `c7933918a7fc578af9ba11ba4096c61a7d00eaf9d071bdeb76a620c90e392697`
-- `long_span_bundle_gate_sha256`: `a579cd30d361c4023ceeac73e58d4fb2be92a63ab6df58bb5ce18f3da4ec2f8d`
+- `research_decision_sha256`: `d2f20f991bd93eee0f46b4fdd184371debf9bbdeffa2a52ea313dc7fcb2b7844`
+- `experiment_queue_sha256`: `f04fa5d7872c256ef51658c283177e7c34077580d45eedae7faba5bac8d81f39`
+- `goal_audit_sha256`: `104e558e90187d403c991895676d5cb8135924d0f7487534ff4f127d46479b66`
+- `research_scorecard_sha256`: `480223c5c15eab3fd9fddaad56cc54e36ff160429ec3840df434da97e9fab1aa`
+- `long_span_bundle_gate_sha256`: `c8c48d55dd0ac688459acbf3e83d30c5fa99e3c959d49b57ddc6350217543f67`
 - `search_frontier_gate_sha256`: `bd06b160c2dda144c49709449e1607d7332bf0d2b7873177e2e6c06ec3c9d114`
 - `heldout_corpus_expansion_sha256`: `01a2ab439e60ff6f0cdb4f116ce893282a576cca51527c0a8abb93259a60425f`
 - `acceleration_report_sha256`: `6b2aef961578f0e312395d006be014ac47c081f221f675f479304045979f3cce`
-- `recursive_structured_fixtures_sha256`: `4bf8fc5493b708c28039c7b3a2d61bb875cc26f368d78eb4ef4d68c935837a67`
-- `scale_performance_report_sha256`: `c0ed7d303139e360f1fa128ff9f207db22990c5f5f937945f94ede25bfd7b5e3`
-- `viability_sha256`: `0d84f29873d28a9e1819e534787d80f8a039f8b9d512032c36d4486094c2b837`
+- `recursive_structured_fixtures_sha256`: `8b6cea02284d3fada83db72c3134bbaa46bcade40ba245f205a14e48f34a383f`
+- `scale_performance_report_sha256`: `9fdc2913d249bf9739c7ecd0ad6870cdbf203090fb4d60c07615b30cc09ea11f`
+- `viability_sha256`: `c4f7a07d981a900a2b94183d7b444d36ba7e10708cf3c8e904f29c71c86855c7`
