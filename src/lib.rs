@@ -114,6 +114,7 @@ pub use stats::Stats;
 pub use streaming::{
     compress_streaming_v2, compress_streaming_v2_with_chunked_span_step_and_telemetry,
     compress_streaming_v2_with_public_preset_selective_and_telemetry,
+    compress_streaming_v2_with_public_preset_selective_config_and_telemetry,
     compress_streaming_v2_with_seed_limit_and_telemetry,
     compress_streaming_v2_with_span_step_and_telemetry, compress_streaming_v2_with_telemetry,
     estimate_streaming_target_chunk_upper_bound, estimate_streaming_target_table_upper_bound,

@@ -158,6 +158,10 @@ struct CompressArgs {
     /// Experimental reversible preconditioner for streaming/v2 research
     #[arg(long, value_enum, default_value_t = TransformKind::None)]
     transform: TransformKind,
+
+    /// Experimental min token length for --transform public-preset-selective
+    #[arg(long)]
+    public_preset_min_token_len: Option<usize>,
 }
 
 #[derive(clap::Args)]
@@ -274,6 +278,13 @@ fn compress_command(args: CompressArgs) -> Result<(), Box<dyn std::error::Error>
         )
     {
         return Err("--transform is supported only by streaming v2 compression".into());
+    }
+    if args.public_preset_min_token_len.is_some()
+        && args.transform != TransformKind::PublicPresetSelective
+    {
+        return Err(
+            "--public-preset-min-token-len requires --transform public-preset-selective".into(),
+        );
     }
     if args.seed_bits.is_some()
         && !matches!(
@@ -410,6 +421,9 @@ fn compress_command(args: CompressArgs) -> Result<(), Box<dyn std::error::Error>
                 .map(parse_memory_limit)
                 .transpose()?;
             if args.transform == TransformKind::PublicPresetSelective {
+                let public_preset_min_token_len = args
+                    .public_preset_min_token_len
+                    .unwrap_or(telomere::PUBLIC_PRESET_SELECTIVE_MIN_TOKEN_LEN);
                 let estimated_len = input_data.len().saturating_add(
                     input_data
                         .len()
@@ -430,7 +444,7 @@ fn compress_command(args: CompressArgs) -> Result<(), Box<dyn std::error::Error>
                     config.memory_limit,
                 )?;
                 let (out, telemetry) =
-                    telomere::compress_streaming_v2_with_public_preset_selective_and_telemetry(
+                    telomere::compress_streaming_v2_with_public_preset_selective_config_and_telemetry(
                         &input_data,
                         hasher,
                         args.seed_depth,
@@ -442,6 +456,8 @@ fn compress_command(args: CompressArgs) -> Result<(), Box<dyn std::error::Error>
                         config.hash_bits,
                         target_chunk_bytes,
                         seed_limit,
+                        public_preset_min_token_len,
+                        telomere::PUBLIC_PRESET_CODEWORD_LEN,
                     )?;
                 let summary = one_pass_summary(input_data.len(), out.len(), started);
                 emit_summary_with_telemetry(&summary, &telemetry, args.json, args.telemetry_limit);

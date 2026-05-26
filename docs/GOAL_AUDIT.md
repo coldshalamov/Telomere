@@ -345,21 +345,21 @@ This section lists unresolved `open` and `blocked-by-evidence` requirements.
 ## Source Hashes
 
 - `cargo_toml_sha256`: `a623beee089b74ee04fd55ad5a972ad89e4599d98967958a4c0537ff7ddc132d`
-- `main_cli_sha256`: `37084a6e2339fee3b4770bbd62f09a7ff81559adb371827bf42e5a90c26ab9dc`
-- `lib_sha256`: `b8398587cc18cb98bde00a53d37786c192bc0b6427811800c453227068c26a59`
+- `main_cli_sha256`: `f12cb5e12dd82e8fab97ae7eb2df191d4073e829461b9a65f8928d1b6f20272a`
+- `lib_sha256`: `321821347dd7c915773f83d381382876e3d738671071cfda686727938632cc66`
 - `compress_sha256`: `67a45bb5044910c42844c3be9b52fbde0e3a1e6b555504cc9a9106bd60f5aa80`
 - `config_sha256`: `399e8e1584c7bbd05035977d8174fb827793eb20b2f5f7e88517d92afea00344`
 - `v1_header_sha256`: `06d73f313080bbc2651250e246e24917a0f9adf040681d18b55576136b4c493b`
 - `v2_format_sha256`: `3aebbfe582b0ec159384fefb79faed52641faf11c2c4dd1ae641bd38fbd67e58`
 - `indexed_engine_sha256`: `c53dd350709c8b1b075e968cc60417f62e01c6d197fc577bc772e6bbae9f6120`
-- `streaming_engine_sha256`: `c8527365c61fb9dd1ad202590a276c1b2c54ba0a97efc41b855c772122f31776`
+- `streaming_engine_sha256`: `79d26ea5afa1477eed56a94472f6880fdd573453a434a4c6485cdf757acb5ed8`
 - `seed_index_sha256`: `1a6eb505808d2e05868d6e10c967e491825adbd3bbe1010c45f3ddc64dbdac65`
 - `gpu_sha256`: `1bc8aeabdc261989b00614da5dbb049124535253f0a7a486cc609860d1ea8d8d`
 - `whitepaper_sha256`: `ff3bfa05be1789537ed7e922452c372b50a548c7119e4230940b63c0a4ed0131`
 - `tauri_host_sha256`: `f9863adcab54ee1569a78ee18f4cb4b2c4b880322ebba4dadfb1515f70627f02`
 - `ui_index_sha256`: `d3f95b6095c5ac07cee28092bd88ec296955b26558cc47ab0287753a994c0e19`
 - `ui_readme_sha256`: `172056d040ea6105da9522fcb228dae9ee3a97de0d9c8cb4c8d0f593f81304b0`
-- `cli_tests_sha256`: `27c7c21a46b9ec30c7ca755bf5df14ceb27363cf9895eef26892678fe5752e72`
+- `cli_tests_sha256`: `db9a5cc36b13c8c42ef377566eb75b6e477b56276ffc4e9d128da3bfbfa205d4`
 - `indexed_v2_tests_sha256`: `8a496865dcd3964f64b1f9abbb61925a8cec6dbee1ab8082229fa778a2a1ccb6`
 - `streaming_tests_sha256`: `1a47d5093fec66db0a541d73592211f6c3cd544172badeac74113ef54b1ea473`
 
@@ -367,8 +367,8 @@ This section lists unresolved `open` and `blocked-by-evidence` requirements.
 
 - `results_sha256`: `225465824966499a8d15a5721e0698c30ae83053d072dbec6c6b21558523f9ba`
 - `sweeps_sha256`: `803c32715becd4eca7f52b5282fceaab539b953365ef223b477f3d5a6355dce7`
-- `viability_sha256`: `435d48ff3507db568027afe0d8c56188f585d71e038569f4d77a561ffc3e23cf`
-- `research_scorecard_sha256`: `da1aab11b9adfa691db28ed6fd4dc198794e2c6ad2e1e3c664943b7f9c3b3db0`
+- `viability_sha256`: `fe299aeb8b76210169b515c7f6fa543d622da172d1ea9da1b1235b31664decd4`
+- `research_scorecard_sha256`: `c5992c7400d021437c872c62f7a469dd54173be0d50883ba6d62db02e90cb1c5`
 - `corpus_matrix_sha256`: `2a9f8506a3c9e6aa47c0e91c1e15bf1951f9af0d0b3cb64129982e06a27e7bd2`
 - `corpus_generalization_probe_sha256`: `4b687748c439a8f27897d7c7346cd088e41fa155de4c74aa190e48696c8359dd`
 - `heldout_corpus_expansion_sha256`: `5abffdc19be1d202575340ba0004bdae88f27c6eb06aa60cb6a8651f790a965c`
@@ -394,9 +394,9 @@ This section lists unresolved `open` and `blocked-by-evidence` requirements.
 - `schema_native_public_dictionary_replication_sha256`: `f3af0a46a5e9f2cc3b02225035c1483e473ab8994bce1f7546044432fc858022`
 - `superposition_telemetry_sha256`: `9ddabe8ca34b90e6a765536a43012781d969a7153c6261d09bf59a452b725711`
 - `long_span_bundle_gate_sha256`: `290b4a0817f5c0fbd875dd7f010a15113acc0aaa56426226d334e6dcf73cf5b1`
-- `recursive_structured_fixtures_sha256`: `a16bea44afa449a04fd2ecc85aa7e0da182d5152969251b5419c605aad34528f`
-- `scale_performance_report_sha256`: `758a271d8bd7f3d775b88999da76fd434f79ac5fbdf2ccbd7414ad69d1b9af68`
-- `ui_workflow_smoke_sha256`: `2e67ef9df75bdfa28db4af3832fec292c988b92f0f8ab4b3f738da75ecc1128f`
+- `recursive_structured_fixtures_sha256`: `74f7cd8ae7350ad130c17996b0724f251168638fce3325079d71a96deccf3614`
+- `scale_performance_report_sha256`: `b14646b969fc65e6c3c52584107e3478ed6e28671e6f0ce058f70f80d13819f7`
+- `ui_workflow_smoke_sha256`: `4609482b394bc5d9d3f7f8ef33210cd6983690c2af7add9e5816ca515371f52f`
 - `fifth_byte_steering_sha256`: `4c671b912708cd5db7c6dda39bd74c7ab42c171679dacf8dcb40946d043579b7`
 - `contextual_fifth_byte_steering_sha256`: `5e4d6dcd930282e0ed2a5b2a296f349a59fcb787b54ac2baadf88fa18504162a`
 - `structural_transform_search_sha256`: `f862b094763c7c7c1cf4ba45ac75246f3b874e51ef67afd329d803b15f7d9eb1`
@@ -466,13 +466,13 @@ This section lists unresolved `open` and `blocked-by-evidence` requirements.
 - `docs/PACKED_SIDECAR_REPLICATION.md_sha256`: `b113091df710924d8308bc2e7a664f050ae43ea20e6df6d9ae94ec39a8407211`
 - `docs/PREFIX_LADDER.md_sha256`: `fb0766683dd562ad383b400b261059f309a0751142a1fdc062c131989389d1b6`
 - `docs/RECORD_CONTEXT_TRANSFORM_SEARCH.md_sha256`: `4ea580a6293bfda34b1680ff6ca8b38637c5c773d3a628f3b9f2844a8c75b3ff`
-- `docs/RECURSIVE_STRUCTURED_FIXTURES.md_sha256`: `7e23dec0c33b5b36348481cee97cc18bbb1e23fdd62e5e9b3ab3f0e6e4052eab`
+- `docs/RECURSIVE_STRUCTURED_FIXTURES.md_sha256`: `f184accd962c5405f3c0bd3fe56d8ef2bf875d013a0c60e7a54e7f8378f6423d`
 - `docs/RELEASE_CHECKLIST.md_sha256`: `42ac71c4640fba2acaa3d5b18cdf5fe2f5d841b5fb55abff76afe1c7854dbdb8`
 - `docs/RESEARCH_PROGRAM.md_sha256`: `cbe3599df6bf657c69dae9ea5754efba891c1d7cd66731b73aad8132955c70d9`
-- `docs/RESEARCH_SCORECARD.md_sha256`: `b9c45b46db056f6f22beb4cfda29ae928e962468b706fccbed3c3e51f6b0cc6e`
+- `docs/RESEARCH_SCORECARD.md_sha256`: `842d108546bfea82282da79c32d35ce2ec0b2489c608f76d95b217ecc570ca32`
 - `docs/RESIDUAL_PAYLOAD_COMPRESSIBILITY.md_sha256`: `f72c533b5e1fd03d9db69dc8595154b9fde3d44045591900ad6698d9d2ad082c`
 - `docs/RESULTS.md_sha256`: `991eb6a9a04f751cc571a04157e3b0a71139d7af0b5539dc4e80ff0084f9eba0`
-- `docs/SCALE_PERFORMANCE.md_sha256`: `8a484de382a0838b8136584c40932fa88aabf436b29cf1b3183471493f10a9ab`
+- `docs/SCALE_PERFORMANCE.md_sha256`: `5b2c9637659b380acde77e1352e32c38378a5f2e3c4fd5530879fb3d9da5c5c4`
 - `docs/SCHEMA_NATIVE_PUBLIC_DICTIONARIES.md_sha256`: `e01b566af90d0a7c1d11ffe26406709561d7e9a11930090740b870d8a2acfec8`
 - `docs/SCHEMA_NATIVE_PUBLIC_DICTIONARY_REPLICATION.md_sha256`: `c09cf974ef677b5724583b05dc5b8619bd4b1f77778a2326b78e79f271801f51`
 - `docs/SEARCH_FRONTIER_GATE.md_sha256`: `9ccbf6a2e7561bc163e8481281356d1cce0cc3a4799302397b969f87911d8cb4`
@@ -490,7 +490,7 @@ This section lists unresolved `open` and `blocked-by-evidence` requirements.
 - `docs/TRANSFORM_VALIDATION.md_sha256`: `7697ab557b21bc6641cedcc3d8b9d8804c8abd91214ffaf8050eeac3e9d2430c`
 - `docs/Telomere Whitepaper V2.md_sha256`: `ff3bfa05be1789537ed7e922452c372b50a548c7119e4230940b63c0a4ed0131`
 - `docs/UI_WORKFLOW_SMOKE.md_sha256`: `080c036e335451a2a3e5d3b1e37e46bfd061721374783d4fcf3be26d9755c2dc`
-- `docs/VIABILITY.md_sha256`: `10461a910f6855e328a0c90e2ebdf6b8f29c7d1d574cad80927e627d51999b42`
+- `docs/VIABILITY.md_sha256`: `501b17d77caa179b78b4536107fc7c21586c1f74552639ec953df3e5784aa44e`
 - `docs/WHOLE_STREAM_RESIDUAL_VECTOR_PROBE.md_sha256`: `201b43e8159bf19e276ec360fb3131c1a118664dc62ac73178c96a3b949d20bc`
 - `docs/adr/0002-gpu-acceleration-status.md_sha256`: `356bfef901f79b955f3771cc6b4637261f193d081855a6aec18392d72a00214c`
 - `docs/affine_transform_search.json_sha256`: `f45c9f1b1a50f3ba174e17d76a495bd4118bde5edd94419bf6a12518bc154d75`
@@ -519,10 +519,10 @@ This section lists unresolved `open` and `blocked-by-evidence` requirements.
 - `docs/packed_sidecar_descriptor.json_sha256`: `1d1a486c64168f31af4f21d9042ed046308080eb5eb0d4a4c4667804c9e66b67`
 - `docs/packed_sidecar_replication.json_sha256`: `28e8dd0a94eaeed48533a9df54c6d9e7525ce9b8038b30e137152ab13288d2bf`
 - `docs/record_context_transform_search.json_sha256`: `b80fbb566ea2f5cc8159ba646c1df29381941627c92b6e86bd3b6b1d36b1d713`
-- `docs/recursive_structured_fixtures.json_sha256`: `a16bea44afa449a04fd2ecc85aa7e0da182d5152969251b5419c605aad34528f`
+- `docs/recursive_structured_fixtures.json_sha256`: `74f7cd8ae7350ad130c17996b0724f251168638fce3325079d71a96deccf3614`
 - `docs/residual_payload_compressibility.json_sha256`: `f32508274e4724bad83ba056d1c375e37136c5e96c8a991d040fb4f46d0917f0`
 - `docs/results.json_sha256`: `225465824966499a8d15a5721e0698c30ae83053d072dbec6c6b21558523f9ba`
-- `docs/scale_performance_report.json_sha256`: `758a271d8bd7f3d775b88999da76fd434f79ac5fbdf2ccbd7414ad69d1b9af68`
+- `docs/scale_performance_report.json_sha256`: `b14646b969fc65e6c3c52584107e3478ed6e28671e6f0ce058f70f80d13819f7`
 - `docs/schema_native_public_dictionaries.json_sha256`: `84008baffe2fe755b414de098d56cfe973610dee429f65327fc10b29b8750778`
 - `docs/schema_native_public_dictionary_replication.json_sha256`: `f3af0a46a5e9f2cc3b02225035c1483e473ab8994bce1f7546044432fc858022`
 - `docs/search_frontier_gate.json_sha256`: `aab9351032df10d7998c3a0e04306bb9d0f344b5d0556cc721592c7b8793737f`
@@ -534,7 +534,7 @@ This section lists unresolved `open` and `blocked-by-evidence` requirements.
 - `docs/superposition_telemetry.json_sha256`: `9ddabe8ca34b90e6a765536a43012781d969a7153c6261d09bf59a452b725711`
 - `docs/token_dictionary_transform_search.json_sha256`: `045abb32731d15304d53428f101a9fa0baa8d7fb7eeea9c816251e467fe84951`
 - `docs/transformed_match_discovery.json_sha256`: `1e63c81d86787306038846928dba7db3878879b1498bb827a4c7aa939191f69e`
-- `docs/ui_workflow_smoke.json_sha256`: `2e67ef9df75bdfa28db4af3832fec292c988b92f0f8ab4b3f738da75ecc1128f`
+- `docs/ui_workflow_smoke.json_sha256`: `4609482b394bc5d9d3f7f8ef33210cd6983690c2af7add9e5816ca515371f52f`
 - `docs/whole_stream_residual_vector_probe.json_sha256`: `eb6f5fc8e94c68373c9862c3f874f8dfad0e915eade4a92d1a2ff09f333abf7e`
 - `scripts/doc_lint.py_sha256`: `f2c3be66b84cac3a4aba21e52645107c4eeb21b2490f8b1ac7353b6d4f64ac51`
 - `scripts/generate_exact_short_hit_bundle_economics.py_sha256`: `4e34d469847d8e990b94bcf4f9ba64bcaa97079b76035462b1b4fbd5b07d438a`
@@ -556,13 +556,13 @@ This section lists unresolved `open` and `blocked-by-evidence` requirements.
 - `src/config.rs_sha256`: `399e8e1584c7bbd05035977d8174fb827793eb20b2f5f7e88517d92afea00344`
 - `src/header.rs_sha256`: `7d5c38c174db854384368adf7e6afdc92729f1c3b9b3925284c795f4c2f4470f`
 - `src/indexed.rs_sha256`: `c53dd350709c8b1b075e968cc60417f62e01c6d197fc577bc772e6bbae9f6120`
-- `src/lib.rs_sha256`: `b8398587cc18cb98bde00a53d37786c192bc0b6427811800c453227068c26a59`
-- `src/main.rs_sha256`: `37084a6e2339fee3b4770bbd62f09a7ff81559adb371827bf42e5a90c26ab9dc`
+- `src/lib.rs_sha256`: `321821347dd7c915773f83d381382876e3d738671071cfda686727938632cc66`
+- `src/main.rs_sha256`: `f12cb5e12dd82e8fab97ae7eb2df191d4073e829461b9a65f8928d1b6f20272a`
 - `src/seed_expansion_index.rs_sha256`: `1a6eb505808d2e05868d6e10c967e491825adbd3bbe1010c45f3ddc64dbdac65`
-- `src/streaming.rs_sha256`: `c8527365c61fb9dd1ad202590a276c1b2c54ba0a97efc41b855c772122f31776`
+- `src/streaming.rs_sha256`: `79d26ea5afa1477eed56a94472f6880fdd573453a434a4c6485cdf757acb5ed8`
 - `src/tlmr.rs_sha256`: `06d73f313080bbc2651250e246e24917a0f9adf040681d18b55576136b4c493b`
 - `src/tlmr_v2.rs_sha256`: `3aebbfe582b0ec159384fefb79faed52641faf11c2c4dd1ae641bd38fbd67e58`
-- `tests/cli_tests.rs_sha256`: `27c7c21a46b9ec30c7ca755bf5df14ceb27363cf9895eef26892678fe5752e72`
+- `tests/cli_tests.rs_sha256`: `db9a5cc36b13c8c42ef377566eb75b6e477b56276ffc4e9d128da3bfbfa205d4`
 - `tests/decompress.rs_sha256`: `95b3238060bdb36eebfb5a6e368e7047e654cc242d1f20ddaaf32a3d7401693b`
 - `tests/gpu_determinism.rs_sha256`: `669b4e4b275bd4eb59fee192f29526b77514688baee10c1d5603f85133ae23a6`
 - `tests/indexed_v2.rs_sha256`: `8a496865dcd3964f64b1f9abbb61925a8cec6dbee1ab8082229fa778a2a1ccb6`

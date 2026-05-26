@@ -5,9 +5,9 @@ This records a focused mechanism experiment, not a production or natural-corpus 
 
 ## Summary
 
-- Rows: `126`
-- Non-planted rows with exact selected spans: `23`
-- Non-planted profitable rows after charged `.tlmr` accounting: `13`
+- Rows: `135`
+- Non-planted rows with exact selected spans: `29`
+- Non-planted profitable rows after charged `.tlmr` accounting: `16`
 - Non-seed codeword control rows with exact selected spans: `0`
 - Non-seed codeword control rows profitable after charged accounting: `0`
 - Seed rows beating all same-token codeword controls: `17`
@@ -15,7 +15,7 @@ This records a focused mechanism experiment, not a production or natural-corpus 
 - Learned public seed rows profitable after charged accounting: `4`
 - Learned leave-family-out seed rows with exact selected spans: `0`
 - Learned public rows beating all same-token codeword controls: `4`
-- Best non-planted delta bytes: `-678`
+- Best non-planted delta bytes: `-940`
 - Conclusion: `public preset and learned public codebook produced seed-specific profitable non-planted rows`
 
 ## Bottleneck Math
@@ -65,6 +65,7 @@ This records a focused mechanism experiment, not a production or natural-corpus 
 | `planted-positive` | `public-preset-framed-out-of-budget-codeword-v0` | 2048 | 2051 | 128 | 512 | 2091 | 495 | 1596 | -1553 | 0 |
 | `planted-positive` | `public-preset-selective-out-of-budget-codeword-v0` | 2048 | 2051 | 128 | 512 | 2091 | 495 | 1596 | -1553 | 0 |
 | `planted-positive` | `public-preset-selective-native-v0` | 2048 | 2048 | 128 | 512 | 2094 | 498 | 1596 | -1550 | 0 |
+| `planted-positive` | `public-preset-dense-native-v0` | 2048 | 2048 | 128 | 512 | 2094 | 498 | 1596 | -1550 | 0 |
 | `planted-positive` | `public-learned-global-v0` | 2048 | 2051 | 128 | 512 | 2091 | 495 | 1596 | -1553 | 0 |
 | `planted-positive` | `public-learned-global-random-codeword-v0` | 2048 | 2051 | 128 | 512 | 2091 | 495 | 1596 | -1553 | 0 |
 | `planted-positive` | `public-learned-global-out-of-budget-codeword-v0` | 2048 | 2051 | 128 | 512 | 2091 | 495 | 1596 | -1553 | 0 |
@@ -77,6 +78,7 @@ This records a focused mechanism experiment, not a production or natural-corpus 
 | `structured-json` | `public-preset-framed-out-of-budget-codeword-v0` | 6814 | 12313 | 0 | 0 | 12354 | 12354 | 0 | 5540 | 560 |
 | `structured-json` | `public-preset-selective-out-of-budget-codeword-v0` | 6814 | 7697 | 0 | 0 | 7737 | 7737 | 0 | 923 | 160 |
 | `structured-json` | `public-preset-selective-native-v0` | 6814 | 6814 | 160 | 640 | 7739 | 6139 | 1600 | -675 | 160 |
+| `structured-json` | `public-preset-dense-native-v0` | 6814 | 6814 | 373 | 1492 | 9685 | 5874 | 3811 | -940 | 373 |
 | `structured-json` | `public-learned-global-v0` | 6814 | 6817 | 0 | 0 | 6857 | 6857 | 0 | 43 | 0 |
 | `structured-json` | `public-learned-global-random-codeword-v0` | 6814 | 6817 | 0 | 0 | 6857 | 6857 | 0 | 43 | 0 |
 | `structured-json` | `public-learned-global-out-of-budget-codeword-v0` | 6814 | 6817 | 0 | 0 | 6857 | 6857 | 0 | 43 | 0 |
@@ -89,6 +91,7 @@ This records a focused mechanism experiment, not a production or natural-corpus 
 | `external-json-schema` | `public-preset-framed-out-of-budget-codeword-v0` | 1382 | 1659 | 0 | 0 | 1698 | 1699 | -1 | 317 | 25 |
 | `external-json-schema` | `public-preset-selective-out-of-budget-codeword-v0` | 1382 | 1413 | 0 | 0 | 1452 | 1453 | -1 | 71 | 4 |
 | `external-json-schema` | `public-preset-selective-native-v0` | 1382 | 1382 | 4 | 16 | 1457 | 1421 | 36 | 39 | 4 |
+| `external-json-schema` | `public-preset-dense-native-v0` | 1382 | 1382 | 25 | 100 | 1694 | 1453 | 241 | 71 | 25 |
 | `external-json-schema` | `public-learned-global-v0` | 1382 | 1465 | 23 | 92 | 1504 | 1279 | 225 | -103 | 23 |
 | `external-json-schema` | `public-learned-lfo-v0` | 1382 | 1385 | 0 | 0 | 1424 | 1425 | -1 | 43 | 0 |
 | `external-json-schema` | `public-learned-global-random-codeword-v0` | 1382 | 1465 | 0 | 0 | 1504 | 1505 | -1 | 123 | 23 |
@@ -104,6 +107,7 @@ This records a focused mechanism experiment, not a production or natural-corpus 
 | `external-csv` | `public-preset-framed-out-of-budget-codeword-v0` | 379 | 418 | 0 | 0 | 457 | 457 | 0 | 78 | 11 |
 | `external-csv` | `public-preset-selective-out-of-budget-codeword-v0` | 379 | 418 | 0 | 0 | 457 | 457 | 0 | 78 | 11 |
 | `external-csv` | `public-preset-selective-native-v0` | 379 | 379 | 11 | 44 | 458 | 347 | 111 | -32 | 11 |
+| `external-csv` | `public-preset-dense-native-v0` | 379 | 379 | 11 | 44 | 458 | 346 | 112 | -33 | 11 |
 | `external-csv` | `public-learned-global-v0` | 379 | 427 | 10 | 40 | 466 | 365 | 101 | -14 | 10 |
 | `external-csv` | `public-learned-lfo-v0` | 379 | 382 | 0 | 0 | 421 | 421 | 0 | 42 | 0 |
 | `external-csv` | `public-learned-global-random-codeword-v0` | 379 | 427 | 0 | 0 | 466 | 466 | 0 | 87 | 10 |
@@ -119,6 +123,7 @@ This records a focused mechanism experiment, not a production or natural-corpus 
 | `external-csv-heldout` | `public-preset-framed-out-of-budget-codeword-v0` | 348 | 401 | 0 | 0 | 440 | 440 | 0 | 92 | 10 |
 | `external-csv-heldout` | `public-preset-selective-out-of-budget-codeword-v0` | 348 | 401 | 0 | 0 | 440 | 440 | 0 | 92 | 10 |
 | `external-csv-heldout` | `public-preset-selective-native-v0` | 348 | 348 | 10 | 40 | 441 | 341 | 100 | -7 | 10 |
+| `external-csv-heldout` | `public-preset-dense-native-v0` | 348 | 348 | 10 | 40 | 441 | 340 | 101 | -8 | 10 |
 | `external-csv-heldout` | `public-learned-global-v0` | 348 | 396 | 10 | 40 | 435 | 334 | 101 | -14 | 10 |
 | `external-csv-heldout` | `public-learned-lfo-v0` | 348 | 351 | 0 | 0 | 390 | 390 | 0 | 42 | 0 |
 | `external-csv-heldout` | `public-learned-global-random-codeword-v0` | 348 | 396 | 0 | 0 | 435 | 435 | 0 | 87 | 10 |
@@ -134,6 +139,7 @@ This records a focused mechanism experiment, not a production or natural-corpus 
 | `external-http` | `public-preset-framed-out-of-budget-codeword-v0` | 537 | 601 | 0 | 0 | 640 | 640 | 0 | 103 | 8 |
 | `external-http` | `public-preset-selective-out-of-budget-codeword-v0` | 537 | 555 | 0 | 0 | 594 | 594 | 0 | 57 | 4 |
 | `external-http` | `public-preset-selective-native-v0` | 537 | 537 | 4 | 16 | 596 | 559 | 37 | 22 | 4 |
+| `external-http` | `public-preset-dense-native-v0` | 537 | 537 | 8 | 32 | 642 | 567 | 75 | 30 | 8 |
 | `external-http` | `public-learned-global-v0` | 537 | 540 | 0 | 0 | 579 | 579 | 0 | 42 | 0 |
 | `external-http` | `public-learned-lfo-v0` | 537 | 540 | 0 | 0 | 579 | 579 | 0 | 42 | 0 |
 | `external-http` | `public-learned-global-random-codeword-v0` | 537 | 540 | 0 | 0 | 579 | 579 | 0 | 42 | 0 |
@@ -149,6 +155,7 @@ This records a focused mechanism experiment, not a production or natural-corpus 
 | `external-json-schema-heldout` | `public-preset-framed-out-of-budget-codeword-v0` | 1382 | 1646 | 0 | 0 | 1685 | 1686 | -1 | 304 | 24 |
 | `external-json-schema-heldout` | `public-preset-selective-out-of-budget-codeword-v0` | 1382 | 1413 | 0 | 0 | 1452 | 1453 | -1 | 71 | 4 |
 | `external-json-schema-heldout` | `public-preset-selective-native-v0` | 1382 | 1382 | 4 | 16 | 1457 | 1421 | 36 | 39 | 4 |
+| `external-json-schema-heldout` | `public-preset-dense-native-v0` | 1382 | 1382 | 24 | 96 | 1681 | 1450 | 231 | 68 | 24 |
 | `external-json-schema-heldout` | `public-learned-global-v0` | 1382 | 1461 | 22 | 88 | 1500 | 1285 | 215 | -97 | 22 |
 | `external-json-schema-heldout` | `public-learned-lfo-v0` | 1382 | 1385 | 0 | 0 | 1424 | 1425 | -1 | 43 | 0 |
 | `external-json-schema-heldout` | `public-learned-global-random-codeword-v0` | 1382 | 1461 | 0 | 0 | 1500 | 1501 | -1 | 119 | 22 |
@@ -164,6 +171,7 @@ This records a focused mechanism experiment, not a production or natural-corpus 
 | `external-source` | `public-preset-framed-out-of-budget-codeword-v0` | 1368 | 1593 | 0 | 0 | 1632 | 1633 | -1 | 265 | 15 |
 | `external-source` | `public-preset-selective-out-of-budget-codeword-v0` | 1368 | 1371 | 0 | 0 | 1410 | 1411 | -1 | 43 | 0 |
 | `external-source` | `public-preset-selective-native-v0` | 1368 | 1368 | 0 | 0 | 1413 | 1414 | -1 | 46 | 0 |
+| `external-source` | `public-preset-dense-native-v0` | 1368 | 1368 | 0 | 0 | 1413 | 1413 | 0 | 45 | 0 |
 | `external-source` | `public-learned-global-v0` | 1368 | 1371 | 0 | 0 | 1410 | 1411 | -1 | 43 | 0 |
 | `external-source` | `public-learned-lfo-v0` | 1368 | 1371 | 0 | 0 | 1410 | 1411 | -1 | 43 | 0 |
 | `external-source` | `public-learned-global-random-codeword-v0` | 1368 | 1371 | 0 | 0 | 1410 | 1411 | -1 | 43 | 0 |
@@ -179,6 +187,7 @@ This records a focused mechanism experiment, not a production or natural-corpus 
 | `random-null-structured-len` | `public-preset-framed-out-of-budget-codeword-v0` | 6814 | 6817 | 0 | 0 | 6857 | 6857 | 0 | 43 | 0 |
 | `random-null-structured-len` | `public-preset-selective-out-of-budget-codeword-v0` | 6814 | 6817 | 0 | 0 | 6857 | 6857 | 0 | 43 | 0 |
 | `random-null-structured-len` | `public-preset-selective-native-v0` | 6814 | 6814 | 0 | 0 | 6860 | 6861 | -1 | 47 | 0 |
+| `random-null-structured-len` | `public-preset-dense-native-v0` | 6814 | 6814 | 0 | 0 | 6860 | 6861 | -1 | 47 | 0 |
 | `random-null-structured-len` | `public-learned-global-v0` | 6814 | 6817 | 0 | 0 | 6857 | 6857 | 0 | 43 | 0 |
 | `random-null-structured-len` | `public-learned-global-random-codeword-v0` | 6814 | 6817 | 0 | 0 | 6857 | 6857 | 0 | 43 | 0 |
 | `random-null-structured-len` | `public-learned-global-out-of-budget-codeword-v0` | 6814 | 6817 | 0 | 0 | 6857 | 6857 | 0 | 43 | 0 |

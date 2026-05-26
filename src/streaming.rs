@@ -398,6 +398,39 @@ pub fn compress_streaming_v2_with_public_preset_selective_and_telemetry(
     target_chunk_bytes: Option<usize>,
     seed_limit: Option<usize>,
 ) -> Result<(Vec<u8>, PublicPresetStreamingTelemetry), TelomereError> {
+    compress_streaming_v2_with_public_preset_selective_config_and_telemetry(
+        data,
+        hasher,
+        max_seed_len,
+        max_span_len,
+        block_size,
+        span_step,
+        max_arity,
+        passes,
+        hash_bits,
+        target_chunk_bytes,
+        seed_limit,
+        PUBLIC_PRESET_SELECTIVE_MIN_TOKEN_LEN,
+        PUBLIC_PRESET_CODEWORD_LEN,
+    )
+}
+
+#[allow(clippy::too_many_arguments)]
+pub fn compress_streaming_v2_with_public_preset_selective_config_and_telemetry(
+    data: &[u8],
+    hasher: HasherKind,
+    max_seed_len: usize,
+    max_span_len: usize,
+    block_size: usize,
+    span_step: usize,
+    max_arity: u8,
+    passes: usize,
+    hash_bits: usize,
+    target_chunk_bytes: Option<usize>,
+    seed_limit: Option<usize>,
+    public_preset_min_token_len: usize,
+    public_preset_codeword_len: usize,
+) -> Result<(Vec<u8>, PublicPresetStreamingTelemetry), TelomereError> {
     let max_seed_len = if let Some(seed_limit) = seed_limit {
         max_seed_len_for_seed_limit(seed_limit)?
     } else {
@@ -406,8 +439,8 @@ pub fn compress_streaming_v2_with_public_preset_selective_and_telemetry(
     let (transformed, transform_stats) = public_preset_selective_framed(
         data,
         hasher,
-        PUBLIC_PRESET_SELECTIVE_MIN_TOKEN_LEN,
-        PUBLIC_PRESET_CODEWORD_LEN,
+        public_preset_min_token_len,
+        public_preset_codeword_len,
     )?;
     let (inner_file, mut streaming) = compress_streaming_v2_with_chunk_option_and_telemetry(
         &transformed,
@@ -427,8 +460,8 @@ pub fn compress_streaming_v2_with_public_preset_selective_and_telemetry(
         TlmrV2LayerDescriptor::for_public_preset_selective_decoded_bytes(
             data,
             hasher,
-            PUBLIC_PRESET_SELECTIVE_MIN_TOKEN_LEN,
-            PUBLIC_PRESET_CODEWORD_LEN,
+            public_preset_min_token_len,
+            public_preset_codeword_len,
             hash_bits,
         ),
     );

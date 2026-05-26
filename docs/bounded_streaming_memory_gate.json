@@ -1,6 +1,6 @@
 {
   "generated_by": "scripts/generate_bounded_streaming_memory_gate.py",
-  "generated_at": "2026-05-26T09:00:31.094295+00:00",
+  "generated_at": "2026-05-26T12:56:24.276599+00:00",
   "format_version": 1,
   "scope": {
     "kind": "bounded streaming memory gate",
@@ -13,19 +13,19 @@
     "overrides_search_frontier_gate": false
   },
   "source_hashes": {
-    "scale_performance_report_sha256": "758a271d8bd7f3d775b88999da76fd434f79ac5fbdf2ccbd7414ad69d1b9af68",
-    "scale_performance_doc_sha256": "8a484de382a0838b8136584c40932fa88aabf436b29cf1b3183471493f10a9ab",
+    "scale_performance_report_sha256": "b14646b969fc65e6c3c52584107e3478ed6e28671e6f0ce058f70f80d13819f7",
+    "scale_performance_doc_sha256": "5b2c9637659b380acde77e1352e32c38378a5f2e3c4fd5530879fb3d9da5c5c4",
     "results_sha256": "225465824966499a8d15a5721e0698c30ae83053d072dbec6c6b21558523f9ba",
     "results_doc_sha256": "991eb6a9a04f751cc571a04157e3b0a71139d7af0b5539dc4e80ff0084f9eba0",
     "search_frontier_gate_sha256": "aab9351032df10d7998c3a0e04306bb9d0f344b5d0556cc721592c7b8793737f",
-    "streaming_engine_sha256": "c8527365c61fb9dd1ad202590a276c1b2c54ba0a97efc41b855c772122f31776",
+    "streaming_engine_sha256": "79d26ea5afa1477eed56a94472f6880fdd573453a434a4c6485cdf757acb5ed8",
     "indexed_engine_sha256": "c53dd350709c8b1b075e968cc60417f62e01c6d197fc577bc772e6bbae9f6120",
-    "decompress_api_sha256": "b8398587cc18cb98bde00a53d37786c192bc0b6427811800c453227068c26a59",
+    "decompress_api_sha256": "321821347dd7c915773f83d381382876e3d738671071cfda686727938632cc66",
     "v2_format_sha256": "3aebbfe582b0ec159384fefb79faed52641faf11c2c4dd1ae641bd38fbd67e58",
-    "cli_sha256": "37084a6e2339fee3b4770bbd62f09a7ff81559adb371827bf42e5a90c26ab9dc",
+    "cli_sha256": "f12cb5e12dd82e8fab97ae7eb2df191d4073e829461b9a65f8928d1b6f20272a",
     "streaming_tests_sha256": "1a47d5093fec66db0a541d73592211f6c3cd544172badeac74113ef54b1ea473",
     "indexed_v2_tests_sha256": "8a496865dcd3964f64b1f9abbb61925a8cec6dbee1ab8082229fa778a2a1ccb6",
-    "cli_tests_sha256": "27c7c21a46b9ec30c7ca755bf5df14ceb27363cf9895eef26892678fe5752e72",
+    "cli_tests_sha256": "db9a5cc36b13c8c42ef377566eb75b6e477b56276ffc4e9d128da3bfbfa205d4",
     "scale_generator_sha256": "3d2855b0db3d16affeb33ee7403f4d9e09b0b3eb17ec50c03ab85c4bb48461ff",
     "generator_sha256": "784a638d4c7691ea65c451227f580a181e16f339dd564e9fefa3bad2829a1a84"
   },

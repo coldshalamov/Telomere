@@ -1,12 +1,12 @@
 {
   "generated_by": "scripts/generate_scale_performance_report.py",
-  "generated_at": "2026-05-26T09:00:30.890486+00:00",
+  "generated_at": "2026-05-26T12:47:10.419155+00:00",
   "format_version": 1,
   "source_hashes": {
     "sweeps_sha256": "803c32715becd4eca7f52b5282fceaab539b953365ef223b477f3d5a6355dce7",
     "sweeps_doc_sha256": "c8329a1e20118975ead3439ee99901cbfcc90f92311a0ff88b61af46b721d27a",
     "sweep_generator_sha256": "d35c6ce744a2ca923ef3ea2b1157375d4660e205ce8edd1f4f8f674a399f11ca",
-    "streaming_engine_sha256": "c8527365c61fb9dd1ad202590a276c1b2c54ba0a97efc41b855c772122f31776"
+    "streaming_engine_sha256": "79d26ea5afa1477eed56a94472f6880fdd573453a434a4c6485cdf757acb5ed8"
   },
   "summary": {
     "row_count": 9,

@@ -36,6 +36,7 @@ SEED_DEPTH = 1
 PASSES = 1
 TRANSFORM_METADATA_BYTES = 8
 PUBLIC_PRESET_SELECTIVE_MIN_TOKEN_LEN = 13
+PUBLIC_PRESET_DENSE_NATIVE_MIN_TOKEN_LEN = 7
 
 
 PUBLIC_PRESET_TOKENS = [
@@ -663,6 +664,31 @@ def transform_variants(name: str, data: bytes) -> list[dict[str, Any]]:
             "roundtrip_ok": True,
         }
     )
+    dense, dense_meta = public_preset_framed(
+        data,
+        min_token_len=PUBLIC_PRESET_DENSE_NATIVE_MIN_TOKEN_LEN,
+        codeword_variant="seed",
+    )
+    dense_native_meta = {
+        **dense_meta,
+        "transform_metadata_bytes": 0,
+        "format_native_transform": True,
+        "native_transform_transformed_bytes": len(dense),
+        "cli_extra_args": [
+            "--transform",
+            "public-preset-selective",
+            "--public-preset-min-token-len",
+            str(PUBLIC_PRESET_DENSE_NATIVE_MIN_TOKEN_LEN),
+        ],
+    }
+    variants.append(
+        {
+            "transform": "public-preset-dense-native-v0",
+            "data": data,
+            "metadata": dense_native_meta,
+            "roundtrip_ok": True,
+        }
+    )
 
     for codeword_variant in PUBLIC_PRESET_CODEWORD_VARIANTS:
         suffix = "" if codeword_variant == "seed" else f"-{codeword_variant}"
@@ -1061,6 +1087,7 @@ def build_report(
             "transform_metadata_bytes_for_public_preset": TRANSFORM_METADATA_BYTES,
             "public_preset_token_count": len(PUBLIC_PRESET_TOKENS),
             "public_preset_selective_min_token_len": PUBLIC_PRESET_SELECTIVE_MIN_TOKEN_LEN,
+            "public_preset_dense_native_min_token_len": PUBLIC_PRESET_DENSE_NATIVE_MIN_TOKEN_LEN,
             "learned_public_min_token_len": LEARNED_PUBLIC_MIN_TOKEN_LEN,
             "learned_public_max_token_len": LEARNED_PUBLIC_MAX_TOKEN_LEN,
             "learned_public_token_limit": LEARNED_PUBLIC_TOKEN_LIMIT,

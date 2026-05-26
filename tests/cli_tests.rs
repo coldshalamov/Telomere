@@ -728,6 +728,8 @@ fn streaming_v2_public_preset_transform_cli_roundtrips_native() {
             "1",
             "--transform",
             "public-preset-selective",
+            "--public-preset-min-token-len",
+            "7",
             "--json",
             "--verify",
         ])
@@ -739,7 +741,7 @@ fn streaming_v2_public_preset_transform_cli_roundtrips_native() {
         String::from_utf8_lossy(&output.stderr)
     );
     let json: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
-    assert_eq!(json["engine_telemetry"]["transform"]["min_token_len"], 13);
+    assert_eq!(json["engine_telemetry"]["transform"]["min_token_len"], 7);
     assert!(
         json["engine_telemetry"]["transform"]["token_replacements"]
             .as_u64()

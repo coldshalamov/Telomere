@@ -151,9 +151,9 @@ Viability verdict: **research-viable, not production-proven**.
 - `schema_native_public_dictionary_replication_sha256`: `f3af0a46a5e9f2cc3b02225035c1483e473ab8994bce1f7546044432fc858022`
 - `superposition_telemetry_sha256`: `9ddabe8ca34b90e6a765536a43012781d969a7153c6261d09bf59a452b725711`
 - `long_span_bundle_gate_sha256`: `290b4a0817f5c0fbd875dd7f010a15113acc0aaa56426226d334e6dcf73cf5b1`
-- `recursive_structured_fixtures_sha256`: `a16bea44afa449a04fd2ecc85aa7e0da182d5152969251b5419c605aad34528f`
-- `scale_performance_report_sha256`: `758a271d8bd7f3d775b88999da76fd434f79ac5fbdf2ccbd7414ad69d1b9af68`
-- `ui_workflow_smoke_sha256`: `2e67ef9df75bdfa28db4af3832fec292c988b92f0f8ab4b3f738da75ecc1128f`
+- `recursive_structured_fixtures_sha256`: `74f7cd8ae7350ad130c17996b0724f251168638fce3325079d71a96deccf3614`
+- `scale_performance_report_sha256`: `b14646b969fc65e6c3c52584107e3478ed6e28671e6f0ce058f70f80d13819f7`
+- `ui_workflow_smoke_sha256`: `4609482b394bc5d9d3f7f8ef33210cd6983690c2af7add9e5816ca515371f52f`
 - `fifth_byte_residual_sha256`: `10f68eaada96a1eec67588fc618d29b2b0356ead260367e80396654e3de7094c`
 - `fifth_byte_steering_sha256`: `4c671b912708cd5db7c6dda39bd74c7ab42c171679dacf8dcb40946d043579b7`
 - `contextual_fifth_byte_steering_sha256`: `5e4d6dcd930282e0ed2a5b2a296f349a59fcb787b54ac2baadf88fa18504162a`
@@ -179,4 +179,4 @@ Viability verdict: **research-viable, not production-proven**.
 - `alignment_arity_discovery_sha256`: `d7ef17dc66b36d0b2b4cd7c4506fca31c332818b3dc16a191e944d70bde0b630`
 - `transformed_match_discovery_sha256`: `1e63c81d86787306038846928dba7db3878879b1498bb827a4c7aa939191f69e`
 - `lead_exact_discovery_sha256`: `f047de324c385dba641287443f0f6b4ceeb1f88ebf090e0063810c7d911d40aa`
-- `viability_sha256`: `435d48ff3507db568027afe0d8c56188f585d71e038569f4d77a561ffc3e23cf`
+- `viability_sha256`: `fe299aeb8b76210169b515c7f6fa543d622da172d1ea9da1b1235b31664decd4`

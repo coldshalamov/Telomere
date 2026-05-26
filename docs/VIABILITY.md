@@ -124,9 +124,9 @@ Verdict: **research-viable, not production-proven**.
 - `docs/schema_native_public_dictionary_replication.json` SHA-256: `f3af0a46a5e9f2cc3b02225035c1483e473ab8994bce1f7546044432fc858022`
 - `docs/superposition_telemetry.json` SHA-256: `9ddabe8ca34b90e6a765536a43012781d969a7153c6261d09bf59a452b725711`
 - `docs/long_span_bundle_gate.json` SHA-256: `290b4a0817f5c0fbd875dd7f010a15113acc0aaa56426226d334e6dcf73cf5b1`
-- `docs/recursive_structured_fixtures.json` SHA-256: `a16bea44afa449a04fd2ecc85aa7e0da182d5152969251b5419c605aad34528f`
-- `docs/scale_performance_report.json` SHA-256: `758a271d8bd7f3d775b88999da76fd434f79ac5fbdf2ccbd7414ad69d1b9af68`
-- `docs/ui_workflow_smoke.json` SHA-256: `2e67ef9df75bdfa28db4af3832fec292c988b92f0f8ab4b3f738da75ecc1128f`
+- `docs/recursive_structured_fixtures.json` SHA-256: `74f7cd8ae7350ad130c17996b0724f251168638fce3325079d71a96deccf3614`
+- `docs/scale_performance_report.json` SHA-256: `b14646b969fc65e6c3c52584107e3478ed6e28671e6f0ce058f70f80d13819f7`
+- `docs/ui_workflow_smoke.json` SHA-256: `4609482b394bc5d9d3f7f8ef33210cd6983690c2af7add9e5816ca515371f52f`
 - `docs/contextual_fifth_byte_steering.json` SHA-256: `5e4d6dcd930282e0ed2a5b2a296f349a59fcb787b54ac2baadf88fa18504162a`
 - `docs/structural_transform_search.json` SHA-256: `f862b094763c7c7c1cf4ba45ac75246f3b874e51ef67afd329d803b15f7d9eb1`
 - `docs/byte_permutation_transform_search.json` SHA-256: `a59e3b221fdacb987232b3741d7e3465ded04d0396d57171f755419dd7aff636`

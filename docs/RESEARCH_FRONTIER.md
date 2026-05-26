@@ -149,14 +149,14 @@ A gated-compute override requires a new generated evidence artifact, an explicit
 ## Source Artifacts
 
 The JSON `source_hashes` map pins this trigger board to the exact upstream evidence files below.
-- `research_decision_sha256`: `1b9b14bbadf3174c32cbdb9c050fb9171a481d15d5138588313bfb6093618280`
-- `experiment_queue_sha256`: `5bb6cb66fdc61426c8b491016a801602cdfe94c27f72dc77e188bbbcfc73731f`
-- `goal_audit_sha256`: `0f5e8e65e752c8e9405ee3ab4b06c718d397a2ad252b83b5e625e7a15c654155`
-- `research_scorecard_sha256`: `da1aab11b9adfa691db28ed6fd4dc198794e2c6ad2e1e3c664943b7f9c3b3db0`
+- `research_decision_sha256`: `158c547ef765913c480851d29967e15c5818b2d1f656a76f48b461170e168402`
+- `experiment_queue_sha256`: `3a24b5924d1c73103f078b62001ac022b57b16ce29630ee7c8ce10a1acfb54f1`
+- `goal_audit_sha256`: `131561e4f76e8c775dad0e117d61c4a48e6a5c9d2a380ddb9f89c4aa75381510`
+- `research_scorecard_sha256`: `c5992c7400d021437c872c62f7a469dd54173be0d50883ba6d62db02e90cb1c5`
 - `long_span_bundle_gate_sha256`: `290b4a0817f5c0fbd875dd7f010a15113acc0aaa56426226d334e6dcf73cf5b1`
 - `search_frontier_gate_sha256`: `aab9351032df10d7998c3a0e04306bb9d0f344b5d0556cc721592c7b8793737f`
 - `heldout_corpus_expansion_sha256`: `5abffdc19be1d202575340ba0004bdae88f27c6eb06aa60cb6a8651f790a965c`
 - `acceleration_report_sha256`: `623b59981cf78e7a22d54fb4111b663fc2975c5a923ae3bf8ff288d9f42b1207`
-- `recursive_structured_fixtures_sha256`: `a16bea44afa449a04fd2ecc85aa7e0da182d5152969251b5419c605aad34528f`
-- `scale_performance_report_sha256`: `758a271d8bd7f3d775b88999da76fd434f79ac5fbdf2ccbd7414ad69d1b9af68`
-- `viability_sha256`: `435d48ff3507db568027afe0d8c56188f585d71e038569f4d77a561ffc3e23cf`
+- `recursive_structured_fixtures_sha256`: `74f7cd8ae7350ad130c17996b0724f251168638fce3325079d71a96deccf3614`
+- `scale_performance_report_sha256`: `b14646b969fc65e6c3c52584107e3478ed6e28671e6f0ce058f70f80d13819f7`
+- `viability_sha256`: `fe299aeb8b76210169b515c7f6fa543d622da172d1ea9da1b1235b31664decd4`
