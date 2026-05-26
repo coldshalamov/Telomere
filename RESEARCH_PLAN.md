@@ -13,13 +13,16 @@ This file is no longer the format or architecture source of truth. Use:
 - `.tlmr` v1 is one-layer-decodable only.
 - `.tlmr` v2 is the experimental recursive format with explicit layer
   descriptors and index-free decompression.
-- The active file header is the 40-byte rich v1 header, not the old 3-byte
-  experimental header.
+- The active file header is the variable-length Lotus bit-stream v1 header
+  written after a 5-byte raw `TLMR` magic + version prefix, not the old 3-byte
+  experimental header and not the legacy 40-byte fixed v1 layout.
 - Lotus preset 2 encodes canonical seed indices through the J3D2 tiered
   integer codec from the sibling crate at `../lotus/src/lib.rs`; arity-1
   records with seed index 0 fit in 8 bits.
 - Arity `2` is valid.
-- Literal marker is `0xFF`.
+- Literal marker on the wire is Lotus J1D1 value `5` (6 bits, encoded under the
+  J1D1 arity preset). `0xFF` is an internal in-memory `DecodedHeader.arity`
+  sentinel only.
 - GPU is research-only and currently uses deterministic CPU fallback semantics.
 - Gloss tables and bloom pruning are removed from the active architecture.
 - Random data is not expected to compress.

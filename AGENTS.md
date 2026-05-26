@@ -23,8 +23,8 @@ Canonical docs:
 | `src/hasher.rs` | `SeedExpander` trait plus BLAKE3/SHA-256 implementations |
 | `src/seed.rs` | rayon-parallel brute-force seed search |
 | `src/seed_index.rs` | canonical index-to-seed bijection |
-| `src/header.rs` | Lotus record codec, arity 1-5 plus literal 0xFF |
-| `src/tlmr.rs` | 40-byte `.tlmr` v1 header |
+| `src/header.rs` | Lotus record codec, arity 1-5 plus literal (J1D1 value 5 on the wire) |
+| `src/tlmr.rs` | `.tlmr` v1 header: 5-byte `TLMR` magic + version prefix followed by a Lotus bit stream that carries header fields and records |
 | `src/tlmr_v2.rs` | `.tlmr` v2 recursive header, descriptors, and records |
 | `src/seed_expansion_index.rs` | exact generated-prefix seed expansion index |
 | `src/indexed.rs` | indexed v2 compression and span selection |
@@ -39,9 +39,13 @@ Canonical docs:
 - Seed enumeration order is consensus-critical: 1-byte seeds first, then 2-byte,
   then 3-byte, each bucket in big-endian order.
 - Lotus arity 2 is valid. It is not reserved.
-- Literal marker is `0xFF`.
-- `.tlmr` v1 header is 40 bytes and records hasher kind, Lotus preset, layer
-  count, lengths, and output hash.
+- The literal marker on the wire is Lotus J1D1 value `5` (6 bits in J1D1's
+  largest tier). `0xFF` is an internal in-memory `DecodedHeader.arity` sentinel
+  only; it never appears on the wire.
+- `.tlmr` v1 is a 5-byte raw `TLMR` magic + version prefix followed by a single
+  Lotus bit stream. The bit stream carries hasher kind, Lotus preset, layer
+  count, lengths, and output hash, then the records payload. The total
+  on-disk size is variable, not a fixed 40-byte header.
 - `.tlmr` v1 compressed records encode the canonical seed index via the Lotus
   J3D2 tiered integer codec (`LOTUS_J_BITS = 3`, `LOTUS_TIERS = 2`). The codec
   is provided by the sibling crate at `../lotus/src/lib.rs`.

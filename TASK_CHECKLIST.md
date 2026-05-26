@@ -6,6 +6,10 @@ This checklist is a compatibility snapshot. The canonical details live in
 ## Done In Current v1 Direction
 
 - [x] Replace active 3-byte file header with 40-byte `.tlmr` v1 header.
+- [x] Replace 40-byte v1 header with variable-length Lotus bit-stream v1
+      header (preset J3D2 for general fields, J1D1 for arity) after a 5-byte
+      raw `TLMR` magic + version prefix. The legacy 40-byte fixed layout is
+      no longer accepted.
 - [x] Record hasher kind in the file format.
 - [x] Record Lotus preset/version in the file format.
 - [x] Record layer count and lengths so v1 decoding is unambiguous.
