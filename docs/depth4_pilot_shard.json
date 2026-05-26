@@ -1,10 +1,10 @@
 {
   "generated_by": "scripts/generate_depth4_pilot_shard.py",
-  "generated_at": "2026-05-26T06:25:46.544226+00:00",
+  "generated_at": "2026-05-26T08:52:46.237975+00:00",
   "format_version": 1,
   "artifact_hashes": {
-    "depth3_frontier_exact_discovery_sha256": "9284b7a2654fdc4610850e0e3251320f3448e715732753a2ce2526dee442e773",
-    "depth4_shard_plan_sha256": "982e56a81b0a5833f1a8b08f6696fc885f83da5440668ef277c2967757702734"
+    "depth3_frontier_exact_discovery_sha256": "0046ef8bf52787e23edb943c2beca18817781eea12d7e5ce4cb056e146488ea5",
+    "depth4_shard_plan_sha256": "6cb7a2dab922d1652a66b93d3fb315a8f6fc44ea8a397228608cca57e47851c8"
   },
   "manifest_sha256": "e55296effd2d5e47a1db10510ec6b02a8e56e11f79a7129c77e0108b4d626ba3",
   "manifest": {
@@ -53,7 +53,7 @@
       "shard_id": "seed4-prefix-00",
       "seed_prefix_hex": "00",
       "seed_count": 16777216,
-      "enumeration_ms": 107913.021,
+      "enumeration_ms": 99531.82,
       "matched_unique_prefix_counts": {
         "5": 0,
         "6": 0,
@@ -2203,7 +2203,7 @@
     "frontier_rows": 26,
     "pilot_shard_count": 1,
     "enumerated_seed_count": 16777216,
-    "enumeration_ms": 107913.088,
+    "enumeration_ms": 99531.892,
     "target_span_count": 736265,
     "rows_with_depth4_prefix5": 0,
     "rows_with_depth4_prefix6": 0,

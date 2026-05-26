@@ -1,6 +1,6 @@
 {
   "generated_by": "scripts/generate_public_preset_control_audit.py",
-  "generated_at": "2026-05-26T06:33:06.767938+00:00",
+  "generated_at": "2026-05-26T08:59:23.065335+00:00",
   "format_version": 1,
   "scope": {
     "kind": "public preset control audit",
@@ -12,12 +12,12 @@
     "overrides_public_preset_gate": false
   },
   "source_hashes": {
-    "public_preset_promotion_gate_sha256": "d53fd27cd3ca0c4079a1601f8a762cea3a9b147ee65023fffa28fe909374fb02",
-    "schema_native_public_dictionary_replication_sha256": "226d4446bd8930bea72d9d1f129c832c4778bd81fc2b76eeab21d6d7c2f7168e",
-    "schema_native_public_dictionaries_sha256": "08e16ee9b2f67d22f340f3ef001325ff2f250f98c690bd6fcfb6397d2f96c45e",
-    "seed_table_preset_probe_sha256": "3128e58ca2d8868727d6f2cead64a6c7c57acbb199e09088bf0bdb4b6253f543",
-    "expander_salt_ensemble_sha256": "cbe5fac0b15dc49c47621005fa05f21692a39a6fdfbc1fdf000567e8468489b3",
-    "mechanism_experiment_ranking_sha256": "31800d430dde4b360873778de3a8437fcc836ff8fef6c3886a53eedfc550f18d"
+    "public_preset_promotion_gate_sha256": "abb350c5b95697f8f50b23a6f7bf56a5072db1e075af62f44c02c088eff98e4f",
+    "schema_native_public_dictionary_replication_sha256": "f3af0a46a5e9f2cc3b02225035c1483e473ab8994bce1f7546044432fc858022",
+    "schema_native_public_dictionaries_sha256": "84008baffe2fe755b414de098d56cfe973610dee429f65327fc10b29b8750778",
+    "seed_table_preset_probe_sha256": "5d026762d5103ffe81ba33702147aeceb50ffd8e152eb127cc25e1a0f86aa81d",
+    "expander_salt_ensemble_sha256": "b719c3caf230c16b47e264efb8c07af533d0cf3bb5f58884cf18b9fd12577602",
+    "mechanism_experiment_ranking_sha256": "b728136fa7f03d0a355c58737578b3021a140bfc21a87f2aac38b4161ac029b0"
   },
   "summary": {
     "audit_status": "blocked_by_paired_shadow_controls",

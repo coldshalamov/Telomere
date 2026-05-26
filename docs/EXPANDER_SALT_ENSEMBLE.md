@@ -70,14 +70,14 @@ Predeclared expander salts behave like extra random draws and do not yet create 
 
 ## Source Artifacts
 
-- `mechanism_experiment_ranking_sha256`: `31800d430dde4b360873778de3a8437fcc836ff8fef6c3886a53eedfc550f18d`
-- `seed_table_preset_probe_sha256`: `3128e58ca2d8868727d6f2cead64a6c7c57acbb199e09088bf0bdb4b6253f543`
-- `exact_short_hit_bundle_economics_sha256`: `e1f2f45a8a8fdac4d5780b912e1f781de59da92dcd8d0e37c6ce8c760311350c`
-- `whole_stream_residual_vector_probe_sha256`: `35f80e6345cc7230c5d615260d293d71c168664a886bcfcb2035f49be872b126`
-- `search_frontier_gate_sha256`: `9d39bd91dcd1d735b313fe9a40c82cec2ec37a97c5596b8ab30976d170bff9d5`
+- `mechanism_experiment_ranking_sha256`: `b728136fa7f03d0a355c58737578b3021a140bfc21a87f2aac38b4161ac029b0`
+- `seed_table_preset_probe_sha256`: `5d026762d5103ffe81ba33702147aeceb50ffd8e152eb127cc25e1a0f86aa81d`
+- `exact_short_hit_bundle_economics_sha256`: `e35dead1413c2a12048cd4d98f9d45b68666ca1e5e83aa97ba76e68e5bc2e5a0`
+- `whole_stream_residual_vector_probe_sha256`: `eb6f5fc8e94c68373c9862c3f874f8dfad0e915eade4a92d1a2ff09f333abf7e`
+- `search_frontier_gate_sha256`: `aab9351032df10d7998c3a0e04306bb9d0f344b5d0556cc721592c7b8793737f`
 - `affine_transform_search_sha256`: `f45c9f1b1a50f3ba174e17d76a495bd4118bde5edd94419bf6a12518bc154d75`
-- `fifth_byte_residual_sha256`: `24e6ce5a5d02ddbab41513a9398d563e8a666d3233945685549e205ed025e342`
-- `match_discovery_sha256`: `890b5167395b3ca5b0e622d7f7c61d565acc9665d88448edba8331bcbd70d7a0`
-- `alignment_arity_discovery_sha256`: `a056600b2d110b6f4b51c02263e9a8a99862cf3f88c006f999886ac3b3f59a96`
-- `format_doc_sha256`: `802bafc40345c7aa0e7245eafb1ea668e438b5fa5d95ee4768abc8fe1d717b81`
+- `fifth_byte_residual_sha256`: `10f68eaada96a1eec67588fc618d29b2b0356ead260367e80396654e3de7094c`
+- `match_discovery_sha256`: `eb5f137a92bdb52e27d3132fe21835740157d0cacede7b68f02d1cf885438739`
+- `alignment_arity_discovery_sha256`: `d7ef17dc66b36d0b2b4cd7c4506fca31c332818b3dc16a191e944d70bde0b630`
+- `format_doc_sha256`: `101fa4cbc783013b456123a5b0772aa91604b229bd1a19b92999ca2b1c9370c0`
 - `manifest_sha256`: `434e030cfd8043d9cc5f022c4a60c7d47c31c3ff1fc480e91c271a928e2e2598`

@@ -48,14 +48,14 @@ Do not claim natural-corpus viability until unrelated ordinary held-out corpora 
 
 ## Source Artifacts
 
-- `viability_sha256`: `7799a6d3644f435dd09ce4233d7ffda523fb4e9ccba6e4f5543bb3e1d27bf921`
-- `research_scorecard_sha256`: `36c65bb0d3a4c1817fb22eb4045ec0253fe245f1c67f8412115e8531d0cf705a`
-- `research_decision_sha256`: `de7ec7e5fcb358cf4ac247d190e0cd97c1ae13e58e0973087ce3043fbe1f29b8`
-- `research_frontier_sha256`: `230e4ccb762372951220a2aa83fa597f199e30eb723977e19c16a44d500cc358`
-- `search_frontier_gate_sha256`: `9d39bd91dcd1d735b313fe9a40c82cec2ec37a97c5596b8ab30976d170bff9d5`
-- `long_span_bundle_gate_sha256`: `2e8d89a7835508e0cf6c19e18b4fde448589770f17b7cecb9425eb5ea996eb02`
-- `heldout_corpus_expansion_sha256`: `a6e91a2d9d2d96b89510e4a81a685983ef394be930bfc71fde2c970c5beed149`
-- `match_discovery_sha256`: `890b5167395b3ca5b0e622d7f7c61d565acc9665d88448edba8331bcbd70d7a0`
+- `viability_sha256`: `435d48ff3507db568027afe0d8c56188f585d71e038569f4d77a561ffc3e23cf`
+- `research_scorecard_sha256`: `da1aab11b9adfa691db28ed6fd4dc198794e2c6ad2e1e3c664943b7f9c3b3db0`
+- `research_decision_sha256`: `1b9b14bbadf3174c32cbdb9c050fb9171a481d15d5138588313bfb6093618280`
+- `research_frontier_sha256`: `135b688029b3a90f92e080ccee6c7d50a61b747d06326253b28c5ba15d49b8d7`
+- `search_frontier_gate_sha256`: `aab9351032df10d7998c3a0e04306bb9d0f344b5d0556cc721592c7b8793737f`
+- `long_span_bundle_gate_sha256`: `290b4a0817f5c0fbd875dd7f010a15113acc0aaa56426226d334e6dcf73cf5b1`
+- `heldout_corpus_expansion_sha256`: `5abffdc19be1d202575340ba0004bdae88f27c6eb06aa60cb6a8651f790a965c`
+- `match_discovery_sha256`: `eb5f137a92bdb52e27d3132fe21835740157d0cacede7b68f02d1cf885438739`
 - `transform_validation_sha256`: `0267e3cbffa7b2ff0dbf8c0628ea0522253e2a45cd51b27a98f9eb8831831d6f`
 - `corpus_generalization_probe_sha256`: `4b687748c439a8f27897d7c7346cd088e41fa155de4c74aa190e48696c8359dd`
-- `nearmiss_forecast_sha256`: `7323ac31d74df41295f7535e0caa61ab1ae37f16a11b1428a3e3b69bb453a3c4`
+- `nearmiss_forecast_sha256`: `4e854b9d778cff34b8dbb7d3b41d029e16e549461fa9f4c631bd4a977b42420f`

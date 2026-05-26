@@ -77,11 +77,11 @@ Natural-corpus viability remains blocked. The only currently aligned work is man
 ## Source Artifacts
 
 The JSON `source_hashes` map pins this manifest to exact upstream evidence files below.
-- `natural_corpus_proof_matrix_sha256`: `4d91f0f788525f45d2b13de8ba05b8e5489a16a6a89d0fb01de95fe66fd8e7ff`
-- `blocked_requirement_dispatch_sha256`: `0886922dcdd5bbf930bd88cf0216df34920201428b523b9280bf25c58ebf3cee`
-- `research_frontier_sha256`: `230e4ccb762372951220a2aa83fa597f199e30eb723977e19c16a44d500cc358`
-- `search_frontier_gate_sha256`: `9d39bd91dcd1d735b313fe9a40c82cec2ec37a97c5596b8ab30976d170bff9d5`
-- `long_span_bundle_gate_sha256`: `2e8d89a7835508e0cf6c19e18b4fde448589770f17b7cecb9425eb5ea996eb02`
-- `heldout_corpus_expansion_sha256`: `a6e91a2d9d2d96b89510e4a81a685983ef394be930bfc71fde2c970c5beed149`
-- `match_discovery_sha256`: `890b5167395b3ca5b0e622d7f7c61d565acc9665d88448edba8331bcbd70d7a0`
+- `natural_corpus_proof_matrix_sha256`: `291132f7f4905763d1991257e08dd00f1aa3195168c815229af620e1f59fbe6e`
+- `blocked_requirement_dispatch_sha256`: `4138fadaadf22eb900dc889e7619aff84415ab78708d438d2bea4ddb084e34a0`
+- `research_frontier_sha256`: `135b688029b3a90f92e080ccee6c7d50a61b747d06326253b28c5ba15d49b8d7`
+- `search_frontier_gate_sha256`: `aab9351032df10d7998c3a0e04306bb9d0f344b5d0556cc721592c7b8793737f`
+- `long_span_bundle_gate_sha256`: `290b4a0817f5c0fbd875dd7f010a15113acc0aaa56426226d334e6dcf73cf5b1`
+- `heldout_corpus_expansion_sha256`: `5abffdc19be1d202575340ba0004bdae88f27c6eb06aa60cb6a8651f790a965c`
+- `match_discovery_sha256`: `eb5f137a92bdb52e27d3132fe21835740157d0cacede7b68f02d1cf885438739`
 - `transform_validation_sha256`: `0267e3cbffa7b2ff0dbf8c0628ea0522253e2a45cd51b27a98f9eb8831831d6f`

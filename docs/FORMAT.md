@@ -189,14 +189,21 @@ reinterpreted:
 | `max_seed_len` | must be `1`; preset seeds are one byte |
 | `max_span_len` | public codeword length; currently `16` bytes |
 | `block_size` | minimum token length selected by the preset; currently `13` |
-| `span_step` | public preset version; currently `1` |
+| `span_step` | public preset version; currently `3` |
 
-The public-preset frame format is:
+The public-preset frame format is a Lotus J3D2 bit-stream. Frame tags are
+encoded as Lotus integers (not raw bytes), matching the unified preset used
+elsewhere in the file format:
 
-| Tag | Fields | Meaning |
-| ---: | --- | --- |
-| `0x00` | `u16 len`, `len` bytes | literal source bytes |
-| `0x01` | `max_span_len` bytes | public generated codeword mapped back to a preset token |
+| Frame | Bits |
+| --- | --- |
+| Codeword | `J3D2(PUBLIC_PRESET_FRAME_TAG_CODEWORD = 0)` then 0–7 zero pad bits to byte boundary then `max_span_len` raw codeword bytes |
+| Literal | `J3D2(PUBLIC_PRESET_FRAME_TAG_LITERAL = 1)` then `J3D2(len - 1)` then 0–7 zero pad bits to byte boundary then `len` raw literal bytes |
+
+The codeword frame is the common case and is assigned the shorter Lotus value
+(`0`). The byte-alignment pad bits let decoders `memcpy` the raw payload
+segment without bit-shifting; all pad bits are zero and the decoder rejects
+non-zero pads.
 
 Preset token-to-seed mapping is fixed by the implementation's public token
 list: token index `i` maps to seed byte `[i]`, and the codeword is

@@ -1,10 +1,10 @@
 {
   "generated_by": "scripts/generate_packed_sidecar_descriptor.py",
-  "generated_at": "2026-05-26T05:43:29.159674+00:00",
+  "generated_at": "2026-05-26T08:16:14.765674+00:00",
   "format_version": 1,
   "artifact_hashes": {
-    "sidecar_record_overhead_sha256": "201bd575e37f23af1d666e6c9bbf5a0afca1e91555d9833bc2f9f273a5960e74",
-    "experimental_sidecar_descriptor_sha256": "4ac06d6a7c6db6cc9b4d22179e04f936d2781d692d0be8da28239be8be8cca17"
+    "sidecar_record_overhead_sha256": "6d95c9513a17c8314f2fbb97c3f9c616f6c79aa1887e3e684a52b639d855b1ed",
+    "experimental_sidecar_descriptor_sha256": "665731c38e73a40e828b7daae8a2f008442c13a90d985430d484b54a4396c58c"
   },
   "descriptor_manifest_sha256": "7f5205f7c59050ae3b112202f248bf2d6e415f777002d8c6a6b651a7f24dfc87",
   "rows": [

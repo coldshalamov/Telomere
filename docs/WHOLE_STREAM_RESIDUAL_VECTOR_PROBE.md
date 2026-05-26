@@ -72,15 +72,15 @@ Whole-stream residual vectors do not yet turn the residual sidecar family into b
 
 ## Source Artifacts
 
-- `mechanism_experiment_ranking_sha256`: `31800d430dde4b360873778de3a8437fcc836ff8fef6c3886a53eedfc550f18d`
-- `seed_table_preset_probe_sha256`: `3128e58ca2d8868727d6f2cead64a6c7c57acbb199e09088bf0bdb4b6253f543`
-- `exact_short_hit_bundle_economics_sha256`: `e1f2f45a8a8fdac4d5780b912e1f781de59da92dcd8d0e37c6ce8c760311350c`
+- `mechanism_experiment_ranking_sha256`: `b728136fa7f03d0a355c58737578b3021a140bfc21a87f2aac38b4161ac029b0`
+- `seed_table_preset_probe_sha256`: `5d026762d5103ffe81ba33702147aeceb50ffd8e152eb127cc25e1a0f86aa81d`
+- `exact_short_hit_bundle_economics_sha256`: `e35dead1413c2a12048cd4d98f9d45b68666ca1e5e83aa97ba76e68e5bc2e5a0`
 - `seed_manifold_residual_steering_sha256`: `68d3e523b27b71ed009e3d3b52940fa3c4ccd87c3c3d06f56846711c617966a7`
-- `sidecar_break_even_sha256`: `5d874157aff2e242739bfacfd1be05880ab4775ae38de1a574020105c5b41e6e`
-- `residual_payload_compressibility_sha256`: `8456cf28aeca0da0121764b3fda9e812e6cfcffb018632ea737c010381649a0e`
-- `experimental_sidecar_descriptor_sha256`: `4ac06d6a7c6db6cc9b4d22179e04f936d2781d692d0be8da28239be8be8cca17`
-- `packed_sidecar_descriptor_sha256`: `df249b2875e3e492c1b9cd4d84ada0459b81554559b6e90dbe294dde7617bcb4`
-- `packed_sidecar_replication_sha256`: `31201fbd63a624f23c9437d31683e2fcb2dcbe80804e4623b5e51ec90d3b98df`
-- `format_doc_sha256`: `802bafc40345c7aa0e7245eafb1ea668e438b5fa5d95ee4768abc8fe1d717b81`
+- `sidecar_break_even_sha256`: `e5dc8cbfbf3a5f6c9e3ce63155deaf9f8d593681de016013594611082ca402b8`
+- `residual_payload_compressibility_sha256`: `f32508274e4724bad83ba056d1c375e37136c5e96c8a991d040fb4f46d0917f0`
+- `experimental_sidecar_descriptor_sha256`: `665731c38e73a40e828b7daae8a2f008442c13a90d985430d484b54a4396c58c`
+- `packed_sidecar_descriptor_sha256`: `1d1a486c64168f31af4f21d9042ed046308080eb5eb0d4a4c4667804c9e66b67`
+- `packed_sidecar_replication_sha256`: `28e8dd0a94eaeed48533a9df54c6d9e7525ce9b8038b30e137152ab13288d2bf`
+- `format_doc_sha256`: `101fa4cbc783013b456123a5b0772aa91604b229bd1a19b92999ca2b1c9370c0`
 - `manifest_sha256`: `fd902e106fb36eab8148931f114ca7742ce03f71dbbca679c4cd4724fe8e40cd`
 - `source_ledger_sha256`: `a0fd041167aa23ee84c23c2b134667853a03d11300ff8f19518777ae2ee0062c`

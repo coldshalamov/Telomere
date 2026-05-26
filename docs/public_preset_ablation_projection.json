@@ -1,6 +1,6 @@
 {
   "generated_by": "scripts/generate_public_preset_ablation_projection.py",
-  "generated_at": "2026-05-26T06:33:07.045467+00:00",
+  "generated_at": "2026-05-26T08:59:23.334345+00:00",
   "format_version": 1,
   "scope": {
     "kind": "public preset ablation projection",
@@ -13,10 +13,10 @@
     "overrides_public_preset_gate": false
   },
   "source_hashes": {
-    "public_preset_control_ablation_sha256": "2554429e74f82e47fb978feb4a781d1770ffee7b9686b99805bb349a573f667b",
-    "public_preset_control_audit_sha256": "febacf2f3e73b312adf246a8a782b63070f745ee774afda60d5dee4d0bc2318c",
-    "public_preset_promotion_gate_sha256": "d53fd27cd3ca0c4079a1601f8a762cea3a9b147ee65023fffa28fe909374fb02",
-    "schema_native_public_dictionary_replication_sha256": "226d4446bd8930bea72d9d1f129c832c4778bd81fc2b76eeab21d6d7c2f7168e"
+    "public_preset_control_ablation_sha256": "e76b0329958a89866b44c9c2c8d3ee2a18513959d12f827c4076eebf57495433",
+    "public_preset_control_audit_sha256": "ffda0011f3b12248e3d05b8dbf5938ed44a77b23aadf67fc0d43e22cb95088b2",
+    "public_preset_promotion_gate_sha256": "abb350c5b95697f8f50b23a6f7bf56a5072db1e075af62f44c02c088eff98e4f",
+    "schema_native_public_dictionary_replication_sha256": "f3af0a46a5e9f2cc3b02225035c1483e473ab8994bce1f7546044432fc858022"
   },
   "summary": {
     "projection_status": "read_only_projection_not_decode_proof",

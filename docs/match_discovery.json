@@ -1,10 +1,10 @@
 {
   "generated_by": "scripts/generate_match_discovery.py",
-  "generated_at": "2026-05-26T05:49:33.140827+00:00",
+  "generated_at": "2026-05-26T08:21:42.833623+00:00",
   "artifact_hashes": {
     "corpus_matrix_sha256": "2a9f8506a3c9e6aa47c0e91c1e15bf1951f9af0d0b3cb64129982e06a27e7bd2",
     "transform_validation_sha256": "0267e3cbffa7b2ff0dbf8c0628ea0522253e2a45cd51b27a98f9eb8831831d6f",
-    "packed_sidecar_replication_sha256": "31201fbd63a624f23c9437d31683e2fcb2dcbe80804e4623b5e51ec90d3b98df"
+    "packed_sidecar_replication_sha256": "28e8dd0a94eaeed48533a9df54c6d9e7525ce9b8038b30e137152ab13288d2bf"
   },
   "manifest_sha256": "33d284da99f75fdd56e58904af9086dde30859b246ad47cfba4e9d28a93706e3",
   "manifest": {

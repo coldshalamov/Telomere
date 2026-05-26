@@ -1,9 +1,9 @@
 {
   "generated_by": "scripts/generate_fifth_byte_residual.py",
-  "generated_at": "2026-05-26T06:05:31.412621+00:00",
+  "generated_at": "2026-05-26T08:35:04.398060+00:00",
   "format_version": 1,
   "artifact_hashes": {
-    "prefix_ladder_sha256": "98ca3a9a96550050be655b32c07997e389045dca12a1c45d8b7cac5f13077a38"
+    "prefix_ladder_sha256": "bc83b2cefe34bf85f7662d737176101f4fec16208b834a405da1ce4caf1eb965"
   },
   "hasher": "sha256",
   "max_seed_len": 2,

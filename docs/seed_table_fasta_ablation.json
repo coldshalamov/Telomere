@@ -1,6 +1,6 @@
 {
   "generated_by": "scripts/generate_seed_table_fasta_ablation.py",
-  "generated_at": "2026-05-26T06:27:22.080724+00:00",
+  "generated_at": "2026-05-26T08:54:14.248919+00:00",
   "format_version": 1,
   "scope": {
     "kind": "bounded FASTA attribution ablation",
@@ -13,12 +13,12 @@
     "allows_broad_compute": false
   },
   "source_hashes": {
-    "seed_table_preset_replay_sha256": "f331d744c9751d055f0612b6e51b64e85bf388ae850fa63894e099ce72668fbc",
-    "seed_table_preset_probe_sha256": "3128e58ca2d8868727d6f2cead64a6c7c57acbb199e09088bf0bdb4b6253f543",
+    "seed_table_preset_replay_sha256": "504574646ec6157b580eec640debac86a2394c3ced7ac6585bac6b670632a87b",
+    "seed_table_preset_probe_sha256": "5d026762d5103ffe81ba33702147aeceb50ffd8e152eb127cc25e1a0f86aa81d",
     "seed_table_preset_probe_generator_sha256": "36c8440af23bed13b46d58b699d80e873a5df9d349932eb252b44d75361a2573",
     "corpus_matrix_sha256": "2a9f8506a3c9e6aa47c0e91c1e15bf1951f9af0d0b3cb64129982e06a27e7bd2",
     "corpus_matrix_generator_sha256": "d39baa9599c21b1d426c636851a07c5c389999f9a58e772dc2115c4922459e36",
-    "search_frontier_gate_sha256": "9d39bd91dcd1d735b313fe9a40c82cec2ec37a97c5596b8ab30976d170bff9d5",
+    "search_frontier_gate_sha256": "aab9351032df10d7998c3a0e04306bb9d0f344b5d0556cc721592c7b8793737f",
     "fasta_ablation_generator_sha256": "e215c3f7faf2ab2758866311e5818410b062e62cd1d6ffb59fbab5b6e81e4515"
   },
   "case_manifest_sha256": "63994e47b3e78fc397ded3e35f3424cdb5afbd5f1f5c7781d694f411b24749e5",

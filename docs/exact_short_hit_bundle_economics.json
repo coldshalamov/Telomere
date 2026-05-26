@@ -1,16 +1,16 @@
 {
   "generated_by": "scripts/generate_exact_short_hit_bundle_economics.py",
-  "generated_at": "2026-05-26T06:27:23.304582+00:00",
+  "generated_at": "2026-05-26T08:54:15.586850+00:00",
   "format_version": 1,
   "artifact_hashes": {
-    "alignment_arity_discovery_sha256": "a056600b2d110b6f4b51c02263e9a8a99862cf3f88c006f999886ac3b3f59a96",
-    "mechanism_experiment_ranking_sha256": "31800d430dde4b360873778de3a8437fcc836ff8fef6c3886a53eedfc550f18d",
-    "seed_table_preset_probe_sha256": "3128e58ca2d8868727d6f2cead64a6c7c57acbb199e09088bf0bdb4b6253f543",
-    "sidecar_record_overhead_sha256": "201bd575e37f23af1d666e6c9bbf5a0afca1e91555d9833bc2f9f273a5960e74",
-    "packed_sidecar_controls_sha256": "adcea5f79302d360f8fa2575c8da244cf5cf666f88736b5658240ce295a4f99a",
-    "generalized_packed_sidecar_sha256": "24c9060ef3152e0fcf9e0fe424d00a83546b66f8f9d0dea1aee64c2fb8c7ca40",
-    "packed_sidecar_replication_sha256": "31201fbd63a624f23c9437d31683e2fcb2dcbe80804e4623b5e51ec90d3b98df",
-    "format_doc_sha256": "802bafc40345c7aa0e7245eafb1ea668e438b5fa5d95ee4768abc8fe1d717b81"
+    "alignment_arity_discovery_sha256": "d7ef17dc66b36d0b2b4cd7c4506fca31c332818b3dc16a191e944d70bde0b630",
+    "mechanism_experiment_ranking_sha256": "b728136fa7f03d0a355c58737578b3021a140bfc21a87f2aac38b4161ac029b0",
+    "seed_table_preset_probe_sha256": "5d026762d5103ffe81ba33702147aeceb50ffd8e152eb127cc25e1a0f86aa81d",
+    "sidecar_record_overhead_sha256": "6d95c9513a17c8314f2fbb97c3f9c616f6c79aa1887e3e684a52b639d855b1ed",
+    "packed_sidecar_controls_sha256": "f0c196126c6f96ae15b2c99506eedc06c7e2fab512c2d84af7d28c39b4af26a9",
+    "generalized_packed_sidecar_sha256": "9c40d3731242f22c964772d62da56dbe441a11f66c96c770536546f395eac029",
+    "packed_sidecar_replication_sha256": "28e8dd0a94eaeed48533a9df54c6d9e7525ce9b8038b30e137152ab13288d2bf",
+    "format_doc_sha256": "101fa4cbc783013b456123a5b0772aa91604b229bd1a19b92999ca2b1c9370c0"
   },
   "manifest_sha256": "19a00b8921ffab660222e10cd77a95e0ab9e38dad2f7f32fe528e419d8a16a9d",
   "manifest": {

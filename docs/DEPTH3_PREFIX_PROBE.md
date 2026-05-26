@@ -7,7 +7,7 @@ Baseline max seed len: `2`.
 Search max seed len: `3`.
 Selected frontier rows: `24`.
 Enumerated seeds: `16843008`.
-Enumeration time: `78993.069` ms.
+Enumeration time: `63100.545` ms.
 
 ## Summary
 

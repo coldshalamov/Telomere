@@ -19,8 +19,8 @@ Best case: `log-heldout::identity__add-periodic-p4-97d5e8d5` delta `33` bytes wi
 
 | physical input | aliases | depth2 p5 | depth3 p5 | p5 delta | exact hits | depth2 output | depth3 output | depth3 delta | depth3 selected | depth3 candidates | compress ms | peak MiB | promotion |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| log-heldout::identity__add-periodic-p4-97d5e8d5 | 2 | 0 | 1 | +1 | 0 | 29473 | 29473 | +33 | 0 | 0 | 2356.589 | 10.465 | no |
-| http-headers-heldout::sub-lag-2 | 1 | 0 | 1 | +1 | 0 | 45575 | 45575 | +35 | 0 | 0 | 2532.872 | 11.668 | no |
+| log-heldout::identity__add-periodic-p4-97d5e8d5 | 2 | 0 | 1 | +1 | 0 | 29473 | 29473 | +33 | 0 | 0 | 2405.593 | 10.449 | no |
+| http-headers-heldout::sub-lag-2 | 1 | 0 | 1 | +1 | 0 | 45575 | 45575 | +35 | 0 | 0 | 2451.72 | 11.602 | no |
 
 ## Interpretation
 

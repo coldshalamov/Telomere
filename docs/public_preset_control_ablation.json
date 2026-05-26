@@ -1,6 +1,6 @@
 {
   "generated_by": "scripts/generate_public_preset_control_ablation.py",
-  "generated_at": "2026-05-26T06:33:06.921840+00:00",
+  "generated_at": "2026-05-26T08:59:23.209039+00:00",
   "format_version": 1,
   "scope": {
     "kind": "public preset control ablation manifest",
@@ -12,11 +12,11 @@
     "overrides_public_preset_gate": false
   },
   "source_hashes": {
-    "public_preset_control_audit_sha256": "febacf2f3e73b312adf246a8a782b63070f745ee774afda60d5dee4d0bc2318c",
-    "public_preset_promotion_gate_sha256": "d53fd27cd3ca0c4079a1601f8a762cea3a9b147ee65023fffa28fe909374fb02",
-    "schema_native_public_dictionary_replication_sha256": "226d4446bd8930bea72d9d1f129c832c4778bd81fc2b76eeab21d6d7c2f7168e",
-    "schema_native_public_dictionaries_sha256": "08e16ee9b2f67d22f340f3ef001325ff2f250f98c690bd6fcfb6397d2f96c45e",
-    "seed_table_preset_probe_sha256": "3128e58ca2d8868727d6f2cead64a6c7c57acbb199e09088bf0bdb4b6253f543"
+    "public_preset_control_audit_sha256": "ffda0011f3b12248e3d05b8dbf5938ed44a77b23aadf67fc0d43e22cb95088b2",
+    "public_preset_promotion_gate_sha256": "abb350c5b95697f8f50b23a6f7bf56a5072db1e075af62f44c02c088eff98e4f",
+    "schema_native_public_dictionary_replication_sha256": "f3af0a46a5e9f2cc3b02225035c1483e473ab8994bce1f7546044432fc858022",
+    "schema_native_public_dictionaries_sha256": "84008baffe2fe755b414de098d56cfe973610dee429f65327fc10b29b8750778",
+    "seed_table_preset_probe_sha256": "5d026762d5103ffe81ba33702147aeceb50ffd8e152eb127cc25e1a0f86aa81d"
   },
   "summary": {
     "ablation_count": 5,

@@ -1,6 +1,6 @@
 {
   "generated_by": "scripts/generate_public_preset_promotion_gate.py",
-  "generated_at": "2026-05-26T06:33:06.621615+00:00",
+  "generated_at": "2026-05-26T08:59:22.910416+00:00",
   "format_version": 1,
   "scope": {
     "kind": "public preset promotion gate",
@@ -11,13 +11,13 @@
     "overrides_search_frontier_gate": false
   },
   "source_hashes": {
-    "seed_table_preset_probe_sha256": "3128e58ca2d8868727d6f2cead64a6c7c57acbb199e09088bf0bdb4b6253f543",
-    "schema_native_public_dictionaries_sha256": "08e16ee9b2f67d22f340f3ef001325ff2f250f98c690bd6fcfb6397d2f96c45e",
-    "schema_native_public_dictionary_replication_sha256": "226d4446bd8930bea72d9d1f129c832c4778bd81fc2b76eeab21d6d7c2f7168e",
-    "expander_salt_ensemble_sha256": "cbe5fac0b15dc49c47621005fa05f21692a39a6fdfbc1fdf000567e8468489b3",
-    "mechanism_experiment_ranking_sha256": "31800d430dde4b360873778de3a8437fcc836ff8fef6c3886a53eedfc550f18d",
-    "search_frontier_gate_sha256": "9d39bd91dcd1d735b313fe9a40c82cec2ec37a97c5596b8ab30976d170bff9d5",
-    "format_doc_sha256": "802bafc40345c7aa0e7245eafb1ea668e438b5fa5d95ee4768abc8fe1d717b81"
+    "seed_table_preset_probe_sha256": "5d026762d5103ffe81ba33702147aeceb50ffd8e152eb127cc25e1a0f86aa81d",
+    "schema_native_public_dictionaries_sha256": "84008baffe2fe755b414de098d56cfe973610dee429f65327fc10b29b8750778",
+    "schema_native_public_dictionary_replication_sha256": "f3af0a46a5e9f2cc3b02225035c1483e473ab8994bce1f7546044432fc858022",
+    "expander_salt_ensemble_sha256": "b719c3caf230c16b47e264efb8c07af533d0cf3bb5f58884cf18b9fd12577602",
+    "mechanism_experiment_ranking_sha256": "b728136fa7f03d0a355c58737578b3021a140bfc21a87f2aac38b4161ac029b0",
+    "search_frontier_gate_sha256": "aab9351032df10d7998c3a0e04306bb9d0f344b5d0556cc721592c7b8793737f",
+    "format_doc_sha256": "101fa4cbc783013b456123a5b0772aa91604b229bd1a19b92999ca2b1c9370c0"
   },
   "summary": {
     "gate_count": 8,

@@ -1,10 +1,10 @@
 {
   "generated_by": "scripts/generate_superposition_telemetry.py",
-  "generated_at": "2026-05-26T06:34:12.703953+00:00",
+  "generated_at": "2026-05-26T09:00:19.293642+00:00",
   "format_version": 1,
   "source_artifact_hashes": {
     "candidate_lattice_doc_sha256": "cb0af2a7c7b1ce173e726588bc1ac197ace7432e1eae2cbfca77f96d398b3be3",
-    "mechanism_experiment_ranking_sha256": "31800d430dde4b360873778de3a8437fcc836ff8fef6c3886a53eedfc550f18d",
+    "mechanism_experiment_ranking_sha256": "b728136fa7f03d0a355c58737578b3021a140bfc21a87f2aac38b4161ac029b0",
     "indexed_engine_sha256": "c53dd350709c8b1b075e968cc60417f62e01c6d197fc577bc772e6bbae9f6120",
     "superposition_engine_sha256": "57f415af9d1a88707168ebcfe09b61d76d3c4692e5d643b26349ac89d0ecf2d7",
     "indexed_v2_tests_sha256": "8a496865dcd3964f64b1f9abbb61925a8cec6dbee1ab8082229fa778a2a1ccb6",

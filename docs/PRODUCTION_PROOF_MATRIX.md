@@ -67,21 +67,21 @@ Runtime proof capture:
 
 ## Source Artifacts
 
-- `format_sha256`: `802bafc40345c7aa0e7245eafb1ea668e438b5fa5d95ee4768abc8fe1d717b81`
+- `format_sha256`: `101fa4cbc783013b456123a5b0772aa91604b229bd1a19b92999ca2b1c9370c0`
 - `release_checklist_sha256`: `42ac71c4640fba2acaa3d5b18cdf5fe2f5d841b5fb55abff76afe1c7854dbdb8`
 - `architecture_sha256`: `1ddd790688cc827f60dc25539bf3d33b5dfab8dee758680169acbc6570ef2c7f`
 - `acceleration_md_sha256`: `d8d8e345a50af4fb19ab507b161b86041588396d4ba0d08f189ef533c208fdef`
-- `acceleration_report_sha256`: `6e9abc13b527c55113f8ea428dfa2ecbeb754b40038fa370a848bb5b6d921b00`
+- `acceleration_report_sha256`: `623b59981cf78e7a22d54fb4111b663fc2975c5a923ae3bf8ff288d9f42b1207`
 - `scale_performance_md_sha256`: `8a484de382a0838b8136584c40932fa88aabf436b29cf1b3183471493f10a9ab`
-- `scale_performance_report_sha256`: `7ed20e3912fc1917957e27a7f21fd11d234b22887fc2a9ab27f3df0bd238f321`
-- `bounded_streaming_memory_gate_md_sha256`: `2766771bef0819fa7de1eb55f5c8d3b00a469aefaa95b936d8d64871a0f359ab`
-- `bounded_streaming_memory_gate_json_sha256`: `c6858a6619589e04f0842bbd8cdd2dabaaf9c0faf235e5245acf4f0281498cc0`
-- `streaming_economics_gate_md_sha256`: `0d7a3c7945059cb368a3da8f818d54a484ba0277b3dc2672837548d160905dd3`
-- `streaming_economics_gate_json_sha256`: `43b05882391b1be2137ba64cced0d7bd144361ed7b5296a784374a78f65bd74a`
+- `scale_performance_report_sha256`: `758a271d8bd7f3d775b88999da76fd434f79ac5fbdf2ccbd7414ad69d1b9af68`
+- `bounded_streaming_memory_gate_md_sha256`: `06bcdfb5b9974f5e83b143fdca9d0921defa9c92fbe967013adff5aa5d6848a9`
+- `bounded_streaming_memory_gate_json_sha256`: `854e596842568eb16d4945d55f2c2c2ba331fefccfb91ae6d7df6929e65d148b`
+- `streaming_economics_gate_md_sha256`: `6a0c359e6372a272915b9196e6bcee230f3714fdf87c5648eaa124fc19ff58a3`
+- `streaming_economics_gate_json_sha256`: `94cc830b796f227119713d0ecbd6d7f27201605ef50c674fe55f30ad81f065dc`
 - `ui_workflow_smoke_md_sha256`: `080c036e335451a2a3e5d3b1e37e46bfd061721374783d4fcf3be26d9755c2dc`
-- `ui_workflow_smoke_json_sha256`: `a8a385ff5ed2f73f5893416c9e722e1ab579ce3248cd485b8e2a74794932a2e0`
-- `research_decision_sha256`: `de7ec7e5fcb358cf4ac247d190e0cd97c1ae13e58e0973087ce3043fbe1f29b8`
-- `research_frontier_sha256`: `230e4ccb762372951220a2aa83fa597f199e30eb723977e19c16a44d500cc358`
+- `ui_workflow_smoke_json_sha256`: `2e67ef9df75bdfa28db4af3832fec292c988b92f0f8ab4b3f738da75ecc1128f`
+- `research_decision_sha256`: `1b9b14bbadf3174c32cbdb9c050fb9171a481d15d5138588313bfb6093618280`
+- `research_frontier_sha256`: `135b688029b3a90f92e080ccee6c7d50a61b747d06326253b28c5ba15d49b8d7`
 - `ci_workflow_sha256`: `2df1495a9a67d51538fdea719eca9b947edf4a998e3da1550ad7c3d0627a136e`
 - `cargo_toml_sha256`: `a623beee089b74ee04fd55ad5a972ad89e4599d98967958a4c0537ff7ddc132d`
 - `evidence_regimen_sha256`: `a5986022bfc24b9dcccfdda0fd57019760c489f5cb32f37063f2cd9661ea3984`

@@ -1,12 +1,12 @@
 {
   "generated_by": "scripts/generate_nearmiss_forecast.py",
-  "generated_at": "2026-05-26T06:02:40.422322+00:00",
+  "generated_at": "2026-05-26T08:33:44.509488+00:00",
   "format_version": 1,
   "artifact_hashes": {
     "transform_validation_sha256": "0267e3cbffa7b2ff0dbf8c0628ea0522253e2a45cd51b27a98f9eb8831831d6f",
     "periodic_transform_probe_sha256": "6164cb60ab30824a396569dbc1bcfb60fe319c8da07e64c14ff672e471d1c7fc",
     "composed_transform_probe_sha256": "c23611544994eaa766b2cb2847ce109788820a3a7706c052cc32cbea42ab1297",
-    "manifold_sha256": "62699421e7a3411f37861522f3dfe604df91d95dc1a593da0f784af835283e85"
+    "manifold_sha256": "d2b04091952aa24e08ba893c5abeec45cf3e36f7c10ed1ca8e66cb037c94fb5f"
   },
   "model": "expected_exact_hits = prefix_count / 2^(8*(8-prefix_len))",
   "span_len": 8,

@@ -19,7 +19,7 @@ Best case: `log-heldout::periodic::add-periodic-p4-97d5e8d5` delta `33` bytes wi
 
 | physical input | aliases | depth2 p5 | depth3 p5 | p5 delta | exact hits | depth2 output | depth3 output | depth3 delta | depth3 selected | depth3 candidates | compress ms | peak MiB | promotion |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| log-heldout::periodic::add-periodic-p4-97d5e8d5 | 2 | 0 | 1 | +1 | 0 | 29473 | 29473 | +33 | 0 | 0 | 2238.154 | 10.441 | no |
+| log-heldout::periodic::add-periodic-p4-97d5e8d5 | 2 | 0 | 1 | +1 | 0 | 29473 | 29473 | +33 | 0 | 0 | 2464.203 | 10.5 | no |
 
 ## Interpretation
 

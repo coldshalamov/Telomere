@@ -75,11 +75,11 @@ Schema-native public dictionary replication does not yet survive the harder cont
 
 ## Source Artifacts
 
-- `schema_native_public_dictionaries_sha256`: `08e16ee9b2f67d22f340f3ef001325ff2f250f98c690bd6fcfb6397d2f96c45e`
-- `heldout_corpus_expansion_sha256`: `a6e91a2d9d2d96b89510e4a81a685983ef394be930bfc71fde2c970c5beed149`
-- `packed_sidecar_replication_sha256`: `31201fbd63a624f23c9437d31683e2fcb2dcbe80804e4623b5e51ec90d3b98df`
+- `schema_native_public_dictionaries_sha256`: `84008baffe2fe755b414de098d56cfe973610dee429f65327fc10b29b8750778`
+- `heldout_corpus_expansion_sha256`: `5abffdc19be1d202575340ba0004bdae88f27c6eb06aa60cb6a8651f790a965c`
+- `packed_sidecar_replication_sha256`: `28e8dd0a94eaeed48533a9df54c6d9e7525ce9b8038b30e137152ab13288d2bf`
 - `packed_sidecar_replication_generator_sha256`: `3052483077e7bc62dc35ff460c90e5d41cde3c5d85476ef5b5aaca3b56f886d9`
-- `format_doc_sha256`: `802bafc40345c7aa0e7245eafb1ea668e438b5fa5d95ee4768abc8fe1d717b81`
+- `format_doc_sha256`: `101fa4cbc783013b456123a5b0772aa91604b229bd1a19b92999ca2b1c9370c0`
 - `preset_manifest_sha256`: `7765fb7129325087dcc8d796aec4d55f7228a60ad6b4f19f44a8ed34898d9017`
 - `corpus_manifest_sha256`: `e149f64f64ac2900bbd20c464ab66a483b570aa22e7cfb3fad081d4175ba05a6`
-- `replication_manifest_sha256`: `d7edade5f4bcf285db53a5db99e4fec7d1351cb7151260cccc95e471b2fcc5ab`
+- `replication_manifest_sha256`: `b68498a2989d2cba5e5cc7e57dbcf8420b84d73057b86106489b607fd36b72a7`

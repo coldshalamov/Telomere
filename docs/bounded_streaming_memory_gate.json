@@ -1,6 +1,6 @@
 {
   "generated_by": "scripts/generate_bounded_streaming_memory_gate.py",
-  "generated_at": "2026-05-26T07:35:38.265603+00:00",
+  "generated_at": "2026-05-26T09:00:31.094295+00:00",
   "format_version": 1,
   "scope": {
     "kind": "bounded streaming memory gate",
@@ -13,11 +13,11 @@
     "overrides_search_frontier_gate": false
   },
   "source_hashes": {
-    "scale_performance_report_sha256": "7ed20e3912fc1917957e27a7f21fd11d234b22887fc2a9ab27f3df0bd238f321",
+    "scale_performance_report_sha256": "758a271d8bd7f3d775b88999da76fd434f79ac5fbdf2ccbd7414ad69d1b9af68",
     "scale_performance_doc_sha256": "8a484de382a0838b8136584c40932fa88aabf436b29cf1b3183471493f10a9ab",
     "results_sha256": "225465824966499a8d15a5721e0698c30ae83053d072dbec6c6b21558523f9ba",
     "results_doc_sha256": "991eb6a9a04f751cc571a04157e3b0a71139d7af0b5539dc4e80ff0084f9eba0",
-    "search_frontier_gate_sha256": "9d39bd91dcd1d735b313fe9a40c82cec2ec37a97c5596b8ab30976d170bff9d5",
+    "search_frontier_gate_sha256": "aab9351032df10d7998c3a0e04306bb9d0f344b5d0556cc721592c7b8793737f",
     "streaming_engine_sha256": "c8527365c61fb9dd1ad202590a276c1b2c54ba0a97efc41b855c772122f31776",
     "indexed_engine_sha256": "c53dd350709c8b1b075e968cc60417f62e01c6d197fc577bc772e6bbae9f6120",
     "decompress_api_sha256": "b8398587cc18cb98bde00a53d37786c192bc0b6427811800c453227068c26a59",

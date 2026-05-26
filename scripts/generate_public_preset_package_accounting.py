@@ -26,6 +26,11 @@ RUNS = [
         "role": "best compact Canterbury package run",
     },
     {
+        "id": "calgary_to_canterbury_train_greedy_pool128",
+        "path": RUN_DIR / "calgary_to_canterbury_train_greedy_pool128_package_accounting.json",
+        "role": "training-greedy Canterbury comparison",
+    },
+    {
         "id": "calgary_to_canterbury_tokens128",
         "path": RUN_DIR / "calgary_to_canterbury_package_accounting.json",
         "role": "larger-table Canterbury comparison",
@@ -34,6 +39,12 @@ RUNS = [
         "id": "calgary_to_silesia_under7mb_tokens64",
         "path": RUN_DIR / "calgary_to_silesia_under7mb_tokens64_package_accounting.json",
         "role": "best compact Silesia under-7MB package run",
+    },
+    {
+        "id": "calgary_to_silesia_under7mb_train_greedy_pool128",
+        "path": RUN_DIR
+        / "calgary_to_silesia_under7mb_train_greedy_pool128_package_accounting.json",
+        "role": "training-greedy Silesia under-7MB comparison",
     },
     {
         "id": "calgary_to_silesia_under7mb_tokens128",

@@ -34,6 +34,7 @@ CONTROL_VARIANTS = (
     "random-codeword",
     "out-of-budget-codeword",
 )
+SELECTION_MODES = ("score", "train-greedy")
 
 
 def is_printable_window(window: bytes) -> bool:
@@ -94,6 +95,72 @@ def unique_deterministic_bytes(
         counter += 1
 
 
+def estimate_transform_len_and_replacements(
+    data: bytes, tokens: list[bytes]
+) -> tuple[int, int]:
+    """Estimate transform bytes without materializing the transformed stream."""
+
+    tokens_by_len: dict[int, set[bytes]] = {}
+    for token in tokens:
+        tokens_by_len.setdefault(len(token), set()).add(token)
+    token_lengths = sorted(tokens_by_len, reverse=True)
+    out_len = 0
+    literal_len = 0
+    replacements = 0
+
+    def flush_literal() -> None:
+        nonlocal out_len, literal_len
+        while literal_len:
+            take = min(literal_len, 65535)
+            out_len += 1 + 2 + take
+            literal_len -= take
+
+    pos = 0
+    while pos < len(data):
+        matched_len = None
+        for token_len in token_lengths:
+            end = pos + token_len
+            if end > len(data):
+                continue
+            if data[pos:end] in tokens_by_len[token_len]:
+                matched_len = token_len
+                break
+        if matched_len is None:
+            literal_len += 1
+            pos += 1
+            continue
+        flush_literal()
+        out_len += 1 + CODEWORD_LEN
+        replacements += 1
+        pos += matched_len
+    flush_literal()
+    return out_len, replacements
+
+
+def estimate_package_proxy(
+    train_data: list[bytes],
+    tokens: list[bytes],
+    *,
+    seed_record_cost: float,
+    token_metadata_cost: float,
+) -> float:
+    """Training-only proxy for post-Telomere package bytes.
+
+    A selected token becomes one 1-byte frame tag plus a 16-byte generated
+    codeword. Streaming v2 can replace that codeword with a seed-span record;
+    recent measured public-preset runs put the record near 6 bytes, so the
+    default proxy subtracts roughly 10 bytes per replacement and charges a
+    per-token public-table cost.
+    """
+
+    seed_savings = CODEWORD_LEN - seed_record_cost
+    total = token_metadata_cost * len(tokens)
+    for data in train_data:
+        framed_len, replacements = estimate_transform_len_and_replacements(data, tokens)
+        total += framed_len - (seed_savings * replacements)
+    return total
+
+
 def train_codebook(
     train_files: list[Path],
     *,
@@ -101,11 +168,18 @@ def train_codebook(
     min_count: int,
     max_tokens: int,
     printable_only: bool,
+    selection: str,
+    candidate_pool: int,
+    seed_record_cost: float,
+    token_metadata_cost: float,
+    stop_nonpositive_marginal: bool,
 ) -> list[dict[str, Any]]:
     counts: Counter[bytes] = Counter()
     file_counts: Counter[bytes] = Counter()
+    train_data = []
     for path in train_files:
         data = path.read_bytes()
+        train_data.append(data)
         seen_in_file: set[bytes] = set()
         for n in ngram_lens:
             if n <= 0 or len(data) < n:
@@ -139,11 +213,72 @@ def train_codebook(
         )
     )
 
+    if selection not in SELECTION_MODES:
+        raise ValueError(f"unknown selection mode: {selection}")
+
+    candidate_tokens = [token for _, _, _, token in candidates]
+    selection_details: dict[bytes, dict[str, Any]] = {}
+    if selection == "train-greedy":
+        pool = candidate_tokens[: max(1, candidate_pool)]
+        occurrence_map: dict[bytes, list[tuple[int, int, int]]] = {}
+        for token in pool:
+            intervals = []
+            for file_index, data in enumerate(train_data):
+                start = data.find(token)
+                while start != -1:
+                    intervals.append((file_index, start, start + len(token)))
+                    start = data.find(token, start + 1)
+            occurrence_map[token] = intervals
+
+        selected_tokens: list[bytes] = []
+        remaining = list(pool)
+        covered = [bytearray(len(data)) for data in train_data]
+        current_proxy = float(sum(len(data) for data in train_data))
+        while remaining and len(selected_tokens) < max_tokens:
+            best_index = 0
+            best_accepted: list[tuple[int, int, int]] = []
+            best_marginal = float("-inf")
+            for index, token in enumerate(remaining):
+                accepted = []
+                last_end_by_file: dict[int, int] = {}
+                for file_index, start, end in occurrence_map[token]:
+                    if start < last_end_by_file.get(file_index, 0):
+                        continue
+                    if any(covered[file_index][start:end]):
+                        continue
+                    accepted.append((file_index, start, end))
+                    last_end_by_file[file_index] = end
+                replacement_gain = (len(token) - (1 + seed_record_cost)) * len(accepted)
+                marginal = replacement_gain - token_metadata_cost
+                if marginal > best_marginal:
+                    best_index = index
+                    best_accepted = accepted
+                    best_marginal = marginal
+            if stop_nonpositive_marginal and best_marginal <= 0:
+                break
+            token = remaining.pop(best_index)
+            selected_tokens.append(token)
+            current_proxy -= best_marginal
+            for file_index, start, end in best_accepted:
+                covered[file_index][start:end] = b"\x01" * (end - start)
+            selection_details[token] = {
+                "selection": selection,
+                "selection_rank": len(selected_tokens) - 1,
+                "train_proxy_bytes_after_selection": round(current_proxy, 3),
+                "train_marginal_proxy_bytes": round(best_marginal, 3),
+                "train_marginal_replacements": len(best_accepted),
+            }
+        candidate_tokens = selected_tokens
+
     codebook = []
     used: set[bytes] = set()
-    for _, distinct_files, count, token in candidates:
+    candidate_stats = {
+        token: (distinct_files, count) for _, distinct_files, count, token in candidates
+    }
+    for token in candidate_tokens:
         if token in used:
             continue
+        distinct_files, count = candidate_stats[token]
         seed_index = len(codebook)
         if seed_index >= max_tokens:
             break
@@ -156,6 +291,16 @@ def train_codebook(
                 "train_count": count,
                 "train_distinct_files": distinct_files,
                 "codeword_hex": sha256_codeword(seed_index).hex(),
+                **selection_details.get(
+                    token,
+                    {
+                        "selection": selection,
+                        "selection_rank": seed_index,
+                        "train_proxy_bytes_after_selection": None,
+                        "train_marginal_proxy_bytes": None,
+                        "train_marginal_replacements": None,
+                    },
+                ),
             }
         )
     return codebook
@@ -860,6 +1005,35 @@ def main() -> int:
     parser.add_argument("--min-count", type=int, default=2)
     parser.add_argument("--max-tokens", type=int, default=128)
     parser.add_argument("--printable-only", action="store_true")
+    parser.add_argument(
+        "--selection",
+        choices=SELECTION_MODES,
+        default="score",
+        help="token selection policy: legacy frequency score or training-only greedy package proxy",
+    )
+    parser.add_argument(
+        "--candidate-pool",
+        type=int,
+        default=512,
+        help="top scored candidates considered by --selection train-greedy",
+    )
+    parser.add_argument(
+        "--seed-record-cost",
+        type=float,
+        default=6.0,
+        help="training proxy bytes charged for each selected 16-byte seed span",
+    )
+    parser.add_argument(
+        "--token-metadata-cost",
+        type=float,
+        default=280.0,
+        help="training proxy bytes charged per frozen public-preset token",
+    )
+    parser.add_argument(
+        "--stop-nonpositive-marginal",
+        action="store_true",
+        help="stop greedy selection when the next token no longer improves the training proxy",
+    )
     parser.add_argument("--seed-bits", type=int, default=8)
     parser.add_argument("--max-files", type=int, default=0)
     parser.add_argument("--max-file-bytes", type=int, default=0)
@@ -906,6 +1080,11 @@ def main() -> int:
         "min_count": args.min_count,
         "max_tokens": args.max_tokens,
         "printable_only": args.printable_only,
+        "selection": args.selection,
+        "candidate_pool": args.candidate_pool,
+        "seed_record_cost": args.seed_record_cost,
+        "token_metadata_cost": args.token_metadata_cost,
+        "stop_nonpositive_marginal": args.stop_nonpositive_marginal,
         "codeword_len": CODEWORD_LEN,
         "seed_kind": "one-byte canonical seed index",
         "split_role": "train",
@@ -925,6 +1104,11 @@ def main() -> int:
         min_count=args.min_count,
         max_tokens=args.max_tokens,
         printable_only=args.printable_only,
+        selection=args.selection,
+        candidate_pool=args.candidate_pool,
+        seed_record_cost=args.seed_record_cost,
+        token_metadata_cost=args.token_metadata_cost,
+        stop_nonpositive_marginal=args.stop_nonpositive_marginal,
     )
     training_elapsed = time.perf_counter() - started
     real_codebook = control_codebook(codebook, "real", source_hash="")
@@ -1039,6 +1223,11 @@ def main() -> int:
             "transform_only": args.transform_only,
             "skip_raw_baseline": args.skip_raw_baseline,
             "controls": controls,
+            "selection": args.selection,
+            "candidate_pool": args.candidate_pool,
+            "seed_record_cost": args.seed_record_cost,
+            "token_metadata_cost": args.token_metadata_cost,
+            "stop_nonpositive_marginal": args.stop_nonpositive_marginal,
         },
         "codebook": {
             **real_variant["codebook"],

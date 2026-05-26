@@ -56,9 +56,9 @@ Replay can reopen the seed-table lane only if unrelated ordinary negative groups
 ## Source Artifacts
 
 The JSON `source_hashes` map pins this replay to exact upstream evidence and generator files below.
-- `seed_table_preset_probe_sha256`: `3128e58ca2d8868727d6f2cead64a6c7c57acbb199e09088bf0bdb4b6253f543`
+- `seed_table_preset_probe_sha256`: `5d026762d5103ffe81ba33702147aeceb50ffd8e152eb127cc25e1a0f86aa81d`
 - `seed_table_preset_probe_generator_sha256`: `36c8440af23bed13b46d58b699d80e873a5df9d349932eb252b44d75361a2573`
 - `corpus_matrix_sha256`: `2a9f8506a3c9e6aa47c0e91c1e15bf1951f9af0d0b3cb64129982e06a27e7bd2`
-- `search_frontier_gate_sha256`: `9d39bd91dcd1d735b313fe9a40c82cec2ec37a97c5596b8ab30976d170bff9d5`
+- `search_frontier_gate_sha256`: `aab9351032df10d7998c3a0e04306bb9d0f344b5d0556cc721592c7b8793737f`
 - `replay_manifest_sha256`: `905adaf81bc0d98b71486219bc6bc93c92056b778c16c138bc73b9206c9b7f6b`
 - `case_manifest_sha256`: `c046f5fc48dbee4f159ccff4d47c65185bc0de95972b806aeec524ffa670b0d2`

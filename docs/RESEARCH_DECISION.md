@@ -72,12 +72,12 @@ No ready ungated experiments remain; do not spend on gated compute or production
 
 ## Source Artifacts
 
-- `experiment_queue_sha256`: `c70f0311742f8e9c201796108e1582bfa5c7defcf92720ad608d1a1f21554e5e`
-- `goal_audit_sha256`: `17502f4390b7f2c5f755040cee1f8676fa8c596a5d9d3469790de89ed775e45c`
-- `research_scorecard_sha256`: `36c65bb0d3a4c1817fb22eb4045ec0253fe245f1c67f8412115e8531d0cf705a`
-- `viability_sha256`: `7799a6d3644f435dd09ce4233d7ffda523fb4e9ccba6e4f5543bb3e1d27bf921`
-- `long_span_bundle_gate_sha256`: `2e8d89a7835508e0cf6c19e18b4fde448589770f17b7cecb9425eb5ea996eb02`
-- `search_frontier_gate_sha256`: `9d39bd91dcd1d735b313fe9a40c82cec2ec37a97c5596b8ab30976d170bff9d5`
-- `acceleration_report_sha256`: `6e9abc13b527c55113f8ea428dfa2ecbeb754b40038fa370a848bb5b6d921b00`
-- `scale_performance_report_sha256`: `7ed20e3912fc1917957e27a7f21fd11d234b22887fc2a9ab27f3df0bd238f321`
-- `recursive_structured_fixtures_sha256`: `ba0e35650a6daa742994b881563bfbeb64f5519ff942e967dd3cfb0d250fc67d`
+- `experiment_queue_sha256`: `5bb6cb66fdc61426c8b491016a801602cdfe94c27f72dc77e188bbbcfc73731f`
+- `goal_audit_sha256`: `0f5e8e65e752c8e9405ee3ab4b06c718d397a2ad252b83b5e625e7a15c654155`
+- `research_scorecard_sha256`: `da1aab11b9adfa691db28ed6fd4dc198794e2c6ad2e1e3c664943b7f9c3b3db0`
+- `viability_sha256`: `435d48ff3507db568027afe0d8c56188f585d71e038569f4d77a561ffc3e23cf`
+- `long_span_bundle_gate_sha256`: `290b4a0817f5c0fbd875dd7f010a15113acc0aaa56426226d334e6dcf73cf5b1`
+- `search_frontier_gate_sha256`: `aab9351032df10d7998c3a0e04306bb9d0f344b5d0556cc721592c7b8793737f`
+- `acceleration_report_sha256`: `623b59981cf78e7a22d54fb4111b663fc2975c5a923ae3bf8ff288d9f42b1207`
+- `scale_performance_report_sha256`: `758a271d8bd7f3d775b88999da76fd434f79ac5fbdf2ccbd7414ad69d1b9af68`
+- `recursive_structured_fixtures_sha256`: `a16bea44afa449a04fd2ecc85aa7e0da182d5152969251b5419c605aad34528f`

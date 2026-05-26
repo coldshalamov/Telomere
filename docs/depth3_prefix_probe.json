@@ -1,9 +1,9 @@
 {
   "generated_by": "scripts/generate_depth3_prefix_probe.py",
-  "generated_at": "2026-05-26T06:04:25.440598+00:00",
+  "generated_at": "2026-05-26T08:34:54.773054+00:00",
   "format_version": 1,
   "artifact_hashes": {
-    "prefix_ladder_sha256": "98ca3a9a96550050be655b32c07997e389045dca12a1c45d8b7cac5f13077a38"
+    "prefix_ladder_sha256": "bc83b2cefe34bf85f7662d737176101f4fec16208b834a405da1ce4caf1eb965"
   },
   "selected_manifest_sha256": "da4804a4a53874166884ebc6c6a6c6bba4f88ba5b2246e2df9bb0b0579cb090e",
   "hasher": "sha256",
@@ -680,7 +680,7 @@
     "selected_rows": 24,
     "heldout_rows": 24,
     "enumerated_seed_count": 16843008,
-    "enumeration_ms": 78993.069,
+    "enumeration_ms": 63100.545,
     "heldout_rows_with_prefix5": 3,
     "heldout_rows_with_prefix5_uplift": 3,
     "heldout_rows_with_exact_hits": 0,
