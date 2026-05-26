@@ -65,6 +65,7 @@ PUBLIC_PRESET_TOKENS = [
     b"None",
     b"Option",
 ]
+PUBLIC_PRESET_CODEWORD_VARIANTS = ("seed", "random-codeword", "out-of-budget-codeword")
 
 
 def sha256(path: Path) -> str:
@@ -78,6 +79,35 @@ def deterministic_bytes(label: str, length: int) -> bytes:
         out.extend(hashlib.sha256(f"{label}:{counter}".encode("utf-8")).digest())
         counter += 1
     return bytes(out[:length])
+
+
+def unique_deterministic_bytes(
+    label: str,
+    length: int,
+    used: set[bytes],
+    forbidden: set[bytes] | None = None,
+) -> bytes:
+    counter = 0
+    forbidden = forbidden or set()
+    while True:
+        value = deterministic_bytes(f"{label}:{counter}", length)
+        if value not in used and value not in forbidden:
+            used.add(value)
+            return value
+        counter += 1
+
+
+def canonical_seed_from_index(index: int) -> bytes:
+    if index < 0:
+        raise ValueError("seed index must be non-negative")
+    remaining = index
+    length = 1
+    while True:
+        bucket = 1 << (8 * length)
+        if remaining < bucket:
+            return remaining.to_bytes(length, "big")
+        remaining -= bucket
+        length += 1
 
 
 def seed_span(seed: bytes, span_len: int = MAX_SPAN_LEN) -> bytes:
@@ -133,18 +163,42 @@ def invert_xor_delta(encoded: bytes) -> bytes:
     return bytes(out)
 
 
-def public_preset_codebook() -> dict[bytes, bytes]:
-    return {
-        token: seed_span(bytes([idx]))
-        for idx, token in enumerate(PUBLIC_PRESET_TOKENS)
+def public_preset_codebook(variant: str = "seed") -> dict[bytes, bytes]:
+    if variant not in PUBLIC_PRESET_CODEWORD_VARIANTS:
+        raise ValueError(f"unknown public preset codeword variant: {variant}")
+    seed_codewords = {
+        seed_span(bytes([idx])) for idx in range(1 << (8 * SEED_DEPTH))
     }
+    used: set[bytes] = set()
+    codebook: dict[bytes, bytes] = {}
+    for idx, token in enumerate(PUBLIC_PRESET_TOKENS):
+        if variant == "seed":
+            codeword = seed_span(bytes([idx]))
+        elif variant == "out-of-budget-codeword":
+            seed_index = (1 << (8 * SEED_DEPTH)) + idx
+            while True:
+                codeword = seed_span(canonical_seed_from_index(seed_index))
+                if codeword not in seed_codewords and codeword not in used:
+                    break
+                seed_index += len(PUBLIC_PRESET_TOKENS)
+        else:
+            codeword = unique_deterministic_bytes(
+                f"thesis-public-preset-control:{variant}:{idx}",
+                MAX_SPAN_LEN,
+                used,
+                seed_codewords,
+            )
+        used.add(codeword)
+        codebook[token] = codeword
+    return codebook
 
 
 def public_preset_framed(
     data: bytes,
     min_token_len: int = 0,
+    codeword_variant: str = "seed",
 ) -> tuple[bytes, dict[str, Any]]:
-    codebook = public_preset_codebook()
+    codebook = public_preset_codebook(codeword_variant)
     token_order = sorted(
         [token for token in PUBLIC_PRESET_TOKENS if len(token) >= min_token_len],
         key=len,
@@ -184,6 +238,7 @@ def public_preset_framed(
         "transform_metadata_bytes": TRANSFORM_METADATA_BYTES,
         "public_preset_token_count": len(token_order),
         "public_preset_min_token_len": min_token_len,
+        "public_preset_codeword_variant": codeword_variant,
         "token_replacements": replacements,
         "token_code_span_len": MAX_SPAN_LEN,
     }
@@ -198,8 +253,10 @@ def v2_literal_only_bytes(payload_len: int, layer_count: int) -> int:
     return 48 + (32 * layer_count) + payload_len + (3 * literal_records)
 
 
-def invert_public_preset_framed(encoded: bytes) -> bytes:
-    reverse = {span: token for token, span in public_preset_codebook().items()}
+def invert_public_preset_framed(encoded: bytes, codeword_variant: str = "seed") -> bytes:
+    reverse = {
+        span: token for token, span in public_preset_codebook(codeword_variant).items()
+    }
     out = bytearray()
     pos = 0
     while pos < len(encoded):
@@ -241,33 +298,56 @@ def transform_variants(name: str, data: bytes) -> list[dict[str, Any]]:
         }
     )
 
-    framed, framed_meta = public_preset_framed(data)
-    variants.append(
-        {
-            "transform": "public-preset-framed-v0",
-            "data": framed,
-            "metadata": framed_meta,
-            "roundtrip_ok": invert_public_preset_framed(framed) == data,
-        }
-    )
-    selective, selective_meta = public_preset_framed(
-        data,
-        min_token_len=PUBLIC_PRESET_SELECTIVE_MIN_TOKEN_LEN,
-    )
-    variants.append(
-        {
-            "transform": "public-preset-selective-v0",
-            "data": selective,
-            "metadata": selective_meta,
-            "roundtrip_ok": invert_public_preset_framed(selective) == data,
-        }
-    )
+    seed_selective_meta: dict[str, Any] | None = None
+    seed_selective_len: int | None = None
+    for codeword_variant in PUBLIC_PRESET_CODEWORD_VARIANTS:
+        suffix = "" if codeword_variant == "seed" else f"-{codeword_variant}"
+        framed, framed_meta = public_preset_framed(
+            data,
+            codeword_variant=codeword_variant,
+        )
+        variants.append(
+            {
+                "transform": f"public-preset-framed{suffix}-v0",
+                "data": framed,
+                "metadata": framed_meta,
+                "roundtrip_ok": invert_public_preset_framed(
+                    framed,
+                    codeword_variant,
+                )
+                == data,
+            }
+        )
+        selective, selective_meta = public_preset_framed(
+            data,
+            min_token_len=PUBLIC_PRESET_SELECTIVE_MIN_TOKEN_LEN,
+            codeword_variant=codeword_variant,
+        )
+        if codeword_variant == "seed":
+            seed_selective_meta = selective_meta
+            seed_selective_len = len(selective)
+        variants.append(
+            {
+                "transform": f"public-preset-selective{suffix}-v0",
+                "data": selective,
+                "metadata": selective_meta,
+                "roundtrip_ok": invert_public_preset_framed(
+                    selective,
+                    codeword_variant,
+                )
+                == data,
+            }
+        )
+    if seed_selective_meta is None or seed_selective_len is None:
+        raise AssertionError("seed public preset variant was not generated")
     native_meta = {
-        **selective_meta,
+        **seed_selective_meta,
         "transform_metadata_bytes": 0,
         "format_native_transform": True,
-        "native_transform_transformed_bytes": len(selective),
-        "native_transform_literal_only_bytes": v2_literal_only_bytes(len(selective), 2),
+        "native_transform_transformed_bytes": seed_selective_len,
+        "native_transform_literal_only_bytes": v2_literal_only_bytes(
+            seed_selective_len, 2
+        ),
         "cli_extra_args": ["--transform", "public-preset-selective"],
     }
     variants.append(
@@ -381,6 +461,55 @@ def expected_hit_rows(input_len: int = 1024) -> list[dict[str, Any]]:
     return rows
 
 
+def codeword_control_comparisons(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    by_key = {
+        (row["corpus"], row["transform"], row.get("public_preset_codeword_variant")): row
+        for row in rows
+    }
+    comparisons = []
+    for row in rows:
+        if row.get("public_preset_codeword_variant") != "seed":
+            continue
+        transform = row["transform"]
+        if not transform.startswith("public-preset-") or "native" in transform:
+            continue
+        controls = []
+        for variant in ("random-codeword", "out-of-budget-codeword"):
+            control_transform = transform.replace("-v0", f"-{variant}-v0")
+            control = by_key.get((row["corpus"], control_transform, variant))
+            if control is None:
+                continue
+            controls.append(
+                {
+                    "variant": variant,
+                    "control_delta_bytes": control["delta_bytes"],
+                    "control_selected_spans": control["selected_spans_total"],
+                    "real_minus_control_charged_bytes": row["charged_output_bytes"]
+                    - control["charged_output_bytes"],
+                    "real_minus_control_selected_spans": row["selected_spans_total"]
+                    - control["selected_spans_total"],
+                }
+            )
+        if controls:
+            comparisons.append(
+                {
+                    "corpus": row["corpus"],
+                    "transform": transform,
+                    "real_delta_bytes": row["delta_bytes"],
+                    "real_selected_spans": row["selected_spans_total"],
+                    "controls": controls,
+                    "beats_all_controls": all(
+                        control["real_minus_control_charged_bytes"] < 0
+                        for control in controls
+                    ),
+                    "controls_are_span_null": all(
+                        control["control_selected_spans"] == 0 for control in controls
+                    ),
+                }
+            )
+    return comparisons
+
+
 def build_report() -> dict[str, Any]:
     corpora = load_corpora()
     rows: list[dict[str, Any]] = []
@@ -433,6 +562,13 @@ def build_report() -> dict[str, Any]:
     profitable_non_planted = [
         row for row in non_planted if row["delta_bytes"] < 0
     ]
+    control_comparisons = codeword_control_comparisons(rows)
+    codeword_control_rows = [
+        row
+        for row in non_planted
+        if row.get("public_preset_codeword_variant")
+        in ("random-codeword", "out-of-budget-codeword")
+    ]
     return {
         "generated_by": GENERATED_BY,
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -478,6 +614,24 @@ def build_report() -> dict[str, Any]:
             "non_planted_rows": len([row for row in rows if row["corpus"] != "planted-positive"]),
             "non_planted_exact_span_rows": len(exact_non_planted),
             "non_planted_profitable_rows": len(profitable_non_planted),
+            "codeword_control_rows": len(codeword_control_rows),
+            "codeword_control_exact_span_rows": len(
+                [
+                    row
+                    for row in codeword_control_rows
+                    if row["selected_spans_total"] > 0
+                ]
+            ),
+            "codeword_control_profitable_rows": len(
+                [row for row in codeword_control_rows if row["delta_bytes"] < 0]
+            ),
+            "seed_rows_beating_all_codeword_controls": len(
+                [
+                    row
+                    for row in control_comparisons
+                    if row["beats_all_controls"] and row["controls_are_span_null"]
+                ]
+            ),
             "best_non_planted_delta_bytes": min(
                 (row["delta_bytes"] for row in non_planted), default=None
             ),
@@ -492,6 +646,7 @@ def build_report() -> dict[str, Any]:
                 else "current hash-only and tested transforms did not produce profitable non-planted rows"
             ),
         },
+        "codeword_control_comparisons": control_comparisons,
         "rows": rows,
     }
 
@@ -510,6 +665,9 @@ def write_report(payload: dict[str, Any]) -> None:
         f"- Rows: `{summary['row_count']}`",
         f"- Non-planted rows with exact selected spans: `{summary['non_planted_exact_span_rows']}`",
         f"- Non-planted profitable rows after charged `.tlmr` accounting: `{summary['non_planted_profitable_rows']}`",
+        f"- Non-seed codeword control rows with exact selected spans: `{summary['codeword_control_exact_span_rows']}`",
+        f"- Non-seed codeword control rows profitable after charged accounting: `{summary['codeword_control_profitable_rows']}`",
+        f"- Seed rows beating all same-token codeword controls: `{summary['seed_rows_beating_all_codeword_controls']}`",
         f"- Best non-planted delta bytes: `{summary['best_non_planted_delta_bytes']}`",
         f"- Conclusion: `{summary['conclusion']}`",
         "",
@@ -550,6 +708,38 @@ def write_report(payload: dict[str, Any]) -> None:
     lines.extend(
         [
             "",
+            "## Codeword Control Comparisons",
+            "",
+            "| corpus | transform | seed delta | selected spans | random control delta | out-of-budget control delta | best seed-vs-control bytes | controls span-null |",
+            "| --- | --- | ---: | ---: | ---: | ---: | ---: | --- |",
+        ]
+    )
+    for row in payload["codeword_control_comparisons"]:
+        control_by_variant = {control["variant"]: control for control in row["controls"]}
+        random_control = control_by_variant.get("random-codeword", {})
+        out_of_budget = control_by_variant.get("out-of-budget-codeword", {})
+        best_delta = min(
+            (
+                control["real_minus_control_charged_bytes"]
+                for control in row["controls"]
+            ),
+            default=0,
+        )
+        lines.append(
+            "| {corpus} | `{transform}` | {real_delta_bytes} | {real_selected_spans} | {random_delta} | {out_delta} | {best_delta} | `{span_null}` |".format(
+                corpus=row["corpus"],
+                transform=row["transform"],
+                real_delta_bytes=row["real_delta_bytes"],
+                real_selected_spans=row["real_selected_spans"],
+                random_delta=random_control.get("control_delta_bytes"),
+                out_delta=out_of_budget.get("control_delta_bytes"),
+                best_delta=best_delta,
+                span_null=row["controls_are_span_null"],
+            )
+        )
+    lines.extend(
+        [
+            "",
             "## Interpretation",
             "",
             "- Identity and xor-delta rows test whether current hash-only search or a simple reversible bijection beats random chance.",
@@ -557,6 +747,7 @@ def write_report(payload: dict[str, Any]) -> None:
             f"- `public-preset-selective-v0` keeps that mechanism but only replaces tokens with length at least `{PUBLIC_PRESET_SELECTIVE_MIN_TOKEN_LEN}` so each replacement has positive framing margin.",
             "- `public-preset-selective-native-v0` uses the Rust v2 transform layer; `telomere decompress` returns the original bytes without the Python harness.",
             "- `seed-span benefit` compares the actual `.tlmr` bytes against a literal-only v2 container for the same transformed representation.",
+            "- Same-token `random-codeword` and `out-of-budget-codeword` rows are codeword controls: they preserve transform opportunities while removing in-budget seed-generated spans.",
             "- If random/null rows become profitable under the public preset, the dictionary is too broad or the accounting is broken.",
             "- If only structured rows improve, the viable thesis shifts from raw hash coincidence to public preset/grammar transforms that manufacture decoder-known seed-span density.",
         ]

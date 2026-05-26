@@ -5,10 +5,13 @@ This records a focused mechanism experiment, not a production or natural-corpus 
 
 ## Summary
 
-- Rows: `35`
+- Rows: `63`
 - Non-planted rows with exact selected spans: `13`
-- Non-planted profitable rows after charged `.tlmr` accounting: `2`
-- Best non-planted delta bytes: `-306`
+- Non-planted profitable rows after charged `.tlmr` accounting: `6`
+- Non-seed codeword control rows with exact selected spans: `0`
+- Non-seed codeword control rows profitable after charged accounting: `0`
+- Seed rows beating all same-token codeword controls: `9`
+- Best non-planted delta bytes: `-678`
 - Conclusion: `public-preset transform produced profitable non-planted rows`
 
 ## Bottleneck Math
@@ -50,41 +53,88 @@ This records a focused mechanism experiment, not a production or natural-corpus 
 
 | corpus | transform | original | transformed | selected spans | candidates | literal-only charged | charged bytes | seed-span benefit | delta | token replacements |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| `planted-positive` | `identity` | 2048 | 2048 | 128 | 384 | 2131 | 720 | 1411 | -1328 | 0 |
-| `planted-positive` | `xor-delta1` | 2048 | 2048 | 0 | 0 | 2132 | 2132 | 0 | 84 | 0 |
-| `planted-positive` | `public-preset-framed-v0` | 2048 | 2051 | 128 | 384 | 2142 | 734 | 1408 | -1314 | 0 |
-| `planted-positive` | `public-preset-selective-v0` | 2048 | 2051 | 128 | 384 | 2142 | 734 | 1408 | -1314 | 0 |
-| `planted-positive` | `public-preset-selective-native-v0` | 2048 | 2048 | 128 | 384 | 2166 | 758 | 1408 | -1290 | 0 |
-| `structured-json` | `identity` | 6814 | 6814 | 0 | 0 | 6897 | 6897 | 0 | 83 | 0 |
-| `structured-json` | `xor-delta1` | 6814 | 6814 | 0 | 0 | 6898 | 6898 | 0 | 84 | 0 |
-| `structured-json` | `public-preset-framed-v0` | 6814 | 12313 | 560 | 1680 | 12404 | 7924 | 4480 | 1110 | 560 |
-| `structured-json` | `public-preset-selective-v0` | 6814 | 7697 | 160 | 480 | 7788 | 6508 | 1280 | -306 | 160 |
-| `structured-json` | `public-preset-selective-native-v0` | 6814 | 6814 | 160 | 480 | 7812 | 6532 | 1280 | -282 | 160 |
-| `external-json-schema` | `identity` | 1382 | 1382 | 0 | 0 | 1465 | 1465 | 0 | 83 | 0 |
-| `external-json-schema` | `xor-delta1` | 1382 | 1382 | 0 | 0 | 1466 | 1466 | 0 | 84 | 0 |
-| `external-json-schema` | `public-preset-framed-v0` | 1382 | 1659 | 25 | 75 | 1750 | 1550 | 200 | 168 | 25 |
-| `external-json-schema` | `public-preset-selective-v0` | 1382 | 1413 | 4 | 12 | 1504 | 1472 | 32 | 90 | 4 |
-| `external-json-schema` | `public-preset-selective-native-v0` | 1382 | 1382 | 4 | 12 | 1528 | 1496 | 32 | 114 | 4 |
-| `external-csv` | `identity` | 379 | 379 | 0 | 0 | 462 | 462 | 0 | 83 | 0 |
-| `external-csv` | `xor-delta1` | 379 | 379 | 0 | 0 | 463 | 463 | 0 | 84 | 0 |
-| `external-csv` | `public-preset-framed-v0` | 379 | 418 | 11 | 33 | 509 | 421 | 88 | 42 | 11 |
-| `external-csv` | `public-preset-selective-v0` | 379 | 418 | 11 | 33 | 509 | 421 | 88 | 42 | 11 |
-| `external-csv` | `public-preset-selective-native-v0` | 379 | 379 | 11 | 33 | 533 | 445 | 88 | 66 | 11 |
-| `external-http` | `identity` | 537 | 537 | 0 | 0 | 620 | 620 | 0 | 83 | 0 |
-| `external-http` | `xor-delta1` | 537 | 537 | 0 | 0 | 621 | 621 | 0 | 84 | 0 |
-| `external-http` | `public-preset-framed-v0` | 537 | 601 | 8 | 24 | 692 | 628 | 64 | 91 | 8 |
-| `external-http` | `public-preset-selective-v0` | 537 | 555 | 4 | 12 | 646 | 614 | 32 | 77 | 4 |
-| `external-http` | `public-preset-selective-native-v0` | 537 | 537 | 4 | 12 | 670 | 638 | 32 | 101 | 4 |
-| `external-source` | `identity` | 1368 | 1368 | 0 | 0 | 1451 | 1451 | 0 | 83 | 0 |
-| `external-source` | `xor-delta1` | 1368 | 1368 | 0 | 0 | 1452 | 1452 | 0 | 84 | 0 |
-| `external-source` | `public-preset-framed-v0` | 1368 | 1593 | 15 | 45 | 1684 | 1564 | 120 | 196 | 15 |
-| `external-source` | `public-preset-selective-v0` | 1368 | 1371 | 0 | 0 | 1462 | 1462 | 0 | 94 | 0 |
-| `external-source` | `public-preset-selective-native-v0` | 1368 | 1368 | 0 | 0 | 1486 | 1486 | 0 | 118 | 0 |
-| `random-null-structured-len` | `identity` | 6814 | 6814 | 0 | 0 | 6897 | 6897 | 0 | 83 | 0 |
-| `random-null-structured-len` | `xor-delta1` | 6814 | 6814 | 0 | 0 | 6898 | 6898 | 0 | 84 | 0 |
-| `random-null-structured-len` | `public-preset-framed-v0` | 6814 | 6817 | 0 | 0 | 6908 | 6908 | 0 | 94 | 0 |
-| `random-null-structured-len` | `public-preset-selective-v0` | 6814 | 6817 | 0 | 0 | 6908 | 6908 | 0 | 94 | 0 |
-| `random-null-structured-len` | `public-preset-selective-native-v0` | 6814 | 6814 | 0 | 0 | 6932 | 6932 | 0 | 118 | 0 |
+| `planted-positive` | `identity` | 2048 | 2048 | 128 | 512 | 2131 | 481 | 1650 | -1567 | 0 |
+| `planted-positive` | `xor-delta1` | 2048 | 2048 | 0 | 0 | 2132 | 2081 | 51 | 33 | 0 |
+| `planted-positive` | `public-preset-framed-v0` | 2048 | 2051 | 128 | 512 | 2142 | 495 | 1647 | -1553 | 0 |
+| `planted-positive` | `public-preset-selective-v0` | 2048 | 2051 | 128 | 512 | 2142 | 495 | 1647 | -1553 | 0 |
+| `planted-positive` | `public-preset-framed-random-codeword-v0` | 2048 | 2051 | 128 | 512 | 2142 | 495 | 1647 | -1553 | 0 |
+| `planted-positive` | `public-preset-selective-random-codeword-v0` | 2048 | 2051 | 128 | 512 | 2142 | 495 | 1647 | -1553 | 0 |
+| `planted-positive` | `public-preset-framed-out-of-budget-codeword-v0` | 2048 | 2051 | 128 | 512 | 2142 | 495 | 1647 | -1553 | 0 |
+| `planted-positive` | `public-preset-selective-out-of-budget-codeword-v0` | 2048 | 2051 | 128 | 512 | 2142 | 495 | 1647 | -1553 | 0 |
+| `planted-positive` | `public-preset-selective-native-v0` | 2048 | 2048 | 128 | 512 | 2166 | 498 | 1668 | -1550 | 0 |
+| `structured-json` | `identity` | 6814 | 6814 | 0 | 0 | 6897 | 6846 | 51 | 32 | 0 |
+| `structured-json` | `xor-delta1` | 6814 | 6814 | 0 | 0 | 6898 | 6847 | 51 | 33 | 0 |
+| `structured-json` | `public-preset-framed-v0` | 6814 | 12313 | 560 | 2240 | 12404 | 6673 | 5731 | -141 | 560 |
+| `structured-json` | `public-preset-selective-v0` | 6814 | 7697 | 160 | 640 | 7788 | 6136 | 1652 | -678 | 160 |
+| `structured-json` | `public-preset-framed-random-codeword-v0` | 6814 | 12313 | 0 | 0 | 12404 | 12354 | 50 | 5540 | 560 |
+| `structured-json` | `public-preset-selective-random-codeword-v0` | 6814 | 7697 | 0 | 0 | 7788 | 7737 | 51 | 923 | 160 |
+| `structured-json` | `public-preset-framed-out-of-budget-codeword-v0` | 6814 | 12313 | 0 | 0 | 12404 | 12354 | 50 | 5540 | 560 |
+| `structured-json` | `public-preset-selective-out-of-budget-codeword-v0` | 6814 | 7697 | 0 | 0 | 7788 | 7737 | 51 | 923 | 160 |
+| `structured-json` | `public-preset-selective-native-v0` | 6814 | 6814 | 160 | 640 | 7812 | 6139 | 1673 | -675 | 160 |
+| `external-json-schema` | `identity` | 1452 | 1452 | 0 | 0 | 1535 | 1484 | 51 | 32 | 0 |
+| `external-json-schema` | `xor-delta1` | 1452 | 1452 | 0 | 0 | 1536 | 1485 | 51 | 33 | 0 |
+| `external-json-schema` | `public-preset-framed-v0` | 1452 | 1729 | 25 | 100 | 1820 | 1528 | 292 | 76 | 25 |
+| `external-json-schema` | `public-preset-selective-v0` | 1452 | 1483 | 4 | 16 | 1574 | 1486 | 88 | 34 | 4 |
+| `external-json-schema` | `public-preset-framed-random-codeword-v0` | 1452 | 1729 | 0 | 0 | 1820 | 1769 | 51 | 317 | 25 |
+| `external-json-schema` | `public-preset-selective-random-codeword-v0` | 1452 | 1483 | 0 | 0 | 1574 | 1523 | 51 | 71 | 4 |
+| `external-json-schema` | `public-preset-framed-out-of-budget-codeword-v0` | 1452 | 1729 | 0 | 0 | 1820 | 1769 | 51 | 317 | 25 |
+| `external-json-schema` | `public-preset-selective-out-of-budget-codeword-v0` | 1452 | 1483 | 0 | 0 | 1574 | 1523 | 51 | 71 | 4 |
+| `external-json-schema` | `public-preset-selective-native-v0` | 1452 | 1452 | 4 | 16 | 1598 | 1491 | 107 | 39 | 4 |
+| `external-csv` | `identity` | 390 | 390 | 0 | 0 | 473 | 421 | 52 | 31 | 0 |
+| `external-csv` | `xor-delta1` | 390 | 390 | 0 | 0 | 474 | 422 | 52 | 32 | 0 |
+| `external-csv` | `public-preset-framed-v0` | 390 | 443 | 10 | 40 | 534 | 381 | 153 | -9 | 10 |
+| `external-csv` | `public-preset-selective-v0` | 390 | 443 | 10 | 40 | 534 | 381 | 153 | -9 | 10 |
+| `external-csv` | `public-preset-framed-random-codeword-v0` | 390 | 443 | 0 | 0 | 534 | 482 | 52 | 92 | 10 |
+| `external-csv` | `public-preset-selective-random-codeword-v0` | 390 | 443 | 0 | 0 | 534 | 482 | 52 | 92 | 10 |
+| `external-csv` | `public-preset-framed-out-of-budget-codeword-v0` | 390 | 443 | 0 | 0 | 534 | 482 | 52 | 92 | 10 |
+| `external-csv` | `public-preset-selective-out-of-budget-codeword-v0` | 390 | 443 | 0 | 0 | 534 | 482 | 52 | 92 | 10 |
+| `external-csv` | `public-preset-selective-native-v0` | 390 | 390 | 10 | 40 | 558 | 383 | 175 | -7 | 10 |
+| `external-http` | `identity` | 566 | 566 | 0 | 0 | 649 | 597 | 52 | 31 | 0 |
+| `external-http` | `xor-delta1` | 566 | 566 | 0 | 0 | 650 | 598 | 52 | 32 | 0 |
+| `external-http` | `public-preset-framed-v0` | 566 | 630 | 8 | 32 | 721 | 596 | 125 | 30 | 8 |
+| `external-http` | `public-preset-selective-v0` | 566 | 584 | 4 | 16 | 675 | 586 | 89 | 20 | 4 |
+| `external-http` | `public-preset-framed-random-codeword-v0` | 566 | 630 | 0 | 0 | 721 | 669 | 52 | 103 | 8 |
+| `external-http` | `public-preset-selective-random-codeword-v0` | 566 | 584 | 0 | 0 | 675 | 623 | 52 | 57 | 4 |
+| `external-http` | `public-preset-framed-out-of-budget-codeword-v0` | 566 | 630 | 0 | 0 | 721 | 669 | 52 | 103 | 8 |
+| `external-http` | `public-preset-selective-out-of-budget-codeword-v0` | 566 | 584 | 0 | 0 | 675 | 623 | 52 | 57 | 4 |
+| `external-http` | `public-preset-selective-native-v0` | 566 | 566 | 4 | 16 | 699 | 588 | 111 | 22 | 4 |
+| `external-source` | `identity` | 1409 | 1409 | 0 | 0 | 1492 | 1441 | 51 | 32 | 0 |
+| `external-source` | `xor-delta1` | 1409 | 1409 | 0 | 0 | 1493 | 1442 | 51 | 33 | 0 |
+| `external-source` | `public-preset-framed-v0` | 1409 | 1634 | 15 | 60 | 1725 | 1537 | 188 | 128 | 15 |
+| `external-source` | `public-preset-selective-v0` | 1409 | 1412 | 0 | 0 | 1503 | 1452 | 51 | 43 | 0 |
+| `external-source` | `public-preset-framed-random-codeword-v0` | 1409 | 1634 | 0 | 0 | 1725 | 1674 | 51 | 265 | 15 |
+| `external-source` | `public-preset-selective-random-codeword-v0` | 1409 | 1412 | 0 | 0 | 1503 | 1452 | 51 | 43 | 0 |
+| `external-source` | `public-preset-framed-out-of-budget-codeword-v0` | 1409 | 1634 | 0 | 0 | 1725 | 1674 | 51 | 265 | 15 |
+| `external-source` | `public-preset-selective-out-of-budget-codeword-v0` | 1409 | 1412 | 0 | 0 | 1503 | 1452 | 51 | 43 | 0 |
+| `external-source` | `public-preset-selective-native-v0` | 1409 | 1409 | 0 | 0 | 1527 | 1455 | 72 | 46 | 0 |
+| `random-null-structured-len` | `identity` | 6814 | 6814 | 0 | 0 | 6897 | 6846 | 51 | 32 | 0 |
+| `random-null-structured-len` | `xor-delta1` | 6814 | 6814 | 0 | 0 | 6898 | 6847 | 51 | 33 | 0 |
+| `random-null-structured-len` | `public-preset-framed-v0` | 6814 | 6817 | 0 | 0 | 6908 | 6857 | 51 | 43 | 0 |
+| `random-null-structured-len` | `public-preset-selective-v0` | 6814 | 6817 | 0 | 0 | 6908 | 6857 | 51 | 43 | 0 |
+| `random-null-structured-len` | `public-preset-framed-random-codeword-v0` | 6814 | 6817 | 0 | 0 | 6908 | 6857 | 51 | 43 | 0 |
+| `random-null-structured-len` | `public-preset-selective-random-codeword-v0` | 6814 | 6817 | 0 | 0 | 6908 | 6857 | 51 | 43 | 0 |
+| `random-null-structured-len` | `public-preset-framed-out-of-budget-codeword-v0` | 6814 | 6817 | 0 | 0 | 6908 | 6857 | 51 | 43 | 0 |
+| `random-null-structured-len` | `public-preset-selective-out-of-budget-codeword-v0` | 6814 | 6817 | 0 | 0 | 6908 | 6857 | 51 | 43 | 0 |
+| `random-null-structured-len` | `public-preset-selective-native-v0` | 6814 | 6814 | 0 | 0 | 6932 | 6861 | 71 | 47 | 0 |
+
+## Codeword Control Comparisons
+
+| corpus | transform | seed delta | selected spans | random control delta | out-of-budget control delta | best seed-vs-control bytes | controls span-null |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | --- |
+| planted-positive | `public-preset-framed-v0` | -1553 | 128 | -1553 | -1553 | 0 | `False` |
+| planted-positive | `public-preset-selective-v0` | -1553 | 128 | -1553 | -1553 | 0 | `False` |
+| structured-json | `public-preset-framed-v0` | -141 | 560 | 5540 | 5540 | -5681 | `True` |
+| structured-json | `public-preset-selective-v0` | -678 | 160 | 923 | 923 | -1601 | `True` |
+| external-json-schema | `public-preset-framed-v0` | 76 | 25 | 317 | 317 | -241 | `True` |
+| external-json-schema | `public-preset-selective-v0` | 34 | 4 | 71 | 71 | -37 | `True` |
+| external-csv | `public-preset-framed-v0` | -9 | 10 | 92 | 92 | -101 | `True` |
+| external-csv | `public-preset-selective-v0` | -9 | 10 | 92 | 92 | -101 | `True` |
+| external-http | `public-preset-framed-v0` | 30 | 8 | 103 | 103 | -73 | `True` |
+| external-http | `public-preset-selective-v0` | 20 | 4 | 57 | 57 | -37 | `True` |
+| external-source | `public-preset-framed-v0` | 128 | 15 | 265 | 265 | -137 | `True` |
+| external-source | `public-preset-selective-v0` | 43 | 0 | 43 | 43 | 0 | `True` |
+| random-null-structured-len | `public-preset-framed-v0` | 43 | 0 | 43 | 43 | 0 | `True` |
+| random-null-structured-len | `public-preset-selective-v0` | 43 | 0 | 43 | 43 | 0 | `True` |
 
 ## Interpretation
 
@@ -93,5 +143,6 @@ This records a focused mechanism experiment, not a production or natural-corpus 
 - `public-preset-selective-v0` keeps that mechanism but only replaces tokens with length at least `13` so each replacement has positive framing margin.
 - `public-preset-selective-native-v0` uses the Rust v2 transform layer; `telomere decompress` returns the original bytes without the Python harness.
 - `seed-span benefit` compares the actual `.tlmr` bytes against a literal-only v2 container for the same transformed representation.
+- Same-token `random-codeword` and `out-of-budget-codeword` rows are codeword controls: they preserve transform opportunities while removing in-budget seed-generated spans.
 - If random/null rows become profitable under the public preset, the dictionary is too broad or the accounting is broken.
 - If only structured rows improve, the viable thesis shifts from raw hash coincidence to public preset/grammar transforms that manufacture decoder-known seed-span density.
