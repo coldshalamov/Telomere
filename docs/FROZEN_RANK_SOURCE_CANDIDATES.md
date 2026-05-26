@@ -94,7 +94,7 @@ The frozen-rank lane now has an acquisition matrix, but no source candidate is r
 
 The JSON `source_hashes` map pins this candidate matrix to exact upstream evidence and generator files below.
 - `next_mechanism_designs_sha256`: `fd3ac40548556370417412b401aaa5fcf323d87662a91f3aab64b0066deda1d1`
-- `natural_corpus_reopen_manifest_sha256`: `807c4cdacef57ecb5ba8743d21d9632a66242ead10f56647a31498ee3c07dae1`
+- `natural_corpus_reopen_manifest_sha256`: `6d8422bfba9940be7a474c1cb2467c96d458749ceb6ca38869ecaa3bdc938cc2`
 - `public_preset_control_rerun_sha256`: `ac56eb622366b727a2346f72573408648bb9d239bf6322e3f518fcbe245479d3`
 - `search_frontier_gate_sha256`: `9d39bd91dcd1d735b313fe9a40c82cec2ec37a97c5596b8ab30976d170bff9d5`
 - `frozen_rank_source_candidates_generator_sha256`: `06fa9d336f93ac4a0dbd1d5e50ad182fa50dc6616461d3f088b618f90d4f65f5`

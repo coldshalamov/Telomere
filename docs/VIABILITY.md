@@ -126,7 +126,7 @@ Verdict: **research-viable, not production-proven**.
 - `docs/long_span_bundle_gate.json` SHA-256: `2e8d89a7835508e0cf6c19e18b4fde448589770f17b7cecb9425eb5ea996eb02`
 - `docs/recursive_structured_fixtures.json` SHA-256: `ba0e35650a6daa742994b881563bfbeb64f5519ff942e967dd3cfb0d250fc67d`
 - `docs/scale_performance_report.json` SHA-256: `7ed20e3912fc1917957e27a7f21fd11d234b22887fc2a9ab27f3df0bd238f321`
-- `docs/ui_workflow_smoke.json` SHA-256: `a3b1a460ec74a18718c7a06ad71f5ced01d7f5e83710bca988e1c74886147d4c`
+- `docs/ui_workflow_smoke.json` SHA-256: `a8a385ff5ed2f73f5893416c9e722e1ab579ce3248cd485b8e2a74794932a2e0`
 - `docs/contextual_fifth_byte_steering.json` SHA-256: `ce80c9ccbb78185b3bce6b6e9562be879e37affe942aa7bebff2489a62622028`
 - `docs/structural_transform_search.json` SHA-256: `f862b094763c7c7c1cf4ba45ac75246f3b874e51ef67afd329d803b15f7d9eb1`
 - `docs/byte_permutation_transform_search.json` SHA-256: `a59e3b221fdacb987232b3741d7e3465ded04d0396d57171f755419dd7aff636`

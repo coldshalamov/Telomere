@@ -81,8 +81,8 @@ Allowed status values: `blocked`, `findings-only`, `no-change`, `proposed-change
 ## Source Artifacts
 
 The JSON `source_hashes` map pins this intake report to the current prompt pack, goal-completion audit, manifest, and prompt files. Claim gates are read from the claim-boundary audit without hash-pinning it here so the final audit can scan this document without a generated-hash cycle.
-- `research_agent_prompts_sha256`: `eb8f742501ee20ce675af95d3ec22c2d6db309568f538bbbdc8b6d3b40204f12`
-- `goal_completion_audit_sha256`: `e90c7a3fb65d26624317d642c271dc5093af9fb4855f38c306e5df155ccc91ed`
+- `research_agent_prompts_sha256`: `ffdf68058793d7f8c57c5b8d53a720306629e98b1841bde3e323b0b04d1ce7a5`
+- `goal_completion_audit_sha256`: `98ed81a989eba510f586bbb4527c551fa07cec86b3469e2cc639a3c585f21ebc`
 - `agent_reports_manifest_sha256`: `9aa2d553cb236a56f0311be8f5239b4a8adab33e9e66598d40c33745d56906e0`
 - `prompt_agent-corpus-transform_sha256`: `3f44a1f75b6d38b1404d76b147cb10e29cf298231b9a2d9db65dac0b3b399395`
 - `prompt_agent-compute-economics_sha256`: `8ec52078e9ee61dfb41321329ab51b9720e3887e9b86debebbb3bcdf6024578c`
@@ -94,15 +94,15 @@ The JSON `source_hashes` map pins this intake report to the current prompt pack,
 - `report_source_docs/HELDOUT_CORPUS_EXPANSION.md_sha256`: `9cadca95eb3aa0855eb0a9dcefd5a1c0a3643c44dc2f678a2b5c83cc90fee595`
 - `report_source_docs/LONG_SPAN_BUNDLE_GATE.md_sha256`: `2a48ed26465ef8f57c8735e1ecb4942548d57618c4924b43c4c180df1863689c`
 - `report_source_docs/SEARCH_FRONTIER_GATE.md_sha256`: `4e68614cfe623bd9b4949023de7a1d89bb56d91ed61587ff4b9775f3f755aaf2`
-- `report_source_docs/NATURAL_CORPUS_PROOF_MATRIX.md_sha256`: `439887da93812749e0d1e5f1b4384df61ef3baf7364dde64f55cafd1c81cbaaf`
-- `report_source_docs/NATURAL_CORPUS_REOPEN_MANIFEST.md_sha256`: `d27411e186669248749964b8035584734137498650a62d2ad5d12a4f1ca71d85`
-- `report_source_docs/EXTERNAL_CORPUS_ACCESSION.md_sha256`: `7884ef78ee8b4a8454220912f5ac499cde6baf21a30c230c9ea93dbf2caa41b8`
-- `report_source_docs/RESEARCH_SCORECARD.md_sha256`: `1602fdc3d03bdfe5a42fdca6993d1cfad777e298fadbbdf2f70b0195a09d309f`
+- `report_source_docs/NATURAL_CORPUS_PROOF_MATRIX.md_sha256`: `6c84707ccd2d333df126a1fe66cbaec4befd17b27ee592ff8375d91d309f1704`
+- `report_source_docs/NATURAL_CORPUS_REOPEN_MANIFEST.md_sha256`: `167ee68f3960f0e05312989ce03c1a7a58d16cbbb355669a1718230a12286572`
+- `report_source_docs/EXTERNAL_CORPUS_ACCESSION.md_sha256`: `90cb56a583840dc610850f61c51cc4ad621f963be22e85c5e83cc1091cffa411`
+- `report_source_docs/RESEARCH_SCORECARD.md_sha256`: `589cdb82bd5d7296488a53cff3d4672481bf23d8282e865a4379ef0791e88337`
 - `report_source_docs/TRANSFORM_VALIDATION.md_sha256`: `7697ab557b21bc6641cedcc3d8b9d8804c8abd91214ffaf8050eeac3e9d2430c`
 - `report_source_docs/MECHANISM_EXPERIMENT_RANKING.md_sha256`: `c522b4bd5ed09675b799a7948c14a97b306e1929b307d874e78f8080798402c7`
-- `report_source_docs/VIABILITY.md_sha256`: `ee537a8aca8e537bb0c8f3564df1f690d38c10823778a86aac90b333e5751fea`
-- `report_source_docs/goal_audit.json_sha256`: `258a13e966b6be84a04932b6355e2060c4fe5ed9bb9da6eea0947e65aacbd84f`
-- `report_source_scripts/generate_goal_audit.py_sha256`: `e8e19a35bf0020d88861ae92cbbdb4f36c5c9cd8b13de10ebfd22922b3b53e47`
+- `report_source_docs/VIABILITY.md_sha256`: `fcf5a74854b6ac937cda878cc05b559826236784b03573d1b81d05642bc22d1c`
+- `report_source_docs/goal_audit.json_sha256`: `17502f4390b7f2c5f755040cee1f8676fa8c596a5d9d3469790de89ed775e45c`
+- `report_source_scripts/generate_goal_audit.py_sha256`: `7e582a61702b217a083daf91ac5d948e8448bf8699feaff9305ab1b2b2820240`
 - `report_source_docs/SCALE_PERFORMANCE.md_sha256`: `8a484de382a0838b8136584c40932fa88aabf436b29cf1b3183471493f10a9ab`
 - `report_source_docs/RESULTS.md_sha256`: `991eb6a9a04f751cc571a04157e3b0a71139d7af0b5539dc4e80ff0084f9eba0`
 - `report_source_docs/ALIGNMENT_ARITY_DISCOVERY.md_sha256`: `465223a08cfc7cd02b88167ee182b97cbaf182dd522a832dbf85fe2818b0bf4a`
@@ -114,7 +114,7 @@ The JSON `source_hashes` map pins this intake report to the current prompt pack,
 - `report_source_scripts/generate_search_frontier_gate.py_sha256`: `2c4808b74c3cc965842a4eedcc7f698ff11b20d363a024af12d82d19c6e396f4`
 - `report_source_scripts/generate_scale_performance_report.py_sha256`: `3d2855b0db3d16affeb33ee7403f4d9e09b0b3eb17ec50c03ab85c4bb48461ff`
 - `report_source_docs/FORMAT.md_sha256`: `802bafc40345c7aa0e7245eafb1ea668e438b5fa5d95ee4768abc8fe1d717b81`
-- `report_source_docs/PRODUCTION_PROOF_MATRIX.md_sha256`: `1532d9e74350799e5e78a486c93d54fe3d8c754b1a6e4b5de78f134db8ff63ef`
+- `report_source_docs/PRODUCTION_PROOF_MATRIX.md_sha256`: `722e939de7610759a6855443f66711cf470021bfbe1ca4c14a54f28c071b14e6`
 - `report_source_docs/RELEASE_CHECKLIST.md_sha256`: `42ac71c4640fba2acaa3d5b18cdf5fe2f5d841b5fb55abff76afe1c7854dbdb8`
 - `report_source_docs/UI_WORKFLOW_SMOKE.md_sha256`: `080c036e335451a2a3e5d3b1e37e46bfd061721374783d4fcf3be26d9755c2dc`
 - `report_source_docs/RECURSIVE_STRUCTURED_FIXTURES.md_sha256`: `90a09fc20bd8aa677acca9a9b64cc9fbd4b44d66499711f4f905accfbc5c242f`
@@ -124,8 +124,8 @@ The JSON `source_hashes` map pins this intake report to the current prompt pack,
 - `report_source_src/tlmr_v2.rs_sha256`: `3aebbfe582b0ec159384fefb79faed52641faf11c2c4dd1ae641bd38fbd67e58`
 - `report_source_tests/indexed_v2.rs_sha256`: `8a496865dcd3964f64b1f9abbb61925a8cec6dbee1ab8082229fa778a2a1ccb6`
 - `report_source_docs/acceleration_report.json_sha256`: `6e9abc13b527c55113f8ea428dfa2ecbeb754b40038fa370a848bb5b6d921b00`
-- `report_source_docs/RESEARCH_DECISION.md_sha256`: `05eef978d4e0691bec8bfccfdd5dc08c8ad7438062add8e07151f1b9a428fa6f`
-- `report_source_docs/RESEARCH_FRONTIER.md_sha256`: `d30fef1a02319b823b7a8bde14de5b6604b82f9d710a6c40d1d34379b60e3cc5`
+- `report_source_docs/RESEARCH_DECISION.md_sha256`: `fcdbcae3e7f7f35b6a5a9a3a2a8d25e2cc02bdc904f615200b83f2ad548568fd`
+- `report_source_docs/RESEARCH_FRONTIER.md_sha256`: `d3ce66a7d7b49461612a19d14c8ba90c7ea22a0207916d310d16ae0853c5c226`
 - `report_source_docs/adr/0002-gpu-acceleration-status.md_sha256`: `356bfef901f79b955f3771cc6b4637261f193d081855a6aec18392d72a00214c`
 - `report_source_Cargo.toml_sha256`: `a623beee089b74ee04fd55ad5a972ad89e4599d98967958a4c0537ff7ddc132d`
 - `report_source_src/gpu.rs_sha256`: `1bc8aeabdc261989b00614da5dbb049124535253f0a7a486cc609860d1ea8d8d`
@@ -136,16 +136,16 @@ The JSON `source_hashes` map pins this intake report to the current prompt pack,
 - `report_source_src/kernels/seed_match.cl_sha256`: `b67a4b15e0aed78c842937d742f536c80a2142d078b3c83874d8a05363ce154a`
 - `report_source_scripts/generate_acceleration_report.py_sha256`: `579534ef289d3e3c433b0061fcac63992d96db3894ef7fd7d0a075ecd90d897a`
 - `report_source_scripts/generate_claim_boundary_audit.py_sha256`: `d749935f5d34318f8df5020a97a316dc0542ec8b1f7bbc3b07b234a848e14cf0`
-- `report_source_docs/RESEARCH_TEAM_PROTOCOL.md_sha256`: `316c1d92e5eea2085f7724a482363e834100bff62346e80bd5460a80637d7326`
-- `report_source_docs/BLOCKED_REQUIREMENT_DISPATCH.md_sha256`: `0739ce5141026dec813cdef49b0b8c73ddb49c5c9bba17d3f1ca4e2e64dcb181`
-- `report_source_docs/ui_workflow_smoke.json_sha256`: `a3b1a460ec74a18718c7a06ad71f5ced01d7f5e83710bca988e1c74886147d4c`
+- `report_source_docs/RESEARCH_TEAM_PROTOCOL.md_sha256`: `09a565bce78587a6614b6294d0eab6c8f3200a598ce3fd62cae11d5fdc6df2ba`
+- `report_source_docs/BLOCKED_REQUIREMENT_DISPATCH.md_sha256`: `22fc1b3d90ea81160b01ba451eb183922454b6e3b6987701233eaf14f685b254`
+- `report_source_docs/ui_workflow_smoke.json_sha256`: `a8a385ff5ed2f73f5893416c9e722e1ab579ce3248cd485b8e2a74794932a2e0`
 - `report_source_scripts/generate_ui_workflow_smoke.py_sha256`: `c4a02ca62e2689e87535f34869dae201df3bde272532d001d60e10af385cd318`
 - `report_source_src-tauri/Cargo.toml_sha256`: `e7fea7e30ec87b1605af907226f2e31c6a5bf2d54a74431b29bf5bca9fe2fffd`
 - `report_source_src-tauri/src/main.rs_sha256`: `f9863adcab54ee1569a78ee18f4cb4b2c4b880322ebba4dadfb1515f70627f02`
 - `report_source_ui/index.html_sha256`: `d3f95b6095c5ac07cee28092bd88ec296955b26558cc47ab0287753a994c0e19`
-- `report_source_docs/GOAL_COMPLETION_AUDIT.md_sha256`: `bdba027c4243544d7d8e4a3ca31d8bc518e333645f73d66466325a7c8602ea9c`
-- `report_source_docs/GOAL_AUDIT.md_sha256`: `168c34f0a0a87f0a3e3664e635af3606075ca446817c6fe43a1fce0e5b81283b`
+- `report_source_docs/GOAL_COMPLETION_AUDIT.md_sha256`: `e7cee5f02e98b9330c56ef8caaad13ccad78eb635e8cf63420e7ac82173ccbf3`
+- `report_source_docs/GOAL_AUDIT.md_sha256`: `b5acb9ffb361291bdf493f967b6c5d69c105db9b36133d747c6e01d1d4cb8a6a`
 - `report_source_docs/GENERATED_LEDGER_PIPELINE.md_sha256`: `2bdab704eb5220af5d21ebf4935b62a85c3500ca5b987f8b5f690d20d9d2af1a`
-- `report_source_docs/goal_completion_audit.json_sha256`: `e90c7a3fb65d26624317d642c271dc5093af9fb4855f38c306e5df155ccc91ed`
+- `report_source_docs/goal_completion_audit.json_sha256`: `98ed81a989eba510f586bbb4527c551fa07cec86b3469e2cc639a3c585f21ebc`
 - `report_source_scripts/generate_goal_completion_audit.py_sha256`: `5ac0fdbbaf25b265a9b837f8ec47c7773513e0f8f6bdaffc3b0d82154c948cc8`
 - `report_source_scripts/generate_evidence_regimen.py_sha256`: `a5986022bfc24b9dcccfdda0fd57019760c489f5cb32f37063f2cd9661ea3984`

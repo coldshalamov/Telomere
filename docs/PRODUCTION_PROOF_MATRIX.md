@@ -31,7 +31,7 @@ Do not promote Telomere to production until blocked_by_evidence_count and runtim
 
 | gate | status | group | finding | promotion requirement | evidence |
 | --- | --- | --- | --- | --- | --- |
-| `v1-format-compatibility-contract` | `qualified` | `format-policy` | .tlmr v1 has a documented 40-byte header, hasher metadata, Lotus preset, one layer, byte-aligned seed payloads, and output-hash validation. | Keep v1 compatibility stable across a release candidate and publish migration rules before changing semantics. | `docs/FORMAT.md`, `src/tlmr.rs`, `tests/tlmr_header.rs` |
+| `v1-format-compatibility-contract` | `qualified` | `format-policy` | .tlmr v1 has a documented variable-length Lotus bit-stream header (5-byte raw TLMR magic + version prefix, then Lotus J3D2 fields plus J1D1 arity in records), hasher metadata, Lotus preset, one layer, Lotus J3D2 bit-aligned seed indices, and output-hash validation. | Keep v1 compatibility stable across a release candidate and publish migration rules before changing semantics. | `docs/FORMAT.md`, `src/tlmr.rs`, `tests/tlmr_header.rs` |
 | `v2-experimental-boundary` | `blocked-by-evidence` | `format-policy` | .tlmr v2 decodes recursive layers without an external index, but the format remains explicitly experimental. | Do not promote v2 to stable until compatibility guarantees, migration rules, and non-planted workload wins are proven. | `docs/FORMAT.md`, `src/tlmr_v2.rs`, `tests/indexed_v2.rs` |
 | `release-gate-definitions` | `qualified` | `meta-research` | Release checklist and CI cover the required cargo/doc gates recorded by this matrix. | Each release candidate must rerun every gate on the exact candidate tree. | `docs/RELEASE_CHECKLIST.md`, `.github/workflows/ci.yml` |
 | `candidate-runtime-verification` | `runtime-required` | `meta-research` | Fresh candidate runtime artifact is not current: workspace snapshot is stale. | Attach fresh command output for fmt, clippy, tests, GPU feature check, doc lint, ledger checks, and Tauri checks before release. | `docs/RELEASE_CHECKLIST.md`, `docs/CANDIDATE_RUNTIME_VERIFICATION.md`, `docs/candidate_runtime_verification.json`, `docs/candidate_runtime_verification/*.txt` |
@@ -79,9 +79,9 @@ Runtime proof capture:
 - `streaming_economics_gate_md_sha256`: `0d7a3c7945059cb368a3da8f818d54a484ba0277b3dc2672837548d160905dd3`
 - `streaming_economics_gate_json_sha256`: `43b05882391b1be2137ba64cced0d7bd144361ed7b5296a784374a78f65bd74a`
 - `ui_workflow_smoke_md_sha256`: `080c036e335451a2a3e5d3b1e37e46bfd061721374783d4fcf3be26d9755c2dc`
-- `ui_workflow_smoke_json_sha256`: `a3b1a460ec74a18718c7a06ad71f5ced01d7f5e83710bca988e1c74886147d4c`
-- `research_decision_sha256`: `3ab827859e42c2a86169dd76cb3cfadcf657362f41c0e43986939e750711a7d1`
-- `research_frontier_sha256`: `6e87d3913e5bd9ac7895ad85bed230230dd5d98ac3db1420dd613845c2e12f59`
+- `ui_workflow_smoke_json_sha256`: `a8a385ff5ed2f73f5893416c9e722e1ab579ce3248cd485b8e2a74794932a2e0`
+- `research_decision_sha256`: `de7ec7e5fcb358cf4ac247d190e0cd97c1ae13e58e0973087ce3043fbe1f29b8`
+- `research_frontier_sha256`: `230e4ccb762372951220a2aa83fa597f199e30eb723977e19c16a44d500cc358`
 - `ci_workflow_sha256`: `2df1495a9a67d51538fdea719eca9b947edf4a998e3da1550ad7c3d0627a136e`
 - `cargo_toml_sha256`: `a623beee089b74ee04fd55ad5a972ad89e4599d98967958a4c0537ff7ddc132d`
 - `evidence_regimen_sha256`: `a5986022bfc24b9dcccfdda0fd57019760c489f5cb32f37063f2cd9661ea3984`

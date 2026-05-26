@@ -192,4 +192,4 @@ Return findings first and do not launch broad compute.
 ## Source Artifacts
 
 The JSON `source_hashes` map pins this prompt pack to the exact upstream team packet.
-- `research_team_packet_sha256`: `d7ed8ac2ef884af2fd6c3e20684e5096515bbb5eb97b378f1f15cdec3622b39d`
+- `research_team_packet_sha256`: `cddfeb897af203925ebdf9ac9889a7b7db888e48a1e6b334aa6035b5f29c789e`

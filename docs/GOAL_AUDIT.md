@@ -19,8 +19,8 @@ Viability verdict: **research-viable, not production-proven**.
 | --- | --- | --- | --- | --- | --- |
 | canonical-architecture | Define what Telomere is now, what Lotus means here, and what is explicitly gone. | complete | `docs/ARCHITECTURE.md`, `docs/FORMAT.md`, `docs/TOOLS.md`, `docs/Telomere Whitepaper V2.md` | The active architecture separates stable v1, experimental v2, and removed gloss/bloom/fuzz/hash-table stubs. | Keep doc lint rejecting stale claims and removed components. |
 | canonical-architecture | Replace README with a current user guide and make FORMAT.md the source of truth. | complete | `README.md`, `docs/FORMAT.md`, `scripts/doc_lint.py` | The README documents real CLI flags, limits, and honest performance tiers; FORMAT.md owns v1/v2 wire contracts. | Update both when the CLI or wire format changes. |
-| format-v1 | Decide and implement the header strategy for hasher kind, Lotus preset/version, layer count, lengths, and hash. | complete | `src/tlmr.rs`, `tests/tlmr_header.rs`, `docs/FORMAT.md` | v1 uses the richer 40-byte header and the selected hasher is authoritative during decompression. | Do not emit recursive v1 output; use v2 for recursive layers. |
-| format-v1 | Reject or formally support non-byte-aligned seed payloads. | complete | `src/tlmr.rs`, `src/lib.rs`, `tests/decompress.rs`, `docs/FORMAT.md` | v1 seed payloads are byte-oriented and invalid/truncated payloads are rejected. | Any bit-packed seed work needs a new format version and golden vectors. |
+| format-v1 | Decide and implement the header strategy for hasher kind, Lotus preset/version, layer count, lengths, and hash. | complete | `src/tlmr.rs`, `tests/tlmr_header.rs`, `docs/FORMAT.md` | v1 uses a variable-length Lotus bit-stream header (J3D2 for general fields, J1D1 for arity) written after a 5-byte raw TLMR magic + version prefix, and the selected hasher is authoritative during decompression. | Do not emit recursive v1 output; use v2 for recursive layers. |
+| format-v1 | Reject or formally support non-byte-aligned seed payloads. | complete | `src/tlmr.rs`, `src/lib.rs`, `tests/decompress.rs`, `docs/FORMAT.md` | v1 records carry a Lotus J1D1 arity discriminator and (for compressed records) a Lotus J3D2 bit-aligned seed index; literal records pad to a byte boundary before their raw block bytes. Invalid or truncated payloads are rejected. | Any change to the bit-stream layout needs a new format version and golden vectors. |
 | format-v2 | Keep v1 stable and make v2 explicit experimental indexed/multi-layer format. | complete | `src/tlmr_v2.rs`, `tests/indexed_v2.rs`, `tests/streaming.rs`, `docs/FORMAT.md` | v2 has recursive layer descriptors, seed-span records, literal records, hasher metadata, and index-free decode. | Treat v2 compatibility as experimental until a release checklist promotes it. |
 | multi-pass | Fix multi-pass semantics so decompression is unambiguous. | complete | `src/compress.rs`, `src/tlmr_v2.rs`, `tests/indexed_v2.rs`, `tests/streaming.rs` | v1 emits one-layer-decodable output; v2 records layer descriptors for recursive decode without an index. | Do not add recursive superposition; selected layers only. |
 | byte-accounting | Ensure reported final_bytes always matches bytes actually written. | complete | `src/compress.rs`, `src/main.rs`, `tests/cli_tests.rs` | Run summaries and CLI JSON report the encoded buffer length after the engine returns bytes. | Keep CLI JSON tests tied to output file sizes. |
@@ -367,8 +367,8 @@ This section lists unresolved `open` and `blocked-by-evidence` requirements.
 
 - `results_sha256`: `225465824966499a8d15a5721e0698c30ae83053d072dbec6c6b21558523f9ba`
 - `sweeps_sha256`: `803c32715becd4eca7f52b5282fceaab539b953365ef223b477f3d5a6355dce7`
-- `viability_sha256`: `95a2789e7b263e8526728726943a4f0b48caa5e73a3175b80ff388982d56a9f5`
-- `research_scorecard_sha256`: `638a7f995339ba35a7807a8500a75370d7b01a6e6029b7cb573aedfc69afa7a1`
+- `viability_sha256`: `7799a6d3644f435dd09ce4233d7ffda523fb4e9ccba6e4f5543bb3e1d27bf921`
+- `research_scorecard_sha256`: `36c65bb0d3a4c1817fb22eb4045ec0253fe245f1c67f8412115e8531d0cf705a`
 - `corpus_matrix_sha256`: `2a9f8506a3c9e6aa47c0e91c1e15bf1951f9af0d0b3cb64129982e06a27e7bd2`
 - `corpus_generalization_probe_sha256`: `4b687748c439a8f27897d7c7346cd088e41fa155de4c74aa190e48696c8359dd`
 - `heldout_corpus_expansion_sha256`: `a6e91a2d9d2d96b89510e4a81a685983ef394be930bfc71fde2c970c5beed149`
@@ -396,7 +396,7 @@ This section lists unresolved `open` and `blocked-by-evidence` requirements.
 - `long_span_bundle_gate_sha256`: `2e8d89a7835508e0cf6c19e18b4fde448589770f17b7cecb9425eb5ea996eb02`
 - `recursive_structured_fixtures_sha256`: `ba0e35650a6daa742994b881563bfbeb64f5519ff942e967dd3cfb0d250fc67d`
 - `scale_performance_report_sha256`: `7ed20e3912fc1917957e27a7f21fd11d234b22887fc2a9ab27f3df0bd238f321`
-- `ui_workflow_smoke_sha256`: `a3b1a460ec74a18718c7a06ad71f5ced01d7f5e83710bca988e1c74886147d4c`
+- `ui_workflow_smoke_sha256`: `a8a385ff5ed2f73f5893416c9e722e1ab579ce3248cd485b8e2a74794932a2e0`
 - `fifth_byte_steering_sha256`: `907390d75e9a18c6f41ba72f50025511d2a8292af6ad5c6398165698e86cd88a`
 - `contextual_fifth_byte_steering_sha256`: `ce80c9ccbb78185b3bce6b6e9562be879e37affe942aa7bebff2489a62622028`
 - `structural_transform_search_sha256`: `f862b094763c7c7c1cf4ba45ac75246f3b874e51ef67afd329d803b15f7d9eb1`
@@ -469,7 +469,7 @@ This section lists unresolved `open` and `blocked-by-evidence` requirements.
 - `docs/RECURSIVE_STRUCTURED_FIXTURES.md_sha256`: `90a09fc20bd8aa677acca9a9b64cc9fbd4b44d66499711f4f905accfbc5c242f`
 - `docs/RELEASE_CHECKLIST.md_sha256`: `42ac71c4640fba2acaa3d5b18cdf5fe2f5d841b5fb55abff76afe1c7854dbdb8`
 - `docs/RESEARCH_PROGRAM.md_sha256`: `cbe3599df6bf657c69dae9ea5754efba891c1d7cd66731b73aad8132955c70d9`
-- `docs/RESEARCH_SCORECARD.md_sha256`: `1602fdc3d03bdfe5a42fdca6993d1cfad777e298fadbbdf2f70b0195a09d309f`
+- `docs/RESEARCH_SCORECARD.md_sha256`: `589cdb82bd5d7296488a53cff3d4672481bf23d8282e865a4379ef0791e88337`
 - `docs/RESIDUAL_PAYLOAD_COMPRESSIBILITY.md_sha256`: `f72c533b5e1fd03d9db69dc8595154b9fde3d44045591900ad6698d9d2ad082c`
 - `docs/RESULTS.md_sha256`: `991eb6a9a04f751cc571a04157e3b0a71139d7af0b5539dc4e80ff0084f9eba0`
 - `docs/SCALE_PERFORMANCE.md_sha256`: `8a484de382a0838b8136584c40932fa88aabf436b29cf1b3183471493f10a9ab`
@@ -490,7 +490,7 @@ This section lists unresolved `open` and `blocked-by-evidence` requirements.
 - `docs/TRANSFORM_VALIDATION.md_sha256`: `7697ab557b21bc6641cedcc3d8b9d8804c8abd91214ffaf8050eeac3e9d2430c`
 - `docs/Telomere Whitepaper V2.md_sha256`: `ff3bfa05be1789537ed7e922452c372b50a548c7119e4230940b63c0a4ed0131`
 - `docs/UI_WORKFLOW_SMOKE.md_sha256`: `080c036e335451a2a3e5d3b1e37e46bfd061721374783d4fcf3be26d9755c2dc`
-- `docs/VIABILITY.md_sha256`: `ee537a8aca8e537bb0c8f3564df1f690d38c10823778a86aac90b333e5751fea`
+- `docs/VIABILITY.md_sha256`: `fcf5a74854b6ac937cda878cc05b559826236784b03573d1b81d05642bc22d1c`
 - `docs/WHOLE_STREAM_RESIDUAL_VECTOR_PROBE.md_sha256`: `a1d9608ff02b50e0537bd6bf132b90b359b566aee45a3095326f14e4a51eea8e`
 - `docs/adr/0002-gpu-acceleration-status.md_sha256`: `356bfef901f79b955f3771cc6b4637261f193d081855a6aec18392d72a00214c`
 - `docs/affine_transform_search.json_sha256`: `f45c9f1b1a50f3ba174e17d76a495bd4118bde5edd94419bf6a12518bc154d75`
@@ -534,7 +534,7 @@ This section lists unresolved `open` and `blocked-by-evidence` requirements.
 - `docs/superposition_telemetry.json_sha256`: `447e382fb222d915f1d913e72a0a0d2bcd3eae6bb81e2a72d2acc7b030370f57`
 - `docs/token_dictionary_transform_search.json_sha256`: `045abb32731d15304d53428f101a9fa0baa8d7fb7eeea9c816251e467fe84951`
 - `docs/transformed_match_discovery.json_sha256`: `ac028cc87f27652ab4ee1780a4e62100a9a14edde799394808c4a6b379d58447`
-- `docs/ui_workflow_smoke.json_sha256`: `a3b1a460ec74a18718c7a06ad71f5ced01d7f5e83710bca988e1c74886147d4c`
+- `docs/ui_workflow_smoke.json_sha256`: `a8a385ff5ed2f73f5893416c9e722e1ab579ce3248cd485b8e2a74794932a2e0`
 - `docs/whole_stream_residual_vector_probe.json_sha256`: `35f80e6345cc7230c5d615260d293d71c168664a886bcfcb2035f49be872b126`
 - `scripts/doc_lint.py_sha256`: `f2c3be66b84cac3a4aba21e52645107c4eeb21b2490f8b1ac7353b6d4f64ac51`
 - `scripts/generate_exact_short_hit_bundle_economics.py_sha256`: `4e34d469847d8e990b94bcf4f9ba64bcaa97079b76035462b1b4fbd5b07d438a`

@@ -181,7 +181,7 @@ def build_gates(
             "v1-format-compatibility-contract",
             "qualified",
             ["docs/FORMAT.md", "src/tlmr.rs", "tests/tlmr_header.rs"],
-            ".tlmr v1 has a documented 40-byte header, hasher metadata, Lotus preset, one layer, byte-aligned seed payloads, and output-hash validation.",
+            ".tlmr v1 has a documented variable-length Lotus bit-stream header (5-byte raw TLMR magic + version prefix, then Lotus J3D2 fields plus J1D1 arity in records), hasher metadata, Lotus preset, one layer, Lotus J3D2 bit-aligned seed indices, and output-hash validation.",
             "Keep v1 compatibility stable across a release candidate and publish migration rules before changing semantics.",
             "format-policy",
         ),

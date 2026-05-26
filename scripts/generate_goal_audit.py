@@ -326,7 +326,7 @@ def build_audit() -> dict[str, Any]:
             "Decide and implement the header strategy for hasher kind, Lotus preset/version, layer count, lengths, and hash.",
             "complete",
             ["src/tlmr.rs", "tests/tlmr_header.rs", "docs/FORMAT.md"],
-            "v1 uses the richer 40-byte header and the selected hasher is authoritative during decompression.",
+            "v1 uses a variable-length Lotus bit-stream header (J3D2 for general fields, J1D1 for arity) written after a 5-byte raw TLMR magic + version prefix, and the selected hasher is authoritative during decompression.",
             "Do not emit recursive v1 output; use v2 for recursive layers.",
         ),
         entry(
@@ -334,8 +334,8 @@ def build_audit() -> dict[str, Any]:
             "Reject or formally support non-byte-aligned seed payloads.",
             "complete",
             ["src/tlmr.rs", "src/lib.rs", "tests/decompress.rs", "docs/FORMAT.md"],
-            "v1 seed payloads are byte-oriented and invalid/truncated payloads are rejected.",
-            "Any bit-packed seed work needs a new format version and golden vectors.",
+            "v1 records carry a Lotus J1D1 arity discriminator and (for compressed records) a Lotus J3D2 bit-aligned seed index; literal records pad to a byte boundary before their raw block bytes. Invalid or truncated payloads are rejected.",
+            "Any change to the bit-stream layout needs a new format version and golden vectors.",
         ),
         entry(
             "format-v2",
