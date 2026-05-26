@@ -660,9 +660,15 @@ pub fn decompress_v2_with_limit(
     }
 
     let expander = header.hasher.get_expander();
-    let mut current = input[payload_start..].to_vec();
+    let mut current = input[payload_start..total_len].to_vec();
+    let mut current_payload_bit_len = Some(outer_payload_bit_len);
     for descriptor in descriptors {
-        current = decode_v2_layer(&current, &descriptor, header.hasher)?;
+        current = decode_v2_layer(
+            &current,
+            current_payload_bit_len.take(),
+            &descriptor,
+            header.hasher,
+        )?;
         let hash = truncated_hash_bits(&current, expander.as_ref(), header.hash_bits);
         if hash != descriptor.decoded_hash {
             return Err(TelomereError::Header("layer hash mismatch".into()));
@@ -685,11 +691,26 @@ pub fn decode_tlmr_v2_layer_descriptors(
     decode_v2_header_and_descriptors(input).map(|(_, descriptors, _)| descriptors)
 }
 
+#[allow(dead_code)]
 pub fn decode_v2_payload(
     payload: &[u8],
     descriptor: &TlmrV2LayerDescriptor,
     hasher: HasherKind,
 ) -> Result<Vec<u8>, TelomereError> {
+    decode_v2_payload_with_bit_len(payload, payload.len() * 8, descriptor, hasher)
+}
+
+fn decode_v2_payload_with_bit_len(
+    payload: &[u8],
+    payload_bit_len: usize,
+    descriptor: &TlmrV2LayerDescriptor,
+    hasher: HasherKind,
+) -> Result<Vec<u8>, TelomereError> {
+    if payload_bit_len > payload.len() * 8 {
+        return Err(TelomereError::Header(
+            "v2 payload bit length exceeds byte slice".into(),
+        ));
+    }
     if descriptor.tier_policy != V2_TIER_POLICY_SEED_SPAN
         && descriptor.tier_policy != V2_TIER_POLICY_FIXED_SEED_SPAN
     {
@@ -815,14 +836,28 @@ pub fn decode_v2_payload(
         }
     }
 
-    let remaining_bits = payload.len() * 8 - reader.bits_consumed();
+    let consumed = reader.bits_consumed();
+    if consumed > payload_bit_len {
+        return Err(TelomereError::Header(
+            "v2 payload consumed past declared bit length".into(),
+        ));
+    }
+    let remaining_bits = payload_bit_len - consumed;
     if remaining_bits > 7 {
         return Err(TelomereError::Header("excess v2 trailing pad bits".into()));
+    }
+    while reader.bits_consumed() < payload_bit_len {
+        let pad = reader.read_bits(1).map_err(lotus_err)?;
+        if pad != 0 {
+            return Err(TelomereError::Header("nonzero v2 trailing pad bit".into()));
+        }
     }
     while reader.bits_consumed() < payload.len() * 8 {
         let pad = reader.read_bits(1).map_err(lotus_err)?;
         if pad != 0 {
-            return Err(TelomereError::Header("nonzero v2 trailing pad bit".into()));
+            return Err(TelomereError::Header(
+                "nonzero v2 payload byte pad bit".into(),
+            ));
         }
     }
 
@@ -834,14 +869,27 @@ pub fn decode_v2_payload(
 
 fn decode_v2_layer(
     payload: &[u8],
+    payload_bit_len: Option<usize>,
     descriptor: &TlmrV2LayerDescriptor,
     hasher: HasherKind,
 ) -> Result<Vec<u8>, TelomereError> {
     match descriptor.tier_policy {
         V2_TIER_POLICY_SEED_SPAN | V2_TIER_POLICY_FIXED_SEED_SPAN => {
-            decode_v2_payload(payload, descriptor, hasher)
+            decode_v2_payload_with_bit_len(
+                payload,
+                payload_bit_len.unwrap_or(payload.len() * 8),
+                descriptor,
+                hasher,
+            )
         }
         V2_TIER_POLICY_PUBLIC_PRESET_SELECTIVE => {
+            if let Some(bit_len) = payload_bit_len {
+                if bit_len != payload.len() * 8 {
+                    return Err(TelomereError::Header(
+                        "v2 public preset payload bit length must be byte aligned".into(),
+                    ));
+                }
+            }
             let decoded_len: usize = descriptor.decoded_len.try_into().map_err(|_| {
                 TelomereError::Header("v2 transform layer length out of range".into())
             })?;

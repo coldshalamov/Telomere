@@ -21,6 +21,14 @@ fn lotus_err(e: lotus::LotusError) -> TelomereError {
     TelomereError::Header(format!("lotus codec error: {e}"))
 }
 
+fn v1_literal_candidate_bit_len(byte_len: usize) -> Result<usize, TelomereError> {
+    let marker_bits = v1_record_bit_len(0xFF, 0)?;
+    byte_len
+        .checked_mul(8)
+        .and_then(|bits| bits.checked_add(marker_bits + 7))
+        .ok_or_else(|| TelomereError::Internal("v1 literal bit length overflow".into()))
+}
+
 /// Compress the input using literal passthrough blocks and arity-based seed compression.
 ///
 /// Seeds are enumerated deterministically from length `1..=config.max_seed_len`.
@@ -117,7 +125,7 @@ pub fn compress_multi_pass_with_config(
         // Insert all candidates for each block index.
         for (idx, _slice) in blocks.iter().enumerate() {
             // Literal candidate always exists.
-            let lit_bits = _slice.len() * 8 + 3;
+            let lit_bits = v1_literal_candidate_bit_len(_slice.len())?;
             let _ = mgr.insert_superposed(
                 idx,
                 crate::types::Candidate {
@@ -206,7 +214,7 @@ pub fn compress_multi_pass_with_config(
                 .unwrap_or(crate::types::Candidate {
                     seed_index: usize::MAX as u64,
                     arity: 1,
-                    bit_len: blocks[i].len() * 8 + 3,
+                    bit_len: v1_literal_candidate_bit_len(blocks[i].len())?,
                 });
 
             base_spans.push((i, best_arity_1));
@@ -409,4 +417,35 @@ pub fn compress_block(
         ..Config::default()
     };
     compress_block_with_config(input, &cfg, stats)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::header::encode_v1_record_into_writer;
+
+    #[test]
+    fn literal_candidate_cost_never_underprices_emitted_record() {
+        let literal_len = 4;
+        let candidate_bits = v1_literal_candidate_bit_len(literal_len).unwrap();
+        for prefix_bits in 0..8 {
+            let mut writer = LotusBitWriter::new();
+            if prefix_bits > 0 {
+                writer.write_bits(0, prefix_bits).unwrap();
+            }
+            let before = writer.bits_written();
+            encode_v1_record_into_writer(0xFF, 0, &mut writer).unwrap();
+            while writer.bits_written() % 8 != 0 {
+                writer.write_bits(0, 1).unwrap();
+            }
+            for _ in 0..literal_len {
+                writer.write_bits(0, 8).unwrap();
+            }
+            let emitted_bits = writer.bits_written() - before;
+            assert!(
+                candidate_bits >= emitted_bits,
+                "candidate_bits={candidate_bits} emitted_bits={emitted_bits} prefix_bits={prefix_bits}"
+            );
+        }
+    }
 }

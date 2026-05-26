@@ -107,8 +107,8 @@ The rank-coded lane now has a frozen contract and golden vectors, but it remains
 ## Source Artifacts
 
 The JSON `source_hashes` map pins this contract to exact upstream evidence and generator files below.
-- `next_mechanism_designs_sha256`: `b96259289bbc954d0d62b519f2344381701722816a79904d0a991a88e79ccb72`
-- `external_corpus_accession_sha256`: `2406d79fc123d36086e0b29769fc8760fdca71342c274fc7d953b2998d61453b`
+- `next_mechanism_designs_sha256`: `d6f3c577d0958a7a1cbeeec4294fe56427dbd96f258fa79451a6ea38e409bc5b`
+- `external_corpus_accession_sha256`: `92e5eff760f08b642109bf0642dc2f0b3b2544da94f603733543e6b207d85262`
 - `external_manifest_sha256`: `322b45e65198225d2a6bd630ac54d1dbf7d7f12593241f9d16ddb54ab06623b8`
 - `public_preset_control_rerun_sha256`: `430a379cbde2377a787ea5a54ac29277814ede5f6308a95e9084350f72db8da0`
 - `search_frontier_gate_sha256`: `bd06b160c2dda144c49709449e1607d7332bf0d2b7873177e2e6c06ec3c9d114`

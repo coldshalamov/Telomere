@@ -143,7 +143,7 @@ The next viable research move is not compute; it is to choose and specify one ma
 
 The JSON `source_hashes` map pins this design registry to exact upstream evidence and generator files below.
 - `whitepaper_sha256`: `ff3bfa05be1789537ed7e922452c372b50a548c7119e4230940b63c0a4ed0131`
-- `mechanism_closure_audit_sha256`: `1051922c2b537d0d2f3b930ec1510930b81f6a5602ae920e73343a1012611b06`
+- `mechanism_closure_audit_sha256`: `d77bb27c2e0bf2d3eb24faa586e47eaedab722939f5ce2d50fe81fe0aa6e8925`
 - `search_frontier_gate_sha256`: `bd06b160c2dda144c49709449e1607d7332bf0d2b7873177e2e6c06ec3c9d114`
 - `mechanism_experiment_ranking_sha256`: `4d131f0947b07ff66a5f215e0acb5482bc5b9519600f2b02f13c0b3ef7b055fb`
 - `public_preset_control_rerun_sha256`: `430a379cbde2377a787ea5a54ac29277814ede5f6308a95e9084350f72db8da0`

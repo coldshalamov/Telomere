@@ -1,6 +1,6 @@
 {
   "claim_boundary": "Counts as seed-specific evidence only when the native row is negative, selected exact seed spans exist, and same-token non-seed controls are non-negative.",
-  "generated_at": "2026-05-26T19:57:07.181748+00:00",
+  "generated_at": "2026-05-26T21:07:40.255067+00:00",
   "generated_by": "scripts/generate_public_preset_codeword_sweep.py",
   "parameters": {
     "codeword_lens": [
@@ -1546,7 +1546,7 @@
     "public_preset": "9957bd5cc493fc3306108b4706946dda73f4b5fd4951cf1f25db6ae145cc1a63",
     "streaming_engine": "929c939d95e9977e96d9ccae68c309a12f4f9a6628b4f062856d70e895fd4191",
     "thesis_harness": "295229a2f47425d3b9a85b2911a44bad259e5c660c8b8befc1d3badae9c9400e",
-    "tlmr_v2": "4f3095e294fe89537d823284571536ef4271e51615f58dffb3b936462b9ec14f"
+    "tlmr_v2": "b4c93827ea5b89555c911461d7c35f936092c5860cbf4a8e01474a08b523bb25"
   },
   "summary": {
     "best_clean_seed_specific_win": {

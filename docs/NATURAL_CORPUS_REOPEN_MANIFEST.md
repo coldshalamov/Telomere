@@ -77,9 +77,9 @@ Natural-corpus viability remains blocked. The only currently aligned work is man
 ## Source Artifacts
 
 The JSON `source_hashes` map pins this manifest to exact upstream evidence files below.
-- `natural_corpus_proof_matrix_sha256`: `46105a189113d8e7f95b22caac41132608e33ef2eabc8a6dba2195349e3024d2`
-- `blocked_requirement_dispatch_sha256`: `bac68c2039807d48d69d6caaf5a44801ce51b293694fe27262dbc51db4f2e8de`
-- `research_frontier_sha256`: `89bc5a7596b1d46064f829d6a0097ae5e8be8a778ce8701b408c5aed33edea20`
+- `natural_corpus_proof_matrix_sha256`: `411d4653b4e9b227c9f5695d596a919abe21fdb3e0c5cb0fa3e2e691e3026e3e`
+- `blocked_requirement_dispatch_sha256`: `6dec9d03d118ff14893ee76686fb0a7b92fcc9dce6efe95c2280c31f5b52d002`
+- `research_frontier_sha256`: `bdde4b3b106f811ca48447ce6130fa793ba59d50aa5a06a53c3cec0dd545978d`
 - `search_frontier_gate_sha256`: `bd06b160c2dda144c49709449e1607d7332bf0d2b7873177e2e6c06ec3c9d114`
 - `long_span_bundle_gate_sha256`: `c8c48d55dd0ac688459acbf3e83d30c5fa99e3c959d49b57ddc6350217543f67`
 - `heldout_corpus_expansion_sha256`: `01a2ab439e60ff6f0cdb4f116ce893282a576cca51527c0a8abb93259a60425f`

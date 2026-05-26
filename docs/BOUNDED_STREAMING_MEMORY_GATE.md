@@ -54,10 +54,10 @@ The CLI now has a conservative target-table estimate preflight for v2 compressio
 - `streaming_engine_sha256`: `929c939d95e9977e96d9ccae68c309a12f4f9a6628b4f062856d70e895fd4191`
 - `indexed_engine_sha256`: `58ff71e20cb980266b92f65588b01a81d7983c40df2ed0a349a43a93b606f6f7`
 - `decompress_api_sha256`: `f3270c8aee059fa2de086bb4cdc5bd9d95fa0306add46bdd943a07a63c8d0dea`
-- `v2_format_sha256`: `4f3095e294fe89537d823284571536ef4271e51615f58dffb3b936462b9ec14f`
+- `v2_format_sha256`: `b4c93827ea5b89555c911461d7c35f936092c5860cbf4a8e01474a08b523bb25`
 - `cli_sha256`: `cec67be677176128f4f413478587999b5219f55729ebf59bd094f5b6f93dba7e`
 - `streaming_tests_sha256`: `e3b438db54b50fc5d2c00ae53ca5a6a2ac0fd53c0e76c4931c463051362ae758`
-- `indexed_v2_tests_sha256`: `8a496865dcd3964f64b1f9abbb61925a8cec6dbee1ab8082229fa778a2a1ccb6`
+- `indexed_v2_tests_sha256`: `f6196cde5ca4092391e83ff7693892aefc0e53ff4bb921a836077cea4e2c9dfa`
 - `cli_tests_sha256`: `9753c22a831a8e27ab58b672b7e8b0c19eb7baff30dc7e640c1e2ed2cb27efcf`
 - `scale_generator_sha256`: `3d2855b0db3d16affeb33ee7403f4d9e09b0b3eb17ec50c03ab85c4bb48461ff`
 - `generator_sha256`: `784a638d4c7691ea65c451227f580a181e16f339dd564e9fefa3bad2829a1a84`

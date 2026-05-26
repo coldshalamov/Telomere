@@ -218,7 +218,7 @@ Do not launch broad compute unless a generated artifact explicitly reopens the l
 ## Source Artifacts
 
 The JSON `source_hashes` map pins this protocol to the exact upstream evidence files below.
-- `research_frontier_sha256`: `89bc5a7596b1d46064f829d6a0097ae5e8be8a778ce8701b408c5aed33edea20`
-- `research_decision_sha256`: `d2f20f991bd93eee0f46b4fdd184371debf9bbdeffa2a52ea313dc7fcb2b7844`
-- `experiment_queue_sha256`: `f04fa5d7872c256ef51658c283177e7c34077580d45eedae7faba5bac8d81f39`
-- `goal_audit_sha256`: `104e558e90187d403c991895676d5cb8135924d0f7487534ff4f127d46479b66`
+- `research_frontier_sha256`: `bdde4b3b106f811ca48447ce6130fa793ba59d50aa5a06a53c3cec0dd545978d`
+- `research_decision_sha256`: `fd9056b531880c33d4f7955d1f3dbad60371404f3ca040cb83ce7d7eeef49d92`
+- `experiment_queue_sha256`: `0eaef9c3cd07fe5cb7dcc4e878d590cd2ef6458745939f47aa7fcb0048aabfe0`
+- `goal_audit_sha256`: `be0ba9920e79d64040ae7d8168252156d0bfb1128992a73369cfc5eab02956e3`

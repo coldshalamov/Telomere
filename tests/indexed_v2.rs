@@ -5,10 +5,11 @@ use telomere::{
     compress_indexed_v2_with_index, compress_indexed_v2_with_telemetry,
     compress_streaming_v2_with_telemetry, decode_tlmr_v2_header, decode_tlmr_v2_layer_descriptors,
     decode_v2_header_and_descriptors, decompress_with_limit, encode_v2_file,
-    estimate_target_table_chunk_upper_bound_for_tiers, estimate_target_table_upper_bound_for_tiers,
-    select_weighted_candidates_for_tests, v2_literal_record, v2_seed_span_record, Config,
-    HasherKind, IndexConfig, IndexedCandidate, MmapSeedExpansionIndex, SeedExpansionIndex,
-    SeedLookup, TlmrV2LayerDescriptor, V2_RECORD_TAG_SEED_SPAN,
+    encode_v2_file_with_bit_len, estimate_target_table_chunk_upper_bound_for_tiers,
+    estimate_target_table_upper_bound_for_tiers, select_weighted_candidates_for_tests,
+    v2_literal_record, v2_seed_span_record, Config, HasherKind, IndexConfig, IndexedCandidate,
+    MmapSeedExpansionIndex, SeedExpansionIndex, SeedLookup, TlmrV2LayerDescriptor,
+    V2_RECORD_TAG_SEED_SPAN,
 };
 
 fn index_config() -> IndexConfig {
@@ -277,6 +278,30 @@ fn v2_seed_span_record_is_pure_bitstream() {
     corrupt[last] |= 0x01;
     let err = decompress_with_limit(&corrupt, &Config::default(), usize::MAX).unwrap_err();
     assert!(err.to_string().contains("nonzero v2 trailing pad bit"));
+}
+
+#[test]
+fn v2_decoder_rejects_outer_payload_bit_len_shorter_than_consumed_record() {
+    let original = sha_expand(&[0x00], 4);
+    let encoded_record = v2_seed_span_record(4, &[0x00], 1).unwrap();
+    let layer =
+        TlmrV2LayerDescriptor::for_decoded_bytes(&original, HasherKind::Sha256, 1, 4, 4, 13);
+    let encoded = encode_v2_file_with_bit_len(
+        HasherKind::Sha256,
+        13,
+        original.len() as u64,
+        &[layer],
+        &encoded_record.bytes,
+        (encoded_record.bit_len - 1) as u64,
+    )
+    .unwrap();
+
+    let err = decompress_with_limit(&encoded, &Config::default(), usize::MAX).unwrap_err();
+    assert!(
+        err.to_string()
+            .contains("v2 payload consumed past declared bit length"),
+        "{err}"
+    );
 }
 
 #[test]

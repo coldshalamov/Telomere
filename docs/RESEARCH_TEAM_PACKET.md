@@ -372,12 +372,12 @@ Global forbidden actions:
 ## Source Artifacts
 
 The JSON `source_hashes` map pins this packet to the exact upstream evidence files below.
-- `research_hypotheses_sha256`: `8e1ed8fb0ccb1d8b2aa1232ce8dd790da00c073515df978f68b7eac23a71213a`
-- `research_team_protocol_sha256`: `4e1d14476723dc1cd5d144aad0657a38749b3275b09ea924672bd52c9f973a04`
-- `blocked_requirement_dispatch_sha256`: `bac68c2039807d48d69d6caaf5a44801ce51b293694fe27262dbc51db4f2e8de`
-- `goal_completion_audit_sha256`: `9a2c62fec89470210b845f2cc02b412ba15e4d697ad42596529fad1be13c7b98`
-- `research_frontier_sha256`: `89bc5a7596b1d46064f829d6a0097ae5e8be8a778ce8701b408c5aed33edea20`
+- `research_hypotheses_sha256`: `db1e2acddc96ca1bbdfb8c5c107fff81f16ea23f71ee8a3d5b9276f6b3362acb`
+- `research_team_protocol_sha256`: `d20692582c4719b5c28d229b17157a0b4878043d246647d37b1ce7cc39e88dd1`
+- `blocked_requirement_dispatch_sha256`: `6dec9d03d118ff14893ee76686fb0a7b92fcc9dce6efe95c2280c31f5b52d002`
+- `goal_completion_audit_sha256`: `871bdd78a634969d45010b3f516cc896c54e191f6d9175e72fec00569a51c7d6`
+- `research_frontier_sha256`: `bdde4b3b106f811ca48447ce6130fa793ba59d50aa5a06a53c3cec0dd545978d`
 - `mechanism_experiment_ranking_sha256`: `4d131f0947b07ff66a5f215e0acb5482bc5b9519600f2b02f13c0b3ef7b055fb`
-- `natural_corpus_proof_matrix_sha256`: `46105a189113d8e7f95b22caac41132608e33ef2eabc8a6dba2195349e3024d2`
-- `external_corpus_accession_sha256`: `2406d79fc123d36086e0b29769fc8760fdca71342c274fc7d953b2998d61453b`
-- `production_proof_matrix_sha256`: `92fab890d8f0798e69e36b3a4bec73125872df574c2392f24ad4fcdaf1796056`
+- `natural_corpus_proof_matrix_sha256`: `411d4653b4e9b227c9f5695d596a919abe21fdb3e0c5cb0fa3e2e691e3026e3e`
+- `external_corpus_accession_sha256`: `92e5eff760f08b642109bf0642dc2f0b3b2544da94f603733543e6b207d85262`
+- `production_proof_matrix_sha256`: `415e6f8fb9c5c6cc582cf7afed5036d0b90380b9bea32e6f128d7114abd8fa20`

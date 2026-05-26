@@ -48,10 +48,10 @@ Do not claim natural-corpus viability until unrelated ordinary held-out corpora 
 
 ## Source Artifacts
 
-- `viability_sha256`: `c4f7a07d981a900a2b94183d7b444d36ba7e10708cf3c8e904f29c71c86855c7`
-- `research_scorecard_sha256`: `480223c5c15eab3fd9fddaad56cc54e36ff160429ec3840df434da97e9fab1aa`
-- `research_decision_sha256`: `d2f20f991bd93eee0f46b4fdd184371debf9bbdeffa2a52ea313dc7fcb2b7844`
-- `research_frontier_sha256`: `89bc5a7596b1d46064f829d6a0097ae5e8be8a778ce8701b408c5aed33edea20`
+- `viability_sha256`: `07b7b70c0f418862ad4257020811ac37156e84bb774fb0a8da787e2f98f5cf9c`
+- `research_scorecard_sha256`: `a81844ff43c56ef822730e70880dcac846cc51f18b94b90729407acb670b70dc`
+- `research_decision_sha256`: `fd9056b531880c33d4f7955d1f3dbad60371404f3ca040cb83ce7d7eeef49d92`
+- `research_frontier_sha256`: `bdde4b3b106f811ca48447ce6130fa793ba59d50aa5a06a53c3cec0dd545978d`
 - `search_frontier_gate_sha256`: `bd06b160c2dda144c49709449e1607d7332bf0d2b7873177e2e6c06ec3c9d114`
 - `long_span_bundle_gate_sha256`: `c8c48d55dd0ac688459acbf3e83d30c5fa99e3c959d49b57ddc6350217543f67`
 - `heldout_corpus_expansion_sha256`: `01a2ab439e60ff6f0cdb4f116ce893282a576cca51527c0a8abb93259a60425f`

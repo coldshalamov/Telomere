@@ -1,6 +1,6 @@
 {
   "generated_by": "scripts/generate_blocked_requirement_dispatch.py",
-  "generated_at": "2026-05-26T20:02:49.386328+00:00",
+  "generated_at": "2026-05-26T23:01:51.938172+00:00",
   "format_version": 1,
   "scope": {
     "kind": "blocked requirement dispatch",
@@ -12,12 +12,12 @@
     "marks_goal_complete": false
   },
   "source_hashes": {
-    "goal_completion_audit_sha256": "9a2c62fec89470210b845f2cc02b412ba15e4d697ad42596529fad1be13c7b98",
-    "research_frontier_sha256": "89bc5a7596b1d46064f829d6a0097ae5e8be8a778ce8701b408c5aed33edea20",
-    "research_team_protocol_sha256": "4e1d14476723dc1cd5d144aad0657a38749b3275b09ea924672bd52c9f973a04",
-    "research_decision_sha256": "d2f20f991bd93eee0f46b4fdd184371debf9bbdeffa2a52ea313dc7fcb2b7844",
-    "viability_sha256": "c4f7a07d981a900a2b94183d7b444d36ba7e10708cf3c8e904f29c71c86855c7",
-    "research_scorecard_sha256": "480223c5c15eab3fd9fddaad56cc54e36ff160429ec3840df434da97e9fab1aa"
+    "goal_completion_audit_sha256": "871bdd78a634969d45010b3f516cc896c54e191f6d9175e72fec00569a51c7d6",
+    "research_frontier_sha256": "bdde4b3b106f811ca48447ce6130fa793ba59d50aa5a06a53c3cec0dd545978d",
+    "research_team_protocol_sha256": "d20692582c4719b5c28d229b17157a0b4878043d246647d37b1ce7cc39e88dd1",
+    "research_decision_sha256": "fd9056b531880c33d4f7955d1f3dbad60371404f3ca040cb83ce7d7eeef49d92",
+    "viability_sha256": "07b7b70c0f418862ad4257020811ac37156e84bb774fb0a8da787e2f98f5cf9c",
+    "research_scorecard_sha256": "a81844ff43c56ef822730e70880dcac846cc51f18b94b90729407acb670b70dc"
   },
   "summary": {
     "dispatch_status": "blocked_requirements_maintenance_only",

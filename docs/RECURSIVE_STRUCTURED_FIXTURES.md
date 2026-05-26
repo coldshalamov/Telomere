@@ -62,6 +62,6 @@ Recursive v2 later-layer gains remain unpromoted outside planted/alignment contr
 - `sweeps_sha256`: `803c32715becd4eca7f52b5282fceaab539b953365ef223b477f3d5a6355dce7`
 - `mechanism_experiment_ranking_sha256`: `4d131f0947b07ff66a5f215e0acb5482bc5b9519600f2b02f13c0b3ef7b055fb`
 - `streaming_engine_sha256`: `929c939d95e9977e96d9ccae68c309a12f4f9a6628b4f062856d70e895fd4191`
-- `v2_format_sha256`: `4f3095e294fe89537d823284571536ef4271e51615f58dffb3b936462b9ec14f`
+- `v2_format_sha256`: `b4c93827ea5b89555c911461d7c35f936092c5860cbf4a8e01474a08b523bb25`
 - `streaming_tests_sha256`: `e3b438db54b50fc5d2c00ae53ca5a6a2ac0fd53c0e76c4931c463051362ae758`
 - `fixture_manifest_sha256`: `324378c8e5f252e17c436984638f27d781f68c382aca43c9e51a74ccdee75f81`

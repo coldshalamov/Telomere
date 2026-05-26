@@ -122,9 +122,9 @@ Verdict: **research-viable, not production-proven**.
 - `docs/expander_salt_ensemble.json` SHA-256: `b1964816f8ade396c3f82e9b1c1d7db222506446c3ea8b18b0bd5f47dc0b9887`
 - `docs/schema_native_public_dictionaries.json` SHA-256: `7736c18343de946d3853eee253c83a9497e2f9f5fd209aaf9e20bd443f9fa478`
 - `docs/schema_native_public_dictionary_replication.json` SHA-256: `fbfc1074f874380442b5fc9e8ce57cc952f764473c992837773369d0728beebe`
-- `docs/superposition_telemetry.json` SHA-256: `9a860a10ed0a8100e97a6604d11aab196d9cf5fcf5a552fc4c8a59d0ace506b5`
+- `docs/superposition_telemetry.json` SHA-256: `06c1e38a8a4f74650e4a7de135c44ee575c3a71925cb850e1989b4239ccc8ebc`
 - `docs/long_span_bundle_gate.json` SHA-256: `c8c48d55dd0ac688459acbf3e83d30c5fa99e3c959d49b57ddc6350217543f67`
-- `docs/recursive_structured_fixtures.json` SHA-256: `8b6cea02284d3fada83db72c3134bbaa46bcade40ba245f205a14e48f34a383f`
+- `docs/recursive_structured_fixtures.json` SHA-256: `e18c5d2597e07491e7ab4031086c59ee1d8cd6a38b4ee1a47d46ab1361038f3d`
 - `docs/scale_performance_report.json` SHA-256: `9fdc2913d249bf9739c7ecd0ad6870cdbf203090fb4d60c07615b30cc09ea11f`
 - `docs/ui_workflow_smoke.json` SHA-256: `6713e90e003d4c112142b0d658a667d3bd83cd36e93c86b0707ecb60e361108a`
 - `docs/contextual_fifth_byte_steering.json` SHA-256: `9af6f8167f51596840783bf31a7cf6a15e37e15c7f308a941de0982cf4502c4b`
