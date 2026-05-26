@@ -87,9 +87,9 @@ The public-preset signal is promising but currently falsified for promotion by p
 ## Source Artifacts
 
 The JSON `source_hashes` map pins this audit to the exact upstream evidence files below.
-- `public_preset_promotion_gate_sha256`: `201ae8b565e3786c1895a2bb083e10a203f432efc632575119305b7400e670e6`
-- `schema_native_public_dictionary_replication_sha256`: `f3af0a46a5e9f2cc3b02225035c1483e473ab8994bce1f7546044432fc858022`
-- `schema_native_public_dictionaries_sha256`: `84008baffe2fe755b414de098d56cfe973610dee429f65327fc10b29b8750778`
-- `seed_table_preset_probe_sha256`: `5d026762d5103ffe81ba33702147aeceb50ffd8e152eb127cc25e1a0f86aa81d`
-- `expander_salt_ensemble_sha256`: `b719c3caf230c16b47e264efb8c07af533d0cf3bb5f58884cf18b9fd12577602`
-- `mechanism_experiment_ranking_sha256`: `b728136fa7f03d0a355c58737578b3021a140bfc21a87f2aac38b4161ac029b0`
+- `public_preset_promotion_gate_sha256`: `94889bd4a0e3e56151559e01bac1e720acfb3a60ddeabef7af2921ad6ffa4da5`
+- `schema_native_public_dictionary_replication_sha256`: `fbfc1074f874380442b5fc9e8ce57cc952f764473c992837773369d0728beebe`
+- `schema_native_public_dictionaries_sha256`: `7736c18343de946d3853eee253c83a9497e2f9f5fd209aaf9e20bd443f9fa478`
+- `seed_table_preset_probe_sha256`: `66b7b3e2615b64fe1a2e05fbadc53e21ddb2ba73a47a91b4d4b9ab68f6afe9ac`
+- `expander_salt_ensemble_sha256`: `b1964816f8ade396c3f82e9b1c1d7db222506446c3ea8b18b0bd5f47dc0b9887`
+- `mechanism_experiment_ranking_sha256`: `4d131f0947b07ff66a5f215e0acb5482bc5b9519600f2b02f13c0b3ef7b055fb`

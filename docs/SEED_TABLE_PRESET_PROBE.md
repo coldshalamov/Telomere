@@ -89,17 +89,17 @@ Canonical seed-table v0 does not meet the promotion gate; treat this as evidence
 
 ## Source Artifacts
 
-- `search_frontier_gate_sha256`: `aab9351032df10d7998c3a0e04306bb9d0f344b5d0556cc721592c7b8793737f`
-- `mechanism_experiment_ranking_sha256`: `b728136fa7f03d0a355c58737578b3021a140bfc21a87f2aac38b4161ac029b0`
-- `match_discovery_sha256`: `eb5f137a92bdb52e27d3132fe21835740157d0cacede7b68f02d1cf885438739`
-- `alignment_arity_discovery_sha256`: `d7ef17dc66b36d0b2b4cd7c4506fca31c332818b3dc16a191e944d70bde0b630`
-- `transformed_match_discovery_sha256`: `1e63c81d86787306038846928dba7db3878879b1498bb827a4c7aa939191f69e`
-- `lead_exact_discovery_sha256`: `f047de324c385dba641287443f0f6b4ceeb1f88ebf090e0063810c7d911d40aa`
-- `heldout_corpus_expansion_sha256`: `5abffdc19be1d202575340ba0004bdae88f27c6eb06aa60cb6a8651f790a965c`
-- `corpus_generalization_probe_sha256`: `4b687748c439a8f27897d7c7346cd088e41fa155de4c74aa190e48696c8359dd`
+- `search_frontier_gate_sha256`: `bd06b160c2dda144c49709449e1607d7332bf0d2b7873177e2e6c06ec3c9d114`
+- `mechanism_experiment_ranking_sha256`: `4d131f0947b07ff66a5f215e0acb5482bc5b9519600f2b02f13c0b3ef7b055fb`
+- `match_discovery_sha256`: `dbbacb8490741545d80b9332931202f7fd3a2ef98c718af5f266c88226343dff`
+- `alignment_arity_discovery_sha256`: `a99701608fb38b3d476a332772b4c4eb69fcfda52ddccf1d32de6cd7bfa0cb8f`
+- `transformed_match_discovery_sha256`: `bba81480bb2b2ae5c6a35d5f289724b33522d2f24e7aff806676b6a8cf8268ec`
+- `lead_exact_discovery_sha256`: `7826d7439905a6765c1bf0fbfeb87b65c8a4cb78d28a8c37455bd54199301f6d`
+- `heldout_corpus_expansion_sha256`: `01a2ab439e60ff6f0cdb4f116ce893282a576cca51527c0a8abb93259a60425f`
+- `corpus_generalization_probe_sha256`: `dea34274c490f6bc1d5c10b4e9393f8a53d02e44740fe8defaa72e3113e0b5cd`
 - `corpus_matrix_sha256`: `2a9f8506a3c9e6aa47c0e91c1e15bf1951f9af0d0b3cb64129982e06a27e7bd2`
-- `transform_validation_sha256`: `0267e3cbffa7b2ff0dbf8c0628ea0522253e2a45cd51b27a98f9eb8831831d6f`
-- `packed_sidecar_replication_sha256`: `28e8dd0a94eaeed48533a9df54c6d9e7525ce9b8038b30e137152ab13288d2bf`
+- `transform_validation_sha256`: `8d974a69b45738de48a401fb584340cb263fccb6148d96e63a8328799425792b`
+- `packed_sidecar_replication_sha256`: `d87bc291881cc900a30e68552986e20ef71c037746d89c3b19c94e3bc1da1f5f`
 - `probe_manifest_sha256`: `07010e77aade0c7c3612f7a470e014ecfa91f6cd9b72a50df8485379fe91433f`
 - `corpus_manifest_sha256`: `a61d6b6258b796c13ad7d77caf3f9c35d610d4a19dc0adc25c8e417cdbf41819`
 - `sha256-baseline_table_sha256`: `2531640423f27e4b0f0bcfddd3fd70c7f8a38698068879726cc7b113af6501a5`

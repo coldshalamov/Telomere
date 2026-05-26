@@ -72,15 +72,15 @@ Whole-stream residual vectors do not yet turn the residual sidecar family into b
 
 ## Source Artifacts
 
-- `mechanism_experiment_ranking_sha256`: `b728136fa7f03d0a355c58737578b3021a140bfc21a87f2aac38b4161ac029b0`
-- `seed_table_preset_probe_sha256`: `5d026762d5103ffe81ba33702147aeceb50ffd8e152eb127cc25e1a0f86aa81d`
-- `exact_short_hit_bundle_economics_sha256`: `e35dead1413c2a12048cd4d98f9d45b68666ca1e5e83aa97ba76e68e5bc2e5a0`
-- `seed_manifold_residual_steering_sha256`: `68d3e523b27b71ed009e3d3b52940fa3c4ccd87c3c3d06f56846711c617966a7`
-- `sidecar_break_even_sha256`: `e5dc8cbfbf3a5f6c9e3ce63155deaf9f8d593681de016013594611082ca402b8`
-- `residual_payload_compressibility_sha256`: `f32508274e4724bad83ba056d1c375e37136c5e96c8a991d040fb4f46d0917f0`
-- `experimental_sidecar_descriptor_sha256`: `665731c38e73a40e828b7daae8a2f008442c13a90d985430d484b54a4396c58c`
-- `packed_sidecar_descriptor_sha256`: `1d1a486c64168f31af4f21d9042ed046308080eb5eb0d4a4c4667804c9e66b67`
-- `packed_sidecar_replication_sha256`: `28e8dd0a94eaeed48533a9df54c6d9e7525ce9b8038b30e137152ab13288d2bf`
-- `format_doc_sha256`: `101fa4cbc783013b456123a5b0772aa91604b229bd1a19b92999ca2b1c9370c0`
+- `mechanism_experiment_ranking_sha256`: `4d131f0947b07ff66a5f215e0acb5482bc5b9519600f2b02f13c0b3ef7b055fb`
+- `seed_table_preset_probe_sha256`: `66b7b3e2615b64fe1a2e05fbadc53e21ddb2ba73a47a91b4d4b9ab68f6afe9ac`
+- `exact_short_hit_bundle_economics_sha256`: `c36ec5eca6f1d3c638aaa7b21848fedeba7c26a08fba657506428e0c5fce0d96`
+- `seed_manifold_residual_steering_sha256`: `1cc8feabbb15479f96606e9ef2db1e7a18b9164f8ee1400f5f0411500445cb57`
+- `sidecar_break_even_sha256`: `e2498c85a3780baea9ad3d4eea37c9c430d8c97e4cac4a1d80bec11cb333b173`
+- `residual_payload_compressibility_sha256`: `f30f6f2fd5eba6e1310e90d0b554ed78fc9617b8e50f9daa4dc5e754b7cd7358`
+- `experimental_sidecar_descriptor_sha256`: `d5ec0c7c7a37673fbe83863b40603fb58affa6b4aefb3c45545fc77c648089fe`
+- `packed_sidecar_descriptor_sha256`: `eec4477c3fbfcacdac17b1fb48b4b9a11c717d6da1aa37fd3ae9c0e02a5d67f2`
+- `packed_sidecar_replication_sha256`: `d87bc291881cc900a30e68552986e20ef71c037746d89c3b19c94e3bc1da1f5f`
+- `format_doc_sha256`: `4207afbe822f13f9a1968cfbc99954b19ce47480d199998dcbb6a69c891bd67d`
 - `manifest_sha256`: `fd902e106fb36eab8148931f114ca7742ce03f71dbbca679c4cd4724fe8e40cd`
 - `source_ledger_sha256`: `a0fd041167aa23ee84c23c2b134667853a03d11300ff8f19518777ae2ee0062c`

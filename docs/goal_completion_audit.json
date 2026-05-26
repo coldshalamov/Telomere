@@ -1,6 +1,6 @@
 {
   "generated_by": "scripts/generate_goal_completion_audit.py",
-  "generated_at": "2026-05-26T14:22:37.278380+00:00",
+  "generated_at": "2026-05-26T17:24:17.156464+00:00",
   "format_version": 1,
   "scope": {
     "kind": "active goal completion audit",
@@ -13,18 +13,18 @@
   "source_hashes": {
     "whitepaper_sha256": "ff3bfa05be1789537ed7e922452c372b50a548c7119e4230940b63c0a4ed0131",
     "architecture_sha256": "1ddd790688cc827f60dc25539bf3d33b5dfab8dee758680169acbc6570ef2c7f",
-    "format_sha256": "101fa4cbc783013b456123a5b0772aa91604b229bd1a19b92999ca2b1c9370c0",
+    "format_sha256": "4207afbe822f13f9a1968cfbc99954b19ce47480d199998dcbb6a69c891bd67d",
     "research_program_sha256": "cbe3599df6bf657c69dae9ea5754efba891c1d7cd66731b73aad8132955c70d9",
     "results_sha256": "225465824966499a8d15a5721e0698c30ae83053d072dbec6c6b21558523f9ba",
-    "viability_sha256": "231e727acf4d575288e3832c64263c49f12e2f9c8b647a1cc6efd46bcc4f7ccf",
-    "research_scorecard_sha256": "f862df2922d52e4ec2c6af0c822e21a2ba3ed61c00b6c0860dfe480248921886",
-    "goal_audit_sha256": "183a1237ed88dae875436dcfea3195214e91faeaf2b05d4fff7fea8a2a0d46a9",
-    "research_decision_sha256": "42ae694c45a5b93081776877b3c856d9e79d99755e3c360ae5beb6672e4b435a",
-    "research_frontier_sha256": "cb4c6d94b3f61a23032a66810690565efe8fc8e861e74840de72474cf0b5d845",
-    "natural_corpus_proof_matrix_sha256": "c84810cbe772c2f74f695d5a37192edb3a0b4be737f67cda38fcd7c0ef16c9e4",
-    "production_proof_matrix_sha256": "cad83f15540203e52d73c34aac0f00a5fe32b0669663e8ee5bd74f81ecbd44a6",
-    "research_team_protocol_sha256": "2e2cbd70cf915cb29a0ef7ff97b18e992ef4939bd9db67e9057c6af81e7dd9cc",
-    "ui_workflow_smoke_sha256": "4609482b394bc5d9d3f7f8ef33210cd6983690c2af7add9e5816ca515371f52f"
+    "viability_sha256": "6ff4dd440fcd69b40bddd0b1b22f3afbfed1336d558970a039f763fcfeeb6558",
+    "research_scorecard_sha256": "a0f9768ef1aed8932d5d50f01fa4a0c1d39ff212bcc5edff1789057a315b5ca3",
+    "goal_audit_sha256": "b8ebd830d931fce145f98c66c97fd2041f4c6acbd0fe3c4eee7c7cb0adada948",
+    "research_decision_sha256": "bf453e2ad671a05e07f3dad2d4de62a6b75a5e6f6971b2fd9871b1202fca9f76",
+    "research_frontier_sha256": "1bcef032be36588c9491ac41eef4059e8469402c715f0a7455a9c7f7a52b5ab9",
+    "natural_corpus_proof_matrix_sha256": "9995fba8743ba9d827a9118c779840f11ede213245364de7d6217dcabac9a26e",
+    "production_proof_matrix_sha256": "1ff8e6360b625752851eb3aa04bea65330dd739aae3b7b061b59721822f9ad1f",
+    "research_team_protocol_sha256": "67757b553fed45c77289390e350e5baa6d71a93feed945ee2c78b1d61242ad48",
+    "ui_workflow_smoke_sha256": "c27135281129de90bcde0eca08f3779b065ce41aec0721a0bc3ff77475c6ecfb"
   },
   "summary": {
     "objective_status": "active_goal_not_complete",

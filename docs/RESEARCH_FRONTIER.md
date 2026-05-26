@@ -149,14 +149,14 @@ A gated-compute override requires a new generated evidence artifact, an explicit
 ## Source Artifacts
 
 The JSON `source_hashes` map pins this trigger board to the exact upstream evidence files below.
-- `research_decision_sha256`: `42ae694c45a5b93081776877b3c856d9e79d99755e3c360ae5beb6672e4b435a`
-- `experiment_queue_sha256`: `48f4e3445924e24553cfbb34bf823c0b11737e56da10509d86c120e93d5be2a0`
-- `goal_audit_sha256`: `183a1237ed88dae875436dcfea3195214e91faeaf2b05d4fff7fea8a2a0d46a9`
-- `research_scorecard_sha256`: `f862df2922d52e4ec2c6af0c822e21a2ba3ed61c00b6c0860dfe480248921886`
-- `long_span_bundle_gate_sha256`: `290b4a0817f5c0fbd875dd7f010a15113acc0aaa56426226d334e6dcf73cf5b1`
-- `search_frontier_gate_sha256`: `aab9351032df10d7998c3a0e04306bb9d0f344b5d0556cc721592c7b8793737f`
-- `heldout_corpus_expansion_sha256`: `5abffdc19be1d202575340ba0004bdae88f27c6eb06aa60cb6a8651f790a965c`
-- `acceleration_report_sha256`: `623b59981cf78e7a22d54fb4111b663fc2975c5a923ae3bf8ff288d9f42b1207`
-- `recursive_structured_fixtures_sha256`: `74f7cd8ae7350ad130c17996b0724f251168638fce3325079d71a96deccf3614`
-- `scale_performance_report_sha256`: `b14646b969fc65e6c3c52584107e3478ed6e28671e6f0ce058f70f80d13819f7`
-- `viability_sha256`: `231e727acf4d575288e3832c64263c49f12e2f9c8b647a1cc6efd46bcc4f7ccf`
+- `research_decision_sha256`: `bf453e2ad671a05e07f3dad2d4de62a6b75a5e6f6971b2fd9871b1202fca9f76`
+- `experiment_queue_sha256`: `e95993f13a291666374963cf739e3f052f53cdd39d287daeeaf41070c66dd5f5`
+- `goal_audit_sha256`: `b8ebd830d931fce145f98c66c97fd2041f4c6acbd0fe3c4eee7c7cb0adada948`
+- `research_scorecard_sha256`: `a0f9768ef1aed8932d5d50f01fa4a0c1d39ff212bcc5edff1789057a315b5ca3`
+- `long_span_bundle_gate_sha256`: `a579cd30d361c4023ceeac73e58d4fb2be92a63ab6df58bb5ce18f3da4ec2f8d`
+- `search_frontier_gate_sha256`: `bd06b160c2dda144c49709449e1607d7332bf0d2b7873177e2e6c06ec3c9d114`
+- `heldout_corpus_expansion_sha256`: `01a2ab439e60ff6f0cdb4f116ce893282a576cca51527c0a8abb93259a60425f`
+- `acceleration_report_sha256`: `6b2aef961578f0e312395d006be014ac47c081f221f675f479304045979f3cce`
+- `recursive_structured_fixtures_sha256`: `4bf8fc5493b708c28039c7b3a2d61bb875cc26f368d78eb4ef4d68c935837a67`
+- `scale_performance_report_sha256`: `c0ed7d303139e360f1fa128ff9f207db22990c5f5f937945f94ede25bfd7b5e3`
+- `viability_sha256`: `6ff4dd440fcd69b40bddd0b1b22f3afbfed1336d558970a039f763fcfeeb6558`

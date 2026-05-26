@@ -79,10 +79,10 @@ The bounded exact rerun blocks promotion: project-token removal keeps paired-sha
 ## Source Artifacts
 
 The JSON `source_hashes` map pins this rerun to the exact upstream evidence and generator files below.
-- `public_preset_ablation_projection_sha256`: `250c611e4721e81f0739a6039a4f588d3f269225a08a7d13415411cab625e86d`
-- `public_preset_control_ablation_sha256`: `891e5fd9aee0038003eeaa1ac188fb2e4edbd582c4a40f418db7c8b87450fbaf`
-- `public_preset_control_audit_sha256`: `ad33f24442e40a1217d788249d9dec013f876cedaca89f190efe7abbb82009bf`
-- `public_preset_promotion_gate_sha256`: `201ae8b565e3786c1895a2bb083e10a203f432efc632575119305b7400e670e6`
-- `schema_native_public_dictionary_replication_sha256`: `f3af0a46a5e9f2cc3b02225035c1483e473ab8994bce1f7546044432fc858022`
+- `public_preset_ablation_projection_sha256`: `d0eb6b93d67a1a05779e52e985bb981871c26a91e0515557cfea6df0699aa229`
+- `public_preset_control_ablation_sha256`: `bff49d75027b172ae3511d5c4b24e286a2f4f5940772b1176f791effc462bd4b`
+- `public_preset_control_audit_sha256`: `7358408659062b0aed1871a8ed6ee9fb1a97a5ecfc01c6ada9b33fd6cf955a99`
+- `public_preset_promotion_gate_sha256`: `94889bd4a0e3e56151559e01bac1e720acfb3a60ddeabef7af2921ad6ffa4da5`
+- `schema_native_public_dictionary_replication_sha256`: `fbfc1074f874380442b5fc9e8ce57cc952f764473c992837773369d0728beebe`
 - `schema_native_replication_generator_sha256`: `95a66e921cb98a06059b831b5e847d9c7a4525c79812ca72877c2275595c45c6`
 - `schema_native_dictionary_generator_sha256`: `df5dab9e19f887b98cf1d1666111f2688ec30e03f63f5ee5b945f04caaf67d09`

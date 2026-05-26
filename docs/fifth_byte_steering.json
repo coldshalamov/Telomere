@@ -1,9 +1,9 @@
 {
   "generated_by": "scripts/generate_fifth_byte_steering.py",
-  "generated_at": "2026-05-26T08:39:11.050224+00:00",
+  "generated_at": "2026-05-26T16:50:07.180757+00:00",
   "format_version": 1,
   "artifact_hashes": {
-    "fifth_byte_residual_sha256": "10f68eaada96a1eec67588fc618d29b2b0356ead260367e80396654e3de7094c"
+    "fifth_byte_residual_sha256": "e7d87f24bca8d04f50245fcdaae440f8141e6c0e7fe174d85ab53da666b91abf"
   },
   "candidate_manifest_sha256": "1e89190a1dbf7ca90296ed3ad2835fb4039425d0685f9412e0387041e8114c3c",
   "hasher": "sha256",

@@ -1,11 +1,11 @@
 {
   "generated_by": "scripts/generate_alignment_arity_discovery.py",
-  "generated_at": "2026-05-26T08:23:09.926473+00:00",
+  "generated_at": "2026-05-26T15:13:45.375695+00:00",
   "format_version": 1,
   "artifact_hashes": {
     "corpus_matrix_sha256": "2a9f8506a3c9e6aa47c0e91c1e15bf1951f9af0d0b3cb64129982e06a27e7bd2",
-    "match_discovery_sha256": "eb5f137a92bdb52e27d3132fe21835740157d0cacede7b68f02d1cf885438739",
-    "packed_sidecar_replication_sha256": "28e8dd0a94eaeed48533a9df54c6d9e7525ce9b8038b30e137152ab13288d2bf"
+    "match_discovery_sha256": "dbbacb8490741545d80b9332931202f7fd3a2ef98c718af5f266c88226343dff",
+    "packed_sidecar_replication_sha256": "d87bc291881cc900a30e68552986e20ef71c037746d89c3b19c94e3bc1da1f5f"
   },
   "manifest_sha256": "7827f78e7cc46c36258f80bfe066bf40c5172043e9d2745b30f05527b1722599",
   "manifest": {

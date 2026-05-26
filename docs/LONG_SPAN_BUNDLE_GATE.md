@@ -38,16 +38,16 @@ Current evidence blocks broad long-span bundle sweeps.
 
 ## Source Artifacts
 
-- `mechanism_experiment_ranking_sha256`: `b728136fa7f03d0a355c58737578b3021a140bfc21a87f2aac38b4161ac029b0`
-- `search_frontier_gate_sha256`: `aab9351032df10d7998c3a0e04306bb9d0f344b5d0556cc721592c7b8793737f`
-- `sidecar_break_even_sha256`: `e5dc8cbfbf3a5f6c9e3ce63155deaf9f8d593681de016013594611082ca402b8`
-- `exact_short_hit_bundle_economics_sha256`: `e35dead1413c2a12048cd4d98f9d45b68666ca1e5e83aa97ba76e68e5bc2e5a0`
-- `whole_stream_residual_vector_probe_sha256`: `eb6f5fc8e94c68373c9862c3f874f8dfad0e915eade4a92d1a2ff09f333abf7e`
-- `seed_table_preset_probe_sha256`: `5d026762d5103ffe81ba33702147aeceb50ffd8e152eb127cc25e1a0f86aa81d`
-- `schema_native_public_dictionaries_sha256`: `84008baffe2fe755b414de098d56cfe973610dee429f65327fc10b29b8750778`
-- `schema_native_public_dictionary_replication_sha256`: `f3af0a46a5e9f2cc3b02225035c1483e473ab8994bce1f7546044432fc858022`
-- `packed_sidecar_replication_sha256`: `28e8dd0a94eaeed48533a9df54c6d9e7525ce9b8038b30e137152ab13288d2bf`
-- `match_discovery_sha256`: `eb5f137a92bdb52e27d3132fe21835740157d0cacede7b68f02d1cf885438739`
-- `alignment_arity_discovery_sha256`: `d7ef17dc66b36d0b2b4cd7c4506fca31c332818b3dc16a191e944d70bde0b630`
-- `transformed_match_discovery_sha256`: `1e63c81d86787306038846928dba7db3878879b1498bb827a4c7aa939191f69e`
-- `lead_exact_discovery_sha256`: `f047de324c385dba641287443f0f6b4ceeb1f88ebf090e0063810c7d911d40aa`
+- `mechanism_experiment_ranking_sha256`: `4d131f0947b07ff66a5f215e0acb5482bc5b9519600f2b02f13c0b3ef7b055fb`
+- `search_frontier_gate_sha256`: `bd06b160c2dda144c49709449e1607d7332bf0d2b7873177e2e6c06ec3c9d114`
+- `sidecar_break_even_sha256`: `e2498c85a3780baea9ad3d4eea37c9c430d8c97e4cac4a1d80bec11cb333b173`
+- `exact_short_hit_bundle_economics_sha256`: `c36ec5eca6f1d3c638aaa7b21848fedeba7c26a08fba657506428e0c5fce0d96`
+- `whole_stream_residual_vector_probe_sha256`: `95e4cb5512dd5dc4c89317c50e6065a8c5132e0c58ece0a6989f56c3150b80c7`
+- `seed_table_preset_probe_sha256`: `66b7b3e2615b64fe1a2e05fbadc53e21ddb2ba73a47a91b4d4b9ab68f6afe9ac`
+- `schema_native_public_dictionaries_sha256`: `7736c18343de946d3853eee253c83a9497e2f9f5fd209aaf9e20bd443f9fa478`
+- `schema_native_public_dictionary_replication_sha256`: `fbfc1074f874380442b5fc9e8ce57cc952f764473c992837773369d0728beebe`
+- `packed_sidecar_replication_sha256`: `d87bc291881cc900a30e68552986e20ef71c037746d89c3b19c94e3bc1da1f5f`
+- `match_discovery_sha256`: `dbbacb8490741545d80b9332931202f7fd3a2ef98c718af5f266c88226343dff`
+- `alignment_arity_discovery_sha256`: `a99701608fb38b3d476a332772b4c4eb69fcfda52ddccf1d32de6cd7bfa0cb8f`
+- `transformed_match_discovery_sha256`: `bba81480bb2b2ae5c6a35d5f289724b33522d2f24e7aff806676b6a8cf8268ec`
+- `lead_exact_discovery_sha256`: `7826d7439905a6765c1bf0fbfeb87b65c8a4cb78d28a8c37455bd54199301f6d`

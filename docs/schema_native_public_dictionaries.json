@@ -1,14 +1,14 @@
 {
   "generated_by": "scripts/generate_schema_native_public_dictionaries.py",
-  "generated_at": "2026-05-26T08:58:42.538916+00:00",
+  "generated_at": "2026-05-26T17:22:11.256443+00:00",
   "format_version": 1,
   "artifact_hashes": {
-    "mechanism_experiment_ranking_sha256": "b728136fa7f03d0a355c58737578b3021a140bfc21a87f2aac38b4161ac029b0",
-    "grammar_channel_match_discovery_sha256": "79493dc0c51458571d8b3f90adc47ce1c9351328d29e6838f01169079daf5b06",
-    "token_dictionary_transform_search_sha256": "045abb32731d15304d53428f101a9fa0baa8d7fb7eeea9c816251e467fe84951",
-    "record_context_transform_search_sha256": "b80fbb566ea2f5cc8159ba646c1df29381941627c92b6e86bd3b6b1d36b1d713",
-    "transform_validation_sha256": "0267e3cbffa7b2ff0dbf8c0628ea0522253e2a45cd51b27a98f9eb8831831d6f",
-    "format_doc_sha256": "101fa4cbc783013b456123a5b0772aa91604b229bd1a19b92999ca2b1c9370c0"
+    "mechanism_experiment_ranking_sha256": "4d131f0947b07ff66a5f215e0acb5482bc5b9519600f2b02f13c0b3ef7b055fb",
+    "grammar_channel_match_discovery_sha256": "0356e6bc36339e3b2bfb6f753fef167c4aeb0915fd6eb6ecaeff946f7f5a2f54",
+    "token_dictionary_transform_search_sha256": "ea97c7205e447c99bbef2f26062120ca8644eb1c89a9b1030f245fdc771f0eba",
+    "record_context_transform_search_sha256": "19111c0b3c7cdb3afe1e66344c119dff187d5915c3ac559d3ee6cb0c6815ccc9",
+    "transform_validation_sha256": "8d974a69b45738de48a401fb584340cb263fccb6148d96e63a8328799425792b",
+    "format_doc_sha256": "4207afbe822f13f9a1968cfbc99954b19ce47480d199998dcbb6a69c891bd67d"
   },
   "preset_manifest_sha256": "dd1045411fee6698ffa9c13201459ec76e9a94a2c1e6b8f350f5b52040b287f8",
   "preset_manifest": {

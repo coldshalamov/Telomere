@@ -1,10 +1,10 @@
 {
   "generated_by": "scripts/generate_affine_transform_search.py",
-  "generated_at": "2026-05-25T17:37:44.954759+00:00",
+  "generated_at": "2026-05-26T14:58:33.672944+00:00",
   "format_version": 1,
   "artifact_hashes": {
     "corpus_matrix_sha256": "2a9f8506a3c9e6aa47c0e91c1e15bf1951f9af0d0b3cb64129982e06a27e7bd2",
-    "transform_validation_sha256": "0267e3cbffa7b2ff0dbf8c0628ea0522253e2a45cd51b27a98f9eb8831831d6f"
+    "transform_validation_sha256": "8d974a69b45738de48a401fb584340cb263fccb6148d96e63a8328799425792b"
   },
   "candidate_manifest_sha256": "6dce91482eb2fed64061ee19ad8317a477f9374f175d80bf56f96cd2fe4d0ff5",
   "hasher": "sha256",

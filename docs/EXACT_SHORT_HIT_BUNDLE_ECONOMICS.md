@@ -94,13 +94,13 @@ The short-hit density control blocks promotion when controls are comparable to o
 
 ## Source Artifacts
 
-- `alignment_arity_discovery_sha256`: `d7ef17dc66b36d0b2b4cd7c4506fca31c332818b3dc16a191e944d70bde0b630`
-- `mechanism_experiment_ranking_sha256`: `b728136fa7f03d0a355c58737578b3021a140bfc21a87f2aac38b4161ac029b0`
-- `seed_table_preset_probe_sha256`: `5d026762d5103ffe81ba33702147aeceb50ffd8e152eb127cc25e1a0f86aa81d`
-- `sidecar_record_overhead_sha256`: `6d95c9513a17c8314f2fbb97c3f9c616f6c79aa1887e3e684a52b639d855b1ed`
-- `packed_sidecar_controls_sha256`: `f0c196126c6f96ae15b2c99506eedc06c7e2fab512c2d84af7d28c39b4af26a9`
-- `generalized_packed_sidecar_sha256`: `9c40d3731242f22c964772d62da56dbe441a11f66c96c770536546f395eac029`
-- `packed_sidecar_replication_sha256`: `28e8dd0a94eaeed48533a9df54c6d9e7525ce9b8038b30e137152ab13288d2bf`
-- `format_doc_sha256`: `101fa4cbc783013b456123a5b0772aa91604b229bd1a19b92999ca2b1c9370c0`
+- `alignment_arity_discovery_sha256`: `a99701608fb38b3d476a332772b4c4eb69fcfda52ddccf1d32de6cd7bfa0cb8f`
+- `mechanism_experiment_ranking_sha256`: `4d131f0947b07ff66a5f215e0acb5482bc5b9519600f2b02f13c0b3ef7b055fb`
+- `seed_table_preset_probe_sha256`: `66b7b3e2615b64fe1a2e05fbadc53e21ddb2ba73a47a91b4d4b9ab68f6afe9ac`
+- `sidecar_record_overhead_sha256`: `d719f3a2b7d9466290224a87aa5aff5d427ef6b893d7a0655211cbfa27d98c50`
+- `packed_sidecar_controls_sha256`: `4476107c66574323fcc740a98da67174651c368fef4ab97174eeea94b65198e4`
+- `generalized_packed_sidecar_sha256`: `a330750dc5aad2212c5f97c1c3bef307c454596d6bda4a8837d17387333f9ce8`
+- `packed_sidecar_replication_sha256`: `d87bc291881cc900a30e68552986e20ef71c037746d89c3b19c94e3bc1da1f5f`
+- `format_doc_sha256`: `4207afbe822f13f9a1968cfbc99954b19ce47480d199998dcbb6a69c891bd67d`
 - `manifest_sha256`: `19a00b8921ffab660222e10cd77a95e0ab9e38dad2f7f32fe528e419d8a16a9d`
 - `hit_ledger_sha256`: `2be8805e277a9d3152864fecde01567eb26ceeeb867b83e48cc902d42ed7ab30`

@@ -372,12 +372,12 @@ Global forbidden actions:
 ## Source Artifacts
 
 The JSON `source_hashes` map pins this packet to the exact upstream evidence files below.
-- `research_hypotheses_sha256`: `71186646f68d14265517ce428e4a711c20bf7fe68f13c1792beb97be1e8e6c96`
-- `research_team_protocol_sha256`: `2e2cbd70cf915cb29a0ef7ff97b18e992ef4939bd9db67e9057c6af81e7dd9cc`
-- `blocked_requirement_dispatch_sha256`: `a8509a783f7a3c4c87db24e2abb1fee53e0cd6817cb74c4136ba3c95663d0945`
-- `goal_completion_audit_sha256`: `bbb888719c76d2eba9aa3db3c8b2759612c4deb9e1a17716ab80cc0230587e2c`
-- `research_frontier_sha256`: `cb4c6d94b3f61a23032a66810690565efe8fc8e861e74840de72474cf0b5d845`
-- `mechanism_experiment_ranking_sha256`: `b728136fa7f03d0a355c58737578b3021a140bfc21a87f2aac38b4161ac029b0`
-- `natural_corpus_proof_matrix_sha256`: `c84810cbe772c2f74f695d5a37192edb3a0b4be737f67cda38fcd7c0ef16c9e4`
-- `external_corpus_accession_sha256`: `f78add41ce837ee4e2db98c97b920fedf438d4b13daf1ad4b3db77cdfa1438b0`
-- `production_proof_matrix_sha256`: `cad83f15540203e52d73c34aac0f00a5fe32b0669663e8ee5bd74f81ecbd44a6`
+- `research_hypotheses_sha256`: `5f22274325932c72a6678e2c423a05b44b106015a210484d4e45606b1cdbd09c`
+- `research_team_protocol_sha256`: `67757b553fed45c77289390e350e5baa6d71a93feed945ee2c78b1d61242ad48`
+- `blocked_requirement_dispatch_sha256`: `f0b4c4c96f15b37ca20417ed9802de39c0a6aad8a3d6c37dd87970ee1e7fc0e6`
+- `goal_completion_audit_sha256`: `89ebf21248ff44508b106e5c6532cb3123acffed80f26773e456fc3eedef1f65`
+- `research_frontier_sha256`: `1bcef032be36588c9491ac41eef4059e8469402c715f0a7455a9c7f7a52b5ab9`
+- `mechanism_experiment_ranking_sha256`: `4d131f0947b07ff66a5f215e0acb5482bc5b9519600f2b02f13c0b3ef7b055fb`
+- `natural_corpus_proof_matrix_sha256`: `9995fba8743ba9d827a9118c779840f11ede213245364de7d6217dcabac9a26e`
+- `external_corpus_accession_sha256`: `2e4d704f5c4a557377fcd1151800f9eaabb873d1f921b5e41f8606beaf4c60e8`
+- `production_proof_matrix_sha256`: `1ff8e6360b625752851eb3aa04bea65330dd739aae3b7b061b59721822f9ad1f`

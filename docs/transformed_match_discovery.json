@@ -1,11 +1,11 @@
 {
   "generated_by": "scripts/generate_transformed_match_discovery.py",
-  "generated_at": "2026-05-26T08:24:06.055408+00:00",
+  "generated_at": "2026-05-26T15:14:53.542312+00:00",
   "format_version": 1,
   "artifact_hashes": {
     "corpus_matrix_sha256": "2a9f8506a3c9e6aa47c0e91c1e15bf1951f9af0d0b3cb64129982e06a27e7bd2",
-    "packed_sidecar_replication_sha256": "28e8dd0a94eaeed48533a9df54c6d9e7525ce9b8038b30e137152ab13288d2bf",
-    "transform_validation_sha256": "0267e3cbffa7b2ff0dbf8c0628ea0522253e2a45cd51b27a98f9eb8831831d6f"
+    "packed_sidecar_replication_sha256": "d87bc291881cc900a30e68552986e20ef71c037746d89c3b19c94e3bc1da1f5f",
+    "transform_validation_sha256": "8d974a69b45738de48a401fb584340cb263fccb6148d96e63a8328799425792b"
   },
   "manifest_sha256": "2bb1604bbfe146e226ab8dddf4265d1b50095cf4a0f0934beabf592128ef7a61",
   "manifest": {

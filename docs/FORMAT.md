@@ -189,7 +189,7 @@ reinterpreted:
 | `max_seed_len` | must be `1`; preset seeds are one byte |
 | `max_span_len` | public codeword length; currently `16` bytes |
 | `block_size` | minimum token length selected by the preset; currently `13` |
-| `span_step` | public preset version; currently `3` |
+| `span_step` | public preset version; currently `4` |
 
 The public-preset frame format is a Lotus J3D2 bit-stream. Frame tags are
 encoded as Lotus integers (not raw bytes), matching the unified preset used

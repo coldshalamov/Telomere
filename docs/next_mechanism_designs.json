@@ -1,6 +1,6 @@
 {
   "generated_by": "scripts/generate_next_mechanism_designs.py",
-  "generated_at": "2026-05-26T14:22:33.231974+00:00",
+  "generated_at": "2026-05-26T17:24:12.863326+00:00",
   "format_version": 1,
   "scope": {
     "kind": "pre-registered next mechanism designs",
@@ -14,11 +14,11 @@
   },
   "source_hashes": {
     "whitepaper_sha256": "ff3bfa05be1789537ed7e922452c372b50a548c7119e4230940b63c0a4ed0131",
-    "mechanism_closure_audit_sha256": "d2ce3f667666aa0eb41e8960894234ff55d2a59a37ee752e7a030474f79f726b",
-    "search_frontier_gate_sha256": "aab9351032df10d7998c3a0e04306bb9d0f344b5d0556cc721592c7b8793737f",
-    "mechanism_experiment_ranking_sha256": "b728136fa7f03d0a355c58737578b3021a140bfc21a87f2aac38b4161ac029b0",
-    "public_preset_control_rerun_sha256": "76ff26e3ef577c2b42081f5ba9ab3a204acf7a00ba99bc34782b2548cd46bfe8",
-    "seed_table_fasta_ablation_sha256": "0e4608676fbb2166fe76f6a9c61637bbe63968d7d439c5711c25bd341ff6137d",
+    "mechanism_closure_audit_sha256": "c4bbd980bc284e27599c1ff29f0e4ca0dfaea921e5bddfa38d1c2f852cdc514a",
+    "search_frontier_gate_sha256": "bd06b160c2dda144c49709449e1607d7332bf0d2b7873177e2e6c06ec3c9d114",
+    "mechanism_experiment_ranking_sha256": "4d131f0947b07ff66a5f215e0acb5482bc5b9519600f2b02f13c0b3ef7b055fb",
+    "public_preset_control_rerun_sha256": "430a379cbde2377a787ea5a54ac29277814ede5f6308a95e9084350f72db8da0",
+    "seed_table_fasta_ablation_sha256": "f971b9e3debba75c0707d87665d2f90f13991d9a127757343af085b8824f5e5b",
     "next_mechanism_designs_generator_sha256": "d07b96e11410d217ec52078f894dc2944247d0a5a622f712bc12037121ae8a86"
   },
   "design_manifest_sha256": "250b10a9c5f129610e44f51677917b7a400d6ecff5ee796f6a8a5b1f1c6375e4",

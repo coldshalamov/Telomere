@@ -107,9 +107,9 @@ The rank-coded lane now has a frozen contract and golden vectors, but it remains
 ## Source Artifacts
 
 The JSON `source_hashes` map pins this contract to exact upstream evidence and generator files below.
-- `next_mechanism_designs_sha256`: `de6262857cc6176772fafef94362e677cabc60ee6a632b32c8edf5d347a112ab`
-- `external_corpus_accession_sha256`: `f78add41ce837ee4e2db98c97b920fedf438d4b13daf1ad4b3db77cdfa1438b0`
+- `next_mechanism_designs_sha256`: `66a0de1c8f1173bad169c218cde326ed2e9242d3aef0e2555f6b7434ed4ba3b9`
+- `external_corpus_accession_sha256`: `2e4d704f5c4a557377fcd1151800f9eaabb873d1f921b5e41f8606beaf4c60e8`
 - `external_manifest_sha256`: `322b45e65198225d2a6bd630ac54d1dbf7d7f12593241f9d16ddb54ab06623b8`
-- `public_preset_control_rerun_sha256`: `76ff26e3ef577c2b42081f5ba9ab3a204acf7a00ba99bc34782b2548cd46bfe8`
-- `search_frontier_gate_sha256`: `aab9351032df10d7998c3a0e04306bb9d0f344b5d0556cc721592c7b8793737f`
+- `public_preset_control_rerun_sha256`: `430a379cbde2377a787ea5a54ac29277814ede5f6308a95e9084350f72db8da0`
+- `search_frontier_gate_sha256`: `bd06b160c2dda144c49709449e1607d7332bf0d2b7873177e2e6c06ec3c9d114`
 - `frozen_rank_generator_sha256`: `025f97d36739ac0d58008eb90974679f3daf88dbc549014e9ccb08bbf0c8548a`

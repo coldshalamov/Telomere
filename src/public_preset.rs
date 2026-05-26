@@ -11,7 +11,7 @@ use std::collections::HashMap;
 /// Older raw-byte framings (versions 1 and 2) are intentionally NOT supported
 /// by the current decoder; the layer descriptor validator pins the wire format
 /// to exactly this version.
-pub const PUBLIC_PRESET_SELECTIVE_VERSION: usize = 3;
+pub const PUBLIC_PRESET_SELECTIVE_VERSION: usize = 4;
 pub const PUBLIC_PRESET_SELECTIVE_MIN_TOKEN_LEN: usize = 13;
 pub const PUBLIC_PRESET_CODEWORD_LEN: usize = 16;
 

@@ -68,11 +68,11 @@ The sequence lane can reopen only if header-scrubbed and sequence-only FASTA row
 ## Source Artifacts
 
 The JSON `source_hashes` map pins this ablation to exact upstream evidence and generator files below.
-- `seed_table_preset_replay_sha256`: `504574646ec6157b580eec640debac86a2394c3ced7ac6585bac6b670632a87b`
-- `seed_table_preset_probe_sha256`: `5d026762d5103ffe81ba33702147aeceb50ffd8e152eb127cc25e1a0f86aa81d`
+- `seed_table_preset_replay_sha256`: `5e715e666ba4968a4fe025a1e7e98f0351b24c7b0959812bf63b13cbf90f9a8c`
+- `seed_table_preset_probe_sha256`: `66b7b3e2615b64fe1a2e05fbadc53e21ddb2ba73a47a91b4d4b9ab68f6afe9ac`
 - `seed_table_preset_probe_generator_sha256`: `36c8440af23bed13b46d58b699d80e873a5df9d349932eb252b44d75361a2573`
 - `corpus_matrix_sha256`: `2a9f8506a3c9e6aa47c0e91c1e15bf1951f9af0d0b3cb64129982e06a27e7bd2`
 - `corpus_matrix_generator_sha256`: `d39baa9599c21b1d426c636851a07c5c389999f9a58e772dc2115c4922459e36`
-- `search_frontier_gate_sha256`: `aab9351032df10d7998c3a0e04306bb9d0f344b5d0556cc721592c7b8793737f`
+- `search_frontier_gate_sha256`: `bd06b160c2dda144c49709449e1607d7332bf0d2b7873177e2e6c06ec3c9d114`
 - `fasta_ablation_generator_sha256`: `e215c3f7faf2ab2758866311e5818410b062e62cd1d6ffb59fbab5b6e81e4515`
 - `case_manifest_sha256`: `63994e47b3e78fc397ded3e35f3424cdb5afbd5f1f5c7781d694f411b24749e5`

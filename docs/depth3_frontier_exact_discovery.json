@@ -1,12 +1,12 @@
 {
   "generated_by": "scripts/generate_depth3_frontier_exact_discovery.py",
-  "generated_at": "2026-05-26T08:33:43.699700+00:00",
+  "generated_at": "2026-05-26T16:44:24.547060+00:00",
   "format_version": 1,
   "artifact_hashes": {
-    "lead_exact_discovery_sha256": "f047de324c385dba641287443f0f6b4ceeb1f88ebf090e0063810c7d911d40aa",
-    "transformed_match_discovery_sha256": "1e63c81d86787306038846928dba7db3878879b1498bb827a4c7aa939191f69e",
-    "match_discovery_sha256": "eb5f137a92bdb52e27d3132fe21835740157d0cacede7b68f02d1cf885438739",
-    "alignment_arity_discovery_sha256": "d7ef17dc66b36d0b2b4cd7c4506fca31c332818b3dc16a191e944d70bde0b630"
+    "lead_exact_discovery_sha256": "7826d7439905a6765c1bf0fbfeb87b65c8a4cb78d28a8c37455bd54199301f6d",
+    "transformed_match_discovery_sha256": "bba81480bb2b2ae5c6a35d5f289724b33522d2f24e7aff806676b6a8cf8268ec",
+    "match_discovery_sha256": "dbbacb8490741545d80b9332931202f7fd3a2ef98c718af5f266c88226343dff",
+    "alignment_arity_discovery_sha256": "a99701608fb38b3d476a332772b4c4eb69fcfda52ddccf1d32de6cd7bfa0cb8f"
   },
   "manifest_sha256": "85e65b54463f15f16e437f51f4781f631cc92112ceb988345ac169448ec7a4a9",
   "frontier_manifest_sha256": "814cb1206ee91042850dc26b1a32b5f0f7a7adc0ad495c8221e18cf11fcf203c",
@@ -2632,7 +2632,7 @@
     "target_span_count": 736265,
     "dedup_span_count": 188879,
     "enumerated_seed_count": 16843008,
-    "enumeration_ms": 107258.681,
+    "enumeration_ms": 109056.395,
     "rows_with_depth3_prefix5": 2,
     "rows_with_depth3_prefix5_uplift": 2,
     "rows_with_depth3_prefix6": 0,

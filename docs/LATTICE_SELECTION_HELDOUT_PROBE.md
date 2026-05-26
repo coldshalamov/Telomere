@@ -75,9 +75,9 @@ The deterministic fixture result remains useful as selector correctness evidence
 
 The JSON `source_hashes` map pins this probe to exact upstream evidence and generator files below.
 - `candidate_lattice_doc_sha256`: `cb0af2a7c7b1ce173e726588bc1ac197ace7432e1eae2cbfca77f96d398b3be3`
-- `superposition_telemetry_sha256`: `9ddabe8ca34b90e6a765536a43012781d969a7153c6261d09bf59a452b725711`
-- `schema_native_public_dictionary_replication_sha256`: `f3af0a46a5e9f2cc3b02225035c1483e473ab8994bce1f7546044432fc858022`
-- `public_preset_control_rerun_sha256`: `76ff26e3ef577c2b42081f5ba9ab3a204acf7a00ba99bc34782b2548cd46bfe8`
+- `superposition_telemetry_sha256`: `ac468c19dd0bed985110538f3f27fd79cea59332f65322f2be15571997ee01aa`
+- `schema_native_public_dictionary_replication_sha256`: `fbfc1074f874380442b5fc9e8ce57cc952f764473c992837773369d0728beebe`
+- `public_preset_control_rerun_sha256`: `430a379cbde2377a787ea5a54ac29277814ede5f6308a95e9084350f72db8da0`
 - `schema_native_replication_generator_sha256`: `95a66e921cb98a06059b831b5e847d9c7a4525c79812ca72877c2275595c45c6`
 - `public_preset_control_rerun_generator_sha256`: `c0b80d0cb6eba47338968f9cff8048d254c5f8ac40eca814154b4771bacdf550`
 - `mode_manifest_sha256`: `68dcedc73c04033896d722dd22fc1b950574ae050ffafc729dec1d7ccd249b24`

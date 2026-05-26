@@ -1,11 +1,11 @@
 {
   "generated_by": "scripts/generate_record_context_transform_search.py",
-  "generated_at": "2026-05-25T17:34:15.988071+00:00",
+  "generated_at": "2026-05-26T17:15:05.378037+00:00",
   "format_version": 1,
   "artifact_hashes": {
     "corpus_matrix_sha256": "2a9f8506a3c9e6aa47c0e91c1e15bf1951f9af0d0b3cb64129982e06a27e7bd2",
-    "corpus_generalization_probe_sha256": "4b687748c439a8f27897d7c7346cd088e41fa155de4c74aa190e48696c8359dd",
-    "structural_transform_search_sha256": "f862b094763c7c7c1cf4ba45ac75246f3b874e51ef67afd329d803b15f7d9eb1"
+    "corpus_generalization_probe_sha256": "dea34274c490f6bc1d5c10b4e9393f8a53d02e44740fe8defaa72e3113e0b5cd",
+    "structural_transform_search_sha256": "293e4ad4e8e67b2c5f88159fa2f76df93d018d8bdf1615bba34f6ac40ce42809"
   },
   "corpus_manifest_sha256": "69e4d8e87106fd3a9501ff16c6e29490076d292704dbf210482f4e2b89bb0a10",
   "transform_manifest_sha256": "46a096b92002af0f5269c302ddb70eddfa7c3343d94da8761567438fc8e46123",

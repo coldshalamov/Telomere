@@ -1,9 +1,9 @@
 {
   "generated_by": "scripts/generate_lead_depth3_compression_followup.py",
-  "generated_at": "2026-05-26T08:31:46.860454+00:00",
+  "generated_at": "2026-05-26T16:42:25.930812+00:00",
   "format_version": 1,
   "artifact_hashes": {
-    "lead_depth3_prefix_probe_sha256": "05a51205240226e7eccd9002134e0bd4f4289b320e85d512b44b9a94ccce0480"
+    "lead_depth3_prefix_probe_sha256": "dab9ecc7d9c20577a6d21a9c83df7a13bb22f9acf5ef4300aaaf432ae2f7c8c9"
   },
   "selected_manifest_sha256": "f1d82a71b7f4e3f228eab59c8aaba9dc15729cb22552607570ebe7c07d56192e",
   "environment": {
@@ -11,7 +11,7 @@
     "python": "3.14.3",
     "rustc": "rustc 1.94.1 (e408947bf 2026-03-25)",
     "cargo": "cargo 1.94.1 (29ea6fb6a 2026-03-24)",
-    "git_commit": "0a5d424",
+    "git_commit": "4763ac5",
     "git_dirty": true,
     "rayon_num_threads": null
   },
@@ -116,11 +116,11 @@
         "output_bytes": 29473,
         "delta_bytes": 33,
         "delta_pct": 0.11209239130434782,
-        "compress_ms": 219.96,
-        "decompress_ms": 20.462,
+        "compress_ms": 49.088,
+        "decompress_ms": 17.643,
         "memory_limit": "100%",
-        "peak_memory_bytes": 11026432,
-        "peak_memory_mib": 10.516,
+        "peak_memory_bytes": 10973184,
+        "peak_memory_mib": 10.465,
         "telemetry": {
           "candidate_count": 0,
           "selected_count": 0,
@@ -157,11 +157,11 @@
         "output_bytes": 29473,
         "delta_bytes": 33,
         "delta_pct": 0.11209239130434782,
-        "compress_ms": 2464.203,
-        "decompress_ms": 20.532,
+        "compress_ms": 2613.173,
+        "decompress_ms": 19.713,
         "memory_limit": "100%",
-        "peak_memory_bytes": 11010048,
-        "peak_memory_mib": 10.5,
+        "peak_memory_bytes": 10964992,
+        "peak_memory_mib": 10.457,
         "telemetry": {
           "candidate_count": 0,
           "selected_count": 0,

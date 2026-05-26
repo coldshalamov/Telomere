@@ -1,9 +1,9 @@
 {
   "generated_by": "scripts/generate_lead_depth3_prefix_probe.py",
-  "generated_at": "2026-05-26T08:30:42.499508+00:00",
+  "generated_at": "2026-05-26T16:42:21.933431+00:00",
   "format_version": 1,
   "artifact_hashes": {
-    "lead_exact_discovery_sha256": "f047de324c385dba641287443f0f6b4ceeb1f88ebf090e0063810c7d911d40aa"
+    "lead_exact_discovery_sha256": "7826d7439905a6765c1bf0fbfeb87b65c8a4cb78d28a8c37455bd54199301f6d"
   },
   "selected_manifest_sha256": "8d281e8e09a72a7d6518425bf9a19c93f81abe3ef507ac8babb17394d1937359",
   "hasher": "sha256",
@@ -493,7 +493,7 @@
   "summary": {
     "selected_rows": 16,
     "enumerated_seed_count": 16843008,
-    "enumeration_ms": 57324.651,
+    "enumeration_ms": 61287.233,
     "rows_with_depth3_prefix5": 2,
     "rows_with_depth3_prefix5_uplift": 2,
     "rows_with_depth3_exact_hits": 0,

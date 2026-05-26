@@ -70,10 +70,10 @@ Stop rule: Do not add a public preset registry or .tlmr preset metadata until or
 ## Source Artifacts
 
 The JSON `source_hashes` map pins this gate to the exact upstream evidence files below.
-- `seed_table_preset_probe_sha256`: `5d026762d5103ffe81ba33702147aeceb50ffd8e152eb127cc25e1a0f86aa81d`
-- `schema_native_public_dictionaries_sha256`: `84008baffe2fe755b414de098d56cfe973610dee429f65327fc10b29b8750778`
-- `schema_native_public_dictionary_replication_sha256`: `f3af0a46a5e9f2cc3b02225035c1483e473ab8994bce1f7546044432fc858022`
-- `expander_salt_ensemble_sha256`: `b719c3caf230c16b47e264efb8c07af533d0cf3bb5f58884cf18b9fd12577602`
-- `mechanism_experiment_ranking_sha256`: `b728136fa7f03d0a355c58737578b3021a140bfc21a87f2aac38b4161ac029b0`
-- `search_frontier_gate_sha256`: `aab9351032df10d7998c3a0e04306bb9d0f344b5d0556cc721592c7b8793737f`
-- `format_doc_sha256`: `101fa4cbc783013b456123a5b0772aa91604b229bd1a19b92999ca2b1c9370c0`
+- `seed_table_preset_probe_sha256`: `66b7b3e2615b64fe1a2e05fbadc53e21ddb2ba73a47a91b4d4b9ab68f6afe9ac`
+- `schema_native_public_dictionaries_sha256`: `7736c18343de946d3853eee253c83a9497e2f9f5fd209aaf9e20bd443f9fa478`
+- `schema_native_public_dictionary_replication_sha256`: `fbfc1074f874380442b5fc9e8ce57cc952f764473c992837773369d0728beebe`
+- `expander_salt_ensemble_sha256`: `b1964816f8ade396c3f82e9b1c1d7db222506446c3ea8b18b0bd5f47dc0b9887`
+- `mechanism_experiment_ranking_sha256`: `4d131f0947b07ff66a5f215e0acb5482bc5b9519600f2b02f13c0b3ef7b055fb`
+- `search_frontier_gate_sha256`: `bd06b160c2dda144c49709449e1607d7332bf0d2b7873177e2e6c06ec3c9d114`
+- `format_doc_sha256`: `4207afbe822f13f9a1968cfbc99954b19ce47480d199998dcbb6a69c891bd67d`

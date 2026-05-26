@@ -1,11 +1,11 @@
 {
   "generated_by": "scripts/generate_residual_payload_compressibility.py",
-  "generated_at": "2026-05-26T08:16:10.977439+00:00",
+  "generated_at": "2026-05-26T15:05:08.801303+00:00",
   "format_version": 1,
   "artifact_hashes": {
-    "seed_manifold_residual_steering_sha256": "68d3e523b27b71ed009e3d3b52940fa3c4ccd87c3c3d06f56846711c617966a7",
-    "sidecar_break_even_sha256": "e5dc8cbfbf3a5f6c9e3ce63155deaf9f8d593681de016013594611082ca402b8",
-    "affine_transform_search_sha256": "f45c9f1b1a50f3ba174e17d76a495bd4118bde5edd94419bf6a12518bc154d75"
+    "seed_manifold_residual_steering_sha256": "1cc8feabbb15479f96606e9ef2db1e7a18b9164f8ee1400f5f0411500445cb57",
+    "sidecar_break_even_sha256": "e2498c85a3780baea9ad3d4eea37c9c430d8c97e4cac4a1d80bec11cb333b173",
+    "affine_transform_search_sha256": "b0a13f597e786ed2839200438cd6ac416cc83f9d25e0122f8069332013deca15"
   },
   "policy_manifest_sha256": "279042bdf9d9060fcf4267fe2c56cd164cdc515d01b108ce072bd8129d3760f8",
   "payload_rows": [

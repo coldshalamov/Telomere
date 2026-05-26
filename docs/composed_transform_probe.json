@@ -1,13 +1,13 @@
 {
   "generated_by": "scripts/generate_composed_transform_probe.py",
-  "generated_at": "2026-05-26T04:09:31.928981+00:00",
+  "generated_at": "2026-05-26T16:35:06.036528+00:00",
   "format_version": 1,
   "candidate_manifest_sha256": "c62ac737a3851011c7e51cfbd78fbb4f02dfab747c9486aecf72d7e8cb1fe7d2",
   "base_manifest_sha256": "288140a487bfdefe2df06c402a5d2505afc2e79b1225e4a3e8b6def2d2be6f91",
   "selected_periodic_manifest_sha256": "32f2fc827afa499bcfeec21486d8dafaaec0dfe6fd9cd06ef502a118f2cfead2",
   "source_hashes": {
     "periodic_transform_probe_sha256": "6164cb60ab30824a396569dbc1bcfb60fe319c8da07e64c14ff672e471d1c7fc",
-    "transform_validation_sha256": "0267e3cbffa7b2ff0dbf8c0628ea0522253e2a45cd51b27a98f9eb8831831d6f"
+    "transform_validation_sha256": "8d974a69b45738de48a401fb584340cb263fccb6148d96e63a8328799425792b"
   },
   "candidate_count": 525,
   "base_transform_count": 21,

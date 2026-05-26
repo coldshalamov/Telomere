@@ -1,6 +1,6 @@
 {
   "generated_by": "scripts/generate_grammar_channel_match_discovery.py",
-  "generated_at": "2026-05-25T17:34:12.332191+00:00",
+  "generated_at": "2026-05-26T14:55:11.129782+00:00",
   "format_version": 1,
   "artifact_hashes": {
     "corpus_matrix_sha256": "2a9f8506a3c9e6aa47c0e91c1e15bf1951f9af0d0b3cb64129982e06a27e7bd2"
