@@ -730,6 +730,8 @@ fn streaming_v2_public_preset_transform_cli_roundtrips_native() {
             "public-preset-selective",
             "--public-preset-min-token-len",
             "7",
+            "--public-preset-codeword-len",
+            "4",
             "--json",
             "--verify",
         ])
@@ -742,6 +744,7 @@ fn streaming_v2_public_preset_transform_cli_roundtrips_native() {
     );
     let json: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
     assert_eq!(json["engine_telemetry"]["transform"]["min_token_len"], 7);
+    assert_eq!(json["engine_telemetry"]["transform"]["codeword_len"], 4);
     assert!(
         json["engine_telemetry"]["transform"]["token_replacements"]
             .as_u64()
@@ -757,6 +760,7 @@ fn streaming_v2_public_preset_transform_cli_roundtrips_native() {
         descriptors[1].tier_policy,
         V2_TIER_POLICY_PUBLIC_PRESET_SELECTIVE
     );
+    assert_eq!(descriptors[1].max_span_len, 4);
 
     let decompress = Command::new(&exe)
         .args([

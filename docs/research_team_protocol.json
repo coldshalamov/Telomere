@@ -1,6 +1,6 @@
 {
   "generated_by": "scripts/generate_research_team_protocol.py",
-  "generated_at": "2026-05-26T13:42:46.899166+00:00",
+  "generated_at": "2026-05-26T14:08:09.602376+00:00",
   "format_version": 1,
   "scope": {
     "kind": "dispatch protocol",
@@ -12,10 +12,10 @@
     "overrides_search_frontier_gate": false
   },
   "source_hashes": {
-    "research_frontier_sha256": "a3f6387bd1e3db703272c67f49fcb312d8e3cdea5983f6c2db817bb0c2703892",
-    "research_decision_sha256": "158c547ef765913c480851d29967e15c5818b2d1f656a76f48b461170e168402",
-    "experiment_queue_sha256": "3a24b5924d1c73103f078b62001ac022b57b16ce29630ee7c8ce10a1acfb54f1",
-    "goal_audit_sha256": "131561e4f76e8c775dad0e117d61c4a48e6a5c9d2a380ddb9f89c4aa75381510"
+    "research_frontier_sha256": "c8d9af34bbb146a061301bd24fd53cc1cbe38db190b309add85a3fa8cc82adc4",
+    "research_decision_sha256": "12e647069b988ee916120482f624fcbb237c23a958a976dd572abc076cc69329",
+    "experiment_queue_sha256": "e8dd0c4c01f857ef191d23894e008f96744d39fa71e9803e114030dc1aa68402",
+    "goal_audit_sha256": "5e9179c80ce73b8a34592643145f9344c3b96bffd457c96d9d5b97193e63ec70"
   },
   "summary": {
     "protocol_status": "maintenance_only_no_seed_search",

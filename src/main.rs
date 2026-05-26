@@ -23,7 +23,7 @@ struct Cli {
 enum Commands {
     /// Compress a file
     #[command(alias = "c")]
-    Compress(CompressArgs),
+    Compress(Box<CompressArgs>),
     /// Decompress a file
     #[command(alias = "d")]
     Decompress(DecompressArgs),
@@ -162,6 +162,10 @@ struct CompressArgs {
     /// Experimental min token length for --transform public-preset-selective
     #[arg(long)]
     public_preset_min_token_len: Option<usize>,
+
+    /// Experimental codeword byte length for --transform public-preset-selective
+    #[arg(long)]
+    public_preset_codeword_len: Option<usize>,
 }
 
 #[derive(clap::Args)]
@@ -242,7 +246,7 @@ fn run() -> Result<(), Box<dyn std::error::Error>> {
     let cli = Cli::parse();
 
     match cli.command {
-        Commands::Compress(args) => compress_command(args),
+        Commands::Compress(args) => compress_command(*args),
         Commands::Decompress(args) => decompress_command(args),
         Commands::Index(args) => index_command(args),
     }
@@ -284,6 +288,13 @@ fn compress_command(args: CompressArgs) -> Result<(), Box<dyn std::error::Error>
     {
         return Err(
             "--public-preset-min-token-len requires --transform public-preset-selective".into(),
+        );
+    }
+    if args.public_preset_codeword_len.is_some()
+        && args.transform != TransformKind::PublicPresetSelective
+    {
+        return Err(
+            "--public-preset-codeword-len requires --transform public-preset-selective".into(),
         );
     }
     if args.seed_bits.is_some()
@@ -424,6 +435,9 @@ fn compress_command(args: CompressArgs) -> Result<(), Box<dyn std::error::Error>
                 let public_preset_min_token_len = args
                     .public_preset_min_token_len
                     .unwrap_or(telomere::PUBLIC_PRESET_SELECTIVE_MIN_TOKEN_LEN);
+                let public_preset_codeword_len = args
+                    .public_preset_codeword_len
+                    .unwrap_or(telomere::PUBLIC_PRESET_CODEWORD_LEN);
                 let estimated_len = input_data.len().saturating_add(
                     input_data
                         .len()
@@ -457,7 +471,7 @@ fn compress_command(args: CompressArgs) -> Result<(), Box<dyn std::error::Error>
                         target_chunk_bytes,
                         seed_limit,
                         public_preset_min_token_len,
-                        telomere::PUBLIC_PRESET_CODEWORD_LEN,
+                        public_preset_codeword_len,
                     )?;
                 let summary = one_pass_summary(input_data.len(), out.len(), started);
                 emit_summary_with_telemetry(&summary, &telemetry, args.json, args.telemetry_limit);

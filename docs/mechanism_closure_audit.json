@@ -1,6 +1,6 @@
 {
   "generated_by": "scripts/generate_mechanism_closure_audit.py",
-  "generated_at": "2026-05-26T12:49:26.180373+00:00",
+  "generated_at": "2026-05-26T14:03:08.679593+00:00",
   "format_version": 1,
   "scope": {
     "kind": "post-experiment mechanism closure audit",

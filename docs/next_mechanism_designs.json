@@ -1,6 +1,6 @@
 {
   "generated_by": "scripts/generate_next_mechanism_designs.py",
-  "generated_at": "2026-05-26T12:51:44.851990+00:00",
+  "generated_at": "2026-05-26T14:03:08.865072+00:00",
   "format_version": 1,
   "scope": {
     "kind": "pre-registered next mechanism designs",
@@ -14,7 +14,7 @@
   },
   "source_hashes": {
     "whitepaper_sha256": "ff3bfa05be1789537ed7e922452c372b50a548c7119e4230940b63c0a4ed0131",
-    "mechanism_closure_audit_sha256": "89a2f688399abf83f20f14a34e315a8eee7e7fb060e7faff94cd618148279334",
+    "mechanism_closure_audit_sha256": "9e5734cb80ed2e18e167ec59f28ca4744a8519932c8c2b33a995224c74a50249",
     "search_frontier_gate_sha256": "aab9351032df10d7998c3a0e04306bb9d0f344b5d0556cc721592c7b8793737f",
     "mechanism_experiment_ranking_sha256": "b728136fa7f03d0a355c58737578b3021a140bfc21a87f2aac38b4161ac029b0",
     "public_preset_control_rerun_sha256": "c05c8c72fef07a955b7ca9eb1f610697c5fcd10c3721589a7cbd47df381e5c3b",

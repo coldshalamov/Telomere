@@ -1,6 +1,6 @@
 {
   "generated_by": "scripts/generate_external_corpus_accession.py",
-  "generated_at": "2026-05-26T13:42:48.205895+00:00",
+  "generated_at": "2026-05-26T14:08:10.981660+00:00",
   "format_version": 1,
   "scope": {
     "kind": "external natural-corpus accession ledger",
@@ -13,9 +13,9 @@
   },
   "source_hashes": {
     "external_manifest_sha256": "322b45e65198225d2a6bd630ac54d1dbf7d7f12593241f9d16ddb54ab06623b8",
-    "frozen_rank_source_candidates_sha256": "7f8afbdc8d16caef845655d82686593875727f31d6d666ca40bc9b9a06db0052",
-    "natural_corpus_reopen_manifest_sha256": "e0fb26ada80f6575fea0d7325413c9b6b63581b245abac9287af535971e06c12",
-    "natural_corpus_proof_matrix_sha256": "56ab4ff1a5c907986ac20249c0dc69ad78a99d629026b74a2202374719e8969f",
+    "frozen_rank_source_candidates_sha256": "5024101be294de8193d251bab98eba31c3abea62c8e54b5b5bde44bf7cf568c2",
+    "natural_corpus_reopen_manifest_sha256": "934bd39cdd4e9c9864275f1e5b369a48aecfcbcb0359ff25e5f9e8ab13a44718",
+    "natural_corpus_proof_matrix_sha256": "363f697d9bc5445ce1c03ab22b8ac0a8a91cd1471c23827c5782d6a2be9d279d",
     "search_frontier_gate_sha256": "aab9351032df10d7998c3a0e04306bb9d0f344b5d0556cc721592c7b8793737f"
   },
   "schema": {

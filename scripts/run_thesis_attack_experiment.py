@@ -37,6 +37,7 @@ PASSES = 1
 TRANSFORM_METADATA_BYTES = 8
 PUBLIC_PRESET_SELECTIVE_MIN_TOKEN_LEN = 13
 PUBLIC_PRESET_DENSE_NATIVE_MIN_TOKEN_LEN = 7
+PUBLIC_PRESET_COMPACT_NATIVE_CODEWORD_LEN = 4
 
 
 PUBLIC_PRESET_TOKENS = [
@@ -276,28 +277,33 @@ def invert_xor_delta(encoded: bytes) -> bytes:
     return bytes(out)
 
 
-def public_preset_codebook(variant: str = "seed") -> dict[bytes, bytes]:
+def public_preset_codebook(
+    variant: str = "seed",
+    codeword_len: int = MAX_SPAN_LEN,
+) -> dict[bytes, bytes]:
     if variant not in PUBLIC_PRESET_CODEWORD_VARIANTS:
         raise ValueError(f"unknown public preset codeword variant: {variant}")
+    if not 1 <= codeword_len <= MAX_SPAN_LEN:
+        raise ValueError(f"codeword_len must be in 1..={MAX_SPAN_LEN}")
     seed_codewords = {
-        seed_span(bytes([idx])) for idx in range(1 << (8 * SEED_DEPTH))
+        seed_span(bytes([idx]))[:codeword_len] for idx in range(1 << (8 * SEED_DEPTH))
     }
     used: set[bytes] = set()
     codebook: dict[bytes, bytes] = {}
     for idx, token in enumerate(PUBLIC_PRESET_TOKENS):
         if variant == "seed":
-            codeword = seed_span(bytes([idx]))
+            codeword = seed_span(bytes([idx]))[:codeword_len]
         elif variant == "out-of-budget-codeword":
             seed_index = (1 << (8 * SEED_DEPTH)) + idx
             while True:
-                codeword = seed_span(canonical_seed_from_index(seed_index))
+                codeword = seed_span(canonical_seed_from_index(seed_index))[:codeword_len]
                 if codeword not in seed_codewords and codeword not in used:
                     break
                 seed_index += len(PUBLIC_PRESET_TOKENS)
         else:
             codeword = unique_deterministic_bytes(
                 f"thesis-public-preset-control:{variant}:{idx}",
-                MAX_SPAN_LEN,
+                codeword_len,
                 used,
                 seed_codewords,
             )
@@ -514,8 +520,9 @@ def public_preset_framed(
     data: bytes,
     min_token_len: int = 0,
     codeword_variant: str = "seed",
+    codeword_len: int = MAX_SPAN_LEN,
 ) -> tuple[bytes, dict[str, Any]]:
-    codebook = public_preset_codebook(codeword_variant)
+    codebook = public_preset_codebook(codeword_variant, codeword_len)
     token_order = sorted(
         [token for token in PUBLIC_PRESET_TOKENS if len(token) >= min_token_len],
         key=len,
@@ -557,14 +564,19 @@ def public_preset_framed(
         "public_preset_min_token_len": min_token_len,
         "public_preset_codeword_variant": codeword_variant,
         "token_replacements": replacements,
-        "token_code_span_len": MAX_SPAN_LEN,
+        "token_code_span_len": codeword_len,
     }
     return bytes(out), metadata
 
 
-def invert_public_preset_framed(encoded: bytes, codeword_variant: str = "seed") -> bytes:
+def invert_public_preset_framed(
+    encoded: bytes,
+    codeword_variant: str = "seed",
+    codeword_len: int = MAX_SPAN_LEN,
+) -> bytes:
     reverse = {
-        span: token for token, span in public_preset_codebook(codeword_variant).items()
+        span: token
+        for token, span in public_preset_codebook(codeword_variant, codeword_len).items()
     }
     out = bytearray()
     pos = 0
@@ -579,8 +591,8 @@ def invert_public_preset_framed(encoded: bytes, codeword_variant: str = "seed") 
             out.extend(encoded[pos : pos + length])
             pos += length
         elif tag == 1:
-            span = encoded[pos : pos + MAX_SPAN_LEN]
-            pos += MAX_SPAN_LEN
+            span = encoded[pos : pos + codeword_len]
+            pos += codeword_len
             out.extend(reverse[span])
         else:
             raise ValueError(f"unknown frame tag {tag}")
@@ -687,6 +699,38 @@ def transform_variants(name: str, data: bytes) -> list[dict[str, Any]]:
             "data": data,
             "metadata": dense_native_meta,
             "roundtrip_ok": True,
+        }
+    )
+    compact, compact_meta = public_preset_framed(
+        data,
+        min_token_len=PUBLIC_PRESET_DENSE_NATIVE_MIN_TOKEN_LEN,
+        codeword_variant="seed",
+        codeword_len=PUBLIC_PRESET_COMPACT_NATIVE_CODEWORD_LEN,
+    )
+    compact_native_meta = {
+        **compact_meta,
+        "transform_metadata_bytes": 0,
+        "format_native_transform": True,
+        "native_transform_transformed_bytes": len(compact),
+        "cli_extra_args": [
+            "--transform",
+            "public-preset-selective",
+            "--public-preset-min-token-len",
+            str(PUBLIC_PRESET_DENSE_NATIVE_MIN_TOKEN_LEN),
+            "--public-preset-codeword-len",
+            str(PUBLIC_PRESET_COMPACT_NATIVE_CODEWORD_LEN),
+        ],
+    }
+    variants.append(
+        {
+            "transform": "public-preset-compact-native-v0",
+            "data": data,
+            "metadata": compact_native_meta,
+            "roundtrip_ok": invert_public_preset_framed(
+                compact,
+                codeword_len=PUBLIC_PRESET_COMPACT_NATIVE_CODEWORD_LEN,
+            )
+            == data,
         }
     )
 
@@ -1088,6 +1132,7 @@ def build_report(
             "public_preset_token_count": len(PUBLIC_PRESET_TOKENS),
             "public_preset_selective_min_token_len": PUBLIC_PRESET_SELECTIVE_MIN_TOKEN_LEN,
             "public_preset_dense_native_min_token_len": PUBLIC_PRESET_DENSE_NATIVE_MIN_TOKEN_LEN,
+            "public_preset_compact_native_codeword_len": PUBLIC_PRESET_COMPACT_NATIVE_CODEWORD_LEN,
             "learned_public_min_token_len": LEARNED_PUBLIC_MIN_TOKEN_LEN,
             "learned_public_max_token_len": LEARNED_PUBLIC_MAX_TOKEN_LEN,
             "learned_public_token_limit": LEARNED_PUBLIC_TOKEN_LIMIT,

@@ -1,6 +1,6 @@
 {
   "generated_by": "scripts/generate_frozen_rank_source_candidates.py",
-  "generated_at": "2026-05-26T13:42:48.067022+00:00",
+  "generated_at": "2026-05-26T14:08:10.832090+00:00",
   "format_version": 1,
   "scope": {
     "kind": "frozen rank source candidate requirements",
@@ -16,8 +16,8 @@
     "overrides_search_frontier_gate": false
   },
   "source_hashes": {
-    "next_mechanism_designs_sha256": "54af63c5beb32c0448a81b9cd6c7ebbdb5d656f7169ebb3bcf3e9b5071107e38",
-    "natural_corpus_reopen_manifest_sha256": "e0fb26ada80f6575fea0d7325413c9b6b63581b245abac9287af535971e06c12",
+    "next_mechanism_designs_sha256": "92165b03dbb1de2a4d2ce0b073b732df23297cc70362b7fef5662581a5515310",
+    "natural_corpus_reopen_manifest_sha256": "934bd39cdd4e9c9864275f1e5b369a48aecfcbcb0359ff25e5f9e8ab13a44718",
     "public_preset_control_rerun_sha256": "c05c8c72fef07a955b7ca9eb1f610697c5fcd10c3721589a7cbd47df381e5c3b",
     "search_frontier_gate_sha256": "aab9351032df10d7998c3a0e04306bb9d0f344b5d0556cc721592c7b8793737f",
     "frozen_rank_source_candidates_generator_sha256": "06fa9d336f93ac4a0dbd1d5e50ad182fa50dc6616461d3f088b618f90d4f65f5"

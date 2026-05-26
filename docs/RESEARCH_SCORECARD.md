@@ -179,4 +179,4 @@ Viability verdict: **research-viable, not production-proven**.
 - `alignment_arity_discovery_sha256`: `d7ef17dc66b36d0b2b4cd7c4506fca31c332818b3dc16a191e944d70bde0b630`
 - `transformed_match_discovery_sha256`: `1e63c81d86787306038846928dba7db3878879b1498bb827a4c7aa939191f69e`
 - `lead_exact_discovery_sha256`: `f047de324c385dba641287443f0f6b4ceeb1f88ebf090e0063810c7d911d40aa`
-- `viability_sha256`: `fe299aeb8b76210169b515c7f6fa543d622da172d1ea9da1b1235b31664decd4`
+- `viability_sha256`: `94d60bfcebc377e82c3d9c1c409ecff81708ef679c61f7b00f917b0856ac2ff4`
