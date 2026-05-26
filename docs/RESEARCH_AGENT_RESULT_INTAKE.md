@@ -81,7 +81,7 @@ Allowed status values: `blocked`, `findings-only`, `no-change`, `proposed-change
 ## Source Artifacts
 
 The JSON `source_hashes` map pins this intake report to the current prompt pack, goal-completion audit, manifest, and prompt files. Claim gates are read from the claim-boundary audit without hash-pinning it here so the final audit can scan this document without a generated-hash cycle.
-- `research_agent_prompts_sha256`: `990a331cbb0aedf47e26693d01489ea7fc4bfe8833bea764bb66ca595e0e3918`
+- `research_agent_prompts_sha256`: `85c53a80e28f069c37c06677fa403dcd11f1cea087b9516e1cd10ee9b46bb941`
 - `goal_completion_audit_sha256`: `bed007c46886ef60ac1e83555a075d6f61fb7007dbfc8cba89bb808cbf50ac83`
 - `agent_reports_manifest_sha256`: `9aa2d553cb236a56f0311be8f5239b4a8adab33e9e66598d40c33745d56906e0`
 - `prompt_agent-corpus-transform_sha256`: `3f44a1f75b6d38b1404d76b147cb10e29cf298231b9a2d9db65dac0b3b399395`
@@ -96,7 +96,7 @@ The JSON `source_hashes` map pins this intake report to the current prompt pack,
 - `report_source_docs/SEARCH_FRONTIER_GATE.md_sha256`: `9ccbf6a2e7561bc163e8481281356d1cce0cc3a4799302397b969f87911d8cb4`
 - `report_source_docs/NATURAL_CORPUS_PROOF_MATRIX.md_sha256`: `e66f097d76da0e35829e1cb1730268f1e45d4fff42fd39ba632899a002620c9a`
 - `report_source_docs/NATURAL_CORPUS_REOPEN_MANIFEST.md_sha256`: `881019666931c07ebf720d6341c291769935407e504e22e33e63fd14132057c0`
-- `report_source_docs/EXTERNAL_CORPUS_ACCESSION.md_sha256`: `b15837b3e755cca1ed944d5903c1b50e466415931ffcb68d169c9fa7a8534a20`
+- `report_source_docs/EXTERNAL_CORPUS_ACCESSION.md_sha256`: `1cef7af01b7d2a597d87d881ddaebf2ce1459a2badaac73ebb06f4803df3b120`
 - `report_source_docs/RESEARCH_SCORECARD.md_sha256`: `b9c45b46db056f6f22beb4cfda29ae928e962468b706fccbed3c3e51f6b0cc6e`
 - `report_source_docs/TRANSFORM_VALIDATION.md_sha256`: `7697ab557b21bc6641cedcc3d8b9d8804c8abd91214ffaf8050eeac3e9d2430c`
 - `report_source_docs/MECHANISM_EXPERIMENT_RANKING.md_sha256`: `8e409d84ad6cb9ba18e15030df5d256195f613c6cbb78bebff86f0bd02a37873`

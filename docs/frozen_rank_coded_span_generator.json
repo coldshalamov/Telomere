@@ -1,6 +1,6 @@
 {
   "generated_by": "scripts/generate_frozen_rank_coded_span_generator.py",
-  "generated_at": "2026-05-26T10:50:22.357187+00:00",
+  "generated_at": "2026-05-26T12:18:42.336973+00:00",
   "format_version": 1,
   "scope": {
     "kind": "frozen rank-coded span generator contract",
@@ -16,8 +16,8 @@
   },
   "source_hashes": {
     "next_mechanism_designs_sha256": "1a718a3bc432543245012b9e010777d91a5cfcb2a1ff1c158d7b718d0c566d0e",
-    "external_corpus_accession_sha256": "a6e6e1019a5febe6420fac32c8a1a8e58798b2f9cea3cf8c95b27bb87d91abd6",
-    "external_manifest_sha256": "183cf3c0644c228ed54a3e5caaf424decb2bec6efc189a102d3214b02b866430",
+    "external_corpus_accession_sha256": "115d7fe975b132caee6dc9690dbdb49c9e19cb5aa9d7e396c474eb45379ec280",
+    "external_manifest_sha256": "322b45e65198225d2a6bd630ac54d1dbf7d7f12593241f9d16ddb54ab06623b8",
     "public_preset_control_rerun_sha256": "c05c8c72fef07a955b7ca9eb1f610697c5fcd10c3721589a7cbd47df381e5c3b",
     "search_frontier_gate_sha256": "aab9351032df10d7998c3a0e04306bb9d0f344b5d0556cc721592c7b8793737f",
     "frozen_rank_generator_sha256": "025f97d36739ac0d58008eb90974679f3daf88dbc549014e9ccb08bbf0c8548a"

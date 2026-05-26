@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OtherShape",
+  "type": "object",
+  "properties": {
+    "flag_gate": {
+      "type": "boolean"
+    },
+    "count_floor": {
+      "type": "integer",
+      "format": "int32",
+      "maximum": 64,
+      "minimum": 4
+    },
+    "choice_payload": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "PostalLine": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "PostalLine"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "GridVariant": {
+              "type": "object",
+              "properties": {
+                "weights": {
+                  "type": "array",
+                  "items": {
+                    "type": "number",
+                    "format": "double"
+                  },
+                  "maxItems": 32,
+                  "minItems": 2
+                }
+              },
+              "required": [
+                "weights"
+              ]
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "GridVariant"
+          ]
+        }
+      ]
+    }
+  },
+  "required": [
+    "count_floor",
+    "flag_gate",
+    "choice_payload"
+  ]
+}

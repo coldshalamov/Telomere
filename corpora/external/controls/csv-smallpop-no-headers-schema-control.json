@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "LedgerControl",
+  "type": "object",
+  "properties": {
+    "station": {
+      "type": "string"
+    },
+    "reading": {
+      "type": "integer"
+    }
+  },
+  "required": [
+    "station",
+    "reading"
+  ]
+}

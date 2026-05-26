@@ -7,10 +7,10 @@ This is a No Seed Search accession validator. It launches no agents, performs no
 
 - Accession status: `valid_manifest_only_ready_for_human_review`
 - Source manifest status: `complete_manifest_only`
-- Entries: `16`
-- Ordinary entries: `4`
-- Control entries: `12`
-- Independence groups: `4`
+- Entries: `24`
+- Ordinary entries: `6`
+- Control entries: `18`
+- Independence groups: `6`
 - Families: `4`
 - Validation errors: `0`
 - Paired manifest ready: `True`
@@ -57,6 +57,14 @@ The current external corpus manifest has validated manifest-only entries. This i
 | `records-ledgers-csv-smallpop-shadow-001` | `control` | `records-and-ledgers` | `paired-shadow-control` | `records-ledgers-csv-smallpop-ordinary-001` | 364 |
 | `records-ledgers-csv-smallpop-random-001` | `control` | `records-and-ledgers` | `random-control` | `records-ledgers-csv-smallpop-ordinary-001` | 56 |
 | `records-ledgers-csv-smallpop-wrong-family-001` | `control` | `records-and-ledgers` | `wrong-family-control` | `records-ledgers-csv-smallpop-ordinary-001` | 192 |
+| `schema-config-schemars-validate-heldout-ordinary-001` | `ordinary` | `schema-and-config` | `ordinary-structured` | `` | 1382 |
+| `schema-config-schemars-validate-shadow-001` | `control` | `schema-and-config` | `paired-shadow-control` | `schema-config-schemars-validate-heldout-ordinary-001` | 1384 |
+| `schema-config-schemars-validate-random-001` | `control` | `schema-and-config` | `random-control` | `schema-config-schemars-validate-heldout-ordinary-001` | 113 |
+| `schema-config-schemars-validate-wrong-family-001` | `control` | `schema-and-config` | `wrong-family-control` | `schema-config-schemars-validate-heldout-ordinary-001` | 122 |
+| `records-ledgers-csv-smallpop-no-headers-heldout-ordinary-001` | `ordinary` | `records-and-ledgers` | `ordinary-structured` | `` | 348 |
+| `records-ledgers-csv-smallpop-no-headers-shadow-001` | `control` | `records-and-ledgers` | `paired-shadow-control` | `records-ledgers-csv-smallpop-no-headers-heldout-ordinary-001` | 332 |
+| `records-ledgers-csv-smallpop-no-headers-random-001` | `control` | `records-and-ledgers` | `random-control` | `records-ledgers-csv-smallpop-no-headers-heldout-ordinary-001` | 102 |
+| `records-ledgers-csv-smallpop-no-headers-wrong-family-001` | `control` | `records-and-ledgers` | `wrong-family-control` | `records-ledgers-csv-smallpop-no-headers-heldout-ordinary-001` | 279 |
 
 ## Accession Rules
 
@@ -69,8 +77,8 @@ The current external corpus manifest has validated manifest-only entries. This i
 ## Source Artifacts
 
 The JSON `source_hashes` map pins this accession ledger to exact upstream files below.
-- `external_manifest_sha256`: `183cf3c0644c228ed54a3e5caaf424decb2bec6efc189a102d3214b02b866430`
-- `frozen_rank_source_candidates_sha256`: `13339df263cda76b6259dca7c6f1b8ccb4fd9fae7f72f440ab4220cc4df8b3e2`
+- `external_manifest_sha256`: `322b45e65198225d2a6bd630ac54d1dbf7d7f12593241f9d16ddb54ab06623b8`
+- `frozen_rank_source_candidates_sha256`: `b636740a4048fb07b41f566e2541967cb76959c173ae58f1971bddfb52ecba89`
 - `natural_corpus_reopen_manifest_sha256`: `5e8983ba657fb3195d9b5b6d7f5e0e3176f2b66d824c3cd138b404566b13e130`
 - `natural_corpus_proof_matrix_sha256`: `291132f7f4905763d1991257e08dd00f1aa3195168c815229af620e1f59fbe6e`
 - `search_frontier_gate_sha256`: `aab9351032df10d7998c3a0e04306bb9d0f344b5d0556cc721592c7b8793737f`

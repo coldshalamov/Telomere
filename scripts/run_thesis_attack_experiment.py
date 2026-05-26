@@ -72,11 +72,13 @@ LEARNED_PUBLIC_MAX_TOKEN_LEN = MAX_SPAN_LEN
 LEARNED_PUBLIC_TOKEN_LIMIT = 32
 EXTERNAL_CORPUS_FAMILIES = {
     "external-json-schema": "schema-and-config",
+    "external-json-schema-heldout": "schema-and-config",
     "external-csv": "records-and-ledgers",
+    "external-csv-heldout": "records-and-ledgers",
     "external-http": "standards-protocol-text",
     "external-source": "source-code",
 }
-EXTERNAL_ORDINARY_PATHS = {
+LEARNED_PUBLIC_TRAINING_PATHS = {
     "schema-and-config": ROOT
     / "corpora/external/schema-and-config/schemars-main-schema-excerpt.json",
     "records-and-ledgers": ROOT
@@ -232,8 +234,16 @@ def load_corpora(include_target_inputs: list[Path] | None = None) -> dict[str, b
         "external-csv": (
             ROOT / "corpora/external/records-and-ledgers/csv-smallpop-excerpt.csv"
         ).read_bytes(),
+        "external-csv-heldout": (
+            ROOT
+            / "corpora/external/records-and-ledgers/csv-smallpop-no-headers-heldout.csv"
+        ).read_bytes(),
         "external-http": (
             ROOT / "corpora/external/standards-protocol-text/http-request-response-excerpt.md"
+        ).read_bytes(),
+        "external-json-schema-heldout": (
+            ROOT
+            / "corpora/external/schema-and-config/schemars-validate-schema-heldout.json"
         ).read_bytes(),
         "external-source": (
             ROOT / "corpora/external/source-code/rust-option-excerpt.rs"
@@ -384,7 +394,7 @@ def learned_public_tokens(training_blobs: list[bytes]) -> list[bytes]:
 def external_ordinary_blobs(exclude_family: str | None = None) -> list[bytes]:
     return [
         path.read_bytes()
-        for family, path in sorted(EXTERNAL_ORDINARY_PATHS.items())
+        for family, path in sorted(LEARNED_PUBLIC_TRAINING_PATHS.items())
         if family != exclude_family
     ]
 
@@ -403,7 +413,9 @@ def learned_public_codebook(
         raise ValueError(f"unknown learned public codebook mode: {mode}")
 
     training_families = [
-        family for family in sorted(EXTERNAL_ORDINARY_PATHS) if family != exclude_family
+        family
+        for family in sorted(LEARNED_PUBLIC_TRAINING_PATHS)
+        if family != exclude_family
     ]
     tokens = learned_public_tokens(external_ordinary_blobs(exclude_family))
     metadata = {
