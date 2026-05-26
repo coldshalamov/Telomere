@@ -4,7 +4,9 @@
 from __future__ import annotations
 
 import hashlib
+import heapq
 import json
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -17,10 +19,12 @@ from generate_large_source_preset_probe import (
     deterministic_random,
     frame_with_codebook,
     frame_with_lotus_bits,
-    learned_public_source_tokens,
     run_compress,
     rust_version,
+    is_ascii_token,
+    select_ranked_tokens,
     sha256,
+    source_line_tokens,
 )
 from generate_source_token_registry_probe import (
     TRANSFORM_METADATA_BYTES,
@@ -41,6 +45,8 @@ HELDOUT_RELS = (
     Path("alloc/src/string.rs"),
     Path("std/src/path.rs"),
 )
+TOKEN_POLICIES = ("leave-one-out", "frozen-all-heldouts-excluded")
+FROZEN_CANDIDATE_POOL = TOKEN_LIMIT * 64
 
 
 def slug(path: Path) -> str:
@@ -84,22 +90,99 @@ def shadow_source_bytes(data: bytes, label: str, forbidden_tokens: tuple[bytes, 
     # The first pass preserves source shape, but repeated shadow glyphs can
     # accidentally synthesize a learned token. Scrub those exact token bytes so
     # the paired control is vocabulary-disjoint by construction.
-    changed = True
-    while changed:
+    escaped = [
+        re.escape(token)
+        for token in sorted(set(forbidden_tokens), key=len, reverse=True)
+        if token
+    ]
+    if not escaped:
+        return bytes(out)
+
+    token_pattern = re.compile(b"|".join(escaped))
+    passes = 0
+
+    def scrub_match(match: re.Match[bytes]) -> bytes:
         changed = False
-        for token in sorted(forbidden_tokens, key=len, reverse=True):
-            start = bytes(out).find(token)
-            while start != -1:
+        segment = bytearray(match.group(0))
+        for idx, byte in enumerate(segment):
+            if 48 <= byte <= 57 or 65 <= byte <= 90 or 97 <= byte <= 122:
+                segment[idx] = ord("~")
                 changed = True
-                for idx in range(start, start + len(token)):
-                    if (
-                        48 <= out[idx] <= 57
-                        or 65 <= out[idx] <= 90
-                        or 97 <= out[idx] <= 122
-                    ):
-                        out[idx] = ord("~")
-                start = bytes(out).find(token, start + 1)
+        if not changed:
+            raise RuntimeError("shadow token scrubber matched a token with no alnum bytes")
+        return bytes(segment)
+
+    while True:
+        rewritten, count = token_pattern.subn(scrub_match, bytes(out))
+        if count == 0:
+            break
+        out = bytearray(rewritten)
+        passes += 1
+        if passes > CODEWORD_LEN:
+            raise RuntimeError("shadow token scrubber failed to converge")
     return bytes(out)
+
+
+def all_source_files_excluding(excluded: set[Path]) -> list[Path]:
+    excluded_resolved = {path.resolve() for path in excluded}
+    files: list[Path] = []
+    for subdir in ("core/src", "alloc/src", "std/src"):
+        base = RUST_LIBRARY / subdir
+        if base.exists():
+            files.extend(sorted(base.rglob("*.rs")))
+    return [
+        path
+        for path in files
+        if path.resolve() not in excluded_resolved and "tests" not in path.parts
+    ]
+
+
+def learned_public_source_tokens_excluding(
+    excluded: set[Path],
+) -> tuple[tuple[bytes, ...], list[dict[str, Any]]]:
+    counts: dict[bytes, int] = {}
+    file_counts: dict[bytes, int] = {}
+    for path in all_source_files_excluding(excluded):
+        seen: set[bytes] = set()
+        try:
+            lines = path.read_text(encoding="utf-8", errors="ignore").splitlines()
+        except OSError:
+            continue
+        for line in lines:
+            for token in source_line_tokens(line, CODEWORD_LEN):
+                if not is_ascii_token(token):
+                    continue
+                counts[token] = counts.get(token, 0) + 1
+                seen.add(token)
+        for token in seen:
+            file_counts[token] = file_counts.get(token, 0) + 1
+
+    ranked = []
+    for token, count in counts.items():
+        file_count = file_counts.get(token, 0)
+        if file_count < 2 or count < 4:
+            continue
+        score = file_count * (len(token) - 5) + count
+        ranked.append((score, file_count, count, token))
+    candidate_pool = heapq.nsmallest(
+        FROZEN_CANDIDATE_POOL,
+        ranked,
+        key=lambda row: (-row[0], -row[1], -row[2], -len(row[3]), row[3]),
+    )
+    candidate_pool.sort(
+        key=lambda row: (-row[0], -row[1], -row[2], -len(row[3]), row[3])
+    )
+    tokens = select_ranked_tokens(candidate_pool, TOKEN_LIMIT)
+    stats = [
+        {
+            "token": token.decode("utf-8", errors="replace"),
+            "token_hex": token.hex(),
+            "file_count": file_counts[token],
+            "count": counts[token],
+        }
+        for token in tokens
+    ]
+    return tokens, stats
 
 
 def source_hashes() -> dict[str, str]:
@@ -126,8 +209,16 @@ def build_rows() -> tuple[list[dict[str, Any]], dict[str, Any]]:
         "external-byte": frame_with_codebook,
         "lotus-bit": frame_with_lotus_bits,
     }
+    heldouts = require_heldouts()
+    frozen_tokens, frozen_stats = learned_public_source_tokens_excluding(set(heldouts))
+    token_metadata["frozen-all-heldouts-excluded"] = {
+        "policy": "frozen-all-heldouts-excluded",
+        "excluded_heldouts": [rel.as_posix() for rel in HELDOUT_RELS],
+        "token_count": len(frozen_tokens),
+        "top_tokens": frozen_stats[:16],
+    }
 
-    for rel, heldout in zip(HELDOUT_RELS, require_heldouts()):
+    for rel, heldout in zip(HELDOUT_RELS, heldouts):
         heldout_id = slug(rel)
         data = heldout.read_bytes()
         source_path = RUN_DIR / f"{heldout_id}.rs"
@@ -136,59 +227,71 @@ def build_rows() -> tuple[list[dict[str, Any]], dict[str, Any]]:
         random_path.write_bytes(
             deterministic_random(len(data), f"source-family:{heldout_id}".encode())
         )
-        tokens, token_stats = learned_public_source_tokens(heldout)
-        shadow_path = RUN_DIR / f"{heldout_id}-paired-shadow-source.rs"
-        shadow_path.write_bytes(shadow_source_bytes(data, heldout_id, tokens))
-        token_metadata[heldout_id] = {
+        leave_one_out_tokens, leave_one_out_stats = learned_public_source_tokens_excluding(
+            {heldout}
+        )
+        token_metadata[f"{heldout_id}:leave-one-out"] = {
             "heldout": rel.as_posix(),
-            "token_count": len(tokens),
-            "top_tokens": token_stats[:16],
+            "policy": "leave-one-out",
+            "token_count": len(leave_one_out_tokens),
+            "top_tokens": leave_one_out_stats[:16],
+        }
+        policy_tokens = {
+            "leave-one-out": leave_one_out_tokens,
+            "frozen-all-heldouts-excluded": frozen_tokens,
         }
 
-        corpora = {
-            "heldout-source": source_path,
-            "paired-shadow-source": shadow_path,
-            "same-size-random": random_path,
-        }
-        for corpus, input_path in corpora.items():
-            corpus_data = input_path.read_bytes()
-            original_len = len(corpus_data)
-            for frame_mode, frame_fn in frame_modes.items():
-                for variant in ("seed", *CONTROL_VARIANTS):
-                    codebook = codebook_for_tokens(
-                        tokens,
-                        variant,
-                        CODEWORD_LEN,
-                        label=f"{heldout_id}:{frame_mode}",
-                    )
-                    framed, replacements = frame_fn(corpus_data, codebook)
-                    framed_path = (
-                        RUN_DIR
-                        / f"{heldout_id}-{corpus}-{frame_mode}-{variant}.bin"
-                    )
-                    framed_path.write_bytes(framed)
-                    output_path = framed_path.with_suffix(".tlmr")
-                    compression = run_compress(binary, framed_path, output_path)
-                    charged = compression["tlmr_bytes"] + TRANSFORM_METADATA_BYTES
-                    rows.append(
-                        {
-                            "heldout": rel.as_posix(),
-                            "heldout_id": heldout_id,
-                            "corpus": corpus,
-                            "frame_mode": frame_mode,
-                            "variant": variant,
-                            "codeword_len": CODEWORD_LEN,
-                            "token_count": len(tokens),
-                            "token_replacements": replacements,
-                            "original_bytes": original_len,
-                            "framed_bytes": len(framed),
-                            "charged_bytes": charged,
-                            "delta_bytes": charged - original_len,
-                            "public_preset_delta_bytes": compression["tlmr_bytes"]
-                            - original_len,
-                            **compression,
-                        }
-                    )
+        for token_policy, tokens in policy_tokens.items():
+            shadow_path = RUN_DIR / f"{heldout_id}-{token_policy}-paired-shadow-source.rs"
+            shadow_path.write_bytes(
+                shadow_source_bytes(data, f"{heldout_id}:{token_policy}", tokens)
+            )
+
+            corpora = {
+                "heldout-source": source_path,
+                "paired-shadow-source": shadow_path,
+                "same-size-random": random_path,
+            }
+            for corpus, input_path in corpora.items():
+                corpus_data = input_path.read_bytes()
+                original_len = len(corpus_data)
+                for frame_mode, frame_fn in frame_modes.items():
+                    for variant in ("seed", *CONTROL_VARIANTS):
+                        codebook = codebook_for_tokens(
+                            tokens,
+                            variant,
+                            CODEWORD_LEN,
+                            label=f"{token_policy}:{heldout_id}:{frame_mode}",
+                        )
+                        framed, replacements = frame_fn(corpus_data, codebook)
+                        framed_path = (
+                            RUN_DIR
+                            / f"{heldout_id}-{token_policy}-{corpus}-{frame_mode}-{variant}.bin"
+                        )
+                        framed_path.write_bytes(framed)
+                        output_path = framed_path.with_suffix(".tlmr")
+                        compression = run_compress(binary, framed_path, output_path)
+                        charged = compression["tlmr_bytes"] + TRANSFORM_METADATA_BYTES
+                        rows.append(
+                            {
+                                "heldout": rel.as_posix(),
+                                "heldout_id": heldout_id,
+                                "token_policy": token_policy,
+                                "corpus": corpus,
+                                "frame_mode": frame_mode,
+                                "variant": variant,
+                                "codeword_len": CODEWORD_LEN,
+                                "token_count": len(tokens),
+                                "token_replacements": replacements,
+                                "original_bytes": original_len,
+                                "framed_bytes": len(framed),
+                                "charged_bytes": charged,
+                                "delta_bytes": charged - original_len,
+                                "public_preset_delta_bytes": compression["tlmr_bytes"]
+                                - original_len,
+                                **compression,
+                            }
+                        )
 
     return rows, token_metadata
 
@@ -197,20 +300,27 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
     comparisons = []
     seed_rows = [row for row in rows if row["variant"] == "seed"]
     seed_lookup = {
-        (row["heldout_id"], row["corpus"], row["frame_mode"]): row for row in seed_rows
+        (row["heldout_id"], row["token_policy"], row["corpus"], row["frame_mode"]): row
+        for row in seed_rows
     }
     for seed in seed_rows:
         controls = [
             row
             for row in rows
             if row["heldout_id"] == seed["heldout_id"]
+            and row["token_policy"] == seed["token_policy"]
             and row["corpus"] == seed["corpus"]
             and row["frame_mode"] == seed["frame_mode"]
             and row["variant"] != "seed"
         ]
         best_control = min(controls, key=lambda row: row["delta_bytes"])
         paired_shadow = seed_lookup.get(
-            (seed["heldout_id"], "paired-shadow-source", seed["frame_mode"])
+            (
+                seed["heldout_id"],
+                seed["token_policy"],
+                "paired-shadow-source",
+                seed["frame_mode"],
+            )
         )
         paired_shadow_clean = (
             seed["corpus"] == "heldout-source"
@@ -223,6 +333,7 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
             {
                 "heldout": seed["heldout"],
                 "heldout_id": seed["heldout_id"],
+                "token_policy": seed["token_policy"],
                 "corpus": seed["corpus"],
                 "frame_mode": seed["frame_mode"],
                 "seed_delta_bytes": seed["delta_bytes"],
@@ -258,6 +369,19 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
     shadow_rows = [row for row in comparisons if row["corpus"] == "paired-shadow-source"]
     clean_source = [row for row in source if row["clean_seed_specific_win"]]
     best_source = min(source, key=lambda row: row["seed_delta_bytes"])
+    policy_clean_heldouts = {
+        policy: sum(
+            1
+            for heldout in sorted({row["heldout_id"] for row in source})
+            if any(
+                row["heldout_id"] == heldout
+                and row["token_policy"] == policy
+                and row["clean_seed_specific_win"]
+                for row in source
+            )
+        )
+        for policy in TOKEN_POLICIES
+    }
     wins_by_heldout = {
         heldout: sum(
             1
@@ -273,12 +397,28 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
         )
         for heldout in sorted({row["heldout_id"] for row in source})
     }
+    best_by_policy_heldout = {
+        f"{policy}:{heldout}": min(
+            [
+                row
+                for row in source
+                if row["heldout_id"] == heldout and row["token_policy"] == policy
+            ],
+            key=lambda row: row["seed_delta_bytes"],
+        )
+        for policy in TOKEN_POLICIES
+        for heldout in sorted({row["heldout_id"] for row in source})
+    }
     return {
         "row_count": len(rows),
         "comparison_count": len(comparisons),
         "heldout_count": len(wins_by_heldout),
         "source_clean_win_rows": len(clean_source),
         "source_clean_win_heldouts": sum(1 for wins in wins_by_heldout.values() if wins),
+        "policy_clean_heldouts": policy_clean_heldouts,
+        "frozen_clean_win_heldouts": policy_clean_heldouts[
+            "frozen-all-heldouts-excluded"
+        ],
         "same_size_random_selected_spans": sum(
             row["seed_selected_spans"] for row in random_rows
         ),
@@ -294,11 +434,13 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
         ],
         "wins_by_heldout": wins_by_heldout,
         "best_by_heldout": best_by_heldout,
+        "best_by_policy_heldout": best_by_policy_heldout,
         "best_source": best_source,
         "comparisons": comparisons,
         "conclusion": (
             "source-family exact seed-span compression generalizes across "
-            "held-out Rust files and separates from paired vocabulary-shadow "
+            "held-out Rust files and now tests both leave-one-out and frozen "
+            "all-heldouts-excluded source presets against paired vocabulary-shadow "
             "and random controls, but coverage remains preset dependent"
         ),
     }
@@ -319,6 +461,7 @@ def build_report() -> dict[str, Any]:
             "fixed_span_records": True,
             "control_variants": list(CONTROL_VARIANTS),
             "transform_metadata_bytes": TRANSFORM_METADATA_BYTES,
+            "token_policies": list(TOKEN_POLICIES),
             "hasher": "sha256",
             "seed_depth": 1,
             "seed_bits": 8,
@@ -348,6 +491,8 @@ def write_markdown(payload: dict[str, Any]) -> None:
         f"- Held-outs: `{summary['heldout_count']}`",
         f"- Source clean win rows: `{summary['source_clean_win_rows']}`",
         f"- Source clean win held-outs: `{summary['source_clean_win_heldouts']}`",
+        f"- Policy clean held-outs: `{summary['policy_clean_heldouts']}`",
+        f"- Frozen preset clean win held-outs: `{summary['frozen_clean_win_heldouts']}`",
         f"- Same-size random selected spans: `{summary['same_size_random_selected_spans']}`",
         f"- Paired shadow selected spans: `{summary['paired_shadow_selected_spans']}`",
         f"- Paired shadow token replacements: `{summary['paired_shadow_token_replacements']}`",
@@ -357,12 +502,36 @@ def write_markdown(payload: dict[str, Any]) -> None:
         "",
         "## Best By Held-Out",
         "",
-        "| Held-out | Frame | Seed delta | Selected spans | Best control delta | Shadow selected | Seed minus control | Clean win |",
-        "| --- | --- | ---: | ---: | ---: | ---: | ---: | --- |",
+        "| Held-out | Policy | Frame | Seed delta | Selected spans | Best control delta | Shadow selected | Seed minus control | Clean win |",
+        "| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | --- |",
     ]
     for heldout, row in summary["best_by_heldout"].items():
         lines.append(
-            "| {heldout} | `{frame}` | {delta} | {selected} | {control} | {shadow_selected} | {minus} | `{clean}` |".format(
+            "| {heldout} | `{policy}` | `{frame}` | {delta} | {selected} | {control} | {shadow_selected} | {minus} | `{clean}` |".format(
+                heldout=row["heldout"],
+                policy=row["token_policy"],
+                frame=row["frame_mode"],
+                delta=row["seed_delta_bytes"],
+                selected=row["seed_selected_spans"],
+                control=row["best_control_delta_bytes"],
+                shadow_selected=row["paired_shadow_selected_spans"],
+                minus=row["seed_minus_best_control_bytes"],
+                clean=row["clean_seed_specific_win"],
+            )
+        )
+    lines.extend(
+        [
+            "",
+            "## Best By Policy And Held-Out",
+            "",
+            "| Policy | Held-out | Frame | Seed delta | Selected spans | Best control delta | Shadow selected | Seed minus control | Clean win |",
+            "| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | --- |",
+        ]
+    )
+    for row in summary["best_by_policy_heldout"].values():
+        lines.append(
+            "| `{policy}` | {heldout} | `{frame}` | {delta} | {selected} | {control} | {shadow_selected} | {minus} | `{clean}` |".format(
+                policy=row["token_policy"],
                 heldout=row["heldout"],
                 frame=row["frame_mode"],
                 delta=row["seed_delta_bytes"],
@@ -378,14 +547,15 @@ def write_markdown(payload: dict[str, Any]) -> None:
             "",
             "## All Comparisons",
             "",
-            "| Held-out | Corpus | Frame | Seed delta | Public-preset delta | Selected spans | Best control delta | Shadow selected | Seed minus control | Clean win |",
-            "| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |",
+            "| Held-out | Policy | Corpus | Frame | Seed delta | Public-preset delta | Selected spans | Best control delta | Shadow selected | Seed minus control | Clean win |",
+            "| --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |",
         ]
     )
     for row in summary["comparisons"]:
         lines.append(
-            "| {heldout} | `{corpus}` | `{frame}` | {delta} | {public_delta} | {selected} | {control} | {shadow_selected} | {minus} | `{clean}` |".format(
+            "| {heldout} | `{policy}` | `{corpus}` | `{frame}` | {delta} | {public_delta} | {selected} | {control} | {shadow_selected} | {minus} | `{clean}` |".format(
                 heldout=row["heldout"],
+                policy=row["token_policy"],
                 corpus=row["corpus"],
                 frame=row["frame_mode"],
                 delta=row["seed_delta_bytes"],
@@ -403,6 +573,7 @@ def write_markdown(payload: dict[str, Any]) -> None:
             "Interpretation:",
             "",
             "- A clean win requires negative full `.tlmr` bytes, at least one selected exact seed span, and non-negative paired codeword controls.",
+            "- The frozen preset policy trains one token table with all held-out files excluded and reuses it across every target.",
             "- Paired shadow rows preserve byte length, whitespace, punctuation, comments, and source delimiters while replacing source vocabulary; clean wins require these rows to keep zero token replacements and zero selected spans.",
             "- Same-size random rows test whether the source-family token transform creates accidental seed-span matches on non-source bytes.",
             "- The research question is no longer whether source-family codeword transforms can work at all; it is which public preset families provide enough coverage reliably.",
@@ -431,14 +602,18 @@ def check_report() -> None:
         raise SystemExit("paired shadow source controls must replace zero tokens")
     if summary.get("source_clean_win_heldouts", 0) != len(HELDOUT_RELS):
         raise SystemExit("expected every held-out source to produce a clean win")
+    if summary.get("frozen_clean_win_heldouts", 0) == 0:
+        raise SystemExit("expected frozen public source preset to produce a clean win")
     if summary.get("best_source_seed_delta_bytes", 0) >= 0:
         raise SystemExit("expected best held-out source row to be negative")
     text = OUT_MD.read_text(encoding="utf-8")
     for phrase in (
         "Source Family Cross-Validation",
         "Best By Held-Out",
+        "Best By Policy And Held-Out",
         "Same-size random",
         "Paired shadow",
+        "frozen preset",
         "public preset families",
     ):
         if phrase not in text:

@@ -6,59 +6,99 @@ This experiment holds out multiple Rust source files, learns source-family token
 
 ## Summary
 
-- Rows: `72`
-- Comparisons: `24`
+- Rows: `144`
+- Comparisons: `48`
 - Held-outs: `4`
-- Source clean win rows: `8`
+- Source clean win rows: `16`
 - Source clean win held-outs: `4`
+- Policy clean held-outs: `{'leave-one-out': 4, 'frozen-all-heldouts-excluded': 4}`
+- Frozen preset clean win held-outs: `4`
 - Same-size random selected spans: `0`
 - Paired shadow selected spans: `0`
 - Paired shadow token replacements: `0`
-- Best source seed delta bytes: `-2860`
-- Best source seed minus control bytes: `-15317`
-- Conclusion: `source-family exact seed-span compression generalizes across held-out Rust files and separates from paired vocabulary-shadow and random controls, but coverage remains preset dependent`
+- Best source seed delta bytes: `-2871`
+- Best source seed minus control bytes: `-15299`
+- Conclusion: `source-family exact seed-span compression generalizes across held-out Rust files and now tests both leave-one-out and frozen all-heldouts-excluded source presets against paired vocabulary-shadow and random controls, but coverage remains preset dependent`
 
 ## Best By Held-Out
 
-| Held-out | Frame | Seed delta | Selected spans | Best control delta | Shadow selected | Seed minus control | Clean win |
-| --- | --- | ---: | ---: | ---: | ---: | ---: | --- |
-| alloc/src/string.rs | `lotus-bit` | -1640 | 1201 | 11314 | 0 | -12954 | `True` |
-| core/src/option.rs | `lotus-bit` | -1249 | 1137 | 11012 | 0 | -12261 | `True` |
-| core/src/result.rs | `lotus-bit` | -952 | 856 | 8279 | 0 | -9231 | `True` |
-| std/src/path.rs | `lotus-bit` | -2860 | 1414 | 12457 | 0 | -15317 | `True` |
+| Held-out | Policy | Frame | Seed delta | Selected spans | Best control delta | Shadow selected | Seed minus control | Clean win |
+| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | --- |
+| alloc/src/string.rs | `frozen-all-heldouts-excluded` | `lotus-bit` | -1641 | 1201 | 11314 | 0 | -12955 | `True` |
+| core/src/option.rs | `leave-one-out` | `lotus-bit` | -1249 | 1137 | 11012 | 0 | -12261 | `True` |
+| core/src/result.rs | `frozen-all-heldouts-excluded` | `lotus-bit` | -964 | 849 | 8204 | 0 | -9168 | `True` |
+| std/src/path.rs | `frozen-all-heldouts-excluded` | `lotus-bit` | -2871 | 1412 | 12428 | 0 | -15299 | `True` |
+
+## Best By Policy And Held-Out
+
+| Policy | Held-out | Frame | Seed delta | Selected spans | Best control delta | Shadow selected | Seed minus control | Clean win |
+| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | --- |
+| `leave-one-out` | alloc/src/string.rs | `lotus-bit` | -1640 | 1201 | 11314 | 0 | -12954 | `True` |
+| `leave-one-out` | core/src/option.rs | `lotus-bit` | -1249 | 1137 | 11012 | 0 | -12261 | `True` |
+| `leave-one-out` | core/src/result.rs | `lotus-bit` | -952 | 856 | 8279 | 0 | -9231 | `True` |
+| `leave-one-out` | std/src/path.rs | `lotus-bit` | -2860 | 1414 | 12457 | 0 | -15317 | `True` |
+| `frozen-all-heldouts-excluded` | alloc/src/string.rs | `lotus-bit` | -1641 | 1201 | 11314 | 0 | -12955 | `True` |
+| `frozen-all-heldouts-excluded` | core/src/option.rs | `lotus-bit` | -1242 | 1135 | 11001 | 0 | -12243 | `True` |
+| `frozen-all-heldouts-excluded` | core/src/result.rs | `lotus-bit` | -964 | 849 | 8204 | 0 | -9168 | `True` |
+| `frozen-all-heldouts-excluded` | std/src/path.rs | `lotus-bit` | -2871 | 1412 | 12428 | 0 | -15299 | `True` |
 
 ## All Comparisons
 
-| Held-out | Corpus | Frame | Seed delta | Public-preset delta | Selected spans | Best control delta | Shadow selected | Seed minus control | Clean win |
-| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| core/src/result.rs | `heldout-source` | `external-byte` | -895 | -903 | 856 | 8336 | 0 | -9231 | `True` |
-| core/src/result.rs | `heldout-source` | `lotus-bit` | -952 | -960 | 856 | 8279 | 0 | -9231 | `True` |
-| core/src/result.rs | `paired-shadow-source` | `external-byte` | 53 | 45 | 0 | 53 | 0 | 0 | `False` |
-| core/src/result.rs | `paired-shadow-source` | `lotus-bit` | 52 | 44 | 0 | 52 | 0 | 0 | `False` |
-| core/src/result.rs | `same-size-random` | `external-byte` | 53 | 45 | 0 | 53 | 0 | 0 | `False` |
-| core/src/result.rs | `same-size-random` | `lotus-bit` | 52 | 44 | 0 | 52 | 0 | 0 | `False` |
-| core/src/option.rs | `heldout-source` | `external-byte` | -1183 | -1191 | 1137 | 11078 | 0 | -12261 | `True` |
-| core/src/option.rs | `heldout-source` | `lotus-bit` | -1249 | -1257 | 1137 | 11012 | 0 | -12261 | `True` |
-| core/src/option.rs | `paired-shadow-source` | `external-byte` | 53 | 45 | 0 | 53 | 0 | 0 | `False` |
-| core/src/option.rs | `paired-shadow-source` | `lotus-bit` | 52 | 44 | 0 | 52 | 0 | 0 | `False` |
-| core/src/option.rs | `same-size-random` | `external-byte` | 53 | 45 | 0 | 53 | 0 | 0 | `False` |
-| core/src/option.rs | `same-size-random` | `lotus-bit` | 52 | 44 | 0 | 52 | 0 | 0 | `False` |
-| alloc/src/string.rs | `heldout-source` | `external-byte` | -1595 | -1603 | 1201 | 11359 | 0 | -12954 | `True` |
-| alloc/src/string.rs | `heldout-source` | `lotus-bit` | -1640 | -1648 | 1201 | 11314 | 0 | -12954 | `True` |
-| alloc/src/string.rs | `paired-shadow-source` | `external-byte` | 54 | 46 | 0 | 54 | 0 | 0 | `False` |
-| alloc/src/string.rs | `paired-shadow-source` | `lotus-bit` | 53 | 45 | 0 | 53 | 0 | 0 | `False` |
-| alloc/src/string.rs | `same-size-random` | `external-byte` | 54 | 46 | 0 | 54 | 0 | 0 | `False` |
-| alloc/src/string.rs | `same-size-random` | `lotus-bit` | 53 | 45 | 0 | 53 | 0 | 0 | `False` |
-| std/src/path.rs | `heldout-source` | `external-byte` | -2702 | -2710 | 1414 | 12615 | 0 | -15317 | `True` |
-| std/src/path.rs | `heldout-source` | `lotus-bit` | -2860 | -2868 | 1414 | 12457 | 0 | -15317 | `True` |
-| std/src/path.rs | `paired-shadow-source` | `external-byte` | 62 | 54 | 0 | 62 | 0 | 0 | `False` |
-| std/src/path.rs | `paired-shadow-source` | `lotus-bit` | 58 | 50 | 0 | 58 | 0 | 0 | `False` |
-| std/src/path.rs | `same-size-random` | `external-byte` | 62 | 54 | 0 | 62 | 0 | 0 | `False` |
-| std/src/path.rs | `same-size-random` | `lotus-bit` | 58 | 50 | 0 | 58 | 0 | 0 | `False` |
+| Held-out | Policy | Corpus | Frame | Seed delta | Public-preset delta | Selected spans | Best control delta | Shadow selected | Seed minus control | Clean win |
+| --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| core/src/result.rs | `leave-one-out` | `heldout-source` | `external-byte` | -895 | -903 | 856 | 8336 | 0 | -9231 | `True` |
+| core/src/result.rs | `leave-one-out` | `heldout-source` | `lotus-bit` | -952 | -960 | 856 | 8279 | 0 | -9231 | `True` |
+| core/src/result.rs | `leave-one-out` | `paired-shadow-source` | `external-byte` | 53 | 45 | 0 | 53 | 0 | 0 | `False` |
+| core/src/result.rs | `leave-one-out` | `paired-shadow-source` | `lotus-bit` | 52 | 44 | 0 | 52 | 0 | 0 | `False` |
+| core/src/result.rs | `leave-one-out` | `same-size-random` | `external-byte` | 53 | 45 | 0 | 53 | 0 | 0 | `False` |
+| core/src/result.rs | `leave-one-out` | `same-size-random` | `lotus-bit` | 52 | 44 | 0 | 52 | 0 | 0 | `False` |
+| core/src/result.rs | `frozen-all-heldouts-excluded` | `heldout-source` | `external-byte` | -907 | -915 | 849 | 8261 | 0 | -9168 | `True` |
+| core/src/result.rs | `frozen-all-heldouts-excluded` | `heldout-source` | `lotus-bit` | -964 | -972 | 849 | 8204 | 0 | -9168 | `True` |
+| core/src/result.rs | `frozen-all-heldouts-excluded` | `paired-shadow-source` | `external-byte` | 53 | 45 | 0 | 53 | 0 | 0 | `False` |
+| core/src/result.rs | `frozen-all-heldouts-excluded` | `paired-shadow-source` | `lotus-bit` | 52 | 44 | 0 | 52 | 0 | 0 | `False` |
+| core/src/result.rs | `frozen-all-heldouts-excluded` | `same-size-random` | `external-byte` | 53 | 45 | 0 | 53 | 0 | 0 | `False` |
+| core/src/result.rs | `frozen-all-heldouts-excluded` | `same-size-random` | `lotus-bit` | 52 | 44 | 0 | 52 | 0 | 0 | `False` |
+| core/src/option.rs | `leave-one-out` | `heldout-source` | `external-byte` | -1183 | -1191 | 1137 | 11078 | 0 | -12261 | `True` |
+| core/src/option.rs | `leave-one-out` | `heldout-source` | `lotus-bit` | -1249 | -1257 | 1137 | 11012 | 0 | -12261 | `True` |
+| core/src/option.rs | `leave-one-out` | `paired-shadow-source` | `external-byte` | 53 | 45 | 0 | 53 | 0 | 0 | `False` |
+| core/src/option.rs | `leave-one-out` | `paired-shadow-source` | `lotus-bit` | 52 | 44 | 0 | 52 | 0 | 0 | `False` |
+| core/src/option.rs | `leave-one-out` | `same-size-random` | `external-byte` | 53 | 45 | 0 | 53 | 0 | 0 | `False` |
+| core/src/option.rs | `leave-one-out` | `same-size-random` | `lotus-bit` | 52 | 44 | 0 | 52 | 0 | 0 | `False` |
+| core/src/option.rs | `frozen-all-heldouts-excluded` | `heldout-source` | `external-byte` | -1174 | -1182 | 1135 | 11069 | 0 | -12243 | `True` |
+| core/src/option.rs | `frozen-all-heldouts-excluded` | `heldout-source` | `lotus-bit` | -1242 | -1250 | 1135 | 11001 | 0 | -12243 | `True` |
+| core/src/option.rs | `frozen-all-heldouts-excluded` | `paired-shadow-source` | `external-byte` | 53 | 45 | 0 | 53 | 0 | 0 | `False` |
+| core/src/option.rs | `frozen-all-heldouts-excluded` | `paired-shadow-source` | `lotus-bit` | 52 | 44 | 0 | 52 | 0 | 0 | `False` |
+| core/src/option.rs | `frozen-all-heldouts-excluded` | `same-size-random` | `external-byte` | 53 | 45 | 0 | 53 | 0 | 0 | `False` |
+| core/src/option.rs | `frozen-all-heldouts-excluded` | `same-size-random` | `lotus-bit` | 52 | 44 | 0 | 52 | 0 | 0 | `False` |
+| alloc/src/string.rs | `leave-one-out` | `heldout-source` | `external-byte` | -1595 | -1603 | 1201 | 11359 | 0 | -12954 | `True` |
+| alloc/src/string.rs | `leave-one-out` | `heldout-source` | `lotus-bit` | -1640 | -1648 | 1201 | 11314 | 0 | -12954 | `True` |
+| alloc/src/string.rs | `leave-one-out` | `paired-shadow-source` | `external-byte` | 54 | 46 | 0 | 54 | 0 | 0 | `False` |
+| alloc/src/string.rs | `leave-one-out` | `paired-shadow-source` | `lotus-bit` | 53 | 45 | 0 | 53 | 0 | 0 | `False` |
+| alloc/src/string.rs | `leave-one-out` | `same-size-random` | `external-byte` | 54 | 46 | 0 | 54 | 0 | 0 | `False` |
+| alloc/src/string.rs | `leave-one-out` | `same-size-random` | `lotus-bit` | 53 | 45 | 0 | 53 | 0 | 0 | `False` |
+| alloc/src/string.rs | `frozen-all-heldouts-excluded` | `heldout-source` | `external-byte` | -1596 | -1604 | 1201 | 11359 | 0 | -12955 | `True` |
+| alloc/src/string.rs | `frozen-all-heldouts-excluded` | `heldout-source` | `lotus-bit` | -1641 | -1649 | 1201 | 11314 | 0 | -12955 | `True` |
+| alloc/src/string.rs | `frozen-all-heldouts-excluded` | `paired-shadow-source` | `external-byte` | 54 | 46 | 0 | 54 | 0 | 0 | `False` |
+| alloc/src/string.rs | `frozen-all-heldouts-excluded` | `paired-shadow-source` | `lotus-bit` | 53 | 45 | 0 | 53 | 0 | 0 | `False` |
+| alloc/src/string.rs | `frozen-all-heldouts-excluded` | `same-size-random` | `external-byte` | 54 | 46 | 0 | 54 | 0 | 0 | `False` |
+| alloc/src/string.rs | `frozen-all-heldouts-excluded` | `same-size-random` | `lotus-bit` | 53 | 45 | 0 | 53 | 0 | 0 | `False` |
+| std/src/path.rs | `leave-one-out` | `heldout-source` | `external-byte` | -2702 | -2710 | 1414 | 12615 | 0 | -15317 | `True` |
+| std/src/path.rs | `leave-one-out` | `heldout-source` | `lotus-bit` | -2860 | -2868 | 1414 | 12457 | 0 | -15317 | `True` |
+| std/src/path.rs | `leave-one-out` | `paired-shadow-source` | `external-byte` | 62 | 54 | 0 | 62 | 0 | 0 | `False` |
+| std/src/path.rs | `leave-one-out` | `paired-shadow-source` | `lotus-bit` | 58 | 50 | 0 | 58 | 0 | 0 | `False` |
+| std/src/path.rs | `leave-one-out` | `same-size-random` | `external-byte` | 62 | 54 | 0 | 62 | 0 | 0 | `False` |
+| std/src/path.rs | `leave-one-out` | `same-size-random` | `lotus-bit` | 58 | 50 | 0 | 58 | 0 | 0 | `False` |
+| std/src/path.rs | `frozen-all-heldouts-excluded` | `heldout-source` | `external-byte` | -2708 | -2716 | 1412 | 12591 | 0 | -15299 | `True` |
+| std/src/path.rs | `frozen-all-heldouts-excluded` | `heldout-source` | `lotus-bit` | -2871 | -2879 | 1412 | 12428 | 0 | -15299 | `True` |
+| std/src/path.rs | `frozen-all-heldouts-excluded` | `paired-shadow-source` | `external-byte` | 62 | 54 | 0 | 62 | 0 | 0 | `False` |
+| std/src/path.rs | `frozen-all-heldouts-excluded` | `paired-shadow-source` | `lotus-bit` | 58 | 50 | 0 | 58 | 0 | 0 | `False` |
+| std/src/path.rs | `frozen-all-heldouts-excluded` | `same-size-random` | `external-byte` | 62 | 54 | 0 | 62 | 0 | 0 | `False` |
+| std/src/path.rs | `frozen-all-heldouts-excluded` | `same-size-random` | `lotus-bit` | 58 | 50 | 0 | 58 | 0 | 0 | `False` |
 
 Interpretation:
 
 - A clean win requires negative full `.tlmr` bytes, at least one selected exact seed span, and non-negative paired codeword controls.
+- The frozen preset policy trains one token table with all held-out files excluded and reuses it across every target.
 - Paired shadow rows preserve byte length, whitespace, punctuation, comments, and source delimiters while replacing source vocabulary; clean wins require these rows to keep zero token replacements and zero selected spans.
 - Same-size random rows test whether the source-family token transform creates accidental seed-span matches on non-source bytes.
 - The research question is no longer whether source-family codeword transforms can work at all; it is which public preset families provide enough coverage reliably.
