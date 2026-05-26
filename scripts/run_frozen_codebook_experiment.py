@@ -571,6 +571,18 @@ def codebook_bytes(codebook: list[dict[str, Any]], manifest: dict[str, Any]) -> 
     return json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
 
 
+def load_codebook_from_experiment(path: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    codebook = payload.get("codebook", {}).get("tokens")
+    if not isinstance(codebook, list):
+        raise ValueError("codebook input must be a frozen-codebook experiment JSON")
+    required = {"seed_index", "token_hex", "token_len", "codeword_hex"}
+    for index, row in enumerate(codebook):
+        if not isinstance(row, dict) or not required.issubset(row):
+            raise ValueError(f"codebook token {index} is missing required fields")
+    return codebook, payload
+
+
 def transform(data: bytes, codebook: list[dict[str, Any]]) -> tuple[bytes, dict[str, Any]]:
     token_to_codeword = {
         bytes.fromhex(row["token_hex"]): bytes.fromhex(row["codeword_hex"])
@@ -1164,6 +1176,11 @@ def main() -> int:
             "random-codeword,out-of-budget-codeword,all,none"
         ),
     )
+    parser.add_argument(
+        "--codebook-input",
+        type=Path,
+        help="reuse the codebook tokens from a previous experiment JSON instead of retraining",
+    )
     parser.add_argument("--output", type=Path, default=DEFAULT_OUT)
     args = parser.parse_args()
 
@@ -1208,20 +1225,32 @@ def main() -> int:
             for path in train_files
         ],
     }
-    started = time.perf_counter()
-    codebook = train_codebook(
-        train_files,
-        ngram_lens=ngram_lens,
-        min_count=args.min_count,
-        max_tokens=args.max_tokens,
-        printable_only=args.printable_only,
-        selection=args.selection,
-        candidate_pool=args.candidate_pool,
-        seed_record_cost=args.seed_record_cost,
-        token_metadata_cost=args.token_metadata_cost,
-        stop_nonpositive_marginal=args.stop_nonpositive_marginal,
-    )
-    training_elapsed = time.perf_counter() - started
+    codebook_reuse = None
+    if args.codebook_input:
+        codebook, source_payload = load_codebook_from_experiment(args.codebook_input)
+        source_train = source_payload.get("train")
+        if isinstance(source_train, dict):
+            train_manifest = dict(source_train)
+        codebook_reuse = {
+            "input": str(args.codebook_input),
+            "input_sha256": pcb.sha256_file(args.codebook_input),
+        }
+        training_elapsed = 0.0
+    else:
+        started = time.perf_counter()
+        codebook = train_codebook(
+            train_files,
+            ngram_lens=ngram_lens,
+            min_count=args.min_count,
+            max_tokens=args.max_tokens,
+            printable_only=args.printable_only,
+            selection=args.selection,
+            candidate_pool=args.candidate_pool,
+            seed_record_cost=args.seed_record_cost,
+            token_metadata_cost=args.token_metadata_cost,
+            stop_nonpositive_marginal=args.stop_nonpositive_marginal,
+        )
+        training_elapsed = time.perf_counter() - started
     real_codebook = control_codebook(codebook, "real", source_hash="")
 
     out_dir = args.output.parent / f"{args.train_corpus}_to_{args.eval_corpus}"
@@ -1339,12 +1368,14 @@ def main() -> int:
             "seed_record_cost": args.seed_record_cost,
             "token_metadata_cost": args.token_metadata_cost,
             "stop_nonpositive_marginal": args.stop_nonpositive_marginal,
+            "codebook_input": str(args.codebook_input) if args.codebook_input else None,
         },
         "codebook": {
             **real_variant["codebook"],
             "token_count": len(codebook),
             "training_elapsed_s": round(training_elapsed, 6),
         },
+        "codebook_reuse": codebook_reuse,
         "summary": real_variant["summary"],
         "rows": real_variant["rows"],
         "controls": variants[1:],
