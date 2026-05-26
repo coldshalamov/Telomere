@@ -26,6 +26,8 @@ DOCS = ROOT / "docs"
 REPORT_JSON = DOCS / "thesis_attack_experiment.json"
 REPORT_MD = DOCS / "THESIS_ATTACK_EXPERIMENT.md"
 GENERATED_BY = "scripts/run_thesis_attack_experiment.py"
+ARTIFACT_INPUT_SUFFIXES = {".bin", ".txt", ".json", ".rs", ".csv", ".md"}
+ARTIFACT_EXCLUDE_SUFFIXES = {".tlmr", ".decoded", ".exe", ".dll", ".pdb"}
 
 HASHER = "sha256"
 BLOCK_SIZE = 4
@@ -70,6 +72,66 @@ PUBLIC_PRESET_CODEWORD_VARIANTS = ("seed", "random-codeword", "out-of-budget-cod
 
 def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def sha256_bytes(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def safe_slug(value: str, max_len: int = 96) -> str:
+    cleaned = "".join(
+        c if c.isalnum() or c in ("-", "_", ".") else "-" for c in value
+    ).strip("-")
+    if not cleaned:
+        cleaned = "artifact"
+    digest = sha256_bytes(value.encode("utf-8"))[:12]
+    return f"{cleaned[:max_len]}-{digest}"
+
+
+def validate_external_manifest(manifest_path: Path) -> dict[str, Any]:
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    mismatches = []
+    entries = manifest.get("entries", [])
+    for entry in entries:
+        rel_path = Path(entry["path"])
+        path = ROOT / rel_path
+        if not path.exists():
+            mismatches.append(
+                {
+                    "entry_id": entry.get("entry_id"),
+                    "path": rel_path.as_posix(),
+                    "reason": "missing file",
+                }
+            )
+            continue
+        data = path.read_bytes()
+        actual_sha = sha256_bytes(data)
+        actual_bytes = len(data)
+        if actual_sha != entry.get("sha256") or actual_bytes != entry.get("bytes"):
+            mismatches.append(
+                {
+                    "entry_id": entry.get("entry_id"),
+                    "path": rel_path.as_posix(),
+                    "expected_sha256": entry.get("sha256"),
+                    "actual_sha256": actual_sha,
+                    "expected_bytes": entry.get("bytes"),
+                    "actual_bytes": actual_bytes,
+                }
+            )
+    if mismatches:
+        preview = "; ".join(
+            f"{item['entry_id']} {item['path']}" for item in mismatches[:5]
+        )
+        raise SystemExit(
+            "external manifest validation failed; checkout bytes do not match "
+            f"{manifest_path}: {preview}"
+        )
+    return {
+        "manifest_path": str(manifest_path),
+        "manifest_sha256": sha256(manifest_path),
+        "entry_count": len(entries),
+        "validated": True,
+    }
 
 
 def deterministic_bytes(label: str, length: int) -> bytes:
@@ -121,7 +183,28 @@ def planted_positive() -> bytes:
     return bytes(out)
 
 
-def load_corpora() -> dict[str, bytes]:
+def load_artifact_inputs(paths: list[Path]) -> dict[str, bytes]:
+    corpora: dict[str, bytes] = {}
+    for source in paths:
+        source = source.resolve()
+        candidates = [source] if source.is_file() else sorted(source.rglob("*"))
+        for path in candidates:
+            if not path.is_file():
+                continue
+            if path.suffix.lower() in ARTIFACT_EXCLUDE_SUFFIXES:
+                continue
+            if path.suffix.lower() not in ARTIFACT_INPUT_SUFFIXES:
+                continue
+            try:
+                rel = path.relative_to(ROOT)
+            except ValueError:
+                rel = path
+            name = safe_slug(f"target-{rel.as_posix()}", max_len=80)
+            corpora[name] = path.read_bytes()
+    return corpora
+
+
+def load_corpora(include_target_inputs: list[Path] | None = None) -> dict[str, bytes]:
     structured = generate_results.structured_json_bytes()
     corpora = {
         "planted-positive": planted_positive(),
@@ -142,6 +225,8 @@ def load_corpora() -> dict[str, bytes]:
     corpora["random-null-structured-len"] = deterministic_bytes(
         "thesis-null-structured", len(structured)
     )
+    if include_target_inputs:
+        corpora.update(load_artifact_inputs(include_target_inputs))
     return corpora
 
 
@@ -367,9 +452,12 @@ def run_telomere(
     name: str,
     transform: str,
     extra_args: list[str] | None = None,
+    decode_artifact: bool = False,
 ) -> dict[str, Any]:
-    input_path = tmp / f"{name}-{transform}.bin"
-    output_path = tmp / f"{name}-{transform}.tlmr"
+    basename = safe_slug(f"{name}-{transform}")
+    input_path = tmp / f"{basename}.input.bin"
+    output_path = tmp / f"{basename}.tlmr"
+    decoded_path = tmp / f"{basename}.decoded.bin"
     input_path.write_bytes(data)
     cmd = [
         "cargo",
@@ -408,7 +496,7 @@ def run_telomere(
     proc = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True, check=True)
     payload = json.loads(proc.stdout)
     telemetry = payload.get("engine_telemetry", {})
-    return {
+    result = {
         "command": " ".join(cmd),
         "input_bytes": len(data),
         "tlmr_bytes": output_path.stat().st_size,
@@ -421,6 +509,45 @@ def run_telomere(
         "tiers": telemetry.get("tiers", []),
         "selected_spans": telemetry.get("selected_spans", []),
     }
+    if decode_artifact:
+        decompress_cmd = [
+            "cargo",
+            "run",
+            "--quiet",
+            "--",
+            "decompress",
+            str(output_path),
+            str(decoded_path),
+            "--force",
+        ]
+        subprocess.run(
+            decompress_cmd,
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        decoded = decoded_path.read_bytes()
+        roundtrip_current_binary = decoded == data
+        if not roundtrip_current_binary:
+            raise RuntimeError(
+                f"current binary decompression mismatch for {name}/{transform}"
+            )
+        result.update(
+            {
+                "input_path": str(input_path),
+                "tlmr_path": str(output_path),
+                "decoded_path": str(decoded_path),
+                "input_sha256": sha256_bytes(data),
+                "tlmr_sha256": sha256(output_path),
+                "tlmr_stat_bytes": output_path.stat().st_size,
+                "decompress_command": " ".join(decompress_cmd),
+                "decoded_sha256": sha256_bytes(decoded),
+                "decoded_bytes": len(decoded),
+                "roundtrip_current_binary": roundtrip_current_binary,
+            }
+        )
+    return result
 
 
 def windows_for(input_len: int, span_len: int, span_step: int = SPAN_STEP) -> int:
@@ -510,45 +637,60 @@ def codeword_control_comparisons(rows: list[dict[str, Any]]) -> list[dict[str, A
     return comparisons
 
 
-def build_report() -> dict[str, Any]:
-    corpora = load_corpora()
+def build_rows(corpora: dict[str, bytes], tmp: Path, decode_artifacts: bool) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
-    with tempfile.TemporaryDirectory(prefix="telomere-thesis-") as tmp_dir:
-        tmp = Path(tmp_dir)
-        for corpus_name, original in corpora.items():
-            for variant in transform_variants(corpus_name, original):
-                result = run_telomere(
-                    variant["data"],
-                    tmp,
-                    corpus_name,
-                    variant["transform"],
-                    variant["metadata"].get("cli_extra_args"),
+    for corpus_name, original in corpora.items():
+        for variant in transform_variants(corpus_name, original):
+            result = run_telomere(
+                variant["data"],
+                tmp,
+                corpus_name,
+                variant["transform"],
+                variant["metadata"].get("cli_extra_args"),
+                decode_artifact=decode_artifacts,
+            )
+            metadata_bytes = int(variant["metadata"].get("transform_metadata_bytes", 0))
+            charged_bytes = result["tlmr_bytes"] + metadata_bytes
+            literal_only_charged_bytes = int(
+                variant["metadata"].get(
+                    "native_transform_literal_only_bytes",
+                    v2_literal_only_bytes(len(variant["data"]), 1) + metadata_bytes,
                 )
-                metadata_bytes = int(variant["metadata"].get("transform_metadata_bytes", 0))
-                charged_bytes = result["tlmr_bytes"] + metadata_bytes
-                literal_only_charged_bytes = int(
-                    variant["metadata"].get(
-                        "native_transform_literal_only_bytes",
-                        v2_literal_only_bytes(len(variant["data"]), 1) + metadata_bytes,
-                    )
-                )
-                rows.append(
-                    {
-                        "corpus": corpus_name,
-                        "transform": variant["transform"],
-                        "original_bytes": len(original),
-                        "transformed_bytes": len(variant["data"]),
-                        "transform_metadata_bytes": metadata_bytes,
-                        "literal_only_charged_bytes": literal_only_charged_bytes,
-                        "seed_span_benefit_bytes": literal_only_charged_bytes - charged_bytes,
-                        "charged_output_bytes": charged_bytes,
-                        "delta_bytes": charged_bytes - len(original),
-                        "delta_pct": (charged_bytes - len(original)) * 100.0 / max(len(original), 1),
-                        "roundtrip_ok": variant["roundtrip_ok"],
-                        **variant["metadata"],
-                        **result,
-                    }
-                )
+            )
+            rows.append(
+                {
+                    "corpus": corpus_name,
+                    "transform": variant["transform"],
+                    "original_bytes": len(original),
+                    "transformed_bytes": len(variant["data"]),
+                    "transform_metadata_bytes": metadata_bytes,
+                    "literal_only_charged_bytes": literal_only_charged_bytes,
+                    "seed_span_benefit_bytes": literal_only_charged_bytes - charged_bytes,
+                    "charged_output_bytes": charged_bytes,
+                    "delta_bytes": charged_bytes - len(original),
+                    "delta_pct": (charged_bytes - len(original)) * 100.0 / max(len(original), 1),
+                    "roundtrip_ok": variant["roundtrip_ok"],
+                    "roundtrip_to_original": variant["roundtrip_ok"]
+                    and result.get("roundtrip_current_binary", True),
+                    **variant["metadata"],
+                    **result,
+                }
+            )
+    return rows
+
+
+def build_report(
+    artifact_dir: Path | None = None,
+    include_target_inputs: list[Path] | None = None,
+    manifest_validation: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    corpora = load_corpora(include_target_inputs)
+    if artifact_dir is None:
+        with tempfile.TemporaryDirectory(prefix="telomere-thesis-") as tmp_dir:
+            rows = build_rows(corpora, Path(tmp_dir), decode_artifacts=False)
+    else:
+        artifact_dir.mkdir(parents=True, exist_ok=True)
+        rows = build_rows(corpora, artifact_dir, decode_artifacts=True)
 
     non_planted = [
         row
@@ -585,6 +727,14 @@ def build_report() -> dict[str, Any]:
             "streaming_rs_sha256": sha256(ROOT / "src/streaming.rs"),
             "tlmr_v2_rs_sha256": sha256(ROOT / "src/tlmr_v2.rs"),
             "external_manifest_sha256": sha256(ROOT / "corpora/external/manifest.json"),
+        },
+        "artifact_mode": {
+            "enabled": artifact_dir is not None,
+            "artifact_dir": str(artifact_dir) if artifact_dir is not None else None,
+            "manifest_validation": manifest_validation,
+            "included_target_input_paths": [
+                str(path) for path in (include_target_inputs or [])
+            ],
         },
         "math": {
             "formula": "expected_hits = target_windows * seed_space / 2^(8 * span_len)",
@@ -758,16 +908,60 @@ def write_report(payload: dict[str, Any]) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--json-only", action="store_true")
+    parser.add_argument(
+        "--artifact-dir",
+        type=Path,
+        help="Persist experiment inputs, .tlmr outputs, decoded outputs, and hashes here.",
+    )
+    parser.add_argument(
+        "--manifest",
+        type=Path,
+        help="Fail closed unless every external-corpus manifest entry matches checkout bytes.",
+    )
+    parser.add_argument(
+        "--include-target-inputs",
+        type=Path,
+        action="append",
+        default=[],
+        help="Also run supported input files from this file or directory.",
+    )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        help="Write the full JSON payload to this path instead of only docs/default summary output.",
+    )
+    parser.add_argument(
+        "--no-docs",
+        action="store_true",
+        help="Do not rewrite docs/thesis_attack_experiment.*.",
+    )
     args = parser.parse_args()
-    payload = build_report()
-    write_report(payload)
+
+    manifest_validation = None
+    if args.manifest is not None:
+        manifest_validation = validate_external_manifest(args.manifest)
+    payload = build_report(
+        artifact_dir=args.artifact_dir,
+        include_target_inputs=args.include_target_inputs,
+        manifest_validation=manifest_validation,
+    )
+    if args.output is not None:
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+    if not args.no_docs and not args.json_only:
+        write_report(payload)
     if args.json_only:
         print(json.dumps(payload["summary"], indent=2))
     else:
-        print(
-            "Thesis attack experiment wrote "
-            f"{REPORT_JSON.relative_to(ROOT)} and {REPORT_MD.relative_to(ROOT)}"
-        )
+        outputs = []
+        if not args.no_docs:
+            outputs.append(str(REPORT_JSON.relative_to(ROOT)))
+            outputs.append(str(REPORT_MD.relative_to(ROOT)))
+        if args.output is not None:
+            outputs.append(str(args.output))
+        if args.artifact_dir is not None:
+            outputs.append(str(args.artifact_dir))
+        print("Thesis attack experiment wrote " + ", ".join(outputs))
 
 
 if __name__ == "__main__":
