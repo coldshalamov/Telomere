@@ -72,6 +72,39 @@
     {
       "controls": [
         {
+          "fully_charged_delta_bytes": -208241,
+          "selected_count": 0,
+          "variant": "random-codeword"
+        },
+        {
+          "fully_charged_delta_bytes": -208178,
+          "selected_count": 0,
+          "variant": "out-of-budget-codeword"
+        }
+      ],
+      "id": "calgary_to_canterbury_train_exact_greedy_pool8",
+      "role": "package-primary exact-greedy Canterbury comparison",
+      "seed_alignment_dividend_bytes_vs_best_control": -93416,
+      "source": "target/thesis_runs/frozen_codebook_experiment/calgary_to_canterbury_train_exact_greedy_pool8_package_accounting.json",
+      "summary": {
+        "codebook_bytes_json_compact": 6924,
+        "files": 11,
+        "framed_delta_bytes": -217309,
+        "fully_charged_package_bytes": 2509190,
+        "fully_charged_package_delta_bytes": -301594,
+        "fully_charged_package_ratio": 0.892701,
+        "inner_tlmr_delta_bytes": -309222,
+        "input_bytes": 2810784,
+        "inverse_failures": 0,
+        "selected_count": 9292,
+        "standalone_fully_charged_sum_delta_bytes": -232354,
+        "telomere_failures": 0,
+        "token_replacements": 9292
+      }
+    },
+    {
+      "controls": [
+        {
           "fully_charged_delta_bytes": 135896,
           "selected_count": 0,
           "variant": "random-codeword"
@@ -199,6 +232,39 @@
         "standalone_fully_charged_sum_delta_bytes": -29098,
         "telomere_failures": 0,
         "token_replacements": 3519
+      }
+    },
+    {
+      "controls": [
+        {
+          "fully_charged_delta_bytes": -22453,
+          "selected_count": 0,
+          "variant": "random-codeword"
+        },
+        {
+          "fully_charged_delta_bytes": -22390,
+          "selected_count": 0,
+          "variant": "out-of-budget-codeword"
+        }
+      ],
+      "id": "calgary_to_silesia_under7mb_train_exact_greedy_pool8",
+      "role": "package-primary exact-greedy Silesia under-7MB comparison",
+      "seed_alignment_dividend_bytes_vs_best_control": -25914,
+      "source": "target/thesis_runs/frozen_codebook_experiment/calgary_to_silesia_under7mb_train_exact_greedy_pool8_package_accounting.json",
+      "summary": {
+        "codebook_bytes_json_compact": 6924,
+        "files": 3,
+        "framed_delta_bytes": -31940,
+        "fully_charged_package_bytes": 18076370,
+        "fully_charged_package_delta_bytes": -48304,
+        "fully_charged_package_ratio": 0.997335,
+        "inner_tlmr_delta_bytes": -55420,
+        "input_bytes": 18124674,
+        "inverse_failures": 0,
+        "selected_count": 2546,
+        "standalone_fully_charged_sum_delta_bytes": -34456,
+        "telomere_failures": 0,
+        "token_replacements": 2546
       }
     },
     {
