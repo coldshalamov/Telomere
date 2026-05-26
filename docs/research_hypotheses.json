@@ -1,6 +1,6 @@
 {
   "generated_by": "scripts/generate_research_hypotheses.py",
-  "generated_at": "2026-05-26T09:00:37.918731+00:00",
+  "generated_at": "2026-05-26T10:53:05.566767+00:00",
   "format_version": 1,
   "scope": {
     "kind": "research hypothesis registry",
@@ -20,7 +20,7 @@
     "mechanism_experiment_ranking_sha256": "b728136fa7f03d0a355c58737578b3021a140bfc21a87f2aac38b4161ac029b0",
     "natural_corpus_proof_matrix_sha256": "291132f7f4905763d1991257e08dd00f1aa3195168c815229af620e1f59fbe6e",
     "natural_corpus_reopen_manifest_sha256": "5e8983ba657fb3195d9b5b6d7f5e0e3176f2b66d824c3cd138b404566b13e130",
-    "external_corpus_accession_sha256": "0e39cb8bc139498b28eae71e27c84e5a747253a9156c4faf1a236b343787c0ef",
+    "external_corpus_accession_sha256": "a6e6e1019a5febe6420fac32c8a1a8e58798b2f9cea3cf8c95b27bb87d91abd6",
     "production_proof_matrix_sha256": "8280106edea09b367c66bf81fec0eb6bb8b617bfbb3d54aedf04290651289566",
     "goal_completion_audit_sha256": "bed007c46886ef60ac1e83555a075d6f61fb7007dbfc8cba89bb808cbf50ac83",
     "research_team_protocol_sha256": "069f5a1c9bebd4608103d9d63df975e73fd3c16c7e8edc43c7cb59ba69c9504c",
@@ -29,7 +29,7 @@
     "long_span_bundle_gate_sha256": "290b4a0817f5c0fbd875dd7f010a15113acc0aaa56426226d334e6dcf73cf5b1",
     "mechanism_closure_audit_sha256": "8042e91a03faaeec79ba2e1a03e8776ada3a996c951f7bba39753cec95adf694",
     "next_mechanism_designs_sha256": "1a718a3bc432543245012b9e010777d91a5cfcb2a1ff1c158d7b718d0c566d0e",
-    "frozen_rank_coded_span_generator_sha256": "46fc4481d7ed06a7f1eda8ab3e4e89fd3bcdd8264faf59c195d3da12607f300f",
+    "frozen_rank_coded_span_generator_sha256": "7fa322d7265da019649f183503799d52bc871b96536bc9936376179e77c6ae88",
     "frozen_rank_source_candidates_sha256": "13339df263cda76b6259dca7c6f1b8ccb4fd9fae7f72f440ab4220cc4df8b3e2",
     "superposition_telemetry_sha256": "9ddabe8ca34b90e6a765536a43012781d969a7153c6261d09bf59a452b725711",
     "lattice_selection_heldout_probe_sha256": "d6eab510e018fce194b603130a501fba7679e2e76a7126eea142c244ed8c41b7",
@@ -123,16 +123,16 @@
       "conclusion": "No ready ungated experiments remain; do not spend on gated compute or production GPU until evidence improves."
     },
     "external_corpus_accession": {
-      "accession_status": "invalid_manifest_requires_fix",
+      "accession_status": "valid_manifest_only_ready_for_human_review",
       "source_manifest_status": "complete_manifest_only",
       "entry_count": 16,
       "ordinary_entry_count": 4,
       "control_entry_count": 12,
       "independence_group_count": 4,
       "family_count": 4,
-      "validation_error_count": 32,
-      "paired_manifest_ready": false,
-      "manifest_complete": false,
+      "validation_error_count": 0,
+      "paired_manifest_ready": true,
+      "manifest_complete": true,
       "frozen_rank_source_candidate_status": "candidate_matrix_only",
       "frozen_rank_required_manifest_rows_before_replay": 16,
       "frozen_rank_source_candidates_ready_for_replay": 0,
@@ -141,16 +141,16 @@
       "first_allowed_stage": "manifest-only",
       "reopen_first_allowed_stage": "manifest-only",
       "broad_depth_search_allowed": false,
-      "next_allowed_action": "fix accession validation errors",
+      "next_allowed_action": "human review may decide whether prefix-audit stage should be proposed",
       "claim_boundary": "No Seed Search; accession validation only; not a compression claim; not natural-corpus proof; does not override SEARCH_FRONTIER_GATE."
     },
     "frozen_rank_coded_span_generator": {
-      "contract_status": "blocked_waiting_for_external_corpus_accession",
+      "contract_status": "blocked_waiting_for_human_review",
       "top_design_id": "frozen-rank-coded-span-generator",
       "golden_vector_count": 4,
-      "external_manifest_ready": false,
-      "external_accession_status": "invalid_manifest_requires_fix",
-      "paired_manifest_ready": false,
+      "external_manifest_ready": true,
+      "external_accession_status": "valid_manifest_only_ready_for_human_review",
+      "paired_manifest_ready": true,
       "public_preset_rerun_status": "exact_rerun_blocks_public_preset_promotion",
       "broad_depth_search_allowed": false,
       "compute_allowed": false,
@@ -158,8 +158,8 @@
       "promotion_ready": false,
       "natural_corpus_proven": false,
       "claim_boundary": "No Seed Search; manifest/spec/golden-vector only; not a compression claim; not natural-corpus proof; not `.tlmr` format support.",
-      "next_allowed_action": "add externally sourced rank-table accession entries with paired controls, then request human review before any replay",
-      "conclusion": "The rank-coded lane now has a frozen contract and golden vectors, but it remains blocked because the external accession manifest is not ready and no replay is authorized."
+      "next_allowed_action": "request human review of the frozen-rank accession/control contract before any replay",
+      "conclusion": "The rank-coded lane now has a frozen contract and golden vectors, but it remains blocked until human review authorizes replay. No compute, seed search, or compression claim is authorized by this artifact."
     },
     "frozen_rank_source_candidates": {
       "candidate_status": "candidate_matrix_only",
@@ -977,8 +977,8 @@
     "maintenance_only_count": 4,
     "ready_if_triggered_count": 0,
     "natural_corpus_proven": false,
-    "external_accession_status": "invalid_manifest_requires_fix",
-    "external_manifest_complete": false,
+    "external_accession_status": "valid_manifest_only_ready_for_human_review",
+    "external_manifest_complete": true,
     "external_compute_allowed": false,
     "production_proven": false,
     "ungated_compute_allowed": false,
@@ -989,7 +989,7 @@
     "mechanism_closure_top_blocked_lane": "long-span-bundle-gate",
     "next_mechanism_design_count": 7,
     "next_mechanism_top_design": "frozen-rank-coded-span-generator",
-    "frozen_rank_contract_status": "blocked_waiting_for_external_corpus_accession",
+    "frozen_rank_contract_status": "blocked_waiting_for_human_review",
     "frozen_rank_promotion_ready": false,
     "frozen_rank_replay_allowed": false,
     "frozen_rank_source_candidate_status": "candidate_matrix_only",
@@ -1107,7 +1107,7 @@
       ],
       "whitepaper_concept": "table lookup from a seed table, but rank-coded and external-provenance first",
       "best_case_argument": "A decoder-public rank table could make seed bytes name common external spans directly, giving the compressor a non-uniform generative prior without storing per-file raw data or widening raw hash depth.",
-      "current_evidence": "contract status=blocked_waiting_for_external_corpus_accession; golden vectors=4; external manifest ready=False; paired manifest ready=False; compute allowed=False; replay allowed=False; promotion ready=False. source candidate status=candidate_matrix_only; candidate families=4; required manifest rows before replay=16; source candidates ready for manifest=0; source candidates ready for replay=0.",
+      "current_evidence": "contract status=blocked_waiting_for_human_review; golden vectors=4; external manifest ready=True; paired manifest ready=True; compute allowed=False; replay allowed=False; promotion ready=False. source candidate status=candidate_matrix_only; candidate families=4; required manifest rows before replay=16; source candidates ready for manifest=0; source candidates ready for replay=0.",
       "falsification_test": "The rank table cannot be frozen from external provenance, controls go negative, or held-out gains are no better than same-size random rank tables and flat dictionary baselines.",
       "promotion_trigger": "An external rank-table manifest is complete, at least three unrelated ordinary held-out groups produce selected exact spans and full-stream negative rows after selector/version metadata, and paired shadow, same-size random, wrong-family, binary, and high-entropy controls stay non-negative.",
       "stop_rule": "Keep the fixture table out of .tlmr and do not run held-out replay until external accession and paired controls are ready.",
@@ -1134,7 +1134,7 @@
         "do not weaken random, shadow, binary, or same-size control requirements",
         "do not edit generated markdown or JSON by hand"
       ],
-      "dispatch_prompt": "Hypothesis frozen-rank-coded-span-generator: use dispatching-parallel-agents as the operating model.\nBest case: A decoder-public rank table could make seed bytes name common external spans directly, giving the compressor a non-uniform generative prior without storing per-file raw data or widening raw hash depth.\nWhitepaper concept: table lookup from a seed table, but rank-coded and external-provenance first\nCurrent evidence: contract status=blocked_waiting_for_external_corpus_accession; golden vectors=4; external manifest ready=False; paired manifest ready=False; compute allowed=False; replay allowed=False; promotion ready=False. source candidate status=candidate_matrix_only; candidate families=4; required manifest rows before replay=16; source candidates ready for manifest=0; source candidates ready for replay=0.\nScope: No Seed Search, not a compression claim, not natural-corpus proof, and not production proof.\nFalsification test: The rank table cannot be frozen from external provenance, controls go negative, or held-out gains are no better than same-size random rank tables and flat dictionary baselines.\nPromotion trigger: An external rank-table manifest is complete, at least three unrelated ordinary held-out groups produce selected exact spans and full-stream negative rows after selector/version metadata, and paired shadow, same-size random, wrong-family, binary, and high-entropy controls stay non-negative.\nStop rule: Keep the fixture table out of .tlmr and do not run held-out replay until external accession and paired controls are ready.\nSource artifacts: docs/NEXT_MECHANISM_DESIGNS.md, docs/FROZEN_RANK_CODED_SPAN_GENERATOR.md, docs/FROZEN_RANK_SOURCE_CANDIDATES.md, docs/EXTERNAL_CORPUS_ACCESSION.md, docs/PUBLIC_PRESET_CONTROL_RERUN.md.\nforbidden_actions: No Seed Search: do not start new depth-3, depth-4, or long-span sweeps; do not claim natural-corpus compression is proven; do not claim production readiness; do not promote .tlmr v2, transform metadata, or dictionary presets to stable format support; do not weaken random, shadow, binary, or same-size control requirements; do not edit generated markdown or JSON by hand.\noutput_contract: findings first with source artifacts and generated status; state whether the falsification test currently fails, passes, or is not yet runnable; state the exact promotion trigger that would reopen more work; list any proposed artifact, check command, and compute budget; preserve No Seed Search and not production proof language unless generated gates change.\nReturn a bounded findings-first design or audit; do not launch broad compute."
+      "dispatch_prompt": "Hypothesis frozen-rank-coded-span-generator: use dispatching-parallel-agents as the operating model.\nBest case: A decoder-public rank table could make seed bytes name common external spans directly, giving the compressor a non-uniform generative prior without storing per-file raw data or widening raw hash depth.\nWhitepaper concept: table lookup from a seed table, but rank-coded and external-provenance first\nCurrent evidence: contract status=blocked_waiting_for_human_review; golden vectors=4; external manifest ready=True; paired manifest ready=True; compute allowed=False; replay allowed=False; promotion ready=False. source candidate status=candidate_matrix_only; candidate families=4; required manifest rows before replay=16; source candidates ready for manifest=0; source candidates ready for replay=0.\nScope: No Seed Search, not a compression claim, not natural-corpus proof, and not production proof.\nFalsification test: The rank table cannot be frozen from external provenance, controls go negative, or held-out gains are no better than same-size random rank tables and flat dictionary baselines.\nPromotion trigger: An external rank-table manifest is complete, at least three unrelated ordinary held-out groups produce selected exact spans and full-stream negative rows after selector/version metadata, and paired shadow, same-size random, wrong-family, binary, and high-entropy controls stay non-negative.\nStop rule: Keep the fixture table out of .tlmr and do not run held-out replay until external accession and paired controls are ready.\nSource artifacts: docs/NEXT_MECHANISM_DESIGNS.md, docs/FROZEN_RANK_CODED_SPAN_GENERATOR.md, docs/FROZEN_RANK_SOURCE_CANDIDATES.md, docs/EXTERNAL_CORPUS_ACCESSION.md, docs/PUBLIC_PRESET_CONTROL_RERUN.md.\nforbidden_actions: No Seed Search: do not start new depth-3, depth-4, or long-span sweeps; do not claim natural-corpus compression is proven; do not claim production readiness; do not promote .tlmr v2, transform metadata, or dictionary presets to stable format support; do not weaken random, shadow, binary, or same-size control requirements; do not edit generated markdown or JSON by hand.\noutput_contract: findings first with source artifacts and generated status; state whether the falsification test currently fails, passes, or is not yet runnable; state the exact promotion trigger that would reopen more work; list any proposed artifact, check command, and compute budget; preserve No Seed Search and not production proof language unless generated gates change.\nReturn a bounded findings-first design or audit; do not launch broad compute."
     },
     {
       "hypothesis_id": "stratified-streaming-scale",
@@ -1445,7 +1445,7 @@
       ],
       "whitepaper_concept": "structured real corpora may contain enough generative spans to beat overhead",
       "best_case_argument": "Telomere becomes interesting only if ordinary or transformed corpora show repeatable selected spans that controls do not reproduce.",
-      "current_evidence": "natural proof status=not_natural_corpus_proven, blocked gates=8, held-out selected spans=0, best forecast=828.0 GiB; reopen manifest status=pre_registered_reopen_manifest_only, first allowed stage=manifest-only, next compute stage=requires_human_approval_and_new_manifest_evidence; external accession status=invalid_manifest_requires_fix, entries=16, manifest_complete=False, compute_allowed=False.",
+      "current_evidence": "natural proof status=not_natural_corpus_proven, blocked gates=8, held-out selected spans=0, best forecast=828.0 GiB; reopen manifest status=pre_registered_reopen_manifest_only, first allowed stage=manifest-only, next compute stage=requires_human_approval_and_new_manifest_evidence; external accession status=valid_manifest_only_ready_for_human_review, entries=16, manifest_complete=True, compute_allowed=False.",
       "falsification_test": "Held-out prefix>=5, exact-hit, selected-span, and negative-delta gates remain null or require hundreds of GiB per expected hit.",
       "promotion_trigger": "NATURAL_CORPUS_PROOF_MATRIX reports qualified natural-corpus proof with ordinary selected spans or negative delta and controls still null.",
       "stop_rule": "Do not claim natural-corpus viability while any natural proof blocker remains.",
@@ -1472,7 +1472,7 @@
         "do not weaken random, shadow, binary, or same-size control requirements",
         "do not edit generated markdown or JSON by hand"
       ],
-      "dispatch_prompt": "Hypothesis natural-corpus-proof-campaign: use dispatching-parallel-agents as the operating model.\nBest case: Telomere becomes interesting only if ordinary or transformed corpora show repeatable selected spans that controls do not reproduce.\nWhitepaper concept: structured real corpora may contain enough generative spans to beat overhead\nCurrent evidence: natural proof status=not_natural_corpus_proven, blocked gates=8, held-out selected spans=0, best forecast=828.0 GiB; reopen manifest status=pre_registered_reopen_manifest_only, first allowed stage=manifest-only, next compute stage=requires_human_approval_and_new_manifest_evidence; external accession status=invalid_manifest_requires_fix, entries=16, manifest_complete=False, compute_allowed=False.\nScope: No Seed Search, not a compression claim, not natural-corpus proof, and not production proof.\nFalsification test: Held-out prefix>=5, exact-hit, selected-span, and negative-delta gates remain null or require hundreds of GiB per expected hit.\nPromotion trigger: NATURAL_CORPUS_PROOF_MATRIX reports qualified natural-corpus proof with ordinary selected spans or negative delta and controls still null.\nStop rule: Do not claim natural-corpus viability while any natural proof blocker remains.\nSource artifacts: docs/NATURAL_CORPUS_PROOF_MATRIX.md, docs/NATURAL_CORPUS_REOPEN_MANIFEST.md, docs/EXTERNAL_CORPUS_ACCESSION.md, docs/RESEARCH_SCORECARD.md, docs/SEARCH_FRONTIER_GATE.md.\nforbidden_actions: No Seed Search: do not start new depth-3, depth-4, or long-span sweeps; do not claim natural-corpus compression is proven; do not claim production readiness; do not promote .tlmr v2, transform metadata, or dictionary presets to stable format support; do not weaken random, shadow, binary, or same-size control requirements; do not edit generated markdown or JSON by hand.\noutput_contract: findings first with source artifacts and generated status; state whether the falsification test currently fails, passes, or is not yet runnable; state the exact promotion trigger that would reopen more work; list any proposed artifact, check command, and compute budget; preserve No Seed Search and not production proof language unless generated gates change.\nReturn a bounded findings-first design or audit; do not launch broad compute."
+      "dispatch_prompt": "Hypothesis natural-corpus-proof-campaign: use dispatching-parallel-agents as the operating model.\nBest case: Telomere becomes interesting only if ordinary or transformed corpora show repeatable selected spans that controls do not reproduce.\nWhitepaper concept: structured real corpora may contain enough generative spans to beat overhead\nCurrent evidence: natural proof status=not_natural_corpus_proven, blocked gates=8, held-out selected spans=0, best forecast=828.0 GiB; reopen manifest status=pre_registered_reopen_manifest_only, first allowed stage=manifest-only, next compute stage=requires_human_approval_and_new_manifest_evidence; external accession status=valid_manifest_only_ready_for_human_review, entries=16, manifest_complete=True, compute_allowed=False.\nScope: No Seed Search, not a compression claim, not natural-corpus proof, and not production proof.\nFalsification test: Held-out prefix>=5, exact-hit, selected-span, and negative-delta gates remain null or require hundreds of GiB per expected hit.\nPromotion trigger: NATURAL_CORPUS_PROOF_MATRIX reports qualified natural-corpus proof with ordinary selected spans or negative delta and controls still null.\nStop rule: Do not claim natural-corpus viability while any natural proof blocker remains.\nSource artifacts: docs/NATURAL_CORPUS_PROOF_MATRIX.md, docs/NATURAL_CORPUS_REOPEN_MANIFEST.md, docs/EXTERNAL_CORPUS_ACCESSION.md, docs/RESEARCH_SCORECARD.md, docs/SEARCH_FRONTIER_GATE.md.\nforbidden_actions: No Seed Search: do not start new depth-3, depth-4, or long-span sweeps; do not claim natural-corpus compression is proven; do not claim production readiness; do not promote .tlmr v2, transform metadata, or dictionary presets to stable format support; do not weaken random, shadow, binary, or same-size control requirements; do not edit generated markdown or JSON by hand.\noutput_contract: findings first with source artifacts and generated status; state whether the falsification test currently fails, passes, or is not yet runnable; state the exact promotion trigger that would reopen more work; list any proposed artifact, check command, and compute budget; preserve No Seed Search and not production proof language unless generated gates change.\nReturn a bounded findings-first design or audit; do not launch broad compute."
     },
     {
       "hypothesis_id": "production-release-proof",

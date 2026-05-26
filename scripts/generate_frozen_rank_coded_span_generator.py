@@ -187,12 +187,12 @@ def build_report() -> dict[str, Any]:
             "design_id": DESIGN_ID,
             "rank": 1,
             "mechanism_family": "byte-to-seed-generator",
-            "status": "blocked_waiting_for_external_corpus_accession",
+            "status": "blocked_waiting_for_human_review",
             "core_idea": (
                 "Seed bytes index a frozen decoder-public rank table trained only from "
                 "external provenance before any held-out replay."
             ),
-            "blocked_by": ["external-corpus-accession", "control-separation"],
+            "blocked_by": ["human-review", "control-separation-before-replay"],
             "promotion_trigger": (
                 "At least three unrelated ordinary held-out groups produce selected "
                 "exact spans and full-stream negative rows after metadata while every "
@@ -249,7 +249,7 @@ def build_report() -> dict[str, Any]:
         "stop_rules": STOP_RULES,
         "golden_vectors": golden_vectors(),
         "summary": {
-            "contract_status": "blocked_waiting_for_external_corpus_accession",
+            "contract_status": "blocked_waiting_for_human_review",
             "top_design_id": top_design,
             "golden_vector_count": len(SPEC_GOLDEN_ENTRIES),
             "external_manifest_ready": external_manifest_ready,
@@ -268,13 +268,13 @@ def build_report() -> dict[str, Any]:
                 "claim; not natural-corpus proof; not `.tlmr` format support."
             ),
             "next_allowed_action": (
-                "add externally sourced rank-table accession entries with paired controls, "
-                "then request human review before any replay"
+                "request human review of the frozen-rank accession/control contract "
+                "before any replay"
             ),
             "conclusion": (
                 "The rank-coded lane now has a frozen contract and golden vectors, but "
-                "it remains blocked because the external accession manifest is not ready "
-                "and no replay is authorized."
+                "it remains blocked until human review authorizes replay. No compute, "
+                "seed search, or compression claim is authorized by this artifact."
             ),
         },
     }
@@ -421,8 +421,10 @@ def check_report() -> None:
         raise SystemExit("frozen rank contract cannot promote from a manifest-only artifact")
     if data["compute_allowed"] or data["replay_allowed"]:
         raise SystemExit("frozen rank contract cannot allow compute or replay")
-    if data["external_manifest_ready"]:
-        raise SystemExit("frozen rank contract must be reviewed before external-ready promotion")
+    if not data["external_manifest_ready"]:
+        raise SystemExit("frozen rank contract requires a validated external manifest")
+    if data["external_accession_status"] != "valid_manifest_only_ready_for_human_review":
+        raise SystemExit("frozen rank contract must stop at human-review-ready status")
     if data["natural_corpus_proven"]:
         raise SystemExit("frozen rank contract cannot claim natural-corpus proof")
     if data["broad_depth_search_allowed"]:

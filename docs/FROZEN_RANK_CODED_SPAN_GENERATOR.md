@@ -5,28 +5,28 @@ This is a No Seed Search manifest/spec/golden-vector artifact. It launches no ag
 
 ## Summary
 
-- Contract status: `blocked_waiting_for_external_corpus_accession`
+- Contract status: `blocked_waiting_for_human_review`
 - Top design: `frozen-rank-coded-span-generator`
 - Golden vectors: `4`
-- External accession status: `invalid_manifest_requires_fix`
-- External manifest ready: `False`
-- Paired manifest ready: `False`
+- External accession status: `valid_manifest_only_ready_for_human_review`
+- External manifest ready: `True`
+- Paired manifest ready: `True`
 - Public preset rerun status: `exact_rerun_blocks_public_preset_promotion`
 - Broad depth search allowed: `False`
 - Compute allowed: `False`
 - Replay allowed: `False`
 - Promotion ready: `False`
 
-The rank-coded lane now has a frozen contract and golden vectors, but it remains blocked because the external accession manifest is not ready and no replay is authorized.
+The rank-coded lane now has a frozen contract and golden vectors, but it remains blocked until human review authorizes replay. No compute, seed search, or compression claim is authorized by this artifact.
 
 ## Design
 
 - Design id: `frozen-rank-coded-span-generator`
 - Rank: `1`
 - Mechanism family: `byte-to-seed-generator`
-- Status: `blocked_waiting_for_external_corpus_accession`
+- Status: `blocked_waiting_for_human_review`
 - Core idea: Seed bytes index a frozen decoder-public rank table trained only from external provenance before any held-out replay.
-- Blocked by: `external-corpus-accession`, `control-separation`
+- Blocked by: `human-review`, `control-separation-before-replay`
 - Promotion trigger: At least three unrelated ordinary held-out groups produce selected exact spans and full-stream negative rows after metadata while every paired, same-size random, wrong-family, binary, high-entropy, and generic-dictionary control stays non-negative.
 - Stop rule: Stop if any paired, random, binary, high-entropy, or wrong-family control goes negative.
 
@@ -57,10 +57,10 @@ The rank-coded lane now has a frozen contract and golden vectors, but it remains
 
 ## Accession Gate
 
-- External accession status: `invalid_manifest_requires_fix`
-- External manifest complete: `False`
-- Paired manifest ready: `False`
-- Validation errors: `32`
+- External accession status: `valid_manifest_only_ready_for_human_review`
+- External manifest complete: `True`
+- Paired manifest ready: `True`
+- Validation errors: `0`
 - Compute allowed: `False`
 - Required fields: `entry_id`, `family_id`, `role`, `control_kind`, `independence_group`, `paired_with`, `path`, `license`, `provenance`, `source_uri`, `retrieved_at`, `sha256`, `bytes`
 
@@ -108,8 +108,8 @@ The rank-coded lane now has a frozen contract and golden vectors, but it remains
 
 The JSON `source_hashes` map pins this contract to exact upstream evidence and generator files below.
 - `next_mechanism_designs_sha256`: `1a718a3bc432543245012b9e010777d91a5cfcb2a1ff1c158d7b718d0c566d0e`
-- `external_corpus_accession_sha256`: `0e39cb8bc139498b28eae71e27c84e5a747253a9156c4faf1a236b343787c0ef`
+- `external_corpus_accession_sha256`: `a6e6e1019a5febe6420fac32c8a1a8e58798b2f9cea3cf8c95b27bb87d91abd6`
 - `external_manifest_sha256`: `183cf3c0644c228ed54a3e5caaf424decb2bec6efc189a102d3214b02b866430`
 - `public_preset_control_rerun_sha256`: `c05c8c72fef07a955b7ca9eb1f610697c5fcd10c3721589a7cbd47df381e5c3b`
 - `search_frontier_gate_sha256`: `aab9351032df10d7998c3a0e04306bb9d0f344b5d0556cc721592c7b8793737f`
-- `frozen_rank_generator_sha256`: `0b1e4ab42365c1c9e347c8694d20fce4e13fb9608d77892154414c035316a2a4`
+- `frozen_rank_generator_sha256`: `025f97d36739ac0d58008eb90974679f3daf88dbc549014e9ccb08bbf0c8548a`

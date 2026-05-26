@@ -5,23 +5,23 @@ This is a No Seed Search accession validator. It launches no agents, performs no
 
 ## Summary
 
-- Accession status: `invalid_manifest_requires_fix`
+- Accession status: `valid_manifest_only_ready_for_human_review`
 - Source manifest status: `complete_manifest_only`
 - Entries: `16`
 - Ordinary entries: `4`
 - Control entries: `12`
 - Independence groups: `4`
 - Families: `4`
-- Validation errors: `32`
-- Paired manifest ready: `False`
-- Manifest complete: `False`
+- Validation errors: `0`
+- Paired manifest ready: `True`
+- Manifest complete: `True`
 - Frozen rank source candidate status: `candidate_matrix_only`
 - Frozen rank required manifest rows before replay: `16`
 - Frozen rank source candidates ready for replay: `0`
 - Compute allowed: `False`
 - First allowed stage: `manifest-only`
 - Broad depth search allowed: `False`
-- Next allowed action: `fix accession validation errors`
+- Next allowed action: `human review may decide whether prefix-audit stage should be proposed`
 
 The current external corpus manifest has validated manifest-only entries. This is accession evidence only: it records provenance, hashes, independence groups, and controls, but it does not run prefix audit, seed search, compression, or natural-corpus promotion.
 
@@ -35,40 +35,7 @@ The current external corpus manifest has validated manifest-only entries. This i
 
 ## Validation Errors
 
-| entry | field | error |
-| --- | --- | --- |
-| `source-code-rust-option-ordinary-001` | `bytes` | declared byte count does not match file |
-| `source-code-rust-option-ordinary-001` | `sha256` | declared sha256 does not match file |
-| `source-code-rust-option-shadow-001` | `bytes` | declared byte count does not match file |
-| `source-code-rust-option-shadow-001` | `sha256` | declared sha256 does not match file |
-| `source-code-rust-option-random-001` | `bytes` | declared byte count does not match file |
-| `source-code-rust-option-random-001` | `sha256` | declared sha256 does not match file |
-| `source-code-rust-option-wrong-family-001` | `bytes` | declared byte count does not match file |
-| `source-code-rust-option-wrong-family-001` | `sha256` | declared sha256 does not match file |
-| `standards-protocol-http-ordinary-001` | `bytes` | declared byte count does not match file |
-| `standards-protocol-http-ordinary-001` | `sha256` | declared sha256 does not match file |
-| `standards-protocol-http-shadow-001` | `bytes` | declared byte count does not match file |
-| `standards-protocol-http-shadow-001` | `sha256` | declared sha256 does not match file |
-| `standards-protocol-http-random-001` | `bytes` | declared byte count does not match file |
-| `standards-protocol-http-random-001` | `sha256` | declared sha256 does not match file |
-| `standards-protocol-http-wrong-family-001` | `bytes` | declared byte count does not match file |
-| `standards-protocol-http-wrong-family-001` | `sha256` | declared sha256 does not match file |
-| `schema-config-schemars-ordinary-001` | `bytes` | declared byte count does not match file |
-| `schema-config-schemars-ordinary-001` | `sha256` | declared sha256 does not match file |
-| `schema-config-schemars-shadow-001` | `bytes` | declared byte count does not match file |
-| `schema-config-schemars-shadow-001` | `sha256` | declared sha256 does not match file |
-| `schema-config-schemars-random-001` | `bytes` | declared byte count does not match file |
-| `schema-config-schemars-random-001` | `sha256` | declared sha256 does not match file |
-| `schema-config-schemars-wrong-family-001` | `bytes` | declared byte count does not match file |
-| `schema-config-schemars-wrong-family-001` | `sha256` | declared sha256 does not match file |
-| `records-ledgers-csv-smallpop-ordinary-001` | `bytes` | declared byte count does not match file |
-| `records-ledgers-csv-smallpop-ordinary-001` | `sha256` | declared sha256 does not match file |
-| `records-ledgers-csv-smallpop-shadow-001` | `bytes` | declared byte count does not match file |
-| `records-ledgers-csv-smallpop-shadow-001` | `sha256` | declared sha256 does not match file |
-| `records-ledgers-csv-smallpop-random-001` | `bytes` | declared byte count does not match file |
-| `records-ledgers-csv-smallpop-random-001` | `sha256` | declared sha256 does not match file |
-| `records-ledgers-csv-smallpop-wrong-family-001` | `bytes` | declared byte count does not match file |
-| `records-ledgers-csv-smallpop-wrong-family-001` | `sha256` | declared sha256 does not match file |
+- None.
 
 ## Manifest Entries
 

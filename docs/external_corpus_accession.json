@@ -1,6 +1,6 @@
 {
   "generated_by": "scripts/generate_external_corpus_accession.py",
-  "generated_at": "2026-05-26T09:00:37.568200+00:00",
+  "generated_at": "2026-05-26T10:43:30.824633+00:00",
   "format_version": 1,
   "scope": {
     "kind": "external natural-corpus accession ledger",
@@ -52,16 +52,16 @@
     "pairing_rule": "Every ordinary row needs at least one paired-shadow-control, one wrong-family-control, and one binary or random null control before any prefix audit."
   },
   "summary": {
-    "accession_status": "invalid_manifest_requires_fix",
+    "accession_status": "valid_manifest_only_ready_for_human_review",
     "source_manifest_status": "complete_manifest_only",
     "entry_count": 16,
     "ordinary_entry_count": 4,
     "control_entry_count": 12,
     "independence_group_count": 4,
     "family_count": 4,
-    "validation_error_count": 32,
-    "paired_manifest_ready": false,
-    "manifest_complete": false,
+    "validation_error_count": 0,
+    "paired_manifest_ready": true,
+    "manifest_complete": true,
     "frozen_rank_source_candidate_status": "candidate_matrix_only",
     "frozen_rank_required_manifest_rows_before_replay": 16,
     "frozen_rank_source_candidates_ready_for_replay": 0,
@@ -70,7 +70,7 @@
     "first_allowed_stage": "manifest-only",
     "reopen_first_allowed_stage": "manifest-only",
     "broad_depth_search_allowed": false,
-    "next_allowed_action": "fix accession validation errors",
+    "next_allowed_action": "human review may decide whether prefix-audit stage should be proposed",
     "claim_boundary": "No Seed Search; accession validation only; not a compression claim; not natural-corpus proof; does not override SEARCH_FRONTIER_GATE."
   },
   "role_counts": {
@@ -89,168 +89,7 @@
     "random-control": 4,
     "wrong-family-control": 4
   },
-  "validation_errors": [
-    {
-      "entry_id": "source-code-rust-option-ordinary-001",
-      "field": "bytes",
-      "error": "declared byte count does not match file"
-    },
-    {
-      "entry_id": "source-code-rust-option-ordinary-001",
-      "field": "sha256",
-      "error": "declared sha256 does not match file"
-    },
-    {
-      "entry_id": "source-code-rust-option-shadow-001",
-      "field": "bytes",
-      "error": "declared byte count does not match file"
-    },
-    {
-      "entry_id": "source-code-rust-option-shadow-001",
-      "field": "sha256",
-      "error": "declared sha256 does not match file"
-    },
-    {
-      "entry_id": "source-code-rust-option-random-001",
-      "field": "bytes",
-      "error": "declared byte count does not match file"
-    },
-    {
-      "entry_id": "source-code-rust-option-random-001",
-      "field": "sha256",
-      "error": "declared sha256 does not match file"
-    },
-    {
-      "entry_id": "source-code-rust-option-wrong-family-001",
-      "field": "bytes",
-      "error": "declared byte count does not match file"
-    },
-    {
-      "entry_id": "source-code-rust-option-wrong-family-001",
-      "field": "sha256",
-      "error": "declared sha256 does not match file"
-    },
-    {
-      "entry_id": "standards-protocol-http-ordinary-001",
-      "field": "bytes",
-      "error": "declared byte count does not match file"
-    },
-    {
-      "entry_id": "standards-protocol-http-ordinary-001",
-      "field": "sha256",
-      "error": "declared sha256 does not match file"
-    },
-    {
-      "entry_id": "standards-protocol-http-shadow-001",
-      "field": "bytes",
-      "error": "declared byte count does not match file"
-    },
-    {
-      "entry_id": "standards-protocol-http-shadow-001",
-      "field": "sha256",
-      "error": "declared sha256 does not match file"
-    },
-    {
-      "entry_id": "standards-protocol-http-random-001",
-      "field": "bytes",
-      "error": "declared byte count does not match file"
-    },
-    {
-      "entry_id": "standards-protocol-http-random-001",
-      "field": "sha256",
-      "error": "declared sha256 does not match file"
-    },
-    {
-      "entry_id": "standards-protocol-http-wrong-family-001",
-      "field": "bytes",
-      "error": "declared byte count does not match file"
-    },
-    {
-      "entry_id": "standards-protocol-http-wrong-family-001",
-      "field": "sha256",
-      "error": "declared sha256 does not match file"
-    },
-    {
-      "entry_id": "schema-config-schemars-ordinary-001",
-      "field": "bytes",
-      "error": "declared byte count does not match file"
-    },
-    {
-      "entry_id": "schema-config-schemars-ordinary-001",
-      "field": "sha256",
-      "error": "declared sha256 does not match file"
-    },
-    {
-      "entry_id": "schema-config-schemars-shadow-001",
-      "field": "bytes",
-      "error": "declared byte count does not match file"
-    },
-    {
-      "entry_id": "schema-config-schemars-shadow-001",
-      "field": "sha256",
-      "error": "declared sha256 does not match file"
-    },
-    {
-      "entry_id": "schema-config-schemars-random-001",
-      "field": "bytes",
-      "error": "declared byte count does not match file"
-    },
-    {
-      "entry_id": "schema-config-schemars-random-001",
-      "field": "sha256",
-      "error": "declared sha256 does not match file"
-    },
-    {
-      "entry_id": "schema-config-schemars-wrong-family-001",
-      "field": "bytes",
-      "error": "declared byte count does not match file"
-    },
-    {
-      "entry_id": "schema-config-schemars-wrong-family-001",
-      "field": "sha256",
-      "error": "declared sha256 does not match file"
-    },
-    {
-      "entry_id": "records-ledgers-csv-smallpop-ordinary-001",
-      "field": "bytes",
-      "error": "declared byte count does not match file"
-    },
-    {
-      "entry_id": "records-ledgers-csv-smallpop-ordinary-001",
-      "field": "sha256",
-      "error": "declared sha256 does not match file"
-    },
-    {
-      "entry_id": "records-ledgers-csv-smallpop-shadow-001",
-      "field": "bytes",
-      "error": "declared byte count does not match file"
-    },
-    {
-      "entry_id": "records-ledgers-csv-smallpop-shadow-001",
-      "field": "sha256",
-      "error": "declared sha256 does not match file"
-    },
-    {
-      "entry_id": "records-ledgers-csv-smallpop-random-001",
-      "field": "bytes",
-      "error": "declared byte count does not match file"
-    },
-    {
-      "entry_id": "records-ledgers-csv-smallpop-random-001",
-      "field": "sha256",
-      "error": "declared sha256 does not match file"
-    },
-    {
-      "entry_id": "records-ledgers-csv-smallpop-wrong-family-001",
-      "field": "bytes",
-      "error": "declared byte count does not match file"
-    },
-    {
-      "entry_id": "records-ledgers-csv-smallpop-wrong-family-001",
-      "field": "sha256",
-      "error": "declared sha256 does not match file"
-    }
-  ],
+  "validation_errors": [],
   "entries": [
     {
       "entry_id": "source-code-rust-option-ordinary-001",

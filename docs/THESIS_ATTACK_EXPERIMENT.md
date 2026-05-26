@@ -71,42 +71,42 @@ This records a focused mechanism experiment, not a production or natural-corpus 
 | `structured-json` | `public-preset-framed-out-of-budget-codeword-v0` | 6814 | 12313 | 0 | 0 | 12404 | 12354 | 50 | 5540 | 560 |
 | `structured-json` | `public-preset-selective-out-of-budget-codeword-v0` | 6814 | 7697 | 0 | 0 | 7788 | 7737 | 51 | 923 | 160 |
 | `structured-json` | `public-preset-selective-native-v0` | 6814 | 6814 | 160 | 640 | 7812 | 6139 | 1673 | -675 | 160 |
-| `external-json-schema` | `identity` | 1452 | 1452 | 0 | 0 | 1535 | 1484 | 51 | 32 | 0 |
-| `external-json-schema` | `xor-delta1` | 1452 | 1452 | 0 | 0 | 1536 | 1485 | 51 | 33 | 0 |
-| `external-json-schema` | `public-preset-framed-v0` | 1452 | 1729 | 25 | 100 | 1820 | 1528 | 292 | 76 | 25 |
-| `external-json-schema` | `public-preset-selective-v0` | 1452 | 1483 | 4 | 16 | 1574 | 1486 | 88 | 34 | 4 |
-| `external-json-schema` | `public-preset-framed-random-codeword-v0` | 1452 | 1729 | 0 | 0 | 1820 | 1769 | 51 | 317 | 25 |
-| `external-json-schema` | `public-preset-selective-random-codeword-v0` | 1452 | 1483 | 0 | 0 | 1574 | 1523 | 51 | 71 | 4 |
-| `external-json-schema` | `public-preset-framed-out-of-budget-codeword-v0` | 1452 | 1729 | 0 | 0 | 1820 | 1769 | 51 | 317 | 25 |
-| `external-json-schema` | `public-preset-selective-out-of-budget-codeword-v0` | 1452 | 1483 | 0 | 0 | 1574 | 1523 | 51 | 71 | 4 |
-| `external-json-schema` | `public-preset-selective-native-v0` | 1452 | 1452 | 4 | 16 | 1598 | 1491 | 107 | 39 | 4 |
-| `external-csv` | `identity` | 390 | 390 | 0 | 0 | 473 | 421 | 52 | 31 | 0 |
-| `external-csv` | `xor-delta1` | 390 | 390 | 0 | 0 | 474 | 422 | 52 | 32 | 0 |
-| `external-csv` | `public-preset-framed-v0` | 390 | 443 | 10 | 40 | 534 | 381 | 153 | -9 | 10 |
-| `external-csv` | `public-preset-selective-v0` | 390 | 443 | 10 | 40 | 534 | 381 | 153 | -9 | 10 |
-| `external-csv` | `public-preset-framed-random-codeword-v0` | 390 | 443 | 0 | 0 | 534 | 482 | 52 | 92 | 10 |
-| `external-csv` | `public-preset-selective-random-codeword-v0` | 390 | 443 | 0 | 0 | 534 | 482 | 52 | 92 | 10 |
-| `external-csv` | `public-preset-framed-out-of-budget-codeword-v0` | 390 | 443 | 0 | 0 | 534 | 482 | 52 | 92 | 10 |
-| `external-csv` | `public-preset-selective-out-of-budget-codeword-v0` | 390 | 443 | 0 | 0 | 534 | 482 | 52 | 92 | 10 |
-| `external-csv` | `public-preset-selective-native-v0` | 390 | 390 | 10 | 40 | 558 | 383 | 175 | -7 | 10 |
-| `external-http` | `identity` | 566 | 566 | 0 | 0 | 649 | 597 | 52 | 31 | 0 |
-| `external-http` | `xor-delta1` | 566 | 566 | 0 | 0 | 650 | 598 | 52 | 32 | 0 |
-| `external-http` | `public-preset-framed-v0` | 566 | 630 | 8 | 32 | 721 | 596 | 125 | 30 | 8 |
-| `external-http` | `public-preset-selective-v0` | 566 | 584 | 4 | 16 | 675 | 586 | 89 | 20 | 4 |
-| `external-http` | `public-preset-framed-random-codeword-v0` | 566 | 630 | 0 | 0 | 721 | 669 | 52 | 103 | 8 |
-| `external-http` | `public-preset-selective-random-codeword-v0` | 566 | 584 | 0 | 0 | 675 | 623 | 52 | 57 | 4 |
-| `external-http` | `public-preset-framed-out-of-budget-codeword-v0` | 566 | 630 | 0 | 0 | 721 | 669 | 52 | 103 | 8 |
-| `external-http` | `public-preset-selective-out-of-budget-codeword-v0` | 566 | 584 | 0 | 0 | 675 | 623 | 52 | 57 | 4 |
-| `external-http` | `public-preset-selective-native-v0` | 566 | 566 | 4 | 16 | 699 | 588 | 111 | 22 | 4 |
-| `external-source` | `identity` | 1409 | 1409 | 0 | 0 | 1492 | 1441 | 51 | 32 | 0 |
-| `external-source` | `xor-delta1` | 1409 | 1409 | 0 | 0 | 1493 | 1442 | 51 | 33 | 0 |
-| `external-source` | `public-preset-framed-v0` | 1409 | 1634 | 15 | 60 | 1725 | 1537 | 188 | 128 | 15 |
-| `external-source` | `public-preset-selective-v0` | 1409 | 1412 | 0 | 0 | 1503 | 1452 | 51 | 43 | 0 |
-| `external-source` | `public-preset-framed-random-codeword-v0` | 1409 | 1634 | 0 | 0 | 1725 | 1674 | 51 | 265 | 15 |
-| `external-source` | `public-preset-selective-random-codeword-v0` | 1409 | 1412 | 0 | 0 | 1503 | 1452 | 51 | 43 | 0 |
-| `external-source` | `public-preset-framed-out-of-budget-codeword-v0` | 1409 | 1634 | 0 | 0 | 1725 | 1674 | 51 | 265 | 15 |
-| `external-source` | `public-preset-selective-out-of-budget-codeword-v0` | 1409 | 1412 | 0 | 0 | 1503 | 1452 | 51 | 43 | 0 |
-| `external-source` | `public-preset-selective-native-v0` | 1409 | 1409 | 0 | 0 | 1527 | 1455 | 72 | 46 | 0 |
+| `external-json-schema` | `identity` | 1382 | 1382 | 0 | 0 | 1465 | 1414 | 51 | 32 | 0 |
+| `external-json-schema` | `xor-delta1` | 1382 | 1382 | 0 | 0 | 1466 | 1415 | 51 | 33 | 0 |
+| `external-json-schema` | `public-preset-framed-v0` | 1382 | 1659 | 25 | 100 | 1750 | 1458 | 292 | 76 | 25 |
+| `external-json-schema` | `public-preset-selective-v0` | 1382 | 1413 | 4 | 16 | 1504 | 1416 | 88 | 34 | 4 |
+| `external-json-schema` | `public-preset-framed-random-codeword-v0` | 1382 | 1659 | 0 | 0 | 1750 | 1699 | 51 | 317 | 25 |
+| `external-json-schema` | `public-preset-selective-random-codeword-v0` | 1382 | 1413 | 0 | 0 | 1504 | 1453 | 51 | 71 | 4 |
+| `external-json-schema` | `public-preset-framed-out-of-budget-codeword-v0` | 1382 | 1659 | 0 | 0 | 1750 | 1699 | 51 | 317 | 25 |
+| `external-json-schema` | `public-preset-selective-out-of-budget-codeword-v0` | 1382 | 1413 | 0 | 0 | 1504 | 1453 | 51 | 71 | 4 |
+| `external-json-schema` | `public-preset-selective-native-v0` | 1382 | 1382 | 4 | 16 | 1528 | 1421 | 107 | 39 | 4 |
+| `external-csv` | `identity` | 379 | 379 | 0 | 0 | 462 | 410 | 52 | 31 | 0 |
+| `external-csv` | `xor-delta1` | 379 | 379 | 0 | 0 | 463 | 411 | 52 | 32 | 0 |
+| `external-csv` | `public-preset-framed-v0` | 379 | 418 | 11 | 44 | 509 | 345 | 164 | -34 | 11 |
+| `external-csv` | `public-preset-selective-v0` | 379 | 418 | 11 | 44 | 509 | 345 | 164 | -34 | 11 |
+| `external-csv` | `public-preset-framed-random-codeword-v0` | 379 | 418 | 0 | 0 | 509 | 457 | 52 | 78 | 11 |
+| `external-csv` | `public-preset-selective-random-codeword-v0` | 379 | 418 | 0 | 0 | 509 | 457 | 52 | 78 | 11 |
+| `external-csv` | `public-preset-framed-out-of-budget-codeword-v0` | 379 | 418 | 0 | 0 | 509 | 457 | 52 | 78 | 11 |
+| `external-csv` | `public-preset-selective-out-of-budget-codeword-v0` | 379 | 418 | 0 | 0 | 509 | 457 | 52 | 78 | 11 |
+| `external-csv` | `public-preset-selective-native-v0` | 379 | 379 | 11 | 44 | 533 | 347 | 186 | -32 | 11 |
+| `external-http` | `identity` | 537 | 537 | 0 | 0 | 620 | 568 | 52 | 31 | 0 |
+| `external-http` | `xor-delta1` | 537 | 537 | 0 | 0 | 621 | 569 | 52 | 32 | 0 |
+| `external-http` | `public-preset-framed-v0` | 537 | 601 | 8 | 32 | 692 | 565 | 127 | 28 | 8 |
+| `external-http` | `public-preset-selective-v0` | 537 | 555 | 4 | 16 | 646 | 557 | 89 | 20 | 4 |
+| `external-http` | `public-preset-framed-random-codeword-v0` | 537 | 601 | 0 | 0 | 692 | 640 | 52 | 103 | 8 |
+| `external-http` | `public-preset-selective-random-codeword-v0` | 537 | 555 | 0 | 0 | 646 | 594 | 52 | 57 | 4 |
+| `external-http` | `public-preset-framed-out-of-budget-codeword-v0` | 537 | 601 | 0 | 0 | 692 | 640 | 52 | 103 | 8 |
+| `external-http` | `public-preset-selective-out-of-budget-codeword-v0` | 537 | 555 | 0 | 0 | 646 | 594 | 52 | 57 | 4 |
+| `external-http` | `public-preset-selective-native-v0` | 537 | 537 | 4 | 16 | 670 | 559 | 111 | 22 | 4 |
+| `external-source` | `identity` | 1368 | 1368 | 0 | 0 | 1451 | 1400 | 51 | 32 | 0 |
+| `external-source` | `xor-delta1` | 1368 | 1368 | 0 | 0 | 1452 | 1401 | 51 | 33 | 0 |
+| `external-source` | `public-preset-framed-v0` | 1368 | 1593 | 15 | 60 | 1684 | 1496 | 188 | 128 | 15 |
+| `external-source` | `public-preset-selective-v0` | 1368 | 1371 | 0 | 0 | 1462 | 1411 | 51 | 43 | 0 |
+| `external-source` | `public-preset-framed-random-codeword-v0` | 1368 | 1593 | 0 | 0 | 1684 | 1633 | 51 | 265 | 15 |
+| `external-source` | `public-preset-selective-random-codeword-v0` | 1368 | 1371 | 0 | 0 | 1462 | 1411 | 51 | 43 | 0 |
+| `external-source` | `public-preset-framed-out-of-budget-codeword-v0` | 1368 | 1593 | 0 | 0 | 1684 | 1633 | 51 | 265 | 15 |
+| `external-source` | `public-preset-selective-out-of-budget-codeword-v0` | 1368 | 1371 | 0 | 0 | 1462 | 1411 | 51 | 43 | 0 |
+| `external-source` | `public-preset-selective-native-v0` | 1368 | 1368 | 0 | 0 | 1486 | 1414 | 72 | 46 | 0 |
 | `random-null-structured-len` | `identity` | 6814 | 6814 | 0 | 0 | 6897 | 6846 | 51 | 32 | 0 |
 | `random-null-structured-len` | `xor-delta1` | 6814 | 6814 | 0 | 0 | 6898 | 6847 | 51 | 33 | 0 |
 | `random-null-structured-len` | `public-preset-framed-v0` | 6814 | 6817 | 0 | 0 | 6908 | 6857 | 51 | 43 | 0 |
@@ -127,9 +127,9 @@ This records a focused mechanism experiment, not a production or natural-corpus 
 | structured-json | `public-preset-selective-v0` | -678 | 160 | 923 | 923 | -1601 | `True` |
 | external-json-schema | `public-preset-framed-v0` | 76 | 25 | 317 | 317 | -241 | `True` |
 | external-json-schema | `public-preset-selective-v0` | 34 | 4 | 71 | 71 | -37 | `True` |
-| external-csv | `public-preset-framed-v0` | -9 | 10 | 92 | 92 | -101 | `True` |
-| external-csv | `public-preset-selective-v0` | -9 | 10 | 92 | 92 | -101 | `True` |
-| external-http | `public-preset-framed-v0` | 30 | 8 | 103 | 103 | -73 | `True` |
+| external-csv | `public-preset-framed-v0` | -34 | 11 | 78 | 78 | -112 | `True` |
+| external-csv | `public-preset-selective-v0` | -34 | 11 | 78 | 78 | -112 | `True` |
+| external-http | `public-preset-framed-v0` | 28 | 8 | 103 | 103 | -75 | `True` |
 | external-http | `public-preset-selective-v0` | 20 | 4 | 57 | 57 | -37 | `True` |
 | external-source | `public-preset-framed-v0` | 128 | 15 | 265 | 265 | -137 | `True` |
 | external-source | `public-preset-selective-v0` | 43 | 0 | 43 | 43 | 0 | `True` |

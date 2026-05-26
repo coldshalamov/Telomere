@@ -15,7 +15,7 @@ Hypothesis Registry status: bounded, falsifiable, and evidence-pinned.
 - Mechanism closure top blocked lane: `long-span-bundle-gate`
 - Next mechanism designs: `7`
 - Next mechanism top design: `frozen-rank-coded-span-generator`
-- Frozen rank contract status: `blocked_waiting_for_external_corpus_accession`
+- Frozen rank contract status: `blocked_waiting_for_human_review`
 - Frozen rank promotion ready: `False`
 - Frozen rank replay allowed: `False`
 - Frozen rank source candidate status: `candidate_matrix_only`
@@ -25,8 +25,8 @@ Hypothesis Registry status: bounded, falsifiable, and evidence-pinned.
 - Bounded streaming memory gate status: `chunked_target_table_fixture_evidence_no_rss`
 - Bounded streaming target-table preflight: `True`
 - Natural-corpus proven: `False`
-- External accession status: `invalid_manifest_requires_fix`
-- External manifest complete: `False`
+- External accession status: `valid_manifest_only_ready_for_human_review`
+- External manifest complete: `True`
 - External compute allowed: `False`
 - Production proven: `False`
 - Broad depth search allowed: `False`
@@ -111,7 +111,7 @@ Return a bounded findings-first design or audit; do not launch broad compute.
 - Parallel groups: `corpus-transform`, `format-policy`, `meta-research`
 - Whitepaper concept: table lookup from a seed table, but rank-coded and external-provenance first
 - Best-case argument: A decoder-public rank table could make seed bytes name common external spans directly, giving the compressor a non-uniform generative prior without storing per-file raw data or widening raw hash depth.
-- Current evidence: contract status=blocked_waiting_for_external_corpus_accession; golden vectors=4; external manifest ready=False; paired manifest ready=False; compute allowed=False; replay allowed=False; promotion ready=False. source candidate status=candidate_matrix_only; candidate families=4; required manifest rows before replay=16; source candidates ready for manifest=0; source candidates ready for replay=0.
+- Current evidence: contract status=blocked_waiting_for_human_review; golden vectors=4; external manifest ready=True; paired manifest ready=True; compute allowed=False; replay allowed=False; promotion ready=False. source candidate status=candidate_matrix_only; candidate families=4; required manifest rows before replay=16; source candidates ready for manifest=0; source candidates ready for replay=0.
 - Falsification test: The rank table cannot be frozen from external provenance, controls go negative, or held-out gains are no better than same-size random rank tables and flat dictionary baselines.
 - Promotion trigger: An external rank-table manifest is complete, at least three unrelated ordinary held-out groups produce selected exact spans and full-stream negative rows after selector/version metadata, and paired shadow, same-size random, wrong-family, binary, and high-entropy controls stay non-negative.
 - Stop rule: Keep the fixture table out of .tlmr and do not run held-out replay until external accession and paired controls are ready.
@@ -124,7 +124,7 @@ Dispatch prompt:
 Hypothesis frozen-rank-coded-span-generator: use dispatching-parallel-agents as the operating model.
 Best case: A decoder-public rank table could make seed bytes name common external spans directly, giving the compressor a non-uniform generative prior without storing per-file raw data or widening raw hash depth.
 Whitepaper concept: table lookup from a seed table, but rank-coded and external-provenance first
-Current evidence: contract status=blocked_waiting_for_external_corpus_accession; golden vectors=4; external manifest ready=False; paired manifest ready=False; compute allowed=False; replay allowed=False; promotion ready=False. source candidate status=candidate_matrix_only; candidate families=4; required manifest rows before replay=16; source candidates ready for manifest=0; source candidates ready for replay=0.
+Current evidence: contract status=blocked_waiting_for_human_review; golden vectors=4; external manifest ready=True; paired manifest ready=True; compute allowed=False; replay allowed=False; promotion ready=False. source candidate status=candidate_matrix_only; candidate families=4; required manifest rows before replay=16; source candidates ready for manifest=0; source candidates ready for replay=0.
 Scope: No Seed Search, not a compression claim, not natural-corpus proof, and not production proof.
 Falsification test: The rank table cannot be frozen from external provenance, controls go negative, or held-out gains are no better than same-size random rank tables and flat dictionary baselines.
 Promotion trigger: An external rank-table manifest is complete, at least three unrelated ordinary held-out groups produce selected exact spans and full-stream negative rows after selector/version metadata, and paired shadow, same-size random, wrong-family, binary, and high-entropy controls stay non-negative.
@@ -390,7 +390,7 @@ Return a bounded findings-first design or audit; do not launch broad compute.
 - Parallel groups: `corpus-transform`, `meta-research`
 - Whitepaper concept: structured real corpora may contain enough generative spans to beat overhead
 - Best-case argument: Telomere becomes interesting only if ordinary or transformed corpora show repeatable selected spans that controls do not reproduce.
-- Current evidence: natural proof status=not_natural_corpus_proven, blocked gates=8, held-out selected spans=0, best forecast=828.0 GiB; reopen manifest status=pre_registered_reopen_manifest_only, first allowed stage=manifest-only, next compute stage=requires_human_approval_and_new_manifest_evidence; external accession status=invalid_manifest_requires_fix, entries=16, manifest_complete=False, compute_allowed=False.
+- Current evidence: natural proof status=not_natural_corpus_proven, blocked gates=8, held-out selected spans=0, best forecast=828.0 GiB; reopen manifest status=pre_registered_reopen_manifest_only, first allowed stage=manifest-only, next compute stage=requires_human_approval_and_new_manifest_evidence; external accession status=valid_manifest_only_ready_for_human_review, entries=16, manifest_complete=True, compute_allowed=False.
 - Falsification test: Held-out prefix>=5, exact-hit, selected-span, and negative-delta gates remain null or require hundreds of GiB per expected hit.
 - Promotion trigger: NATURAL_CORPUS_PROOF_MATRIX reports qualified natural-corpus proof with ordinary selected spans or negative delta and controls still null.
 - Stop rule: Do not claim natural-corpus viability while any natural proof blocker remains.
@@ -403,7 +403,7 @@ Dispatch prompt:
 Hypothesis natural-corpus-proof-campaign: use dispatching-parallel-agents as the operating model.
 Best case: Telomere becomes interesting only if ordinary or transformed corpora show repeatable selected spans that controls do not reproduce.
 Whitepaper concept: structured real corpora may contain enough generative spans to beat overhead
-Current evidence: natural proof status=not_natural_corpus_proven, blocked gates=8, held-out selected spans=0, best forecast=828.0 GiB; reopen manifest status=pre_registered_reopen_manifest_only, first allowed stage=manifest-only, next compute stage=requires_human_approval_and_new_manifest_evidence; external accession status=invalid_manifest_requires_fix, entries=16, manifest_complete=False, compute_allowed=False.
+Current evidence: natural proof status=not_natural_corpus_proven, blocked gates=8, held-out selected spans=0, best forecast=828.0 GiB; reopen manifest status=pre_registered_reopen_manifest_only, first allowed stage=manifest-only, next compute stage=requires_human_approval_and_new_manifest_evidence; external accession status=valid_manifest_only_ready_for_human_review, entries=16, manifest_complete=True, compute_allowed=False.
 Scope: No Seed Search, not a compression claim, not natural-corpus proof, and not production proof.
 Falsification test: Held-out prefix>=5, exact-hit, selected-span, and negative-delta gates remain null or require hundreds of GiB per expected hit.
 Promotion trigger: NATURAL_CORPUS_PROOF_MATRIX reports qualified natural-corpus proof with ordinary selected spans or negative delta and controls still null.
@@ -543,7 +543,7 @@ The JSON `source_hashes` map pins this registry to the exact upstream evidence f
 - `mechanism_experiment_ranking_sha256`: `b728136fa7f03d0a355c58737578b3021a140bfc21a87f2aac38b4161ac029b0`
 - `natural_corpus_proof_matrix_sha256`: `291132f7f4905763d1991257e08dd00f1aa3195168c815229af620e1f59fbe6e`
 - `natural_corpus_reopen_manifest_sha256`: `5e8983ba657fb3195d9b5b6d7f5e0e3176f2b66d824c3cd138b404566b13e130`
-- `external_corpus_accession_sha256`: `0e39cb8bc139498b28eae71e27c84e5a747253a9156c4faf1a236b343787c0ef`
+- `external_corpus_accession_sha256`: `a6e6e1019a5febe6420fac32c8a1a8e58798b2f9cea3cf8c95b27bb87d91abd6`
 - `production_proof_matrix_sha256`: `8280106edea09b367c66bf81fec0eb6bb8b617bfbb3d54aedf04290651289566`
 - `goal_completion_audit_sha256`: `bed007c46886ef60ac1e83555a075d6f61fb7007dbfc8cba89bb808cbf50ac83`
 - `research_team_protocol_sha256`: `069f5a1c9bebd4608103d9d63df975e73fd3c16c7e8edc43c7cb59ba69c9504c`
@@ -552,7 +552,7 @@ The JSON `source_hashes` map pins this registry to the exact upstream evidence f
 - `long_span_bundle_gate_sha256`: `290b4a0817f5c0fbd875dd7f010a15113acc0aaa56426226d334e6dcf73cf5b1`
 - `mechanism_closure_audit_sha256`: `8042e91a03faaeec79ba2e1a03e8776ada3a996c951f7bba39753cec95adf694`
 - `next_mechanism_designs_sha256`: `1a718a3bc432543245012b9e010777d91a5cfcb2a1ff1c158d7b718d0c566d0e`
-- `frozen_rank_coded_span_generator_sha256`: `46fc4481d7ed06a7f1eda8ab3e4e89fd3bcdd8264faf59c195d3da12607f300f`
+- `frozen_rank_coded_span_generator_sha256`: `7fa322d7265da019649f183503799d52bc871b96536bc9936376179e77c6ae88`
 - `frozen_rank_source_candidates_sha256`: `13339df263cda76b6259dca7c6f1b8ccb4fd9fae7f72f440ab4220cc4df8b3e2`
 - `superposition_telemetry_sha256`: `9ddabe8ca34b90e6a765536a43012781d969a7153c6261d09bf59a452b725711`
 - `lattice_selection_heldout_probe_sha256`: `d6eab510e018fce194b603130a501fba7679e2e76a7126eea142c244ed8c41b7`
