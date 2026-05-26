@@ -2,9 +2,13 @@
 use std::fs;
 use std::process::Command;
 
+fn telomere_exe() -> String {
+    std::env::var("CARGO_BIN_EXE_telomere").unwrap_or_else(|_| "target/debug/telomere".to_string())
+}
+
 #[test]
 fn cli_roundtrip() {
-    let exe = env!("CARGO_BIN_EXE_telomere");
+    let exe = telomere_exe();
     let dir = std::env::temp_dir();
     let input = dir.join("telomere_input.bin");
     let compressed = dir.join("telomere_compressed.tlmr");
@@ -12,7 +16,7 @@ fn cli_roundtrip() {
 
     fs::write(&input, (0u8..14).collect::<Vec<_>>()).unwrap();
 
-    let compress = Command::new(exe)
+    let compress = Command::new(&exe)
         .args([
             "compress",
             input.to_str().unwrap(),
@@ -23,6 +27,8 @@ fn cli_roundtrip() {
             "1", // fast: 256 seeds per block
             "--passes",
             "1",
+            "--memory-limit",
+            "100%",
         ])
         .output()
         .expect("failed to run compress");
@@ -32,7 +38,7 @@ fn cli_roundtrip() {
         String::from_utf8_lossy(&compress.stderr)
     );
 
-    let decompress = Command::new(exe)
+    let decompress = Command::new(&exe)
         .args([
             "decompress",
             compressed.to_str().unwrap(),

@@ -1,0 +1,205 @@
+{
+  "generated_by": "scripts/generate_lead_depth3_compression_followup.py",
+  "generated_at": "2026-05-26T06:00:38.443016+00:00",
+  "format_version": 1,
+  "artifact_hashes": {
+    "lead_depth3_prefix_probe_sha256": "0c37e5e2fbc02db790a021a56fffa4641ee1c06bc9de13be575f7334eb4729de"
+  },
+  "selected_manifest_sha256": "f1d82a71b7f4e3f228eab59c8aaba9dc15729cb22552607570ebe7c07d56192e",
+  "environment": {
+    "os": "Windows-11-10.0.26200-SP0",
+    "python": "3.14.3",
+    "rustc": "rustc 1.94.1 (e408947bf 2026-03-25)",
+    "cargo": "cargo 1.94.1 (29ea6fb6a 2026-03-24)",
+    "git_commit": "6fd2bd6",
+    "git_dirty": true,
+    "rayon_num_threads": null
+  },
+  "hasher": "sha256",
+  "baseline_depth": 2,
+  "followup_depth": 3,
+  "block_size": 4,
+  "span_len": 8,
+  "span_step": 1,
+  "passes": 1,
+  "memory_limit": "100%",
+  "telemetry_limit": 32,
+  "logical_rows": [
+    {
+      "name": "log-heldout::periodic::add-periodic-p4-97d5e8d5",
+      "family": "validation",
+      "corpus": "log",
+      "role": "held-out",
+      "lead_source": "periodic",
+      "lead_name": "add-periodic-p4-97d5e8d5",
+      "prefix_probe": {
+        "baseline_prefix_ge_4": 20,
+        "depth3_prefix_ge_4": 294,
+        "baseline_prefix_ge_5": 0,
+        "depth3_prefix_ge_5": 1,
+        "prefix_ge_5_delta_vs_depth2": 1,
+        "depth3_exact_hits": 0
+      }
+    },
+    {
+      "name": "log-heldout::composed::identity__add-periodic-p4-97d5e8d5",
+      "family": "validation",
+      "corpus": "log",
+      "role": "held-out",
+      "lead_source": "composed",
+      "lead_name": "identity__add-periodic-p4-97d5e8d5",
+      "prefix_probe": {
+        "baseline_prefix_ge_4": 20,
+        "depth3_prefix_ge_4": 294,
+        "baseline_prefix_ge_5": 0,
+        "depth3_prefix_ge_5": 1,
+        "prefix_ge_5_delta_vs_depth2": 1,
+        "depth3_exact_hits": 0
+      }
+    }
+  ],
+  "results": [
+    {
+      "transformed_sha256": "dcdca1c91e08294e30eefd2b9a86af56e0da9a42a981b720fd6bd7b869335536",
+      "alias_count": 2,
+      "aliases": [
+        {
+          "name": "log-heldout::periodic::add-periodic-p4-97d5e8d5",
+          "family": "validation",
+          "corpus": "log",
+          "role": "held-out",
+          "lead_source": "periodic",
+          "lead_name": "add-periodic-p4-97d5e8d5",
+          "prefix_probe": {
+            "baseline_prefix_ge_4": 20,
+            "depth3_prefix_ge_4": 294,
+            "baseline_prefix_ge_5": 0,
+            "depth3_prefix_ge_5": 1,
+            "prefix_ge_5_delta_vs_depth2": 1,
+            "depth3_exact_hits": 0
+          }
+        },
+        {
+          "name": "log-heldout::composed::identity__add-periodic-p4-97d5e8d5",
+          "family": "validation",
+          "corpus": "log",
+          "role": "held-out",
+          "lead_source": "composed",
+          "lead_name": "identity__add-periodic-p4-97d5e8d5",
+          "prefix_probe": {
+            "baseline_prefix_ge_4": 20,
+            "depth3_prefix_ge_4": 294,
+            "baseline_prefix_ge_5": 0,
+            "depth3_prefix_ge_5": 1,
+            "prefix_ge_5_delta_vs_depth2": 1,
+            "depth3_exact_hits": 0
+          }
+        }
+      ],
+      "representative_name": "log-heldout::periodic::add-periodic-p4-97d5e8d5",
+      "family": "validation",
+      "corpus": "log",
+      "role": "held-out",
+      "lead_source": "periodic",
+      "lead_name": "add-periodic-p4-97d5e8d5",
+      "baseline_depth2": {
+        "row_name": "log-heldout::periodic::add-periodic-p4-97d5e8d5",
+        "family": "validation",
+        "corpus": "log",
+        "role": "held-out",
+        "lead_source": "periodic",
+        "lead_name": "add-periodic-p4-97d5e8d5",
+        "seed_depth": 2,
+        "input_sha256": "dcdca1c91e08294e30eefd2b9a86af56e0da9a42a981b720fd6bd7b869335536",
+        "output_sha256": "5c7381579eb0af128f87077731d2a384ea54f11ad6f331ce53100bd00e6890c3",
+        "input_bytes": 29440,
+        "output_bytes": 29473,
+        "delta_bytes": 33,
+        "delta_pct": 0.11209239130434782,
+        "compress_ms": 228.969,
+        "decompress_ms": 21.157,
+        "memory_limit": "100%",
+        "peak_memory_bytes": 10989568,
+        "peak_memory_mib": 10.48,
+        "telemetry": {
+          "candidate_count": 0,
+          "selected_count": 0,
+          "literal_bytes": 29440,
+          "bundle_count": 0,
+          "container_bytes": 29473,
+          "seed_len_counts": [
+            0,
+            0,
+            0
+          ],
+          "layer_count": 1,
+          "layer_payload_bytes": [
+            29444
+          ],
+          "layer_selected_counts": [
+            0
+          ],
+          "selected_spans": [],
+          "stop_reason": "max_passes"
+        }
+      },
+      "followup_depth3": {
+        "row_name": "log-heldout::periodic::add-periodic-p4-97d5e8d5",
+        "family": "validation",
+        "corpus": "log",
+        "role": "held-out",
+        "lead_source": "periodic",
+        "lead_name": "add-periodic-p4-97d5e8d5",
+        "seed_depth": 3,
+        "input_sha256": "dcdca1c91e08294e30eefd2b9a86af56e0da9a42a981b720fd6bd7b869335536",
+        "output_sha256": "78fb4802472eec65c17a57ba19a8af96cea922652bccd664ed09a6bacfb6154f",
+        "input_bytes": 29440,
+        "output_bytes": 29473,
+        "delta_bytes": 33,
+        "delta_pct": 0.11209239130434782,
+        "compress_ms": 2238.154,
+        "decompress_ms": 21.416,
+        "memory_limit": "100%",
+        "peak_memory_bytes": 10948608,
+        "peak_memory_mib": 10.441,
+        "telemetry": {
+          "candidate_count": 0,
+          "selected_count": 0,
+          "literal_bytes": 29440,
+          "bundle_count": 0,
+          "container_bytes": 29473,
+          "seed_len_counts": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "layer_count": 1,
+          "layer_payload_bytes": [
+            29444
+          ],
+          "layer_selected_counts": [
+            0
+          ],
+          "selected_spans": [],
+          "stop_reason": "max_passes"
+        }
+      },
+      "selected_delta_depth3_vs_depth2": 0,
+      "output_delta_depth3_vs_depth2": 0,
+      "promotion_met": false
+    }
+  ],
+  "summary": {
+    "promoted_prefix_rows": 1,
+    "logical_alias_rows": 2,
+    "depth3_rows_with_selected_spans": 0,
+    "depth3_rows_with_negative_delta": 0,
+    "promotion_met_rows": 0,
+    "total_depth3_selected_spans": 0,
+    "best_case": "log-heldout::periodic::add-periodic-p4-97d5e8d5",
+    "best_case_delta_bytes": 33,
+    "best_case_selected_spans": 0,
+    "conclusion": "Bounded lead depth-3 compression did not turn selected-lead prefix movement into selected spans or negative delta."
+  }
+}

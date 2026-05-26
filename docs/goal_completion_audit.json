@@ -1,0 +1,193 @@
+{
+  "generated_by": "scripts/generate_goal_completion_audit.py",
+  "generated_at": "2026-05-26T06:46:45.397106+00:00",
+  "format_version": 1,
+  "scope": {
+    "kind": "active goal completion audit",
+    "performs_seed_search": false,
+    "makes_compression_claim": false,
+    "marks_goal_complete": false,
+    "overrides_research_decision": false
+  },
+  "objective": "come up with all the ways that you would take this project, as a .01% top researcher in this new field of compression science; build a whole regimen of testing and documenting and explore this idea until you've proven its viability and made the program work; read Telomere Whitepaper V2.md; identify things that could be tweaked and use subagents in brainstorming sessions; organize a dispatching-parallel-agents research team that will test, explore, research, and prove the viability of this idea and program as it runs",
+  "source_hashes": {
+    "whitepaper_sha256": "94a2f9f6a7e190632eb22c184237381f332ce1b651a8d3291e5b20f55ceb9f0a",
+    "architecture_sha256": "1ddd790688cc827f60dc25539bf3d33b5dfab8dee758680169acbc6570ef2c7f",
+    "format_sha256": "802bafc40345c7aa0e7245eafb1ea668e438b5fa5d95ee4768abc8fe1d717b81",
+    "research_program_sha256": "cbe3599df6bf657c69dae9ea5754efba891c1d7cd66731b73aad8132955c70d9",
+    "results_sha256": "225465824966499a8d15a5721e0698c30ae83053d072dbec6c6b21558523f9ba",
+    "viability_sha256": "3fb8c563c8f180263feba11c3b01bd6f7faafb17b7f1d57dee61f2428477a208",
+    "research_scorecard_sha256": "96b2171667f1a9e7d23f13be73dde047e02e8fb9e6cd062b10427aba5e94eef0",
+    "goal_audit_sha256": "f4ad8e687c50812d33252ef9a5e56bca7c64284c0e8846d846e99ac33a0a5607",
+    "research_decision_sha256": "4a51e19374ac30dd3ed06b584c924fe8261b4879080a7b25e1f428c08dbbcaa2",
+    "research_frontier_sha256": "786b92019e7f7e03f0f3da0186812bc1113e61ae931d1df5bd17a0ff45c0465c",
+    "natural_corpus_proof_matrix_sha256": "503aacd1dff3e6a6a50613c496b74e7fcc602a6d107cad6e1a3a8da52e0ed315",
+    "production_proof_matrix_sha256": "dfe1f5fe26a347ebfafaf80763057263de9fb7f20828ab8e4c6b8b12402d6782",
+    "research_team_protocol_sha256": "573d3abd9e7468885b2767945de52ab788e39833327049cf37bd4fc449b70d11",
+    "ui_workflow_smoke_sha256": "ccf263cfc0fac703616c6fee57dba9e244213ae5c43464b57b93ef12f8b667b7"
+  },
+  "summary": {
+    "objective_status": "active_goal_not_complete",
+    "completion_recommendation": "keep_goal_active",
+    "verdict": "research-viable, not production-proven",
+    "overall_status": "architecture-implemented; research-viable; not production-proven",
+    "production_proven": false,
+    "unresolved_evidence_gates": 27,
+    "ready_ungated_experiments": 0,
+    "requirements_total": 10,
+    "requirements_complete": 5,
+    "requirements_proved": 1,
+    "requirements_qualified": 1,
+    "requirements_blocked_by_evidence": 3,
+    "blocking_requirement_ids": [
+      "natural-corpus-viability",
+      "production-proof",
+      "completion-boundary"
+    ],
+    "team_brief_count": 6,
+    "team_ready_dispatch_count": 0,
+    "ui_smoke_promotion_met": true,
+    "natural_corpus_proof_status": "not_natural_corpus_proven",
+    "natural_corpus_proof_blocked_gates": 8,
+    "natural_corpus_heldout_selected_span_rows": 0,
+    "production_proof_status": "not_production_ready",
+    "production_proof_blocked_gates": 3,
+    "production_proof_runtime_required_gates": 1,
+    "completion_boundary": "goal_not_complete_until_natural_corpus_or_supported_production_claims_are_proven"
+  },
+  "requirements": [
+    {
+      "requirement_id": "whitepaper-alignment",
+      "requirement": "Read and anchor the project against Telomere Whitepaper V2.",
+      "status": "complete",
+      "authoritative_evidence": [
+        "docs/Telomere Whitepaper V2.md",
+        "docs/ARCHITECTURE.md",
+        "docs/FORMAT.md",
+        "docs/RESEARCH_PROGRAM.md"
+      ],
+      "finding": "The canonical docs separate implemented architecture, experimental v2/indexed work, and theoretical whitepaper claims.",
+      "remaining_proof_gap": "Keep future whitepaper-derived claims tied to generated evidence and compatibility boundaries."
+    },
+    {
+      "requirement_id": "program-works-as-codec",
+      "requirement": "Make the program work as a deterministic lossless codec and CLI.",
+      "status": "complete",
+      "authoritative_evidence": [
+        "docs/GOAL_AUDIT.md",
+        "src/main.rs",
+        "src/lib.rs",
+        "tests/cli_tests.rs",
+        "tests/indexed_v2.rs",
+        "tests/streaming.rs"
+      ],
+      "finding": "Goal audit status is architecture-implemented; research-viable; not production-proven; current implementation covers v1, experimental v2, indexed/streaming engines, and decoder checks.",
+      "remaining_proof_gap": "Passing gates prove current behavior, not generalized compression viability."
+    },
+    {
+      "requirement_id": "testing-documentation-regimen",
+      "requirement": "Build a whole regimen of testing, documentation, and generated results.",
+      "status": "complete",
+      "authoritative_evidence": [
+        "docs/RELEASE_CHECKLIST.md",
+        "docs/RESULTS.md",
+        "docs/results.json",
+        "scripts/doc_lint.py"
+      ],
+      "finding": "Generated results format 2 and doc lint tie claims to checked artifacts and release gates.",
+      "remaining_proof_gap": "Continue regenerating ledgers whenever new experimental evidence is added."
+    },
+    {
+      "requirement_id": "mechanism-evidence",
+      "requirement": "Prove the mechanism can produce negative delta under controlled conditions.",
+      "status": "proved",
+      "authoritative_evidence": [
+        "docs/RESULTS.md",
+        "docs/VIABILITY.md",
+        "tests/planted_corpus.rs",
+        "tests/fixtures/planted_sha256_arity2.hex"
+      ],
+      "finding": "Viability ledger records planted short-seed and planted-span negative delta evidence.",
+      "remaining_proof_gap": "Planted data proves mechanism, not prevalence in natural corpora."
+    },
+    {
+      "requirement_id": "frontier-exploration",
+      "requirement": "Explore tweaks and frontiers like transforms, depth, sidecars, GPU, and recursion.",
+      "status": "qualified",
+      "authoritative_evidence": [
+        "docs/RESEARCH_FRONTIER.md",
+        "docs/EXPERIMENT_QUEUE.md",
+        "docs/SEARCH_FRONTIER_GATE.md",
+        "docs/LONG_SPAN_BUNDLE_GATE.md"
+      ],
+      "finding": "Frontier status is no_ungated_compute_ready; 0 ready lanes, 2 gated lanes, and 3 blocked-by-evidence lanes.",
+      "remaining_proof_gap": "No ready ungated compute remains; reopen requires generated evidence triggers."
+    },
+    {
+      "requirement_id": "parallel-research-team",
+      "requirement": "Organize a dispatching-parallel-agents research team.",
+      "status": "complete",
+      "authoritative_evidence": [
+        "docs/RESEARCH_TEAM_PROTOCOL.md",
+        "docs/research_team_protocol.json",
+        "docs/UI_WORKFLOW_SMOKE.md"
+      ],
+      "finding": "Team protocol defines 6 briefs across 6 work packages with 16 forbidden actions.",
+      "remaining_proof_gap": "Current posture is maintenance-only; future agents need generated reopen triggers before running compute-heavy lanes."
+    },
+    {
+      "requirement_id": "operator-visibility",
+      "requirement": "Make research state visible enough for future operators and UI work.",
+      "status": "complete",
+      "authoritative_evidence": [
+        "docs/UI_WORKFLOW_SMOKE.md",
+        "docs/ui_workflow_smoke.json",
+        "src-tauri/src/main.rs",
+        "ui/index.html"
+      ],
+      "finding": "UI smoke promotion is True with 24 required artifacts and 22 required cards.",
+      "remaining_proof_gap": "Static smoke is not a desktop browser run; keep Tauri tests green after UI changes."
+    },
+    {
+      "requirement_id": "natural-corpus-viability",
+      "requirement": "Prove generalized viability on non-planted or natural corpora.",
+      "status": "blocked-by-evidence",
+      "authoritative_evidence": [
+        "docs/VIABILITY.md",
+        "docs/NATURAL_CORPUS_PROOF_MATRIX.md",
+        "docs/RESEARCH_SCORECARD.md",
+        "docs/RESEARCH_DECISION.md",
+        "docs/SEARCH_FRONTIER_GATE.md"
+      ],
+      "finding": "Natural-corpus matrix status is not_natural_corpus_proven; 8 natural-corpus gates are blocked-by-evidence, held-out selected-span rows are 0, and the best non-planted forecast is 828.0 GiB per expected exact hit.",
+      "remaining_proof_gap": "Need repeatable non-planted selected spans or negative delta with controls intact."
+    },
+    {
+      "requirement_id": "production-proof",
+      "requirement": "Prove production readiness, compatibility guarantees, and acceleration value.",
+      "status": "blocked-by-evidence",
+      "authoritative_evidence": [
+        "docs/RELEASE_CHECKLIST.md",
+        "docs/PRODUCTION_PROOF_MATRIX.md",
+        "docs/ACCELERATION.md",
+        "docs/SCALE_PERFORMANCE.md",
+        "docs/RESEARCH_DECISION.md"
+      ],
+      "finding": "Production matrix status is not_production_ready; 3 production gates are blocked-by-evidence and 1 gates require fresh release-candidate runtime proof.",
+      "remaining_proof_gap": "Need supported production-format claims, real acceleration evidence, and release-ready compatibility policy."
+    },
+    {
+      "requirement_id": "completion-boundary",
+      "requirement": "Only mark the active goal complete when every explicit requirement is proven.",
+      "status": "blocked-by-evidence",
+      "authoritative_evidence": [
+        "docs/GOAL_COMPLETION_AUDIT.md",
+        "docs/RESEARCH_DECISION.md",
+        "docs/GOAL_AUDIT.md"
+      ],
+      "finding": "Completion boundary is goal_not_complete_until_natural_corpus_or_supported_production_claims_are_proven with 27 unresolved evidence gates.",
+      "remaining_proof_gap": "Keep the active goal open until natural-corpus or supported production claims are proven."
+    }
+  ],
+  "completion_rule": "Do not mark the active goal complete until every requirement is complete or proved, production_proven is true, and unresolved_evidence_gates is zero."
+}

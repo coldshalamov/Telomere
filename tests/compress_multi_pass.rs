@@ -2,7 +2,8 @@
 //! Uses Blake3Expander (same as default Config) to generate structured data.
 use telomere::hasher::{Blake3Expander, SeedExpander};
 use telomere::{
-    compress_multi_pass_with_config, compress_with_run_summary, decompress, Config, TLMR_HEADER_LEN,
+    compress_multi_pass_with_config, compress_with_run_summary, decompress, tlmr_header_byte_len,
+    Config,
 };
 
 fn fast_cfg(block_size: usize) -> Config {
@@ -69,7 +70,7 @@ fn run_summary_has_correct_structure() {
     let (best, summary) = compress_with_run_summary(&data, &cfg, 5).unwrap();
     // Summary must have at least 1 pass.
     assert!(!summary.passes.is_empty());
-    assert!(best.len() >= TLMR_HEADER_LEN);
+    assert!(best.len() >= tlmr_header_byte_len(&best).unwrap());
     // JSON must be valid.
     let json = summary.to_json();
     assert!(json.contains("passes"));

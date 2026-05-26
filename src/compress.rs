@@ -1,8 +1,11 @@
-//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
+//! `.tlmr` v1 compression.
+//!
+//! This module writes one-layer-decodable v1 files. Recursive indexed and
+//! streaming research output lives in the `.tlmr` v2 modules.
 use crate::bundler::bundle_one_layer;
 use crate::compress_stats::{CompressionStats, PassStats, RunSummary};
 use crate::config::Config;
-use crate::header::{encode_header, encode_lotus_header, pack_bits, Header};
+use crate::header::{encode_v1_record_into_writer, v1_record_bit_len, Header};
 use crate::seed::find_seed_match;
 use crate::superposition::SuperpositionManager;
 use crate::tlmr::{
@@ -10,14 +13,12 @@ use crate::tlmr::{
 };
 use crate::TelomereError;
 use indicatif::{ProgressBar, ProgressStyle};
+use lotus::BitWriter as LotusBitWriter;
 use std::collections::HashMap;
 use std::time::Instant;
 
-/// Dummy in-memory table placeholder.
-#[derive(Default, serde::Serialize, serde::Deserialize)]
-pub struct TruncHashTable {
-    pub bits: u8,
-    pub set: std::collections::HashSet<u64>,
+fn lotus_err(e: lotus::LotusError) -> TelomereError {
+    TelomereError::Header(format!("lotus codec error: {e}"))
 }
 
 /// Compress the input using literal passthrough blocks and arity-based seed compression.
@@ -56,8 +57,8 @@ pub fn compress_multi_pass_with_config(
     }
 
     // `.tlmr` v1 is intentionally one-layer-decodable. The pass argument is
-    // accepted for CLI compatibility, but recursive output is not emitted until
-    // a future format version records and decodes nested layers.
+    // accepted for CLI compatibility here; recursive output is emitted by the
+    // indexed `.tlmr` v2 path.
     let pass_limit = max_passes.min(1);
     let mut current = data.to_vec();
     let mut gains = Vec::new();
@@ -139,19 +140,13 @@ pub fn compress_multi_pass_with_config(
                 if let Some(seed_idx) =
                     find_seed_match(span, config.max_seed_len, expander.as_ref())?
                 {
-                    // Convert seed index to bits
-                    let seed_bytes = crate::index_to_seed(seed_idx, config.max_seed_len)?;
-                    let mut seed_bits = Vec::with_capacity(seed_bytes.len() * 8);
-                    for byte in seed_bytes {
-                        for i in (0..8).rev() {
-                            seed_bits.push(((byte >> i) & 1) != 0);
-                        }
-                    }
+                    let total_bits = v1_record_bit_len(arity, seed_idx as u64)?;
 
-                    let total_bits_vec = encode_lotus_header(arity, &seed_bits, seed_bits.len())?;
-                    let total_bits = total_bits_vec.len();
-
-                    if (total_bits + 7) / 8 < span.len() {
+                    // Bit-accurate profit check: compare the record's wire
+                    // bit cost to the span size in bits. With bit-stream
+                    // packing the actual on-wire cost is `total_bits`, not
+                    // `ceil(total_bits / 8)`, so the comparison is bit-vs-bit.
+                    if total_bits < span.len() * 8 {
                         let _ = mgr.insert_superposed(
                             idx,
                             crate::types::Candidate {
@@ -236,16 +231,27 @@ pub fn compress_multi_pass_with_config(
         } else {
             (current.len() - 1) % block_size + 1
         };
-        let mut payload = Vec::new();
+        // V1 packs every record back-to-back into a single Lotus bit-stream.
+        // Per-record byte padding is gone; the only pad bits are at the very
+        // end of the payload (to byte-align the file's final byte) plus the
+        // 0..7 alignment pad inside each literal record so its raw bytes can
+        // be memcpy'd directly.
+        let mut layer_writer = LotusBitWriter::new();
 
         for (_idx, cand) in final_spans {
             if cand.seed_index == usize::MAX as u64 {
-                // literal
-                payload.extend_from_slice(&encode_header(&Header::Literal)?);
-                // We need to retrieve the original data for this block.
-                // _idx is the block index.
+                // literal: emit the literal marker (arity=0xFF), pad to a byte
+                // boundary, then dump the raw block bytes.
+                encode_v1_record_into_writer(0xFF, 0, &mut layer_writer)?;
+                while layer_writer.bits_written() % 8 != 0 {
+                    layer_writer.write_bits(0, 1).map_err(lotus_err)?;
+                }
                 if _idx < blocks.len() {
-                    payload.extend_from_slice(blocks[_idx]);
+                    for byte in blocks[_idx] {
+                        layer_writer
+                            .write_bits(*byte as u64, 8)
+                            .map_err(lotus_err)?;
+                    }
                 } else {
                     return Err(TelomereError::Internal(
                         "literal index out of bounds".into(),
@@ -253,19 +259,12 @@ pub fn compress_multi_pass_with_config(
                 }
             } else {
                 let arity = cand.arity as usize;
-                // Reconstruct seed bits from index
-                let seed_bytes =
-                    crate::index_to_seed(cand.seed_index as usize, config.max_seed_len)?;
-                let mut seed_bits = Vec::with_capacity(seed_bytes.len() * 8);
-                for byte in seed_bytes {
-                    for i in (0..8).rev() {
-                        seed_bits.push(((byte >> i) & 1) != 0);
-                    }
-                }
-                let bits = encode_lotus_header(arity, &seed_bits, seed_bits.len())?;
-                payload.extend(pack_bits(&bits));
+                encode_v1_record_into_writer(arity, cand.seed_index, &mut layer_writer)?;
             }
         }
+
+        let payload_bit_len = layer_writer.bits_written() as u64;
+        let payload = layer_writer.into_bytes();
 
         let header = encode_tlmr_header(&TlmrHeader {
             version: TLMR_FORMAT_VERSION,
@@ -278,7 +277,7 @@ pub fn compress_multi_pass_with_config(
             hash_bits: config.hash_bits,
             layer_count: 1,
             original_len: current.len() as u64,
-            payload_len: payload.len() as u64,
+            payload_bit_len,
             output_hash: truncated_hash_bits(&current, expander.as_ref(), config.hash_bits),
         });
         let mut next = header;
@@ -337,16 +336,9 @@ pub fn compress_block_with_config(
 
     let slice = &input[..block_size];
     if let Some(seed_idx) = find_seed_match(slice, config.max_seed_len, expander.as_ref())? {
-        let seed_bytes = crate::index_to_seed(seed_idx, config.max_seed_len)?;
-        let mut seed_bits = Vec::with_capacity(seed_bytes.len() * 8);
-        for byte in seed_bytes {
-            for i in (0..8).rev() {
-                seed_bits.push(((byte >> i) & 1) != 0);
-            }
-        }
-        let total_bits_vec = encode_lotus_header(1, &seed_bits, seed_bits.len())?;
+        let total_bits = v1_record_bit_len(1, seed_idx as u64)?;
 
-        if (total_bits_vec.len() + 7) / 8 < block_size {
+        if total_bits < block_size * 8 {
             if let Some(s) = stats.as_deref_mut() {
                 s.maybe_log(slice, slice, false);
                 s.log_match(false, 1);

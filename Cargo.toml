@@ -2,6 +2,7 @@
 name = "telomere"
 version = "0.1.0"
 edition = "2021"
+default-run = "telomere"
 
 [dependencies]
 sha2 = "0.10"
@@ -28,6 +29,7 @@ tracing = "0.1"
 tinyvec = "1.6"
 positioned-io = "0.3"
 tracing-subscriber = "0.3"
+lotus = { path = "../lotus" }
 
 [dev-dependencies]
 tempfile = "3.9"
@@ -45,28 +47,12 @@ name = "decompressor"
 path = "src/bin/decompressor.rs"
 
 [[bin]]
-name = "hash_precompute"
-path = "src/bin/hash_precompute.rs"
-
-[[bin]]
 name = "seed_table"
 path = "src/bin/seed_table.rs"
 
 [[bin]]
 name = "block_summary"
 path = "src/bin/block_summary.rs"
-
-[[bin]]
-name = "hash_dump"
-path = "src/bin/hash_dump.rs"
-
-[[bin]]
-name = "block_histogram"
-path = "src/bin/block_histogram.rs"
-
-[[bin]]
-name = "hash_find"
-path = "src/bin/hash_find.rs"
 
 [features]
 # GPU accelerated seed matching. Off by default.

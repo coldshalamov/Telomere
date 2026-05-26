@@ -1,4 +1,3 @@
-//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 use std::fmt;
 use std::io;
 use std::path::Path;
@@ -92,7 +91,6 @@ pub fn cli_hint(err: &crate::TelomereError) -> String {
         Bundling(msg) => format!("{msg}. Bundle selection failed."),
         Superposition(msg) => format!("{msg}. Candidate pruning issue."),
         SuperpositionLimitExceeded(i) => format!("Too many candidates at block {i}."),
-        HeaderCodec(e) => format!("{e}. Likely stream malformed, try recompressing."),
         Hash(msg) => format!("{msg}. Hash mismatch."),
         Config(msg) => format!("{msg}. Invalid configuration."),
         Io(io) => format!("{io}"),

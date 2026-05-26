@@ -1,4 +1,3 @@
-//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 //!
 //! Only final or whitelisted seeds should be written to disk.  Temporary
 //! candidates are discarded.  Every write checks available disk space and
@@ -59,7 +58,7 @@ fn check_limits(
 }
 
 pub fn resume_seed_index() -> u64 {
-    resume_seed_index_from(Path::new("hash_table.bin"))
+    resume_seed_index_from(Path::new("seed_log.bin"))
 }
 
 /// Resume the next seed index for the given table file.
@@ -83,7 +82,7 @@ pub fn resume_seed_index_from(path: &Path) -> u64 {
 }
 
 pub fn log_seed(seed_index: u64, hash: [u8; 32]) -> Result<(), crate::TelomereError> {
-    log_seed_to(Path::new("hash_table.bin"), seed_index, hash, true, None)
+    log_seed_to(Path::new("seed_log.bin"), seed_index, hash, true, None)
 }
 
 /// Optionally persist a seed entry.

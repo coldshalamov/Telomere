@@ -1,0 +1,19 @@
+command: cargo test --manifest-path src-tauri/Cargo.toml
+started_at: 2026-05-25T22:13:02.435519+00:00
+finished_at: 2026-05-25T22:13:03.897018+00:00
+returncode: 0
+
+----- stdout -----
+
+running 3 tests
+test tests::streaming_v2_engine_smoke_serializes_real_telemetry ... ok
+test tests::indexed_v2_engine_smoke_uses_real_index ... ok
+test tests::research_artifacts_summary_serializes_generated_ledgers ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.58s
+
+
+
+----- stderr -----
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.57s
+     Running unittests src\main.rs (src-tauri\target\debug\deps\telomere_ui-7e4affe445be65ff.exe)

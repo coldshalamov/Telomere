@@ -1,0 +1,145 @@
+{
+  "generated_by": "scripts/generate_mechanism_closure_audit.py",
+  "generated_at": "2026-05-26T06:46:40.404212+00:00",
+  "format_version": 1,
+  "scope": {
+    "kind": "post-experiment mechanism closure audit",
+    "performs_seed_search": false,
+    "launches_agents": false,
+    "makes_compression_claim": false,
+    "is_format_support": false,
+    "is_natural_corpus_proof": false,
+    "allows_broad_compute": false
+  },
+  "source_hashes": {
+    "mechanism_experiment_ranking_sha256": "31800d430dde4b360873778de3a8437fcc836ff8fef6c3886a53eedfc550f18d",
+    "search_frontier_gate_sha256": "9d39bd91dcd1d735b313fe9a40c82cec2ec37a97c5596b8ab30976d170bff9d5",
+    "seed_table_preset_probe_sha256": "3128e58ca2d8868727d6f2cead64a6c7c57acbb199e09088bf0bdb4b6253f543",
+    "seed_table_preset_replay_sha256": "f331d744c9751d055f0612b6e51b64e85bf388ae850fa63894e099ce72668fbc",
+    "seed_table_fasta_ablation_sha256": "411b203454f1d3c10a75bc8ba40993e3823a088fb009920a31d2b2fd3ea4da3f",
+    "exact_short_hit_bundle_economics_sha256": "e1f2f45a8a8fdac4d5780b912e1f781de59da92dcd8d0e37c6ce8c760311350c",
+    "whole_stream_residual_vector_probe_sha256": "35f80e6345cc7230c5d615260d293d71c168664a886bcfcb2035f49be872b126",
+    "expander_salt_ensemble_sha256": "cbe5fac0b15dc49c47621005fa05f21692a39a6fdfbc1fdf000567e8468489b3",
+    "schema_native_public_dictionary_replication_sha256": "226d4446bd8930bea72d9d1f129c832c4778bd81fc2b76eeab21d6d7c2f7168e",
+    "public_preset_promotion_gate_sha256": "d53fd27cd3ca0c4079a1601f8a762cea3a9b147ee65023fffa28fe909374fb02",
+    "public_preset_control_rerun_sha256": "ac56eb622366b727a2346f72573408648bb9d239bf6322e3f518fcbe245479d3",
+    "superposition_telemetry_sha256": "447e382fb222d915f1d913e72a0a0d2bcd3eae6bb81e2a72d2acc7b030370f57",
+    "lattice_selection_heldout_probe_sha256": "91622e2d97f4f621e36f6034273497476f9ca933615f7c73d1f34e2576499a7a",
+    "recursive_structured_fixtures_sha256": "2ab670c13d562e52f470ebec0ae5d61db29a82350c21780f064b741b3e1e0fac",
+    "long_span_bundle_gate_sha256": "68e74aede8d58394b117282713bb6001df946a3d4d8f717aaaa60f20ad3fcd76",
+    "mechanism_closure_generator_sha256": "199655a45117d168ca57ec8ec8b99690a3122c90398121e2926062ad67233d16"
+  },
+  "summary": {
+    "closure_status": "no_ready_mechanism_compute",
+    "ready_compute_lane_count": 0,
+    "blocked_by_evidence_lane_count": 7,
+    "maintenance_only_lane_count": 1,
+    "initial_ranking_top_lane": "seed-table-preset-probe",
+    "initial_ranking_ready_count": 7,
+    "top_blocked_lane": "long-span-bundle-gate",
+    "top_blocked_status": "blocked-by-evidence",
+    "top_blocked_next_action": "Treat this as the top blocked gate; do not run broad long-span sweeps.",
+    "broad_depth_search_allowed": false,
+    "format_promotion_allowed": false,
+    "natural_corpus_proven": false,
+    "production_proven": false,
+    "allowed_work": "maintenance, audit, falsifiable-design only",
+    "forbidden_work": "No broad raw depth search, long-span sweeps, format promotion, public preset promotion, sidecar packing, or production GPU work until generated gates move.",
+    "conclusion": "All current bounded mechanism lanes are closed, blocked, or maintenance-only; the next scientific move must be a materially new byte-to-seed mechanism or a stronger reversible frontier generator."
+  },
+  "lanes": [
+    {
+      "lane_id": "seed-table-preset-probe",
+      "title": "Canonical seed-table / Lotus preset probe",
+      "status": "blocked-by-evidence",
+      "outcome": "completed_without_promotion",
+      "evidence": "probe promotion=False; replay promotion=False; FASTA header artifact=True with 480 header spans and 0 sequence spans",
+      "next_action": "Do not rerun this lane until a materially new decoder-public preset is designed.",
+      "source_artifacts": [
+        "docs/SEED_TABLE_PRESET_PROBE.md",
+        "docs/SEED_TABLE_PRESET_REPLAY.md",
+        "docs/SEED_TABLE_FASTA_ABLATION.md"
+      ]
+    },
+    {
+      "lane_id": "exact-short-hit-bundle-economics",
+      "title": "Exact short-hit bundle economics",
+      "status": "blocked-by-evidence",
+      "outcome": "controls_comparable",
+      "evidence": "promotion=False; ordinary groups=3; control groups=1; control density comparable=True",
+      "next_action": "Do not promote short-hit bundling while controls remain comparable.",
+      "source_artifacts": [
+        "docs/EXACT_SHORT_HIT_BUNDLE_ECONOMICS.md"
+      ]
+    },
+    {
+      "lane_id": "whole-stream-residual-vector-probe",
+      "title": "Whole-stream residual vector probe",
+      "status": "blocked-by-evidence",
+      "outcome": "no_honest_negative_rows",
+      "evidence": "promotion=False; honest negative rows=0; ordinary groups=0",
+      "next_action": "Keep as null evidence until a new residual mechanism changes held-out groups.",
+      "source_artifacts": [
+        "docs/WHOLE_STREAM_RESIDUAL_VECTOR_PROBE.md"
+      ]
+    },
+    {
+      "lane_id": "expander-salt-ensemble",
+      "title": "Expander salt / preset ensemble",
+      "status": "blocked-by-evidence",
+      "outcome": "random_trial_multiplier_not_beaten",
+      "evidence": "promotion=False; salted exact hits=0; random multiplier exceeded=False",
+      "next_action": "Do not broaden salt ensembles unless a non-random byte-to-seed mechanism is introduced.",
+      "source_artifacts": [
+        "docs/EXPANDER_SALT_ENSEMBLE.md"
+      ]
+    },
+    {
+      "lane_id": "schema-native-public-dictionaries",
+      "title": "Schema-native public dictionaries",
+      "status": "blocked-by-evidence",
+      "outcome": "blocked_by_controls",
+      "evidence": "schema claim=control_failed_on_frozen_expansion_corpora; public gate promotion=False; rerun status=exact_rerun_blocks_public_preset_promotion; leave-family-out clean groups=0",
+      "next_action": "Design a new decoder-public preset only if it can survive paired shadow controls.",
+      "source_artifacts": [
+        "docs/SCHEMA_NATIVE_PUBLIC_DICTIONARY_REPLICATION.md",
+        "docs/PUBLIC_PRESET_PROMOTION_GATE.md",
+        "docs/PUBLIC_PRESET_CONTROL_RERUN.md"
+      ]
+    },
+    {
+      "lane_id": "candidate-lattice-telemetry",
+      "title": "Candidate lattice telemetry",
+      "status": "maintenance-only",
+      "outcome": "selector_correctness_only",
+      "evidence": "fixture promotion=True; held-out lattice promotion=False; weighted extra held-out groups=0",
+      "next_action": "Use for auditability, not as a compute lane or compression claim.",
+      "source_artifacts": [
+        "docs/SUPERPOSITION_TELEMETRY.md",
+        "docs/LATTICE_SELECTION_HELDOUT_PROBE.md"
+      ]
+    },
+    {
+      "lane_id": "recursive-structured-fixtures",
+      "title": "Recursive v2 structured fixtures",
+      "status": "blocked-by-evidence",
+      "outcome": "planted_offset_only",
+      "evidence": "promotion=False; ordinary later-win families=0; planted offset families=0",
+      "next_action": "Do not claim recursive natural-corpus gain without ordinary later-layer wins.",
+      "source_artifacts": [
+        "docs/RECURSIVE_STRUCTURED_FIXTURES.md"
+      ]
+    },
+    {
+      "lane_id": "long-span-bundle-gate",
+      "title": "Long-span bundle gate",
+      "status": "blocked-by-evidence",
+      "outcome": "top_blocked_gate",
+      "evidence": "promotion=False; gates met=0/8; recommendation=hold_long_span_bundle_sweeps",
+      "next_action": "Treat this as the top blocked gate; do not run broad long-span sweeps.",
+      "source_artifacts": [
+        "docs/LONG_SPAN_BUNDLE_GATE.md"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,133 @@
+{
+  "generated_by": "scripts/generate_long_span_bundle_gate.py",
+  "generated_at": "2026-05-26T06:46:40.081690+00:00",
+  "format_version": 1,
+  "source_hashes": {
+    "mechanism_experiment_ranking_sha256": "31800d430dde4b360873778de3a8437fcc836ff8fef6c3886a53eedfc550f18d",
+    "search_frontier_gate_sha256": "9d39bd91dcd1d735b313fe9a40c82cec2ec37a97c5596b8ab30976d170bff9d5",
+    "sidecar_break_even_sha256": "5d874157aff2e242739bfacfd1be05880ab4775ae38de1a574020105c5b41e6e",
+    "exact_short_hit_bundle_economics_sha256": "e1f2f45a8a8fdac4d5780b912e1f781de59da92dcd8d0e37c6ce8c760311350c",
+    "whole_stream_residual_vector_probe_sha256": "35f80e6345cc7230c5d615260d293d71c168664a886bcfcb2035f49be872b126",
+    "seed_table_preset_probe_sha256": "3128e58ca2d8868727d6f2cead64a6c7c57acbb199e09088bf0bdb4b6253f543",
+    "schema_native_public_dictionaries_sha256": "08e16ee9b2f67d22f340f3ef001325ff2f250f98c690bd6fcfb6397d2f96c45e",
+    "schema_native_public_dictionary_replication_sha256": "226d4446bd8930bea72d9d1f129c832c4778bd81fc2b76eeab21d6d7c2f7168e",
+    "packed_sidecar_replication_sha256": "31201fbd63a624f23c9437d31683e2fcb2dcbe80804e4623b5e51ec90d3b98df",
+    "match_discovery_sha256": "890b5167395b3ca5b0e622d7f7c61d565acc9665d88448edba8331bcbd70d7a0",
+    "alignment_arity_discovery_sha256": "a056600b2d110b6f4b51c02263e9a8a99862cf3f88c006f999886ac3b3f59a96",
+    "transformed_match_discovery_sha256": "ac028cc87f27652ab4ee1780a4e62100a9a14edde799394808c4a6b379d58447",
+    "lead_exact_discovery_sha256": "14d23146672c8cc1ff66250d9f6f874f9a7e4d2aa1a6abbbc24f2e32848d6ebe"
+  },
+  "gate_manifest_sha256": "f1ee6841dd9f158c90df41ddae9d9d6f3b817fdc1b4290e43b9be3fd8b31e833",
+  "gate_manifest": {
+    "scope": "long-span bundle decision gate; no new seed enumeration is performed",
+    "not_a_compression_claim": true,
+    "not_format_support": true,
+    "thresholds": {
+      "max_forecast_gib_for_one_exact_hit": 1.0,
+      "required_raw_suffix_prefix_len": 6,
+      "required_ordinary_negative_groups": 3,
+      "allowed_control_negative_groups": 0,
+      "required_selected_span_total": 1
+    },
+    "rules": [
+      "long-span sweeps require the search frontier to be open",
+      "strict raw-suffix economics require observed held-out prefixes at or beyond the raw-suffix break-even threshold",
+      "short-hit bundle wins must survive comparable control-density checks",
+      "sidecar and residual-vector claims require ordinary held-out negative groups with null controls",
+      "public dictionary signals do not justify long-span raw-depth sweeps while harder replication controls fail"
+    ]
+  },
+  "summary": {
+    "gate_count": 8,
+    "gate_met_count": 0,
+    "blocking_gates": [
+      "search-frontier-open",
+      "forecast-scale",
+      "selected-span-frontier",
+      "raw-suffix-break-even",
+      "short-hit-controls",
+      "whole-stream-residual",
+      "seed-table-generalization",
+      "packed-replication"
+    ],
+    "mechanism_rank": 8,
+    "mechanism_status": "gated",
+    "search_frontier_status": "hold-broad-depth-search",
+    "broad_depth_search_allowed": false,
+    "best_non_planted_gib_for_one_expected_hit": 828.0,
+    "selected_span_total": 0,
+    "minimum_raw_suffix_negative_prefix_len": 6,
+    "max_observed_heldout_forced_prefix_len": 4,
+    "raw_suffix_viable_at_observed_prefix_rows": 0,
+    "exact_short_verified_hits": 3480,
+    "exact_short_ordinary_negative_groups": 3,
+    "exact_short_control_negative_groups": 1,
+    "exact_short_control_density_comparable": true,
+    "whole_stream_ordinary_negative_groups": 0,
+    "schema_replication_claim_level": "control_failed_on_frozen_expansion_corpora",
+    "schema_replication_control_negative_groups": 2,
+    "promotion_met": false,
+    "recommendation": "hold_long_span_bundle_sweeps",
+    "claim_level": "long_span_bundle_gate_blocked_by_evidence",
+    "stop_rule": "Do not run broad long-span bundle sweeps until search frontier, raw-suffix break-even, selected-span, and control gates pass.",
+    "conclusion": "Current evidence blocks broad long-span bundle sweeps."
+  },
+  "gate_checks": [
+    {
+      "gate": "search-frontier-open",
+      "requirement": "Search frontier allows broad raw depth before long-span sweeps.",
+      "observed": "hold-broad-depth-search",
+      "met": false,
+      "consequence": "Do not run long-span raw-depth sweeps while the frontier gate is closed."
+    },
+    {
+      "gate": "forecast-scale",
+      "requirement": "Best non-planted exact-hit forecast is below 1 GiB.",
+      "observed": "828.0 GiB",
+      "met": false,
+      "consequence": "Long-span search is not compute-rational from the current forecast."
+    },
+    {
+      "gate": "selected-span-frontier",
+      "requirement": "At least one profitable selected span exists in recent discovery artifacts.",
+      "observed": "0 selected spans",
+      "met": false,
+      "consequence": "Do not optimize long-span bundle packing before profitable spans exist."
+    },
+    {
+      "gate": "raw-suffix-break-even",
+      "requirement": "Observed held-out forced prefixes reach strict raw-suffix break-even.",
+      "observed": "observed prefix 4 vs required 6",
+      "met": false,
+      "consequence": "Prefix-4 movement remains steering evidence, not long-span bundle evidence."
+    },
+    {
+      "gate": "short-hit-controls",
+      "requirement": "Short-hit bundling has ordinary wins with no comparable controls.",
+      "observed": "3 ordinary groups, 1 control groups, control density comparable True",
+      "met": false,
+      "consequence": "Current exact short-hit density is too control-like to justify broad long-span work."
+    },
+    {
+      "gate": "whole-stream-residual",
+      "requirement": "Whole-stream residual vectors produce ordinary negative groups with null controls.",
+      "observed": "0 ordinary groups, 0 control groups",
+      "met": false,
+      "consequence": "Residual-vector evidence does not yet support long-span bundle promotion."
+    },
+    {
+      "gate": "seed-table-generalization",
+      "requirement": "Seed-table/public dictionary evidence survives harder held-out controls.",
+      "observed": "seed-table ordinary groups 0; schema replication controls 2; claim control_failed_on_frozen_expansion_corpora",
+      "met": false,
+      "consequence": "Public dictionary signals stay research-only until replication controls pass."
+    },
+    {
+      "gate": "packed-replication",
+      "requirement": "Packed sidecar replication produces full-stream negative ordinary groups.",
+      "observed": "0 full-stream rows, 0 ordinary groups",
+      "met": false,
+      "consequence": "Descriptor packing remains narrow and does not justify broad long-span bundle sweeps."
+    }
+  ]
+}

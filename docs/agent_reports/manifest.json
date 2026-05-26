@@ -1,0 +1,315 @@
+{
+  "manifest_version": 1,
+  "status": "reports_recorded",
+  "description": "Dispatching-parallel-agents result intake manifest. Reports are read-only lane findings and do not authorize integration, broad compute, format promotion, natural-corpus proof, or production proof.",
+  "reports": [
+    {
+      "report_id": "agent-corpus-transform-2026-05-25-readonly",
+      "agent_id": "agent-corpus-transform",
+      "parallel_group": "corpus-transform",
+      "prompt_path": "docs/agent_prompts/agent-corpus-transform-corpus-transform.prompt.txt",
+      "prompt_sha256": "469f28f75f61df95decc58c8afdd04e5100b05389f68d56e1c744c61ef170b67",
+      "status": "blocked",
+      "source_artifacts": [
+        "docs/EXPERIMENT_QUEUE.md",
+        "docs/HELDOUT_CORPUS_EXPANSION.md",
+        "docs/LONG_SPAN_BUNDLE_GATE.md",
+        "docs/SEARCH_FRONTIER_GATE.md",
+        "docs/NATURAL_CORPUS_PROOF_MATRIX.md",
+        "docs/NATURAL_CORPUS_REOPEN_MANIFEST.md",
+        "docs/EXTERNAL_CORPUS_ACCESSION.md",
+        "docs/RESEARCH_SCORECARD.md",
+        "docs/TRANSFORM_VALIDATION.md",
+        "docs/MECHANISM_EXPERIMENT_RANKING.md",
+        "docs/VIABILITY.md",
+        "docs/goal_audit.json",
+        "scripts/generate_goal_audit.py"
+      ],
+      "changed_files": [],
+      "verification_commands": [
+        "Get-FileHash -Algorithm SHA256 docs/agent_prompts/agent-corpus-transform-corpus-transform.prompt.txt: passed",
+        "python scripts/generate_claim_boundary_audit.py --check: failed before regeneration because source hashes were stale",
+        "python scripts/doc_lint.py: failed before regeneration through the stale generated-evidence path"
+      ],
+      "claim_changes": [
+        "No claim promoted; the lane remains blocked by generated gates and stale source hashes.",
+        "Current evidence keeps corpus, transform, and long-span promotion closed."
+      ],
+      "promotion_triggers": [
+        "Generated corpus ledgers refresh cleanly.",
+        "Held-out corpus controls and random/shadow controls remain visible.",
+        "A narrow reopen trigger moves through the evidence regimen without weakening source-hash checks."
+      ],
+      "stop_rules_checked": [
+        "No Seed Search upheld.",
+        "not natural-corpus proof upheld.",
+        "not production proof upheld.",
+        "not a compression claim upheld.",
+        "do not launch broad compute upheld."
+      ],
+      "summary": "Corpus-transform remains blocked. The lane found stale generated-evidence hashes and no basis to promote natural-corpus, long-span, transform, or preset claims from the current artifacts.",
+      "submitted_at": "2026-05-25T12:56:25Z"
+    },
+    {
+      "report_id": "agent-compute-economics-2026-05-25-readonly",
+      "agent_id": "agent-compute-economics",
+      "parallel_group": "compute-economics",
+      "prompt_path": "docs/agent_prompts/agent-compute-economics-compute-economics.prompt.txt",
+      "prompt_sha256": "851cf1f386ba906421c77077a31ba5cbd296e38e968b77dae96c42efd00a0a99",
+      "status": "blocked",
+      "source_artifacts": [
+        "docs/SCALE_PERFORMANCE.md",
+        "docs/SEARCH_FRONTIER_GATE.md",
+        "docs/RESULTS.md",
+        "docs/ALIGNMENT_ARITY_DISCOVERY.md",
+        "docs/LONG_SPAN_BUNDLE_GATE.md",
+        "docs/SUPERPOSITION_TELEMETRY.md",
+        "docs/LATTICE_SELECTION_HELDOUT_PROBE.md",
+        "docs/CANDIDATE_LATTICE.md",
+        "docs/ACCELERATION.md",
+        "docs/NATURAL_CORPUS_PROOF_MATRIX.md",
+        "docs/VIABILITY.md",
+        "docs/search_frontier_gate.json",
+        "scripts/generate_search_frontier_gate.py",
+        "scripts/generate_scale_performance_report.py"
+      ],
+      "changed_files": [],
+      "verification_commands": [
+        "Get-FileHash -Algorithm SHA256 docs/agent_prompts/agent-compute-economics-compute-economics.prompt.txt: passed",
+        "python scripts/generate_claim_boundary_audit.py --check: failed before regeneration because source hashes were stale",
+        "python scripts/generate_evidence_regimen.py --start-at external-corpus-accession --check: failed before regeneration at stale generated evidence"
+      ],
+      "claim_changes": [
+        "No claim promoted; search-depth and compute-economics gates remain closed.",
+        "Current evidence keeps broad raw-depth and long-span execution blocked until a generated reopen trigger exists."
+      ],
+      "promotion_triggers": [
+        "A generated reopen trigger defines a bounded workload and budget.",
+        "Scale-performance ledgers refresh cleanly after source changes.",
+        "The workload has controls that prevent random-data or same-size matches from being counted as wins."
+      ],
+      "stop_rules_checked": [
+        "No Seed Search upheld.",
+        "not natural-corpus proof upheld.",
+        "not production proof upheld.",
+        "not a compression claim upheld.",
+        "do not launch broad compute upheld.",
+        "does not override SEARCH_FRONTIER_GATE upheld."
+      ],
+      "summary": "Compute-economics remains blocked. The lane found stale generated-evidence hashes and no authorized path to broader depth, long-span, or external-compute execution from the current generated gates.",
+      "submitted_at": "2026-05-25T12:56:25Z"
+    },
+    {
+      "report_id": "agent-format-policy-2026-05-25-readonly",
+      "agent_id": "agent-format-policy",
+      "parallel_group": "format-policy",
+      "prompt_path": "docs/agent_prompts/agent-format-policy-format-policy.prompt.txt",
+      "prompt_sha256": "0c3f9f3b80ca19dea5f3ec73e59563bd6aec58363b1c46660abe83bb8d7eb4c4",
+      "status": "findings-only",
+      "source_artifacts": [
+        "docs/FORMAT.md",
+        "docs/PRODUCTION_PROOF_MATRIX.md",
+        "docs/RELEASE_CHECKLIST.md",
+        "docs/UI_WORKFLOW_SMOKE.md",
+        "docs/RECURSIVE_STRUCTURED_FIXTURES.md",
+        "docs/TRANSFORM_VALIDATION.md",
+        "docs/SCHEMA_NATIVE_PUBLIC_DICTIONARIES.md",
+        "docs/SEED_TABLE_PRESET_PROBE.md",
+        "docs/PUBLIC_PRESET_PROMOTION_GATE.md",
+        "docs/ACCELERATION.md",
+        "docs/SCALE_PERFORMANCE.md",
+        "src/tlmr_v2.rs",
+        "tests/indexed_v2.rs"
+      ],
+      "changed_files": [],
+      "verification_commands": [
+        "Get-FileHash -Algorithm SHA256 docs/agent_prompts/agent-format-policy-format-policy.prompt.txt: passed",
+        "python scripts/generate_claim_boundary_audit.py --check: failed before regeneration because source hashes were stale"
+      ],
+      "claim_changes": [
+        "No claim promoted; v1 remains the stable compatibility format and v2 remains experimental.",
+        "Current evidence does not support adding transform, dictionary, or preset metadata to stable format guarantees."
+      ],
+      "promotion_triggers": [
+        "Exact seed-span evidence justifies versioned metadata.",
+        "Compatibility and migration rules are generated and checked.",
+        "Release-readiness ledgers refresh cleanly without weakening v1 semantics."
+      ],
+      "stop_rules_checked": [
+        "No Seed Search upheld.",
+        "not natural-corpus proof upheld.",
+        "not production proof upheld.",
+        "not a compression claim upheld.",
+        "do not promote .tlmr format semantics upheld.",
+        "do not alter stable v1 compatibility upheld."
+      ],
+      "summary": "Format-policy found no basis for a format promotion. The current boundary is correct: v1 remains compatibility-focused and v2 remains experimental until evidence and compatibility rules move through the generated gates.",
+      "submitted_at": "2026-05-25T12:56:25Z"
+    },
+    {
+      "report_id": "agent-acceleration-2026-05-25-readonly",
+      "agent_id": "agent-acceleration",
+      "parallel_group": "acceleration",
+      "prompt_path": "docs/agent_prompts/agent-acceleration-acceleration.prompt.txt",
+      "prompt_sha256": "fe29b26d7ad8a30c8c16c085662fbfa879e2c4b31c63abdb28c3a6bc0fad3a6d",
+      "status": "blocked",
+      "source_artifacts": [
+        "docs/ACCELERATION.md",
+        "docs/acceleration_report.json",
+        "docs/EXPERIMENT_QUEUE.md",
+        "docs/RESEARCH_DECISION.md",
+        "docs/RESEARCH_FRONTIER.md",
+        "docs/PRODUCTION_PROOF_MATRIX.md",
+        "docs/RELEASE_CHECKLIST.md",
+        "docs/UI_WORKFLOW_SMOKE.md",
+        "docs/SEARCH_FRONTIER_GATE.md",
+        "docs/SCALE_PERFORMANCE.md",
+        "docs/RESULTS.md",
+        "docs/adr/0002-gpu-acceleration-status.md",
+        "docs/FORMAT.md",
+        "Cargo.toml",
+        "src/gpu.rs",
+        "src/gpu_cpu.rs",
+        "src/gpu_impl.rs",
+        "src/block.rs",
+        "src/gpu_kernels.cl",
+        "src/kernels/seed_match.cl",
+        "scripts/generate_acceleration_report.py",
+        "scripts/generate_claim_boundary_audit.py"
+      ],
+      "changed_files": [],
+      "verification_commands": [
+        "Get-FileHash -Algorithm SHA256 docs/agent_prompts/agent-acceleration-acceleration.prompt.txt: passed",
+        "python scripts/generate_acceleration_report.py --check: passed",
+        "python scripts/generate_research_team_packet.py --check: passed",
+        "python scripts/generate_research_hypotheses.py --check: passed",
+        "python scripts/generate_external_corpus_accession.py --check: passed",
+        "python scripts/generate_claim_boundary_audit.py --check: failed before regeneration because source hashes were stale",
+        "python scripts/generate_evidence_regimen.py --start-at external-corpus-accession --check: failed before regeneration at claim-boundary freshness",
+        "python scripts/doc_lint.py: failed before regeneration through stale generated evidence"
+      ],
+      "claim_changes": [
+        "No claim promoted; acceleration remains research-only CPU-semantics evidence.",
+        "Kernel prototype files and gpu-feature digest semantics need follow-up before GPU output can be trusted."
+      ],
+      "promotion_triggers": [
+        "A promoted CPU workload shows repeatable exact hits and is too slow for CPU streaming.",
+        "A real kernel-backed matcher is wired into the gpu feature path.",
+        "CPU/GPU parity covers selected spans and decompressed output.",
+        "Benchmarks show speed or energy wins over CPU streaming on planted, structured, random, and corpus-matrix controls.",
+        "Generated evidence gates and doc lint pass without stale hashes."
+      ],
+      "stop_rules_checked": [
+        "No Seed Search upheld.",
+        "not natural-corpus proof upheld.",
+        "not production proof upheld.",
+        "not a compression claim upheld.",
+        "do not launch broad compute upheld.",
+        "do not trust GPU output without CPU parity upheld.",
+        "do not market GPU as production acceleration upheld.",
+        "do not weaken controls or source-hash checks upheld."
+      ],
+      "summary": "Acceleration remains blocked. The checked acceleration report preserves the research-only boundary, but the audit found report coverage gaps around tracked kernel prototypes, a gpu-feature digest placeholder that diverges from CPU metadata semantics, and stale claim-boundary source hashes blocking the wider evidence regimen.",
+      "submitted_at": "2026-05-25T12:56:25Z"
+    },
+    {
+      "report_id": "agent-operator-ui-2026-05-25-readonly",
+      "agent_id": "agent-operator-ui",
+      "parallel_group": "operator-ui",
+      "prompt_path": "docs/agent_prompts/agent-operator-ui-operator-ui.prompt.txt",
+      "prompt_sha256": "cfc6edbee1bdff7952de402815261cca6dd22682ba9f331937a1acaf4e985951",
+      "status": "findings-only",
+      "source_artifacts": [
+        "docs/UI_WORKFLOW_SMOKE.md",
+        "docs/RESEARCH_TEAM_PROTOCOL.md",
+        "docs/BLOCKED_REQUIREMENT_DISPATCH.md",
+        "docs/MECHANISM_EXPERIMENT_RANKING.md",
+        "docs/PRODUCTION_PROOF_MATRIX.md",
+        "docs/RELEASE_CHECKLIST.md",
+        "docs/FORMAT.md",
+        "docs/ACCELERATION.md",
+        "docs/SCALE_PERFORMANCE.md",
+        "docs/ui_workflow_smoke.json",
+        "scripts/generate_ui_workflow_smoke.py",
+        "src-tauri/Cargo.toml",
+        "src-tauri/src/main.rs",
+        "ui/index.html"
+      ],
+      "changed_files": [],
+      "verification_commands": [
+        "Get-FileHash -Algorithm SHA256 docs/agent_prompts/agent-operator-ui-operator-ui.prompt.txt: passed",
+        "cargo check --manifest-path src-tauri/Cargo.toml: passed in current worktree",
+        "python scripts/generate_claim_boundary_audit.py --check: failed before regeneration because source hashes were stale"
+      ],
+      "claim_changes": [
+        "No claim promoted; operator UI is evidence display only.",
+        "Current UI surfaces must keep mock/static preview distinct from generated evidence and real CLI workflows."
+      ],
+      "promotion_triggers": [
+        "Tauri commands consume generated evidence and real CLI/index/v2 workflow data.",
+        "UI smoke evidence refreshes cleanly.",
+        "The UI continues to surface blocked/null states without optimistic wording."
+      ],
+      "stop_rules_checked": [
+        "No Seed Search upheld.",
+        "not natural-corpus proof upheld.",
+        "not production proof upheld.",
+        "not a compression claim upheld.",
+        "do not hide null or blocked results behind optimistic UI language upheld."
+      ],
+      "summary": "Operator-ui found static UI and Tauri smoke evidence useful but not promotional. The lane remains a reporting surface until generated artifacts and real command wiring prove each displayed state.",
+      "submitted_at": "2026-05-25T12:56:25Z"
+    },
+    {
+      "report_id": "agent-meta-research-2026-05-25-readonly",
+      "agent_id": "agent-meta-research",
+      "parallel_group": "meta-research",
+      "prompt_path": "docs/agent_prompts/agent-meta-research-meta-research.prompt.txt",
+      "prompt_sha256": "6189d1c683d69663f2d7841e8f32f3e72807c866d5e8c723f54fb70db4030e8a",
+      "status": "blocked",
+      "source_artifacts": [
+        "docs/GOAL_COMPLETION_AUDIT.md",
+        "docs/GOAL_AUDIT.md",
+        "docs/GENERATED_LEDGER_PIPELINE.md",
+        "docs/RESEARCH_TEAM_PROTOCOL.md",
+        "docs/BLOCKED_REQUIREMENT_DISPATCH.md",
+        "docs/MECHANISM_EXPERIMENT_RANKING.md",
+        "docs/NATURAL_CORPUS_PROOF_MATRIX.md",
+        "docs/NATURAL_CORPUS_REOPEN_MANIFEST.md",
+        "docs/EXTERNAL_CORPUS_ACCESSION.md",
+        "docs/RESEARCH_SCORECARD.md",
+        "docs/SEARCH_FRONTIER_GATE.md",
+        "docs/VIABILITY.md",
+        "docs/goal_completion_audit.json",
+        "docs/goal_audit.json",
+        "scripts/generate_goal_completion_audit.py",
+        "scripts/generate_evidence_regimen.py"
+      ],
+      "changed_files": [],
+      "verification_commands": [
+        "Get-FileHash -Algorithm SHA256 docs/agent_prompts/agent-meta-research-meta-research.prompt.txt: passed",
+        "python scripts/generate_claim_boundary_audit.py --check: failed before regeneration because source hashes were stale",
+        "python scripts/generate_evidence_regimen.py --check: failed before regeneration at stale generated evidence"
+      ],
+      "claim_changes": [
+        "No claim promoted; completion remains blocked until generated proof gates move.",
+        "Current evidence keeps the active goal open."
+      ],
+      "promotion_triggers": [
+        "Generated claim-boundary and goal-completion audits refresh cleanly.",
+        "All lane reports validate through the result-intake generator.",
+        "Completion blockers map to generated evidence instead of manual optimism."
+      ],
+      "stop_rules_checked": [
+        "No Seed Search upheld.",
+        "not natural-corpus proof upheld.",
+        "not production proof upheld.",
+        "not a compression claim upheld.",
+        "do not mark the active goal complete upheld.",
+        "do not weaken controls or source-hash checks upheld."
+      ],
+      "summary": "Meta-research remains blocked. The lane found stale generated source hashes and confirmed that completion should stay open until the generated ledgers, claim boundaries, and proof gates all agree.",
+      "submitted_at": "2026-05-25T12:56:25Z"
+    }
+  ]
+}

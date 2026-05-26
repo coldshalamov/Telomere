@@ -1,7 +1,7 @@
 //! Tests for literal encoding and file structure.
 use telomere::{
-    compress_multi_pass_with_config, decode_tlmr_header, decompress_with_limit, Config,
-    TLMR_HEADER_LEN,
+    compress_multi_pass_with_config, decode_tlmr_header, decompress_with_limit,
+    tlmr_header_byte_len, Config,
 };
 
 fn fast_cfg(block_size: usize) -> Config {
@@ -40,9 +40,10 @@ fn compress_empty_input_is_header_only() {
     let block_size = 4usize;
     let cfg = fast_cfg(block_size);
     let (out, _) = compress_multi_pass_with_config(&[], &cfg, 1, false).unwrap();
+    let header_len = tlmr_header_byte_len(&out).unwrap();
     assert_eq!(
         out.len(),
-        TLMR_HEADER_LEN,
+        header_len,
         "empty input should produce only file header"
     );
     let decompressed = decompress_with_limit(&out, &cfg, usize::MAX).unwrap_or_default();

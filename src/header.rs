@@ -1,25 +1,53 @@
-//! Lotus header implementation used by the Telomere codec.
+//! Lotus header implementation used by the Telomere v1 record format.
 //!
-//! The Lotus 4‑Field header uses the following MSB‑first bit layout:
+//! Bit layout for a compressed (non-literal) v1 record:
 //!
 //! ```text
-//! [mode][arity][jumpstarter(3)][len_bits][payload]
+//! [Lotus(arity_value, J1D1)][Lotus(seed_index, J3D2)]
 //! ```
 //!
-//! * **mode** – selects the width of the arity field.
-//! * **arity** – encodes block arity or a literal marker.
-//! * **jumpstarter** – a 3‑bit value describing the width of the following
-//!   length field.
-//! * **len_bits** – a single Lotus length codeword (zero-based) of length
-//!   `L = jumpstarter + 1` bits; codes are contiguous across `L`
-//!   (`0..1`, `2..5`, `6..13`, …).
-//! * **payload** – present only for non-literals (seed bits). Literal headers
-//!   end after the arity field; raw block bits are handled by the caller.
+//! For literals:
 //!
-//! All functions operate in MSB‑first order and use [`TelomereError`] for error
-//! reporting.
+//! ```text
+//! [Lotus(arity_value=5, J1D1)]
+//! ```
+//!
+//! Both the arity discriminator and the seed index payload are now routed
+//! through the real `lotus` crate. Arity uses the smallest preset that admits
+//! all six code points (J1D1, with values 0..=5):
+//!
+//! | arity | lotus value | J1D1 bits |
+//! |------:|------------:|----------:|
+//! |     1 |           0 |         3 |
+//! |     2 |           1 |         5 |
+//! |     3 |           2 |         5 |
+//! |     4 |           3 |         5 |
+//! |     5 |           4 |         5 |
+//! |  0xFF |           5 |         6 |
+//!
+//! Seed indices use the unified J3D2 preset shared with v2 records.
 
 use crate::TelomereError;
+use lotus::{
+    lotus_decode_from_reader, lotus_encode_into_writer, lotus_encoded_bit_len,
+    BitReader as LotusBitReader, BitWriter as LotusBitWriter, LotusError,
+};
+
+/// Lotus tiered codec preset used for seed indices (shared with v2).
+pub const LOTUS_J_BITS: usize = 3;
+pub const LOTUS_TIERS: usize = 2;
+
+/// Lotus tiered codec preset used for the arity field. J1D1 is the smallest
+/// preset that admits the six code points (arities 1..=5 plus the literal
+/// marker). It is deliberately distinct from the J3D2 preset used everywhere
+/// else: arity is a 6-value enum, not a general integer, so we pay only the
+/// bits the alphabet actually requires.
+pub const LOTUS_ARITY_J_BITS: usize = 1;
+pub const LOTUS_ARITY_TIERS: usize = 1;
+
+/// Lotus value used to mark a literal record. Arities 1..=5 map to Lotus
+/// values 0..=4 in order; the literal escape is value 5.
+pub const LOTUS_ARITY_LITERAL_VALUE: u64 = 5;
 
 /// High level header type used by the compressor.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -89,138 +117,39 @@ impl<'a> BitReader<'a> {
     }
 }
 
-// ---------------------------------------------------------------------------
-// Lotus arity helpers
-
-/// Encode the Lotus arity field returning the mode bit and arity bits.
-///
-/// Valid arities: 1–5. A special value of `0xFF` encodes the literal passthrough
-/// marker. Arity 2 is a valid code point — it is NOT reserved as a literal marker.
-pub fn encode_lotus_arity_bits(arity: usize) -> Result<(bool, Vec<bool>), TelomereError> {
-    let (mode, bits) = match arity {
-        1 => (false, vec![false]),
-        2 => (false, vec![true]),
-        3 => (true, vec![false, false]),
-        4 => (true, vec![false, true]),
-        5 => (true, vec![true, false]),
-        0xFF => (true, vec![true, true]),
-        _ => {
-            return Err(TelomereError::Header(
-                "invalid Lotus arity (must be 1-5 or 0xFF)".into(),
-            ));
-        }
-    };
-    Ok((mode, bits))
+fn lotus_err(e: LotusError) -> TelomereError {
+    TelomereError::Header(format!("lotus codec error: {e}"))
 }
 
-/// Decode the Lotus arity field returning `(arity, is_literal, mode)`.
-pub fn decode_lotus_arity_bits(
-    reader: &mut BitReader,
-) -> Result<(usize, bool, bool), TelomereError> {
-    let mode = reader.read_bit()?;
-    if !mode {
-        let bit = reader.read_bit()?;
-        let arity = if bit { 2 } else { 1 };
-        Ok((arity, false, mode))
-    } else {
-        let b1 = reader.read_bit()?;
-        let b2 = reader.read_bit()?;
-        match (b1, b2) {
-            (false, false) => Ok((3, false, mode)),
-            (false, true) => Ok((4, false, mode)),
-            (true, false) => Ok((5, false, mode)),
-            (true, true) => Ok((0xFF, true, mode)),
-        }
+/// Map a Telomere arity value (1..=5 or 0xFF literal) to its Lotus
+/// representation.
+fn arity_to_lotus_value(arity: usize) -> Result<u64, TelomereError> {
+    match arity {
+        1 => Ok(0),
+        2 => Ok(1),
+        3 => Ok(2),
+        4 => Ok(3),
+        5 => Ok(4),
+        0xFF => Ok(LOTUS_ARITY_LITERAL_VALUE),
+        _ => Err(TelomereError::Header(
+            "invalid Lotus arity (must be 1-5 or 0xFF)".into(),
+        )),
     }
 }
 
-// ---------------------------------------------------------------------------
-// Lotus length helpers -------------------------------------------------------
-
-// Encode zero-based Lotus length bits for integer `n` (n >= 0).
-// Length sequence: 2 codes of length 1, 4 of length 2, 8 of length 3, ...
-fn lotus_len_code_encode(n: usize) -> Result<Vec<bool>, TelomereError> {
-    let mut level: usize = 1;
-    let mut total: usize = 0;
-    let x = n; // zero-based index
-    loop {
-        let count = 1usize << level; // 2^level
-        if x < total + count {
-            let offset = x - total;
-            if level > 8 {
-                return Err(TelomereError::Header("length header out of range".into()));
-            }
-            let mut bits = Vec::with_capacity(level);
-            for i in (0..level).rev() {
-                bits.push(((offset >> i) & 1) != 0);
-            }
-            return Ok(bits);
-        }
-        total += count;
-        level += 1;
-        if level > 8 {
-            return Err(TelomereError::Header("length header out of range".into()));
-        }
+/// Inverse of [`arity_to_lotus_value`].
+fn lotus_value_to_arity(value: u64) -> Result<usize, TelomereError> {
+    match value {
+        0 => Ok(1),
+        1 => Ok(2),
+        2 => Ok(3),
+        3 => Ok(4),
+        4 => Ok(5),
+        v if v == LOTUS_ARITY_LITERAL_VALUE => Ok(0xFF),
+        _ => Err(TelomereError::Header(
+            "invalid Lotus arity value (out of range for J1D1 arity preset)".into(),
+        )),
     }
-}
-
-// Decode a zero-based Lotus length codeword given its bits (we already know L = bits.len()).
-fn lotus_len_code_decode(bits: &[bool]) -> usize {
-    let l = bits.len();
-    let base = (1usize << l) - 2; // total codes of shorter lengths
-                                  // parse bits as big-endian int
-    let mut v = 0usize;
-    for &b in bits {
-        v = (v << 1) | (b as usize);
-    }
-    base + v
-}
-
-/// Field4 encoder: returns `(jumpstarter, len_bits)`
-//
-// With `L ∈ [1..=8]`, the zero-based Lotus length code can represent
-// `payload_bit_len ∈ [0..=509]`. `510+` is out of range and must error.
-pub fn encode_lotus_len_bits(payload_bit_len: usize) -> Result<(u8, Vec<bool>), TelomereError> {
-    // Encode as a single zero-based Lotus length codeword.
-    let len_bits = lotus_len_code_encode(payload_bit_len)?;
-    let l = len_bits.len(); // 1..=8
-    if !(1..=8).contains(&l) {
-        return Err(TelomereError::Header("length header out of range".into()));
-    }
-    let j = (l - 1) as u8; // 3-bit jumpstarter value
-    Ok((j, len_bits))
-}
-
-pub fn decode_lotus_len_bits(
-    reader: &mut BitReader,
-) -> Result<(usize, u8, Vec<bool>), TelomereError> {
-    // Jumpstarter is exactly 3 bits; L = j + 1 must be in [1..=8].
-    // We then read exactly L bits and decode a single zero-based
-    // Lotus length codeword.
-    // Read exactly 3 bits of jumpstarter
-    let mut j = 0u8;
-    for _ in 0..3 {
-        j = (j << 1)
-            | reader
-                .read_bit()
-                .map_err(|_| TelomereError::Header("truncated header".into()))? as u8;
-    }
-    let l = (j as usize) + 1;
-    if !(1..=8).contains(&l) {
-        return Err(TelomereError::Header("length header out of range".into()));
-    }
-
-    // Read exactly l bits for payload_bit_len.
-    let mut bits = Vec::with_capacity(l);
-    for _ in 0..l {
-        bits.push(
-            reader
-                .read_bit()
-                .map_err(|_| TelomereError::Header("truncated header".into()))?,
-        );
-    }
-    let payload_bit_len = lotus_len_code_decode(&bits);
-    Ok((payload_bit_len, j, bits))
 }
 
 // ---------------------------------------------------------------------------
@@ -231,81 +160,98 @@ pub fn decode_lotus_len_bits(
 pub struct DecodedHeader {
     pub arity: u8,
     pub is_literal: bool,
-    pub mode: bool,
-    pub jumpstarter: u8,
-    pub len_bits: Vec<bool>,
-    pub payload_bits: Vec<bool>,
+    pub seed_index: u64,
 }
 
-/// Encode a complete Lotus header including payload bits.
-pub fn encode_lotus_header(
+/// Streaming encoder for a v1 record. Writes
+///
+/// ```text
+/// [Lotus arity (J1D1)][Lotus seed_index (J3D2)]    // compressed
+/// [Lotus arity=5 marker (J1D1)]                    // literal
+/// ```
+///
+/// into the shared writer. Returns the number of bits written.
+pub fn encode_v1_record_into_writer(
     arity: usize,
-    payload_bits: &[bool],
-    payload_bit_len: usize,
-) -> Result<Vec<bool>, TelomereError> {
-    let (mode, arity_bits) = encode_lotus_arity_bits(arity)?;
-    let mut out = Vec::new();
-    out.push(mode);
-    out.extend_from_slice(&arity_bits);
-    if arity == 0xFF {
-        if payload_bit_len != 0 || !payload_bits.is_empty() {
-            return Err(TelomereError::Header(
-                "literal must not carry payload".into(),
-            ));
-        }
-        return Ok(out); // header-only literal (3 bits total)
+    seed_index: u64,
+    writer: &mut LotusBitWriter,
+) -> Result<usize, TelomereError> {
+    let lotus_arity = arity_to_lotus_value(arity)?;
+    let start = writer.bits_written();
+    lotus_encode_into_writer(lotus_arity, LOTUS_ARITY_J_BITS, LOTUS_ARITY_TIERS, writer)
+        .map_err(lotus_err)?;
+    if lotus_arity != LOTUS_ARITY_LITERAL_VALUE {
+        lotus_encode_into_writer(seed_index, LOTUS_J_BITS, LOTUS_TIERS, writer)
+            .map_err(lotus_err)?;
     }
-    if payload_bits.len() != payload_bit_len {
-        return Err(TelomereError::Header("payload length mismatch".into()));
-    }
-    let (jumpstarter, len_bits) = encode_lotus_len_bits(payload_bit_len)?;
-    for i in (0..3).rev() {
-        out.push(((jumpstarter >> i) & 1) != 0);
-    }
-    out.extend_from_slice(&len_bits);
-    out.extend_from_slice(payload_bits);
-    Ok(out)
+    Ok(writer.bits_written() - start)
 }
 
-/// Decode a Lotus header from the provided byte slice.
-pub fn decode_lotus_header(data: &[u8]) -> Result<(DecodedHeader, usize), TelomereError> {
-    let mut reader = BitReader::from_slice(data);
-    let (arity, is_literal, mode) = decode_lotus_arity_bits(&mut reader)?;
-    if is_literal {
-        let consumed = reader.bits_read();
+/// Streaming decoder for a v1 record. Mirrors [`encode_v1_record_into_writer`].
+pub fn decode_v1_record_from_reader(
+    reader: &mut LotusBitReader<'_>,
+) -> Result<(DecodedHeader, usize), TelomereError> {
+    let start = reader.bits_consumed();
+    let (lotus_arity, _) = lotus_decode_from_reader(reader, LOTUS_ARITY_J_BITS, LOTUS_ARITY_TIERS)
+        .map_err(lotus_err)?;
+    let arity = lotus_value_to_arity(lotus_arity)?;
+    if arity == 0xFF {
         return Ok((
             DecodedHeader {
                 arity: 0xFF,
                 is_literal: true,
-                mode,
-                jumpstarter: 0,
-                len_bits: Vec::new(),
-                payload_bits: Vec::new(),
+                seed_index: 0,
             },
-            consumed,
+            reader.bits_consumed() - start,
         ));
     }
-    let (len, jumpstarter, len_bits) = decode_lotus_len_bits(&mut reader)?;
-    let mut payload_bits = Vec::new();
-    for _ in 0..len {
-        payload_bits.push(
-            reader
-                .read_bit()
-                .map_err(|_| TelomereError::Header("truncated header".into()))?,
-        );
-    }
-    let consumed = reader.bits_read();
+    let (seed_index, _) =
+        lotus_decode_from_reader(reader, LOTUS_J_BITS, LOTUS_TIERS).map_err(lotus_err)?;
     Ok((
         DecodedHeader {
             arity: arity as u8,
             is_literal: false,
-            mode,
-            jumpstarter,
-            len_bits,
-            payload_bits,
+            seed_index,
         },
-        consumed,
+        reader.bits_consumed() - start,
     ))
+}
+
+/// Returns the exact number of bits a v1 record will consume on the wire,
+/// without performing the encoding.
+pub fn v1_record_bit_len(arity: usize, seed_index: u64) -> Result<usize, TelomereError> {
+    let lotus_arity = arity_to_lotus_value(arity)?;
+    let arity_bits = lotus_encoded_bit_len(lotus_arity, LOTUS_ARITY_J_BITS, LOTUS_ARITY_TIERS)
+        .map_err(lotus_err)?;
+    if lotus_arity == LOTUS_ARITY_LITERAL_VALUE {
+        return Ok(arity_bits);
+    }
+    let seed_bits =
+        lotus_encoded_bit_len(seed_index, LOTUS_J_BITS, LOTUS_TIERS).map_err(lotus_err)?;
+    Ok(arity_bits + seed_bits)
+}
+
+/// Encode a complete Lotus header including the tiered seed index. Returns the
+/// bits in MSB order. This is a wrapper around the streaming form for callers
+/// that haven't migrated to `BitWriter` yet.
+pub fn encode_lotus_header(arity: usize, seed_index: u64) -> Result<Vec<bool>, TelomereError> {
+    let mut writer = LotusBitWriter::new();
+    let bit_len = encode_v1_record_into_writer(arity, seed_index, &mut writer)?;
+    let bytes = writer.into_bytes();
+    let mut out = Vec::with_capacity(bit_len);
+    for i in 0..bit_len {
+        let byte = bytes[i / 8];
+        let bit = (byte >> (7 - (i % 8))) & 1 != 0;
+        out.push(bit);
+    }
+    Ok(out)
+}
+
+/// Decode a Lotus header from the provided byte slice. Returns the decoded
+/// fields and the number of bits consumed.
+pub fn decode_lotus_header(data: &[u8]) -> Result<(DecodedHeader, usize), TelomereError> {
+    let mut reader = LotusBitReader::new(data);
+    decode_v1_record_from_reader(&mut reader)
 }
 
 pub fn decode_header(data: &[u8]) -> Result<(Header, usize), TelomereError> {
@@ -321,7 +267,7 @@ pub fn decode_header(data: &[u8]) -> Result<(Header, usize), TelomereError> {
 pub fn encode_header(header: &Header) -> Result<Vec<u8>, TelomereError> {
     match header {
         Header::Literal => {
-            let bits = encode_lotus_header(0xFF, &[], 0)?;
+            let bits = encode_lotus_header(0xFF, 0)?;
             Ok(pack_bits(&bits))
         }
         _ => Err(TelomereError::Header(
@@ -337,114 +283,82 @@ pub fn encode_header(header: &Header) -> Result<Vec<u8>, TelomereError> {
 mod tests {
     use super::*;
 
-    fn lcg(state: &mut u32) -> u32 {
-        *state = state.wrapping_mul(1664525).wrapping_add(1013904223);
-        *state
-    }
-
     #[test]
-    fn roundtrip_arities_random_lengths() {
-        let mut seed = 0x12345678u32;
+    fn roundtrip_seed_indices() {
         for arity in 1..=5usize {
-            for _ in 0..10 {
-                let len = (lcg(&mut seed) % 256 + 1) as usize;
-                let mut payload = Vec::with_capacity(len);
-                for _ in 0..len {
-                    payload.push((lcg(&mut seed) & 1) != 0);
-                }
-                let bits = encode_lotus_header(arity, &payload, len).unwrap();
-                let packed = pack_bits(&bits);
-                let (dec, used) = decode_lotus_header(&packed).unwrap();
-                assert_eq!(dec.arity as usize, arity);
-                assert!(!dec.is_literal);
-                assert_eq!(dec.payload_bits, payload);
-                assert_eq!(dec.len_bits.len(), dec.jumpstarter as usize + 1);
-                assert_eq!(used, bits.len());
+            for seed_index in [
+                0u64, 1, 2, 5, 6, 13, 14, 100, 255, 256, 1000, 65535, 65791, 1_000_000,
+            ] {
+                let bits = encode_lotus_header(arity, seed_index).unwrap();
+                let bytes = pack_bits(&bits);
+                let (decoded, consumed_bits) = decode_lotus_header(&bytes).unwrap();
+                assert_eq!(
+                    decoded.arity as usize, arity,
+                    "arity mismatch for seed_index={seed_index}"
+                );
+                assert!(!decoded.is_literal);
+                assert_eq!(
+                    decoded.seed_index, seed_index,
+                    "seed_index roundtrip failed for arity={arity}"
+                );
+                assert_eq!(consumed_bits, bits.len(), "bit count mismatch");
             }
         }
     }
 
     #[test]
     fn roundtrip_literal_header_only() {
-        let bits = encode_lotus_header(0xFF, &[], 0).unwrap();
-        assert_eq!(bits.len(), 3);
-        let packed = pack_bits(&bits);
-        let (dec, used) = decode_lotus_header(&packed).unwrap();
-        assert!(dec.is_literal);
-        assert_eq!(dec.arity, 0xFF);
-        assert!(dec.payload_bits.is_empty());
-        assert_eq!(used, 3);
+        let bits = encode_lotus_header(0xFF, 0).unwrap();
+        let bytes = pack_bits(&bits);
+        let (decoded, _) = decode_lotus_header(&bytes).unwrap();
+        assert!(decoded.is_literal);
+        assert_eq!(decoded.arity, 0xFF);
     }
 
     #[test]
-    fn len_bits_bounds() {
-        let (_j0, b0) = encode_lotus_len_bits(0).unwrap();
-        assert_eq!(b0.len(), 1);
-        let (_j1, b1) = encode_lotus_len_bits(1).unwrap();
-        assert_eq!(b1.len(), 1);
-        let (_j7a, b127) = encode_lotus_len_bits(127).unwrap();
-        assert_eq!(b127.len(), 7);
-        let (_j7b, b128) = encode_lotus_len_bits(128).unwrap();
-        assert_eq!(b128.len(), 7);
-        let (_j7c, b253) = encode_lotus_len_bits(253).unwrap();
-        assert_eq!(b253.len(), 7);
-        let (_j8a, b254) = encode_lotus_len_bits(254).unwrap();
-        assert_eq!(b254.len(), 8);
-        let (_j8b, b509) = encode_lotus_len_bits(509).unwrap();
-        assert_eq!(b509.len(), 8);
-        assert!(encode_lotus_len_bits(510).is_err());
+    fn small_indices_are_compact() {
+        // arity=1 (J1D1 value=0, 3 bits) + seed_index=0 (J3D2, 6 bits) = 9 bits.
+        let bits = encode_lotus_header(1, 0).unwrap();
+        assert_eq!(
+            bits.len(),
+            9,
+            "arity=1 seed_index=0 should be J1D1 arity(3) + J3D2 seed(6)"
+        );
     }
 
     #[test]
-    fn zero_based_len_is_dense() {
-        // (length, expected_L)
-        let cases = [
-            (0, 1),
-            (1, 1),
-            (2, 2),
-            (5, 2),
-            (6, 3),
-            (13, 3),
-            (14, 4),
-            (126, 7),
-            (127, 7),
-            (128, 7),
-            (253, 7),
-            (254, 8),
-            (509, 8),
-        ];
-        for (len, l) in cases {
-            let payload: Vec<bool> = std::iter::repeat_n(false, len).collect();
-            let bits = encode_lotus_header(1, &payload, len).unwrap();
-            let packed = pack_bits(&bits);
-            let (dec, used) = decode_lotus_header(&packed).unwrap();
-            assert_eq!(used, bits.len());
-            assert!(!dec.is_literal);
-            assert_eq!(dec.payload_bits.len(), len);
-            assert_eq!(dec.len_bits.len(), l);
-            assert_eq!(dec.len_bits.len(), dec.jumpstarter as usize + 1);
-        }
-        assert!(encode_lotus_len_bits(510).is_err());
-    }
-
-    #[test]
-    fn literal_rejects_payload() {
-        let payload = vec![true, false, true];
-        assert!(encode_lotus_header(0xFF, &payload, payload.len()).is_err());
-        assert!(encode_lotus_header(0xFF, &[], 1).is_err());
+    fn literal_marker_bit_len() {
+        // Literal escapes are the largest J1D1 value (=5), encoded in 6 bits.
+        let bits = encode_lotus_header(0xFF, 0).unwrap();
+        assert_eq!(bits.len(), 6, "literal marker is 6 bits in J1D1");
     }
 
     #[test]
     fn invalid_arity_encoding() {
-        assert!(encode_lotus_arity_bits(6).is_err());
+        assert!(encode_lotus_header(0, 0).is_err());
+        assert!(encode_lotus_header(6, 0).is_err());
+        assert!(encode_lotus_header(7, 0).is_err());
     }
 
     #[test]
-    fn decode_short_payload_fails() {
-        let payload = vec![true, false, true, false];
-        let bits = encode_lotus_header(1, &payload, payload.len()).unwrap();
-        let mut packed = pack_bits(&bits);
-        packed.pop();
-        assert!(decode_lotus_header(&packed).is_err());
+    fn decode_short_input_fails() {
+        let result = decode_lotus_header(&[]);
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn v1_record_bit_len_matches_encoder() {
+        for arity in [1usize, 2, 3, 4, 5, 0xFF] {
+            let seeds: &[u64] = if arity == 0xFF {
+                &[0]
+            } else {
+                &[0, 1, 255, 4096, 65535]
+            };
+            for &seed_index in seeds {
+                let bits = encode_lotus_header(arity, seed_index).unwrap();
+                let predicted = v1_record_bit_len(arity, seed_index).unwrap();
+                assert_eq!(predicted, bits.len(), "arity={arity} seed={seed_index}");
+            }
+        }
     }
 }

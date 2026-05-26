@@ -3,14 +3,16 @@
 ## Project Overview
 
 Telomere is an experimental stateless lossless generative compression prototype.
-The active `.tlmr` v1 writer emits one-layer-decodable files only. Each
-compressed record stores a Lotus `(arity, seed)` pair whose selected hasher
-expansion reproduces the original bytes; unmatched bytes are literal records.
+The `.tlmr` v1 writer emits one-layer-decodable files only. The indexed
+`.tlmr` v2 writer supports recursive layers with explicit descriptors. Each
+compressed record stores a seed span whose selected hasher expansion reproduces
+the original bytes; unmatched bytes are literal records.
 
 Canonical docs:
 
 - `docs/ARCHITECTURE.md`
 - `docs/FORMAT.md`
+- `docs/RESEARCH_PROGRAM.md`
 - `docs/RESULTS.md`
 - `docs/RELEASE_CHECKLIST.md`
 
@@ -23,6 +25,10 @@ Canonical docs:
 | `src/seed_index.rs` | canonical index-to-seed bijection |
 | `src/header.rs` | Lotus record codec, arity 1-5 plus literal 0xFF |
 | `src/tlmr.rs` | 40-byte `.tlmr` v1 header |
+| `src/tlmr_v2.rs` | `.tlmr` v2 recursive header, descriptors, and records |
+| `src/seed_expansion_index.rs` | exact generated-prefix seed expansion index |
+| `src/indexed.rs` | indexed v2 compression and span selection |
+| `src/streaming.rs` | CPU stratified target-span streaming matcher |
 | `src/compress.rs` | one-layer compression and run summaries |
 | `src/config.rs` | runtime config and validation |
 | `src/lib.rs` | public API and decompression |
@@ -36,9 +42,13 @@ Canonical docs:
 - Literal marker is `0xFF`.
 - `.tlmr` v1 header is 40 bytes and records hasher kind, Lotus preset, layer
   count, lengths, and output hash.
-- `.tlmr` v1 seed payloads must be byte-aligned.
-- `.tlmr` v1 `layer_count` is always `1`; do not emit recursive output without
-  a new format version and decoder support.
+- `.tlmr` v1 compressed records encode the canonical seed index via the Lotus
+  J3D2 tiered integer codec (`LOTUS_J_BITS = 3`, `LOTUS_TIERS = 2`). The codec
+  is provided by the sibling crate at `../lotus/src/lib.rs`.
+- `.tlmr` v1 `layer_count` is always `1`; recursive output must use `.tlmr` v2.
+- Indexed lookup must compare `expand(seed)[0..span_len]` to target spans, never
+  `hash(target_span)` to `hash(seed)`.
+- Indexed compression groups active spans into equal-length tiers before lookup.
 - The header-selected hasher is authoritative during decompression.
 
 ## Test And Performance Rules
@@ -56,7 +66,9 @@ Canonical docs:
 - bloom filter stubs
 - broken fuzz crate targets
 - the old active 3-byte file header
-- speculative recursive convergence claims
+- digest-prefix hash-table tools that implied `hash(block) == hash(seed)` matching
+- placeholder `lotus_core` exports
+- Kolyma-as-spec source prologues; `kolyma.pdf` is a symbolic corpus only
 
 ## Verification Before Completion
 

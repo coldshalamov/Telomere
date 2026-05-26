@@ -1,0 +1,158 @@
+{
+  "generated_by": "scripts/generate_frozen_rank_coded_span_generator.py",
+  "generated_at": "2026-05-26T06:46:46.321946+00:00",
+  "format_version": 1,
+  "scope": {
+    "kind": "frozen rank-coded span generator contract",
+    "performs_seed_search": false,
+    "performs_replay": false,
+    "launches_agents": false,
+    "makes_compression_claim": false,
+    "is_format_support": false,
+    "is_natural_corpus_proof": false,
+    "allows_broad_compute": false,
+    "overrides_search_frontier_gate": false,
+    "uses_external_corpus_payloads": false
+  },
+  "source_hashes": {
+    "next_mechanism_designs_sha256": "59d2d89c1351f19b24b6c7942e3f550095b478292f56f8ab054e6a4bf3b80151",
+    "external_corpus_accession_sha256": "fa0baf3c82dea3f351ecdbfc6092c216310aa5d827cd3a4faee9e7ff3e8194d0",
+    "external_manifest_sha256": "183cf3c0644c228ed54a3e5caaf424decb2bec6efc189a102d3214b02b866430",
+    "public_preset_control_rerun_sha256": "ac56eb622366b727a2346f72573408648bb9d239bf6322e3f518fcbe245479d3",
+    "search_frontier_gate_sha256": "9d39bd91dcd1d735b313fe9a40c82cec2ec37a97c5596b8ab30976d170bff9d5",
+    "frozen_rank_generator_sha256": "0b1e4ab42365c1c9e347c8694d20fce4e13fb9608d77892154414c035316a2a4"
+  },
+  "design": {
+    "design_id": "frozen-rank-coded-span-generator",
+    "rank": 1,
+    "mechanism_family": "byte-to-seed-generator",
+    "status": "blocked_waiting_for_external_corpus_accession",
+    "core_idea": "Seed bytes index a frozen decoder-public rank table trained only from external provenance before any held-out replay.",
+    "blocked_by": [
+      "external-corpus-accession",
+      "control-separation"
+    ],
+    "promotion_trigger": "At least three unrelated ordinary held-out groups produce selected exact spans and full-stream negative rows after metadata while every paired, same-size random, wrong-family, binary, high-entropy, and generic-dictionary control stays non-negative.",
+    "stop_rule": "Stop if any paired, random, binary, high-entropy, or wrong-family control goes negative."
+  },
+  "rank_table_contract": {
+    "preset_id": "frozen-rank-coded-span-generator-v0-contract",
+    "external_only_provenance": true,
+    "frozen_before_heldout_scan": true,
+    "canonical_rank_ordering": "rank entries by frozen external training frequency, then source id, then bytewise value",
+    "seed_to_rank_mapping": "big-endian seed integer selects exactly one rank entry; out-of-range seeds are invalid",
+    "decoder_public_version_id": "frozen-rank-coded-span-generator-v0-contract",
+    "checksum_policy": "manifest stores table sha256, per-entry sha256, source sha256, byte length, license, and provenance",
+    "max_table_bytes": 1048576,
+    "max_entry_bytes": 256,
+    "golden_manifest_sha256": "83a0f04e708ac955c7fcfbd475436b0e0e484b5050046f053dd141c0017de807"
+  },
+  "metadata_accounting": {
+    "preset_selector_bytes": 2,
+    "preset_version_bytes": 1,
+    "rank_model_id_bytes": 4,
+    "span_record_base_bytes": 5,
+    "literal_record_base_bytes": 3,
+    "rank_seed_bytes": 2,
+    "selected_span_record_bytes_formula": "span_record_base_bytes + rank_seed_bytes",
+    "literal_record_bytes_formula": "literal_record_base_bytes + literal_payload_bytes",
+    "full_stream_delta_formula": "preset_selector_bytes + preset_version_bytes + rank_model_id_bytes + sum(selected_span_record_bytes) + sum(literal_record_bytes) - input_bytes"
+  },
+  "accession_gate": {
+    "external_accession_status": "invalid_manifest_requires_fix",
+    "external_manifest_complete": false,
+    "paired_manifest_ready": false,
+    "validation_error_count": 32,
+    "required_fields": [
+      "entry_id",
+      "family_id",
+      "role",
+      "control_kind",
+      "independence_group",
+      "paired_with",
+      "path",
+      "license",
+      "provenance",
+      "source_uri",
+      "retrieved_at",
+      "sha256",
+      "bytes"
+    ],
+    "compute_allowed": false
+  },
+  "control_suite": [
+    "paired shadow vocabulary",
+    "same-size random rank table",
+    "wrong-family rank model",
+    "generic token dictionary",
+    "binary controls",
+    "high-entropy controls",
+    "equivalent random-trial SHA-256 baseline",
+    "leave-family-out replay",
+    "project-token removal"
+  ],
+  "promotion_gate": {
+    "ordinary_negative_group_floor": 3,
+    "requires_selected_exact_spans": true,
+    "requires_full_stream_negative_rows": true,
+    "requires_all_controls_non_negative": true,
+    "requires_equivalent_random_trial_baseline": true,
+    "requires_leave_family_out": true,
+    "requires_project_token_removal": true,
+    "promotion_ready": false
+  },
+  "stop_rules": [
+    "Stop if any paired, random, binary, high-entropy, or wrong-family control goes negative.",
+    "Stop if ordinary held-out wins stay below three unrelated independence groups.",
+    "Stop if the rank table cannot be frozen from external provenance before held-out replay.",
+    "Stop if wins require target-file leakage, project-token leakage, or same-family training leakage.",
+    "Stop if metadata accounting removes full-stream negative delta."
+  ],
+  "golden_vectors": [
+    {
+      "rank": 0,
+      "seed_hex": "0000",
+      "family": "standards-protocol-text",
+      "example_expansion_len": 32,
+      "example_expansion_sha256": "722ab081249af11d22563126b6a2c04b67e9309cee994b5f98474c5e59f1f408"
+    },
+    {
+      "rank": 1,
+      "seed_hex": "0001",
+      "family": "standards-protocol-text",
+      "example_expansion_len": 25,
+      "example_expansion_sha256": "ab2965e984ca0712c898eb18d39aa504ef091891d45973e70bd99336c6b3457c"
+    },
+    {
+      "rank": 2,
+      "seed_hex": "0002",
+      "family": "schema-and-config",
+      "example_expansion_len": 15,
+      "example_expansion_sha256": "2d82d44bb06a3745f20157ee2273458dc84b8a09ed13c45ca4318ed00613a5b3"
+    },
+    {
+      "rank": 3,
+      "seed_hex": "0003",
+      "family": "records-and-ledgers",
+      "example_expansion_len": 24,
+      "example_expansion_sha256": "3f846c30244a69b41cd4270bd3f8b497fe77c9b947a2d7a699d0d78aa37833b8"
+    }
+  ],
+  "summary": {
+    "contract_status": "blocked_waiting_for_external_corpus_accession",
+    "top_design_id": "frozen-rank-coded-span-generator",
+    "golden_vector_count": 4,
+    "external_manifest_ready": false,
+    "external_accession_status": "invalid_manifest_requires_fix",
+    "paired_manifest_ready": false,
+    "public_preset_rerun_status": "exact_rerun_blocks_public_preset_promotion",
+    "broad_depth_search_allowed": false,
+    "compute_allowed": false,
+    "replay_allowed": false,
+    "promotion_ready": false,
+    "natural_corpus_proven": false,
+    "claim_boundary": "No Seed Search; manifest/spec/golden-vector only; not a compression claim; not natural-corpus proof; not `.tlmr` format support.",
+    "next_allowed_action": "add externally sourced rank-table accession entries with paired controls, then request human review before any replay",
+    "conclusion": "The rank-coded lane now has a frozen contract and golden vectors, but it remains blocked because the external accession manifest is not ready and no replay is authorized."
+  }
+}

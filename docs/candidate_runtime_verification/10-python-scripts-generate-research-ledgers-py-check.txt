@@ -1,0 +1,10 @@
+command: python scripts/generate_research_ledgers.py --check
+started_at: 2026-05-25T22:20:41.612314+00:00
+finished_at: 2026-05-25T22:20:46.632843+00:00
+returncode: 0
+
+----- stdout -----
+Research ledger check pipeline passed (12 steps).
+
+
+----- stderr -----

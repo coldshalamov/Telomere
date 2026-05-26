@@ -1,0 +1,491 @@
+{
+  "generated_by": "scripts/generate_viability.py",
+  "generated_at": "2026-05-26T06:46:41.635684+00:00",
+  "format_version": 1,
+  "artifact_hashes": {
+    "results_sha256": "225465824966499a8d15a5721e0698c30ae83053d072dbec6c6b21558523f9ba",
+    "sweeps_sha256": "803c32715becd4eca7f52b5282fceaab539b953365ef223b477f3d5a6355dce7",
+    "deep_sweeps_sha256": "2176343942c8dff2eff0b9b55e0dff77fd03f5e4e010ef424e1e45524976331b",
+    "transform_sweeps_sha256": "33cef39339446bb7270c7fc35b90e7f5c79f73bb954b1ae8c4ae2db6fc7c2841",
+    "corpus_matrix_sha256": "2a9f8506a3c9e6aa47c0e91c1e15bf1951f9af0d0b3cb64129982e06a27e7bd2",
+    "corpus_generalization_probe_sha256": "4b687748c439a8f27897d7c7346cd088e41fa155de4c74aa190e48696c8359dd",
+    "composed_transform_probe_sha256": "c23611544994eaa766b2cb2847ce109788820a3a7706c052cc32cbea42ab1297",
+    "depth3_prefix_probe_sha256": "2d4e5a5dc19fb6403d11b3903a0f9fd086270f0a088c8e272cca79cca32719cd",
+    "depth3_compression_followup_sha256": "4bb6a9726ffdd9da1e76d43582142966a52d6accc5d9f7b71885f526bd7e129d",
+    "lead_depth3_prefix_probe_sha256": "0c37e5e2fbc02db790a021a56fffa4641ee1c06bc9de13be575f7334eb4729de",
+    "lead_depth3_compression_followup_sha256": "2ee0b23800899ee07d127914fd9ad2a161e5e25dcc7eb8dc566c653ca5248f2b",
+    "depth3_frontier_exact_discovery_sha256": "9284b7a2654fdc4610850e0e3251320f3448e715732753a2ce2526dee442e773",
+    "depth4_shard_plan_sha256": "982e56a81b0a5833f1a8b08f6696fc885f83da5440668ef277c2967757702734",
+    "depth4_pilot_shard_sha256": "f869511c072356a15ce5443f6f88a10cc75f74dd54ac321e37bf9f59d90ebf58",
+    "search_frontier_gate_sha256": "9d39bd91dcd1d735b313fe9a40c82cec2ec37a97c5596b8ab30976d170bff9d5",
+    "mechanism_experiment_ranking_sha256": "31800d430dde4b360873778de3a8437fcc836ff8fef6c3886a53eedfc550f18d",
+    "seed_table_preset_probe_sha256": "3128e58ca2d8868727d6f2cead64a6c7c57acbb199e09088bf0bdb4b6253f543",
+    "exact_short_hit_bundle_economics_sha256": "e1f2f45a8a8fdac4d5780b912e1f781de59da92dcd8d0e37c6ce8c760311350c",
+    "whole_stream_residual_vector_probe_sha256": "35f80e6345cc7230c5d615260d293d71c168664a886bcfcb2035f49be872b126",
+    "expander_salt_ensemble_sha256": "cbe5fac0b15dc49c47621005fa05f21692a39a6fdfbc1fdf000567e8468489b3",
+    "schema_native_public_dictionaries_sha256": "08e16ee9b2f67d22f340f3ef001325ff2f250f98c690bd6fcfb6397d2f96c45e",
+    "schema_native_public_dictionary_replication_sha256": "226d4446bd8930bea72d9d1f129c832c4778bd81fc2b76eeab21d6d7c2f7168e",
+    "superposition_telemetry_sha256": "447e382fb222d915f1d913e72a0a0d2bcd3eae6bb81e2a72d2acc7b030370f57",
+    "long_span_bundle_gate_sha256": "68e74aede8d58394b117282713bb6001df946a3d4d8f717aaaa60f20ad3fcd76",
+    "recursive_structured_fixtures_sha256": "2ab670c13d562e52f470ebec0ae5d61db29a82350c21780f064b741b3e1e0fac",
+    "scale_performance_report_sha256": "fe90df91a2f992edf6f10bc115517bd9870755fd4b5e85aa0ec9a09fde1b319d",
+    "ui_workflow_smoke_sha256": "ccf263cfc0fac703616c6fee57dba9e244213ae5c43464b57b93ef12f8b667b7",
+    "contextual_fifth_byte_steering_sha256": "ce80c9ccbb78185b3bce6b6e9562be879e37affe942aa7bebff2489a62622028",
+    "structural_transform_search_sha256": "f862b094763c7c7c1cf4ba45ac75246f3b874e51ef67afd329d803b15f7d9eb1",
+    "byte_permutation_transform_search_sha256": "a59e3b221fdacb987232b3741d7e3465ded04d0396d57171f755419dd7aff636",
+    "bwt_mtf_transform_probe_sha256": "77f27eccb2911d7220485be1a687ef49af88aaf53bbf61319e8dc01573f38138",
+    "grammar_channel_match_discovery_sha256": "79493dc0c51458571d8b3f90adc47ce1c9351328d29e6838f01169079daf5b06",
+    "numeric_value_channel_match_discovery_sha256": "81375d5f34e24927120cf49f70a8153fc2c4da910d0075250667d656469ad423",
+    "heldout_corpus_expansion_sha256": "a6e91a2d9d2d96b89510e4a81a685983ef394be930bfc71fde2c970c5beed149",
+    "record_context_transform_search_sha256": "b80fbb566ea2f5cc8159ba646c1df29381941627c92b6e86bd3b6b1d36b1d713",
+    "token_dictionary_transform_search_sha256": "045abb32731d15304d53428f101a9fa0baa8d7fb7eeea9c816251e467fe84951",
+    "affine_transform_search_sha256": "f45c9f1b1a50f3ba174e17d76a495bd4118bde5edd94419bf6a12518bc154d75",
+    "seed_manifold_residual_steering_sha256": "68d3e523b27b71ed009e3d3b52940fa3c4ccd87c3c3d06f56846711c617966a7",
+    "sidecar_break_even_sha256": "5d874157aff2e242739bfacfd1be05880ab4775ae38de1a574020105c5b41e6e",
+    "residual_payload_compressibility_sha256": "8456cf28aeca0da0121764b3fda9e812e6cfcffb018632ea737c010381649a0e",
+    "experimental_sidecar_descriptor_sha256": "4ac06d6a7c6db6cc9b4d22179e04f936d2781d692d0be8da28239be8be8cca17",
+    "sidecar_record_overhead_sha256": "201bd575e37f23af1d666e6c9bbf5a0afca1e91555d9833bc2f9f273a5960e74",
+    "packed_sidecar_descriptor_sha256": "df249b2875e3e492c1b9cd4d84ada0459b81554559b6e90dbe294dde7617bcb4",
+    "packed_sidecar_controls_sha256": "adcea5f79302d360f8fa2575c8da244cf5cf666f88736b5658240ce295a4f99a",
+    "generalized_packed_sidecar_sha256": "24c9060ef3152e0fcf9e0fe424d00a83546b66f8f9d0dea1aee64c2fb8c7ca40",
+    "packed_sidecar_replication_sha256": "31201fbd63a624f23c9437d31683e2fcb2dcbe80804e4623b5e51ec90d3b98df",
+    "match_discovery_sha256": "890b5167395b3ca5b0e622d7f7c61d565acc9665d88448edba8331bcbd70d7a0",
+    "alignment_arity_discovery_sha256": "a056600b2d110b6f4b51c02263e9a8a99862cf3f88c006f999886ac3b3f59a96",
+    "transformed_match_discovery_sha256": "ac028cc87f27652ab4ee1780a4e62100a9a14edde799394808c4a6b379d58447",
+    "lead_exact_discovery_sha256": "14d23146672c8cc1ff66250d9f6f874f9a7e4d2aa1a6abbbc24f2e32848d6ebe"
+  },
+  "verdict": "research-viable, not production-proven",
+  "entries": [
+    {
+      "level": 0,
+      "claim": "Codec safety and deterministic decode are guarded by required tests and generated roundtrips.",
+      "status": "qualified",
+      "evidence": "Release gates require cargo test --all-targets plus generated compress/decompress scripts.",
+      "limitation": "This ledger records the gate requirement; command output is verified separately by the release gate run."
+    },
+    {
+      "level": 1,
+      "claim": "Planted short-seed data can produce negative delta.",
+      "status": "proved",
+      "evidence": "planted-sha256-arity2: 256 -> 168 bytes (-34.38%).",
+      "limitation": "Planted data proves mechanism, not natural corpus prevalence."
+    },
+    {
+      "level": 2,
+      "claim": "Indexed lookup and streaming lookup agree on the planted span8 fixture.",
+      "status": "proved",
+      "evidence": "indexed/span8 and streaming/span8 both output 720 bytes.",
+      "limitation": "Small fixture parity; deeper seed spaces still need larger parity matrices."
+    },
+    {
+      "level": 3,
+      "claim": "Record overhead threshold is visible and span length matters.",
+      "status": "proved",
+      "evidence": "span-4 bloats by 83 bytes; span-20 saves 682 bytes.",
+      "limitation": "Generated spans only; not a general compression promise."
+    },
+    {
+      "level": 4,
+      "claim": "Planted-density break-even is measured.",
+      "status": "proved",
+      "evidence": "First negative density row is density-256 at 256 planted bytes.",
+      "limitation": "Break-even depends on record format, span length, and corpus construction."
+    },
+    {
+      "level": 5,
+      "claim": "Recursive v2 can create a second-pass win, but does not show open-ended convergence.",
+      "status": "qualified",
+      "evidence": "offset-1 pass1 1108 bytes, pass2 759 bytes, pass4 759 bytes.",
+      "limitation": "Current positive recursive evidence is an offset/control fixture."
+    },
+    {
+      "level": 6,
+      "claim": "Sub-block span-step search can recover offset generated spans in one pass.",
+      "status": "qualified",
+      "evidence": "offset-1 block-step selected 0 spans; span-step-1 offsets 1, 2, and 3 output 724 bytes with 128 spans, 725 bytes with 128 spans, 726 bytes with 128 spans.",
+      "limitation": "Byte-step search expands the candidate grid and cost; it is alignment evidence, not a natural-corpus result."
+    },
+    {
+      "level": 7,
+      "claim": "Seed depth 2 expands the searchable space and is measured separately from normal fast tests.",
+      "status": "qualified",
+      "evidence": "two-byte planted fixture depth1 1107 bytes with 0 spans; depth2 848 bytes with 128 spans; structured depth2 1.22% delta.",
+      "limitation": "Depth 2 proves wider search can unlock controlled seeds, but current structured depth-2 control still does not shrink."
+    },
+    {
+      "level": 8,
+      "claim": "Seed depth 3 is measured as an opt-in deep-search artifact.",
+      "status": "qualified",
+      "evidence": "three-byte planted fixture depth2 1107 bytes with 0 spans; depth3 976 bytes with 128 spans; structured depth3 1.22% delta.",
+      "limitation": "Depth 3 is only proven on tiny opt-in controls; current structured depth-3 control still does not shrink."
+    },
+    {
+      "level": 9,
+      "claim": "Cheap generic reversible transforms do not create structured JSON seed-span wins yet.",
+      "status": "qualified",
+      "evidence": "identity 1.22%, xor-prev 1.23%, sub-prev 1.23%, line-transpose 3.61%; all selected 0 spans.",
+      "limitation": "This covers only cheap byte-layout transforms on one generated JSON corpus."
+    },
+    {
+      "level": 10,
+      "claim": "A static domain-token preconditioner can reduce effective JSON bytes, but it is transform gain rather than seed-span gain.",
+      "status": "qualified",
+      "evidence": "static-token effective delta -68.39% with 0 selected spans.",
+      "limitation": "This is a domain dictionary experiment, not current `.tlmr` format support and not evidence of natural seed matches."
+    },
+    {
+      "level": 11,
+      "claim": "Structured and binary controls do not yet show natural-corpus wins.",
+      "status": "qualified",
+      "evidence": "structured JSON 1.22% delta; best structured-search sweep structured-json-span8-step4-pass1 1.22% delta; best broad corpus-matrix row http-headers-depth2 0.18% delta with 0 selected spans; structured depth3 1.22% delta; kolyma PDF 0.0077% delta.",
+      "limitation": "This is honest negative evidence across current seed-depth-1, seed-depth-2, broad generated corpus-matrix, and tiny opt-in seed-depth-3 structured searches; transformed wins remain open."
+    },
+    {
+      "level": 12,
+      "claim": "Composing context/residual transforms with periodic masks does not yet cross the fifth-byte gate.",
+      "status": "open",
+      "evidence": "525 composed candidates selected 33 discovery leads; held-out prefix>=5 uplift 0 corpora; held-out exact hits 0.",
+      "limitation": "Composition is a bounded research probe, not current `.tlmr` format support."
+    },
+    {
+      "level": 13,
+      "claim": "Depth-3 search can move a few held-out prefix frontiers, but exact hits are still absent.",
+      "status": "qualified",
+      "evidence": "16843008 depth-3 seeds enumerated; 3 held-out rows gained prefix>=5 movement; exact hits 0.",
+      "limitation": "Prefix movement is a search-frontier signal, not a `.tlmr` compression win until exact seed-span records beat overhead."
+    },
+    {
+      "level": 14,
+      "claim": "The bounded depth-3 compression follow-up did not convert prefix movement into selected spans.",
+      "status": "open",
+      "evidence": "2 physical input / 3 logical aliases; selected spans 0; negative-delta rows 0.",
+      "limitation": "This is a useful null on the current promoted rows, not a proof that all depth-3 search is barren."
+    },
+    {
+      "level": 15,
+      "claim": "Context-conditioned fifth-byte steering does not yet beat the held-out promotion gate.",
+      "status": "open",
+      "evidence": "16 contextual masks checked; held-out prefix>=5 win rows 0; exact-hit rows 0; null prefix>=5 win rows 0.",
+      "limitation": "This rejects one plausible steering family; it does not rule out richer reversible transforms."
+    },
+    {
+      "level": 16,
+      "claim": "Bounded structural reversible transforms do not yet create held-out longer-prefix or exact seed-span wins.",
+      "status": "open",
+      "evidence": "30 structural candidates over 660 validation rows; held-out prefix>=5 win corpora 0; held-out exact hits 0; shadow prefix>=5 win corpora 0; binary exact hits 0.",
+      "limitation": "This rejects the current bounded structural families, not all possible reversible preconditioners."
+    },
+    {
+      "level": 17,
+      "claim": "Affine byte remaps can move held-out prefix-4 proximity broadly, but still do not cross the fifth-byte gate.",
+      "status": "open",
+      "evidence": "7937 affine candidates searched; 16 held-out corpora had prefix>=4 uplift; held-out prefix>=5 win corpora 0; held-out exact hits 0.",
+      "limitation": "Prefix-4 uplift is a steering signal, not a seed-span compression win."
+    },
+    {
+      "level": 18,
+      "claim": "Residual sidecar steering can force some exact spans, but current span-8 economics still bloat.",
+      "status": "open",
+      "evidence": "31 held-out rows had forced exact spans; 31 had positive seed contribution before sidecar cost; held-out positive net-delta rows 0; best held-out net delta 5 bytes.",
+      "limitation": "This measures span-8 suffix-residual sidecars only; it is not format support or a proof about all longer-span sidecars."
+    },
+    {
+      "level": 19,
+      "claim": "Longer-span residual sidecars need stronger evidence than the current prefix frontier provides.",
+      "status": "open",
+      "evidence": "648 break-even rows; minimum raw-suffix strict prefix 6; max observed held-out forced prefix 4; raw-suffix model-viable rows at observed prefix 0; sublinear model-viable rows at observed prefix 23; promoted rows 0.",
+      "limitation": "This is math-only gating; sublinear residual models need measured, invertible payload compression before format or engine work."
+    },
+    {
+      "level": 20,
+      "claim": "Measured residual payload coders expose one narrow held-out sidecar signal, but not general format support.",
+      "status": "qualified",
+      "evidence": "31 held-out payload rows; measured held-out negative rows 1; best measured case rust-like-heldout::affine-a003-b211::prefix4-suffix-xor; zlib best held-out net delta -101 bytes; quarter-rate held-out negative rows 0.",
+      "limitation": "This promotes a narrow experimental payload descriptor follow-up; it is not `.tlmr` sidecar format support."
+    },
+    {
+      "level": 21,
+      "claim": "The first experimental sidecar descriptor decodes, rejects corruption, and still bloats after full-stream overhead.",
+      "status": "qualified",
+      "evidence": "2 descriptor rows; decode verified rows 2; full-stream negative rows 0; best full-stream delta 596 bytes; best local selected delta -100 bytes.",
+      "limitation": "This falsifies immediate sidecar format promotion for the current row; lower-overhead records or larger bundles remain open."
+    },
+    {
+      "level": 22,
+      "claim": "Packed sidecar offset/seed-index budgets can make the promoted row full-stream negative on paper.",
+      "status": "qualified",
+      "evidence": "14 layout rows; negative layout rows 6; best safe layout delta_offset_u8_seed_u16 at -489 bytes; best layout delta_offset_u8_seed_u16_no_hashes at -553 bytes.",
+      "limitation": "This is a budget model only; it needs an exact packed-table decoder before it becomes evidence for format work."
+    },
+    {
+      "level": 23,
+      "claim": "A packed offset/seed-index sidecar descriptor can decode and produce full-stream negative delta on one promoted held-out row.",
+      "status": "qualified",
+      "evidence": "2 packed descriptor rows; decode verified rows 2; full-stream negative rows 2; best coder zlib_level9 at -485 bytes.",
+      "limitation": "This is one promoted held-out row and research-only descriptor evidence, not a general natural-corpus or `.tlmr` format claim."
+    },
+    {
+      "level": 24,
+      "claim": "Packed sidecar controls show the descriptor signal is real but still narrow.",
+      "status": "qualified",
+      "evidence": "96 control rows; encoded rows 10; unique negative cases 4; ordinary held-out negative cases 1; best delta -485 bytes.",
+      "limitation": "Current packed descriptor assumptions skip most selected rows and have only one ordinary held-out negative case."
+    },
+    {
+      "level": 25,
+      "claim": "Generalized packed offset and seed modes improve descriptor economics, but do not yet broaden ordinary held-out wins.",
+      "status": "qualified",
+      "evidence": "1920 generalized rows; encoded rows 1576; unique encoded source rows 48; unique negative cases 14; ordinary held-out negative cases 1; best-supported table bytes 2842 versus baseline 6872.",
+      "limitation": "This improves descriptor applicability, not proof of broad natural-corpus viability."
+    },
+    {
+      "level": 26,
+      "claim": "Frozen packed sidecar replication did not reproduce full-stream negative rows on unrelated held-out corpora.",
+      "status": "open",
+      "evidence": "20 predeclared corpora; 520 source cases; 6240 descriptor rows; decode verified rows 6240; full-stream negative rows 0; ordinary held-out negative groups 0.",
+      "limitation": "This is falsification evidence for the current descriptor and transform set; it does not rule out future match-discovery or deeper-search approaches."
+    },
+    {
+      "level": 27,
+      "claim": "Pre-sidecar match discovery did not find exact seed-span matches across the current validation and replication corpus matrix.",
+      "status": "open",
+      "evidence": "42 corpora; 1050 rows; 11154720 target spans scanned; rows with prefix>=5 0; rows with exact hits 0; selected spans 0.",
+      "limitation": "This covers seed depth 2, arity 1..5, and the current search policies; it does not rule out deeper seed windows, new corpora, or new reversible transforms."
+    },
+    {
+      "level": 28,
+      "claim": "Alignment and arity discovery found only unprofitable short-span exact hits.",
+      "status": "open",
+      "evidence": "25210986 target spans; 194 supported configs; skipped configs 11; rows with prefix>=5 0; exact hits 3480; positive exact hits 0; selected spans 0.",
+      "limitation": "This tests block size, step policy, phase, and arity at seed depth 2; it does not rule out deeper seed spaces or new reversible transforms."
+    },
+    {
+      "level": 29,
+      "claim": "Frozen reversible transforms did not create selected exact seed-span rows.",
+      "status": "open",
+      "evidence": "16494870 transformed target spans; 21 transforms; rows with prefix>=5 0; exact hits 0; selected spans 0; metadata-profitable rows 0.",
+      "limitation": "This covers the frozen transform-validation matrix at seed depth 2 and span length 8; it does not rule out new transform families or deeper seed spaces."
+    },
+    {
+      "level": 30,
+      "claim": "Selected affine, periodic, and composed leads did not create exact seed-span rows.",
+      "status": "open",
+      "evidence": "71477770 selected-lead target spans; 91 leads; rows with prefix>=5 0; exact hits 0; selected spans 0; metadata-profitable rows 0.",
+      "limitation": "This follows only already-selected affine, periodic, and composed leads; it is a falsifier for broadening current prefix-4 leads, not for all possible transforms."
+    },
+    {
+      "level": 31,
+      "claim": "Current CPU streaming scales to the generated 16 MiB planted-density sweep.",
+      "status": "qualified",
+      "evidence": "scale-density50-16777216: 16777216 -> 13631955 bytes, 10549.428 ms, peak 1934.602 MiB.",
+      "limitation": "16 MiB is useful local evidence, not production-scale archival proof."
+    },
+    {
+      "level": 32,
+      "claim": "The generated scale-performance report makes bounded planted-density scaling interpretable but memory-heavy.",
+      "status": "qualified",
+      "evidence": "9 memory-scaling rows; largest scale 16.0 MiB; largest peak memory 1934.602 MiB; largest peak/estimated-table ratio 21.985; plateau ratio spread 6.514%; next double peak estimate 3869.204 MiB.",
+      "limitation": "This is planted-density scale telemetry only; it does not prove natural-corpus compression or production memory behavior."
+    },
+    {
+      "level": 33,
+      "claim": "The Tauri evidence ledger panel has static UI/bridge workflow coverage.",
+      "status": "qualified",
+      "evidence": "UI evidence keys 87; Tauri evidence fields 115; required cards 22; missing Tauri fields 0; missing mock fields 0; claim level ui_workflow_static_smoke_passed.",
+      "limitation": "This is static schema and artifact wiring coverage; it is not a full desktop browser smoke run."
+    },
+    {
+      "level": 34,
+      "claim": "Selected-lead depth-3 compression follow-up stayed null after prefix movement.",
+      "status": "open",
+      "evidence": "Lead depth-3 prefix probe enumerated 16843008 seeds; 2 rows gained prefix>=5 movement, exact hits 0. The follow-up ran 1 physical input / 2 aliases with 0 selected spans.",
+      "limitation": "Selected-lead prefix movement is still not a compression win without exact records selected by the compressor."
+    },
+    {
+      "level": 35,
+      "claim": "Depth-3 frontier exact discovery found prefix movement only, not exact seed-span records.",
+      "status": "open",
+      "evidence": "26 frontier rows over 15 physical payloads enumerated 16843008 seeds; prefix>=5 uplift rows 2, exact hits 0, selected spans 0.",
+      "limitation": "This is the current gate against broad depth-3/depth-4 work; it can be reopened only by stronger exact-hit evidence."
+    },
+    {
+      "level": 36,
+      "claim": "Depth-4 search is sharded and explicitly gated rather than a default next step.",
+      "status": "open",
+      "evidence": "Depth-4 plan status gated; estimated incremental full depth-4 time 7.8799 hours; exact-8 probability on the current frontier 0.00017141.",
+      "limitation": "The plan makes depth-4 reproducible and sharded, but current evidence does not justify running all shards."
+    },
+    {
+      "level": 37,
+      "claim": "Depth-4 pilot shards are bounded evidence gates, not production compression claims.",
+      "status": "open",
+      "evidence": "1 pilot shard enumerated 16777216 four-byte seeds over 736265 frontier target spans; prefix>=5 rows 0; prefix>=6 rows 0; exact hits 0; selected spans 0.",
+      "limitation": "One shard is useful null evidence only; the remaining shards stay gated until stronger frontier evidence appears."
+    },
+    {
+      "level": 38,
+      "claim": "The generated search-frontier gate blocks broad raw depth search from the current prefix-only frontier.",
+      "status": "open",
+      "evidence": "Gate status hold-broad-depth-search; best non-planted forecast 828.0 GiB per expected exact hit; depth-4 exact-8 probability 0.00017141; selected span total 0; blocking gates 7 of 7.",
+      "limitation": "This is a decision artifact assembled from current evidence, not a mathematical impossibility proof or a compression result."
+    },
+    {
+      "level": 39,
+      "claim": "The generated mechanism-experiment ranking makes seed-table preset probing the next non-depth experiment.",
+      "status": "open",
+      "evidence": "Top lane seed-table-preset-probe; top next artifact docs/SEED_TABLE_PRESET_PROBE.md; ready lanes 7; gated lanes 1; blocked lanes 2; selected spans 0.",
+      "limitation": "This is generated evidence triage, not natural-corpus compression proof or format support."
+    },
+    {
+      "level": 40,
+      "claim": "The generated long-span bundle gate blocks broad long-span sweeps from the current evidence base.",
+      "status": "blocked-by-evidence",
+      "evidence": "Gates met 0 of 8; recommendation hold_long_span_bundle_sweeps; best forecast 828.0 GiB; selected spans 0; raw-suffix required prefix 6; max observed prefix 4; claim level long_span_bundle_gate_blocked_by_evidence.",
+      "limitation": "This is a no-run gate assembled from current evidence; it should be regenerated if any prerequisite artifact changes."
+    },
+    {
+      "level": 41,
+      "claim": "The generated seed-table preset probe did not yet promote a public Lotus preset.",
+      "status": "open",
+      "evidence": "Canonical selected spans 37768; ordinary held-out negative groups 0; control negative groups 0; SHA-256 baseline selected spans 0; promotion met False.",
+      "limitation": "This is a research-only seed-table/Lotus preset probe, not `.tlmr` format support or natural-corpus proof."
+    },
+    {
+      "level": 42,
+      "claim": "The generated exact short-hit bundle economics artifact does not yet promote span-3 hit bundling.",
+      "status": "open",
+      "evidence": "Reconstructed exact hits 3480; zero-overhead best delta -1410 bytes; full-stream negative rows 6; ordinary negative groups 3; control negative groups 1; control density comparable True; promotion met False.",
+      "limitation": "This is an accounting artifact over frozen verified short hits, not new search, `.tlmr` support, or broad natural-corpus proof."
+    },
+    {
+      "level": 43,
+      "claim": "The generated whole-stream residual vector probe closes the current residual-sidecar path as a broad compression claim.",
+      "status": "open",
+      "evidence": "Rows 2970; honest encoded rows 2358; exact decode rows 2358; honest full-stream negative rows 0; ordinary held-out negative groups 0; control negative groups 0; measured residual coding near entropy bound True; promotion met False.",
+      "limitation": "This is a whole-stream residual-vector falsification artifact, not `.tlmr` format support, compressed literal-stream evidence, or a new seed search."
+    },
+    {
+      "level": 44,
+      "claim": "The generated expander salt ensemble did not beat the matched random-trial baseline.",
+      "status": "open",
+      "evidence": "Predeclared salts 16; salted exact hits 0; salted expected exact hits 0.648961; random-trial multiplier exceeded False; salted selected-span rows 0; full-stream negative rows 0; ordinary negative groups 0; control negative groups 0; promotion met False.",
+      "limitation": "This is a research-only predeclared salt/preset ensemble probe, not `.tlmr` format support or evidence for per-file trained expanders."
+    },
+    {
+      "level": 45,
+      "claim": "The generated schema-native public dictionary probe found a narrow public-preset positive result.",
+      "status": "qualified",
+      "evidence": "Public entries 101; family selected spans 11302; ordinary held-out negative groups 14; family control negative groups 0; wrong-schema negative groups 0; same-size random negative groups 0; shadow negative groups 0; beats generic baseline True; promotion met True.",
+      "limitation": "This is public dictionary-preset evidence on schema-shaped synthetic corpora, not current `.tlmr` format support or proof that SHA-256 seed expansion discovered natural structure."
+    },
+    {
+      "level": 46,
+      "claim": "The schema-native public dictionary replication blocked promotion on paired shadow controls.",
+      "status": "blocked-by-evidence",
+      "evidence": "Replication corpora 20; standards selected spans 20239; ordinary negative groups 9; standards control negative groups 2; generic ordinary negative groups 2; wrong-family ordinary negative groups 0; claim level control_failed_on_frozen_expansion_corpora; promotion met False.",
+      "limitation": "This hardening artifact downgrades the public dictionary signal until paired shadow controls and externally sourced corpora separate cleanly."
+    },
+    {
+      "level": 47,
+      "claim": "The generated superposition telemetry proves selector auditability on deterministic overlap fixtures.",
+      "status": "qualified",
+      "evidence": "Fixtures 4; candidates 13; retained alternatives 2; weighted extra savings 4; weighted-beats-greedy fixtures 1; unexplained discards 0; promotion met True.",
+      "limitation": "This is selector correctness and telemetry evidence only; it does not create new seed hits or prove natural-corpus compression."
+    },
+    {
+      "level": 48,
+      "claim": "Recursive v2 later-layer gains remain unpromoted outside planted offset controls.",
+      "status": "blocked-by-evidence",
+      "evidence": "Fixtures 5; ordinary structured fixtures 3; ordinary later-win families 0; planted offset later-win families 0; first-pass control win families 1; all decoded exactly True; claim level recursive_structured_fixtures_not_promoted; promotion met False.",
+      "limitation": "This is real CLI v2 recursive evidence with metadata charged; it blocks broad recursive claims until at least two ordinary non-offset families improve on later layers."
+    },
+    {
+      "level": 49,
+      "claim": "Corpus generalization controls did not produce exact seed-span rows.",
+      "status": "open",
+      "evidence": "6 controls scanned 71250 spans; prefix>=5 rows 0; exact hits 0; selected spans 0.",
+      "limitation": "This reduces literal-token overfit risk but does not replace broader held-out natural corpus validation."
+    },
+    {
+      "level": 50,
+      "claim": "Byte-permutation seed-manifold alignment did not yet produce exact seed-span rows.",
+      "status": "open",
+      "evidence": "7 transforms over 154 rows scanned 3046715 spans; prefix>=5 rows 0; exact hits 0; selected spans 0; rows negative after metadata 0.",
+      "limitation": "This covers rank-based global and phase-local byte permutations only; grammar-channel transforms are tested separately."
+    },
+    {
+      "level": 51,
+      "claim": "BWT/MTF classic preconditioners did not yet produce exact seed-span rows.",
+      "status": "open",
+      "evidence": "9 BWT/MTF/RLE transforms over 90 rows scanned 1939897 spans; prefix>=5 rows 0; exact hits 0; selected spans 0; rows negative after metadata 0; shorter transformed payload rows 6.",
+      "limitation": "This covers bounded block BWT, MTF, and zero-run packing only; transform-only shortening is not counted as Lotus evidence."
+    },
+    {
+      "level": 52,
+      "claim": "Grammar/channel discovery did not yet produce exact seed-span rows.",
+      "status": "open",
+      "evidence": "9 channels over 198 rows scanned 3480293 spans; prefix>=5 rows 0; exact hits 0; selected spans 0; rows negative after metadata 0.",
+      "limitation": "This covers first-pass grammar channels with charged literal sidecars only; richer parsers may need a new artifact."
+    },
+    {
+      "level": 53,
+      "claim": "Numeric value-channel discovery did not yet produce exact seed-span rows.",
+      "status": "open",
+      "evidence": "7 numeric value channels over 98 rows parsed 120214 values and scanned 618367 spans; prefix>=5 rows 0; exact hits 0; selected spans 0; rows negative after metadata 0.",
+      "limitation": "This covers bounded parsed numeric value streams with exact reconstruction metadata charged; timestamp/vector numeric channels remain future research."
+    },
+    {
+      "level": 54,
+      "claim": "Held-out corpus expansion broadened deterministic corpus coverage but did not change the raw seed frontier.",
+      "status": "qualified",
+      "evidence": "20 frozen replication corpora, 13 ordinary and 7 controls, scanned 680395 raw spans; missing from corpus matrix 20; prefix>=5 rows 0; exact-hit rows 0; selected-span rows 0.",
+      "limitation": "This is a separate frontier artifact; it intentionally does not stale the expensive transform-validation or corpus-matrix hash chain."
+    },
+    {
+      "level": 55,
+      "claim": "Record/context-aware transforms did not yet produce exact seed-span rows.",
+      "status": "open",
+      "evidence": "14 transforms over 84 rows scanned 1164215 spans; prefix>=5 rows 0; exact hits 0; selected spans 0; rows negative after metadata 0.",
+      "limitation": "This covers the current line/field/fixed-width/delta descriptor families only, not every possible record-aware transform."
+    },
+    {
+      "level": 56,
+      "claim": "Token/dictionary transforms did not yet produce exact seed-span rows.",
+      "status": "open",
+      "evidence": "9 transforms over 126 rows scanned 827371 spans; prefix>=5 rows 0; exact hits 0; selected spans 0; rows negative after metadata 0.",
+      "limitation": "This covers lexeme dictionary and token-order streams only; richer grammar coders remain open research."
+    }
+  ],
+  "open_questions": [
+    "Turn promising preconditioners into a versioned reversible format layer, or reject them as non-Telomere transform-only gains.",
+    "Find repeatable natural or transformed structured-corpus seed-span wins beyond the current seed-depth-1, seed-depth-2, and opt-in seed-depth-3 controls.",
+    "Find a transform family that survives held-out composition testing into prefix>=5 or exact seed-span hits.",
+    "Design transform families beyond the current bounded structural permutations and residuals, or retire this lane if new families keep returning null.",
+    "Find new independent match-discovery leads beyond the current depth-2 arity 1..5 validation and replication matrix.",
+    "Use depth-3 frontier exact discovery as the gate before any broad depth-3 or opt-in depth-4 search.",
+    "Use the depth-4 shard plan only for pilot shards until the promotion gate is met.",
+    "Use the generated search-frontier gate as the go/no-go source before any broad raw depth or full depth-4 execution.",
+    "Use the generated mechanism-experiment ranking to prioritize seed-table preset probing before raw-depth escalation or format promotion.",
+    "Use the generated long-span bundle gate before running long-span sweeps or optimizing bundle packing.",
+    "Use the generated seed-table preset probe as null evidence before spending further on public corpus-shaped Lotus presets.",
+    "Use the generated exact short-hit bundle economics artifact as null evidence before spending further on span-3 hit bundling.",
+    "Use the generated recursive structured fixtures as the gate before claiming recursive convergence beyond planted offset controls.",
+    "Use the generated scale-performance report before extending planted-density runs beyond the current 16 MiB memory-heavy sweep.",
+    "Keep the generated UI workflow smoke in lockstep with any Tauri evidence DTO or ledger-panel changes.",
+    "Move beyond alignment/arity tuning only after a lane produces profitable exact hits or repeatable prefix>=5 movement.",
+    "Do not promote the frozen transform-validation matrix without exact selected spans after transform metadata is charged.",
+    "Stop broadening selected affine/periodic/composed prefix-4 leads unless a new lead crosses prefix>=5 or exact-hit thresholds.",
+    "Find a new lead before spending on broad depth-3 sweeps; the bounded follow-up on current promoted rows found zero selected spans.",
+    "Use the generated vocabulary-disjoint shadow corpora and binary TLV/varint controls before trusting literal-token-driven prefix wins.",
+    "Treat the corpus generalization null as a reason to implement record-aware transforms before broadening expensive corpus discovery.",
+    "Treat the BWT/MTF null as evidence that classic entropy preconditioners do not automatically create Lotus seed-span hits.",
+    "Treat the grammar/channel null as a reason to design stronger parser-backed channels before increasing seed depth.",
+    "Treat the numeric value-channel null as evidence against simple parsed-value streams before adding format support.",
+    "Use the held-out corpus expansion as a promotion gate before mutating the expensive corpus matrix or transform-validation matrix.",
+    "Treat the record/context transform null as a reason to find stronger record descriptors before spending on format support.",
+    "Treat the token/dictionary transform null as evidence against simple lexeme dictionaries without stronger grammar models.",
+    "Extend seed-depth-3 economics beyond tiny controls only after runtime and memory stay bounded.",
+    "Replace research-only GPU fallback with real OpenCL only if it beats CPU streaming under parity tests.",
+    "Push generated scale sweeps past 16 MiB after memory telemetry and chunking are acceptable."
+  ]
+}

@@ -1,11 +1,13 @@
-//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
+//! Runtime configuration and validation for supported Telomere engines.
 use crate::hasher::{Blake3Expander, SeedExpander, Sha256Expander, Sha256NiExpander};
 use crate::tlmr::{MAX_ARITY, MAX_BLOCK_SIZE, MAX_HASH_BITS, MAX_SEED_LEN};
 use crate::TelomereError;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 /// Enum representing the chosen hasher for seed expansion.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
 pub enum HasherKind {
     Blake3,
     Sha256,
@@ -17,6 +19,14 @@ impl HasherKind {
         match self {
             HasherKind::Blake3 => "blake3",
             HasherKind::Sha256 | HasherKind::Sha256Ni => "sha256",
+        }
+    }
+
+    pub fn get_expander(self) -> Box<dyn SeedExpander> {
+        match self {
+            HasherKind::Blake3 => Box::new(Blake3Expander),
+            HasherKind::Sha256 => Box::new(Sha256Expander),
+            HasherKind::Sha256Ni => Box::new(Sha256NiExpander),
         }
     }
 }
@@ -92,10 +102,6 @@ impl Config {
 
     /// Returns a boxed seed expander based on the configuration.
     pub fn get_expander(&self) -> Box<dyn SeedExpander> {
-        match self.hasher {
-            HasherKind::Blake3 => Box::new(Blake3Expander),
-            HasherKind::Sha256 => Box::new(Sha256Expander),
-            HasherKind::Sha256Ni => Box::new(Sha256NiExpander),
-        }
+        self.hasher.get_expander()
     }
 }

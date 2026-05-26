@@ -1,4 +1,3 @@
-//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 //!
 //! This CLI tool prints the count of blocks by bit length for a given file
 //! and block size. Used for debugging and exploratory analysis.

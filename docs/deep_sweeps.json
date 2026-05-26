@@ -1,0 +1,171 @@
+{
+  "generated_by": "scripts/generate_deep_sweeps.py",
+  "generated_at": "2026-05-25T17:27:15.916278+00:00",
+  "format_version": 1,
+  "deep_manifest_sha256": "3f29b65e144a419fb919ed5cb675cc00583d46dcb67f46fc3b07b59db4a0043f",
+  "deep_sweep_matrix": [
+    {
+      "name": "seed3-planted-depth2",
+      "group": "seed-depth-3",
+      "corpus": "planted-seed3",
+      "span_len": 8,
+      "input_bytes": 1024,
+      "passes": 1,
+      "block_size": 4,
+      "span_step": 4,
+      "max_span_len": 8,
+      "seed_depth": 2,
+      "hasher": "sha256",
+      "note": "Control run: a three-byte-seed planted span searched only through depth 2."
+    },
+    {
+      "name": "seed3-planted-depth3",
+      "group": "seed-depth-3",
+      "corpus": "planted-seed3",
+      "span_len": 8,
+      "input_bytes": 1024,
+      "passes": 1,
+      "block_size": 4,
+      "span_step": 4,
+      "max_span_len": 8,
+      "seed_depth": 3,
+      "hasher": "sha256",
+      "note": "Bounded depth-3 proof: the same planted span becomes searchable with a three-byte seed."
+    },
+    {
+      "name": "structured-json-depth3-span8-step1-pass1",
+      "group": "seed-depth-3",
+      "corpus": "structured-json",
+      "span_len": 8,
+      "input_bytes": 6814,
+      "passes": 1,
+      "block_size": 4,
+      "span_step": 1,
+      "max_span_len": 8,
+      "seed_depth": 3,
+      "hasher": "sha256",
+      "note": "Non-planted structured JSON searched at depth 3 with byte-step starts."
+    }
+  ],
+  "selected_case_names": [
+    "seed3-planted-depth2",
+    "seed3-planted-depth3",
+    "structured-json-depth3-span8-step1-pass1"
+  ],
+  "environment": {
+    "os": "Windows-11-10.0.26200-SP0",
+    "python": "3.14.3",
+    "rustc": "rustc 1.94.1 (e408947bf 2026-03-25)",
+    "cargo": "cargo 1.94.1 (29ea6fb6a 2026-03-24)",
+    "git_commit": "6fd2bd6",
+    "git_dirty": true,
+    "rayon_num_threads": null
+  },
+  "results": [
+    {
+      "name": "seed3-planted-depth2",
+      "group": "seed-depth-3",
+      "span_len": 8,
+      "span_step": 4,
+      "seed_depth": 2,
+      "passes": 1,
+      "input_sha256": "3d0f54a0cf2b268890fde4825bedce815e24e5940683af415027b80042e8187b",
+      "output_sha256": "645e263323462d8067043402d6f7cd3b35c00497f1c8ae804432dd83f27d3626",
+      "input_bytes": 1024,
+      "output_bytes": 1107,
+      "delta_bytes": 83,
+      "delta_pct": 8.10546875,
+      "compress_ms": 39.561,
+      "throughput_mib_s": 0.025,
+      "decompress_ms": 17.494,
+      "memory_limit": "100%",
+      "peak_memory_bytes": 9576448,
+      "peak_memory_mib": 9.133,
+      "telemetry": {
+        "candidate_count": 0,
+        "selected_count": 0,
+        "literal_bytes": 1024,
+        "bundle_count": 0,
+        "layer_count": 1,
+        "layer_payload_bytes": [
+          1027
+        ],
+        "layer_selected_counts": [
+          0
+        ],
+        "stop_reason": "max_passes",
+        "container_bytes": 1107
+      }
+    },
+    {
+      "name": "seed3-planted-depth3",
+      "group": "seed-depth-3",
+      "span_len": 8,
+      "span_step": 4,
+      "seed_depth": 3,
+      "passes": 1,
+      "input_sha256": "3d0f54a0cf2b268890fde4825bedce815e24e5940683af415027b80042e8187b",
+      "output_sha256": "f30b13992749389430b1fb46d7f69056c16be6217d1b09bd788bb0e854e54a25",
+      "input_bytes": 1024,
+      "output_bytes": 976,
+      "delta_bytes": -48,
+      "delta_pct": -4.6875,
+      "compress_ms": 2000.703,
+      "throughput_mib_s": 0.0,
+      "decompress_ms": 17.033,
+      "memory_limit": "100%",
+      "peak_memory_bytes": 9580544,
+      "peak_memory_mib": 9.137,
+      "telemetry": {
+        "candidate_count": 128,
+        "selected_count": 128,
+        "literal_bytes": 0,
+        "bundle_count": 128,
+        "layer_count": 1,
+        "layer_payload_bytes": [
+          896
+        ],
+        "layer_selected_counts": [
+          128
+        ],
+        "stop_reason": "max_passes",
+        "container_bytes": 976
+      }
+    },
+    {
+      "name": "structured-json-depth3-span8-step1-pass1",
+      "group": "seed-depth-3",
+      "span_len": 8,
+      "span_step": 1,
+      "seed_depth": 3,
+      "passes": 1,
+      "input_sha256": "bdf510bb33abe37af993ba2e3d4b2cb9949ca9906896a3188d1d7f922537fc99",
+      "output_sha256": "9b575b581c4cf1f93e3d49d51bd03b27d11d60e5c8a79c57a502c65232bf0a26",
+      "input_bytes": 6814,
+      "output_bytes": 6897,
+      "delta_bytes": 83,
+      "delta_pct": 1.218080422659231,
+      "compress_ms": 2258.184,
+      "throughput_mib_s": 0.003,
+      "decompress_ms": 69.585,
+      "memory_limit": "100%",
+      "peak_memory_bytes": 9621504,
+      "peak_memory_mib": 9.176,
+      "telemetry": {
+        "candidate_count": 0,
+        "selected_count": 0,
+        "literal_bytes": 6814,
+        "bundle_count": 0,
+        "layer_count": 1,
+        "layer_payload_bytes": [
+          6817
+        ],
+        "layer_selected_counts": [
+          0
+        ],
+        "stop_reason": "max_passes",
+        "container_bytes": 6897
+      }
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "record": {
+    "state": "pending",
+    "fields": [
+      {"name": "alpha", "kind": "decimal", "required": true},
+      {"name": "beta", "kind": "decimal", "required": true},
+      {"name": "gamma", "kind": "variant", "required": false}
+    ],
+    "transitions": {
+      "empty": "branch",
+      "filled": "emit",
+      "invalid": "reject"
+    }
+  }
+}

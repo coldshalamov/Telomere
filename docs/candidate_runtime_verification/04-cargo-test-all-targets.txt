@@ -1,0 +1,547 @@
+command: cargo test --all-targets
+started_at: 2026-05-25T22:08:47.656384+00:00
+finished_at: 2026-05-25T22:13:01.168576+00:00
+returncode: 0
+
+----- stdout -----
+
+running 25 tests
+test block::tests::add_block_records_blake3_digest ... ok
+test bundler::tests::idempotence ... ok
+test bundler::tests::reject_incomplete_span ... ok
+test candidate::tests::bundle_wipes_out_nonbundles ... ok
+test bundler::tests::merge_single_opportunity ... ok
+test candidate::tests::prunes_candidates_by_bits_length ... ok
+test hash_reader::tests::basic_lookup ... ok
+test file_header::tests::evql_roundtrip_examples ... ok
+test hash_reader::tests::rejects_malformed_length ... ok
+test header::tests::decode_short_payload_fails ... ok
+test candidate::tests::multiple_candidates_within_delta_survive ... ok
+test hash_reader::tests::handles_zero_len_seed ... ok
+test candidate::tests::pruning_is_deterministic ... ok
+test header::tests::invalid_arity_encoding ... ok
+test header::tests::literal_rejects_payload ... ok
+test header::tests::len_bits_bounds ... ok
+test header::tests::roundtrip_literal_header_only ... ok
+test header::tests::zero_based_len_is_dense ... ok
+test bundler::tests::prop_idempotent ... ok
+test header::tests::roundtrip_arities_random_lengths ... ok
+test seed::tests::find_seed_match_respects_enumeration_order ... ok
+test seed::tests::find_seed_match_parallel_deterministic ... ok
+test seed_index::tests::basic_indices ... ok
+test seed::tests::find_seed_match_roundtrip_1byte ... ok
+test seed::tests::index_to_seed_roundtrip ... ok
+
+test result: ok. 25 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 7 tests
+test decode_never_panics ... ok
+test literal_torture ... ok
+test zeros_roundtrip ... ok
+test alternating_roundtrip ... ok
+test palindrome_roundtrip ... ok
+test ones_roundtrip ... ok
+test random_block_alignment ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 17.17s
+
+
+running 2 tests
+test seed_zero_matches_across_block_sizes ... ok
+test final_partial_block_included ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+
+running 5 tests
+test accept_non_overlapping_bundles ... ok
+test reject_overlap_with_multiple_bundles ... ok
+test accept_superposition_when_within_delta ... ok
+test reject_non_subset_overlap ... ok
+test reject_large_bit_delta ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+
+running 2 tests
+test apply_bundle_marks_and_inserts ... ok
+test test_bundle_applies_and_marks_removed ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 16 tests
+test corrupt_input_message_is_actionable ... ok
+test streaming_v2_json_telemetry_limit_bounds_selected_spans ... ok
+test streaming_v2_json_reports_engine_telemetry ... ok
+{
+  "magic": "TIDX",
+  "version": 1,
+  "hasher": "sha256",
+  "seed_order_version": 1,
+  "max_seed_len": 1,
+  "max_span_len": 8,
+  "tiers": [
+    {
+      "span_len": 4,
+      "record_count": 256
+    },
+    {
+      "span_len": 8,
+      "record_count": 256
+    }
+  ]
+}
+test streaming_v2_cli_span_step_one_finds_offset_span ... ok
+test compress_rejects_span_step_outside_v2_engines ... ok
+{
+  "magic": "TIDX",
+  "version": 1,
+  "hasher": "sha256",
+  "seed_order_version": 1,
+  "max_seed_len": 1,
+  "max_span_len": 8,
+  "tiers": [
+    {
+      "span_len": 4,
+      "record_count": 256
+    },
+    {
+      "span_len": 8,
+      "record_count": 256
+    }
+  ]
+}
+test compress_json_verify_hasher_and_memory_limit_cli ... ok
+test streaming_v2_respects_memory_limit_preflight ... ok
+test compress_refuses_to_overwrite_without_force ... ok
+test decompress_refuses_to_overwrite_without_force ... ok
+test streaming_v2_chunked_target_tables_can_fit_below_whole_preflight ... ok
+test decompress_respects_memory_limit_cli ... ok
+test compress_roundtrip_cli ... ok
+test indexed_cli_rejects_stale_cross_hasher_index ... ok
+test indexed_v2_chunked_target_tables_can_fit_below_whole_preflight ... ok
+test v2_decompress_respects_memory_limit_cli ... ok
+{
+  "magic": "TIDX",
+  "version": 1,
+  "hasher": "sha256",
+  "seed_order_version": 1,
+  "max_seed_len": 1,
+  "max_span_len": 8,
+  "tiers": [
+    {
+      "span_len": 4,
+      "record_count": 256
+    },
+    {
+      "span_len": 8,
+      "record_count": 256
+    }
+  ]
+}
+test index_build_info_verify_and_indexed_v2_cli_roundtrip ... ok
+
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.66s
+
+
+running 3 tests
+test empty_input ... ok
+test partial_block_at_end_is_literal ... ok
+test single_byte_every_block_size ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+
+running 3 tests
+test test_different_configs_different_output ... ok
+test test_compression_does_not_modify_input ... ok
+test test_compression_deterministic ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.23s
+
+
+running 3 tests
+test compress_empty_input_is_header_only ... ok
+test compress_writes_valid_header ... ok
+test all_same_byte_roundtrip ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+
+running 6 tests
+test run_summary_delta_measurement ... ok
+test run_summary_has_correct_structure ... ok
+test multi_pass_repetitive_data_roundtrip ... ok
+test multi_pass_roundtrip_structured_data ... ok
+test multi_pass_roundtrip_literal_data ... ok
+test multi_pass_converges_without_gain ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+
+running 2 tests
+test known_pattern_roundtrip ... ok
+test random_roundtrip ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.75s
+
+
+running 4 tests
+test compress_seeds_multi_block_roundtrip ... ok
+test compressor_emits_arity_2_when_it_is_the_first_compressive_span ... ok
+test compress_seeds_known_seed_roundtrip ... ok
+test compress_seeds_literal_roundtrip ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+
+running 2 tests
+test decompress_errors_propagate ... ok
+test cli_roundtrip_compressor ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+
+
+running 2 tests
+test config_validation_accepts_fast_default_shape ... ok
+test config_validation_rejects_out_of_range_fields ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 4 tests
+test random_bytes_dont_panic ... ok
+test orphan_bytes_fail ... ok
+test truncated_header_fails ... ok
+test single_bit_flip_mostly_fails ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+
+running 11 tests
+test empty_stream_fails ... ok
+test invalid_header_bytes_fail ... ok
+test empty_roundtrip ... ok
+test non_byte_aligned_seed_payload_is_rejected ... ok
+test passthrough_decompresses ... ok
+test mismatched_block_size_fails ... ok
+test passthrough_literals_basic ... ok
+test pre_v1_experimental_header_is_not_silently_reinterpreted ... ok
+test passthrough_respects_limit ... ok
+test limit_enforced ... ok
+test basic_roundtrip ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+
+running 2 tests
+test seed_indices_roundtrip ... ok
+test expand_then_compress_roundtrip ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+
+running 2 tests
+test test_wrong_hash_fails_decompression ... ok
+test test_invalid_truncated_file_fails ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+
+running 1 test
+test markdown_hygiene has been running for over 60 seconds
+test markdown_hygiene ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 218.93s
+
+
+running 6 tests
+test arity_2_is_valid ... ok
+test literal_header_encodes_and_decodes ... ok
+test encode_header_literal_only ... ok
+test literal_marker_is_0xff ... ok
+test lotus_arity_field_golden_vectors ... ok
+test lotus_arity_headers_roundtrip ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 2 tests
+test invalid_extension_error ... ok
+test truncated_file_error ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+
+running 6 tests
+test empty_input_roundtrip ... ok
+test single_byte_roundtrip ... ok
+test single_block_literal_roundtrip ... ok
+test mixed_literal_and_seed_roundtrip ... ok
+test header_stream_structure_valid ... ok
+test full_roundtrip_structured_data ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+
+running 1 test
+test gpu_matcher_agrees_with_cpu_seed_search_on_small_tile ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+
+running 2 tests
+test tile_map_global_mapping ... ok
+test block_chunk_mapping ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 2 tests
+test header_hasher_metadata_selects_decompression_hasher ... ok
+test corrupt_hasher_metadata_makes_file_not_interchangeable ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 2 tests
+test cpu_match_record_fields_are_consistent ... ok
+test gpu_match_record_fields_are_consistent ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 1 test
+test basic_indices ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 14 tests
+test indexed_chunked_target_table_estimate_bounds_chunk_peak ... ok
+test v2_decoder_accepts_sub_block_span_step_metadata ... ok
+test v2_decoder_rejects_huge_intermediate_layer_before_allocation ... ok
+test v2_recursive_two_layer_file_decodes_without_an_index ... ok
+test v2_decoder_rejects_reserved_and_unknown_descriptor_fields ... ok
+test weighted_selection_beats_greedy_overlap ... ok
+test weighted_selection_handles_many_non_overlapping_spans ... ok
+test v2_public_compressors_reject_invalid_hash_bits_without_panicking ... ok
+test seed_expansion_index_uses_exact_generated_prefixes ... ok
+test indexed_v2_records_selected_span_telemetry ... ok
+test indexed_compression_rejects_cross_hasher_index ... ok
+test indexed_v2_compresses_planted_long_span_and_roundtrips ... ok
+test indexed_chunked_target_tables_match_unchunked_selected_spans ... ok
+test disk_index_builder_supports_seed_depth_two ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.77s
+
+
+running 1 test
+test cli_roundtrip ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+
+running 1 test
+test deterministic_perf_smoke ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.57s
+
+
+running 1 test
+test planted_sha256_arity2_corpus_has_negative_delta ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s
+
+
+running 1 test
+test launch_roundtrip ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.40s
+
+
+running 3 tests
+test superposition_minimality ... ok
+test bundler_idempotence ... ok
+test roundtrip_fuzz ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.26s
+
+
+running 1 test
+test roundtrip_random ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.35s
+
+
+running 4 tests
+test fixed_roundtrip_empty ... ok
+test fixed_roundtrip_small ... ok
+test fixed_roundtrip_repetitive ... ok
+test random_roundtrip ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.04s
+
+
+running 5 tests
+test index_overflow_errors ... ok
+test edge_cases ... ok
+test empty_seed_panics - should panic ... ok
+test index_roundtrip ... ok
+test seed_roundtrip ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 2 tests
+test test_index_to_seed_roundtrip ... ok
+test test_monotonic_index_generation ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 2 tests
+test seed_len_1_roundtrip ... ok
+test more_seeds_never_expands ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+
+
+running 4 tests
+test zero_max_seed_len_returns_none ... ok
+test empty_input_returns_none ... ok
+test found_seed_always_reconstructs_correctly ... ok
+test known_seed_found_1byte ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+
+running 2 tests
+test resource_limit_abort ... ok
+test only_persist_selected_seeds ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+
+running 9 tests
+test streaming_chunked_target_table_estimate_bounds_chunk_peak ... ok
+test streaming_matcher_uses_stratified_raw_target_tables ... ok
+test streaming_target_table_upper_bound_is_conservative ... ok
+test streaming_v2_roundtrips_planted_span_and_records_telemetry ... ok
+test streaming_and_brute_agree_on_small_seed_planted_roundtrip ... ok
+test streaming_v2_second_pass_can_compress_literal_payload ... ok
+test streaming_span_step_one_finds_offset_span_in_first_pass ... ok
+test streaming_v2_chunked_target_tables_roundtrip_planted_span ... ok
+test streaming_chunked_target_tables_match_unchunked_candidates ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+
+running 5 tests
+test immediate_delta_pruning ... ok
+test gap_free_coverage_enforced ... ok
+test superposed_label_promotion ... ok
+test superposed_prune_many ... ok
+test order_independent ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+
+running 5 tests
+test tlmr_v1_header_golden_bytes ... ok
+test wrong_hash_fails ... ok
+test wrong_last_block_size_fails ... ok
+test header_bit_roundtrip ... ok
+test random_roundtrip ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+
+
+----- stderr -----
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.45s
+     Running unittests src\lib.rs (target\debug\deps\telomere-3d1821a0926db498.exe)
+     Running unittests src\bin\block_summary.rs (target\debug\deps\block_summary-d61a06bca88fa2ed.exe)
+     Running unittests src\bin\compressor.rs (target\debug\deps\compressor-a8b3d251a7c3fd71.exe)
+     Running unittests src\bin\decompressor.rs (target\debug\deps\decompressor-af434479d75e9d38.exe)
+     Running unittests src\bin\seed_table.rs (target\debug\deps\seed_table-6f833dbb13414cff.exe)
+     Running unittests src\main.rs (target\debug\deps\telomere-f5d59d590b5ea6e7.exe)
+     Running tests\adversarial_prop.rs (target\debug\deps\adversarial_prop-b4f180775a15a939.exe)
+     Running tests\brute_force_index.rs (target\debug\deps\brute_force_index-47e4d3375839859f.exe)
+     Running tests\bundle_select.rs (target\debug\deps\bundle_select-4fddf62362cf779c.exe)
+     Running tests\bundling.rs (target\debug\deps\bundling-e8c60b5582b802e1.exe)
+     Running tests\cli_tests.rs (target\debug\deps\cli_tests-68b43be0a4d6f612.exe)
+Compression: 11 → 54 bytes (+390.91%) in 26ms
+  pass 1: 11 → 54 (+390.91%) 26ms
+Compression: 11 → 54 bytes (+390.91%) in 9ms
+  pass 1: 11 → 54 (+390.91%) 9ms
+Compression: 11 → 54 bytes (+390.91%) in 18ms
+  pass 1: 11 → 54 (+390.91%) 18ms
+Compression: 8 → 85 bytes (+962.50%) in 3ms
+  pass 1: 8 → 85 (+962.50%) 3ms
+     Running tests\compress_bounds.rs (target\debug\deps\compress_bounds-cfc8a6c1f76b8d9b.exe)
+     Running tests\compress_determinism.rs (target\debug\deps\compress_determinism-d950dfad69a6f823.exe)
+     Running tests\compress_literals.rs (target\debug\deps\compress_literals-565fa0357347ca7c.exe)
+     Running tests\compress_multi_pass.rs (target\debug\deps\compress_multi_pass-497e01a2ba8d367f.exe)
+     Running tests\compress_roundtrip_random.rs (target\debug\deps\compress_roundtrip_random-c56bb9e837b313d0.exe)
+     Running tests\compress_seeds.rs (target\debug\deps\compress_seeds-e57c8384c39d3f9a.exe)
+     Running tests\compressor_cli.rs (target\debug\deps\compressor_cli-7ef2edfba7183e2b.exe)
+Invalid file extension for 'C:\Users\93rob\AppData\Local\Temp\.tmpzQiH3h\bad.txt'. Expected .tlmr. Check the input file.
+✓ roundtrip verified
+     Running tests\config_validation.rs (target\debug\deps\config_validation-e9e1b91a4d4a91dd.exe)
+     Running tests\decoder_safety.rs (target\debug\deps\decoder_safety-5755b65ffab9d9e0.exe)
+     Running tests\decompress.rs (target\debug\deps\decompress-8d872dc8d9ab157a.exe)
+     Running tests\decompress_seeds.rs (target\debug\deps\decompress_seeds-cc640f70c0392ca4.exe)
+     Running tests\decompress_validation.rs (target\debug\deps\decompress_validation-499fe65a022535c9.exe)
+     Running tests\doc_lint.rs (target\debug\deps\doc_lint-8e90f4cc55a38cbd.exe)
+     Running tests\dtoggle_header.rs (target\debug\deps\dtoggle_header-fc753e74c7202eec.exe)
+     Running tests\file_errors.rs (target\debug\deps\file_errors-af9dbc25cc168825.exe)
+     Running tests\full_roundtrip_audit.rs (target\debug\deps\full_roundtrip_audit-b18d47b3894a0d61.exe)
+     Running tests\gpu_determinism.rs (target\debug\deps\gpu_determinism-0e53a4469fbcda81.exe)
+     Running tests\gpu_tiling.rs (target\debug\deps\gpu_tiling-14dfbcee7218c625.exe)
+     Running tests\hasher_format.rs (target\debug\deps\hasher_format-da7b0e4f9dc2de98.exe)
+     Running tests\hybrid_match.rs (target\debug\deps\hybrid_match-314201d0b354c687.exe)
+     Running tests\index_to_seed.rs (target\debug\deps\index_to_seed-c15e44e6483c91f7.exe)
+     Running tests\indexed_v2.rs (target\debug\deps\indexed_v2-1848b1711a0a6374.exe)
+     Running tests\integration.rs (target\debug\deps\integration-93b527064d7fb6c0.exe)
+     Running tests\large_file_perf.rs (target\debug\deps\large_file_perf-93d7d18d1232f4b8.exe)
+     Running tests\planted_corpus.rs (target\debug\deps\planted_corpus-aa44a0f4d6c5d54b.exe)
+     Running tests\property_launch.rs (target\debug\deps\property_launch-1a391a72dd9da4c5.exe)
+     Running tests\property_matrix.rs (target\debug\deps\property_matrix-42b395ea49c524ac.exe)
+     Running tests\property_tests.rs (target\debug\deps\property_tests-10df68b057c962d6.exe)
+     Running tests\roundtrip.rs (target\debug\deps\roundtrip-f39f3d2bc6e552ea.exe)
+     Running tests\seed_index.rs (target\debug\deps\seed_index-71d9d4b3710a70c1.exe)
+     Running tests\seed_index_mapping.rs (target\debug\deps\seed_index_mapping-b71380d2bf996400.exe)
+     Running tests\seed_len_scaling.rs (target\debug\deps\seed_len_scaling-4dc4e346e3641b98.exe)
+     Running tests\seed_match_properties.rs (target\debug\deps\seed_match_properties-9e71006ceed0c762.exe)
+     Running tests\storage_policy.rs (target\debug\deps\storage_policy-8a70375f1486df14.exe)
+     Running tests\streaming.rs (target\debug\deps\streaming-120a63dbe2536b87.exe)
+     Running tests\superposition.rs (target\debug\deps\superposition-21eca8c0f637f2f4.exe)
+     Running tests\tlmr_header.rs (target\debug\deps\tlmr_header-d067a28b95320095.exe)

@@ -1,0 +1,31 @@
+[package]
+name = "telomere-ui"
+version = "0.1.0"
+edition = "2021"
+description = "Telomere operator console — Tauri desktop app"
+publish = false
+
+[[bin]]
+name = "telomere-ui"
+path = "src/main.rs"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "1"
+tokio = { version = "1", features = ["rt-multi-thread"] }
+
+# The engine — built from the parent crate.
+telomere = { path = ".." }
+
+[dev-dependencies]
+tempfile = "3"
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]

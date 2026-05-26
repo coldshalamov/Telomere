@@ -1,0 +1,319 @@
+{
+  "generated_by": "scripts/generate_superposition_telemetry.py",
+  "generated_at": "2026-05-26T06:34:12.703953+00:00",
+  "format_version": 1,
+  "source_artifact_hashes": {
+    "candidate_lattice_doc_sha256": "cb0af2a7c7b1ce173e726588bc1ac197ace7432e1eae2cbfca77f96d398b3be3",
+    "mechanism_experiment_ranking_sha256": "31800d430dde4b360873778de3a8437fcc836ff8fef6c3886a53eedfc550f18d",
+    "indexed_engine_sha256": "c53dd350709c8b1b075e968cc60417f62e01c6d197fc577bc772e6bbae9f6120",
+    "superposition_engine_sha256": "57f415af9d1a88707168ebcfe09b61d76d3c4692e5d643b26349ac89d0ecf2d7",
+    "indexed_v2_tests_sha256": "8a496865dcd3964f64b1f9abbb61925a8cec6dbee1ab8082229fa778a2a1ccb6",
+    "superposition_tests_sha256": "36f7bc626af2e5d4cd60dbfacd65c7ebe1fb6a171d8e5fd03f1f4e993ff855f0"
+  },
+  "fixture_manifest_sha256": "79fc47c6f4d8349799c6b97ac4e10bee0b091e78920202bb8d1c6f69a8da28ad",
+  "retained_delta_bytes": 4,
+  "summary": {
+    "fixture_count": 4,
+    "candidate_count": 13,
+    "retained_alternative_count": 2,
+    "discarded_candidate_count": 4,
+    "explained_discard_count": 4,
+    "unexplained_discard_count": 0,
+    "max_lattice_width": 2,
+    "weighted_total_savings": 41,
+    "greedy_total_savings": 37,
+    "weighted_extra_savings": 4,
+    "weighted_beats_greedy_fixture_count": 1,
+    "all_selected_non_overlapping": true,
+    "all_selected_positive_savings": true,
+    "promotion_met": true,
+    "claim_level": "selection_telemetry_correctness_only",
+    "conclusion": "Candidate-lattice telemetry satisfies the deterministic selector gate."
+  },
+  "fixtures": [
+    {
+      "name": "wide-vs-two-narrow",
+      "purpose": "weighted selection must keep two narrower spans instead of one tempting wide span",
+      "candidate_count": 4,
+      "max_lattice_width": 2,
+      "weighted_selected_labels": [
+        "left",
+        "right",
+        "tail"
+      ],
+      "greedy_selected_labels": [
+        "wide",
+        "tail"
+      ],
+      "weighted_total_savings": 16,
+      "greedy_total_savings": 12,
+      "weighted_beats_greedy": true,
+      "selected_non_overlapping": true,
+      "selected_positive_savings": true,
+      "discarded": [
+        {
+          "label": "wide",
+          "savings_bytes": 10,
+          "overlaps_selected": [
+            "left",
+            "right"
+          ],
+          "greedy_would_select": true,
+          "retained_for_telemetry": true,
+          "explanation": "greedy-would-select-but-weighted-overlap-set-wins"
+        }
+      ],
+      "discarded_count": 1,
+      "retained_alternative_count": 1,
+      "unexplained_discard_count": 0,
+      "candidates": [
+        {
+          "fixture": "wide-vs-two-narrow",
+          "label": "wide",
+          "start_offset": 0,
+          "end_offset": 14,
+          "span_len": 14,
+          "seed_index": 9,
+          "seed_len": 1,
+          "encoded_len": 4,
+          "savings_bytes": 10
+        },
+        {
+          "fixture": "wide-vs-two-narrow",
+          "label": "left",
+          "start_offset": 0,
+          "end_offset": 7,
+          "span_len": 7,
+          "seed_index": 1,
+          "seed_len": 1,
+          "encoded_len": 0,
+          "savings_bytes": 7
+        },
+        {
+          "fixture": "wide-vs-two-narrow",
+          "label": "right",
+          "start_offset": 7,
+          "end_offset": 14,
+          "span_len": 7,
+          "seed_index": 2,
+          "seed_len": 1,
+          "encoded_len": 0,
+          "savings_bytes": 7
+        },
+        {
+          "fixture": "wide-vs-two-narrow",
+          "label": "tail",
+          "start_offset": 16,
+          "end_offset": 20,
+          "span_len": 4,
+          "seed_index": 3,
+          "seed_len": 1,
+          "encoded_len": 2,
+          "savings_bytes": 2
+        }
+      ]
+    },
+    {
+      "name": "tie-break-by-position-and-seed",
+      "purpose": "equal alternatives must be deterministic",
+      "candidate_count": 3,
+      "max_lattice_width": 2,
+      "weighted_selected_labels": [
+        "first",
+        "after"
+      ],
+      "greedy_selected_labels": [
+        "first",
+        "after"
+      ],
+      "weighted_total_savings": 10,
+      "greedy_total_savings": 10,
+      "weighted_beats_greedy": false,
+      "selected_non_overlapping": true,
+      "selected_positive_savings": true,
+      "discarded": [
+        {
+          "label": "same-start-later-seed",
+          "savings_bytes": 5,
+          "overlaps_selected": [
+            "first"
+          ],
+          "greedy_would_select": false,
+          "retained_for_telemetry": true,
+          "explanation": "overlaps-selected-set-with-equal-or-higher-total-savings"
+        }
+      ],
+      "discarded_count": 1,
+      "retained_alternative_count": 1,
+      "unexplained_discard_count": 0,
+      "candidates": [
+        {
+          "fixture": "tie-break-by-position-and-seed",
+          "label": "first",
+          "start_offset": 0,
+          "end_offset": 5,
+          "span_len": 5,
+          "seed_index": 4,
+          "seed_len": 1,
+          "encoded_len": 0,
+          "savings_bytes": 5
+        },
+        {
+          "fixture": "tie-break-by-position-and-seed",
+          "label": "same-start-later-seed",
+          "start_offset": 0,
+          "end_offset": 5,
+          "span_len": 5,
+          "seed_index": 8,
+          "seed_len": 1,
+          "encoded_len": 0,
+          "savings_bytes": 5
+        },
+        {
+          "fixture": "tie-break-by-position-and-seed",
+          "label": "after",
+          "start_offset": 5,
+          "end_offset": 10,
+          "span_len": 5,
+          "seed_index": 5,
+          "seed_len": 1,
+          "encoded_len": 0,
+          "savings_bytes": 5
+        }
+      ]
+    },
+    {
+      "name": "all-positive-non-overlap",
+      "purpose": "greedy and weighted agree when there is no overlap",
+      "candidate_count": 3,
+      "max_lattice_width": 1,
+      "weighted_selected_labels": [
+        "a",
+        "b",
+        "c"
+      ],
+      "greedy_selected_labels": [
+        "a",
+        "b",
+        "c"
+      ],
+      "weighted_total_savings": 12,
+      "greedy_total_savings": 12,
+      "weighted_beats_greedy": false,
+      "selected_non_overlapping": true,
+      "selected_positive_savings": true,
+      "discarded": [],
+      "discarded_count": 0,
+      "retained_alternative_count": 0,
+      "unexplained_discard_count": 0,
+      "candidates": [
+        {
+          "fixture": "all-positive-non-overlap",
+          "label": "a",
+          "start_offset": 0,
+          "end_offset": 6,
+          "span_len": 6,
+          "seed_index": 11,
+          "seed_len": 1,
+          "encoded_len": 2,
+          "savings_bytes": 4
+        },
+        {
+          "fixture": "all-positive-non-overlap",
+          "label": "b",
+          "start_offset": 8,
+          "end_offset": 14,
+          "span_len": 6,
+          "seed_index": 12,
+          "seed_len": 1,
+          "encoded_len": 2,
+          "savings_bytes": 4
+        },
+        {
+          "fixture": "all-positive-non-overlap",
+          "label": "c",
+          "start_offset": 16,
+          "end_offset": 22,
+          "span_len": 6,
+          "seed_index": 13,
+          "seed_len": 1,
+          "encoded_len": 2,
+          "savings_bytes": 4
+        }
+      ]
+    },
+    {
+      "name": "non-positive-control",
+      "purpose": "non-positive spans remain visible in telemetry but cannot be selected",
+      "candidate_count": 3,
+      "max_lattice_width": 2,
+      "weighted_selected_labels": [
+        "positive"
+      ],
+      "greedy_selected_labels": [
+        "positive"
+      ],
+      "weighted_total_savings": 3,
+      "greedy_total_savings": 3,
+      "weighted_beats_greedy": false,
+      "selected_non_overlapping": true,
+      "selected_positive_savings": true,
+      "discarded": [
+        {
+          "label": "zero",
+          "savings_bytes": 0,
+          "overlaps_selected": [],
+          "greedy_would_select": false,
+          "retained_for_telemetry": false,
+          "explanation": "non-positive-savings"
+        },
+        {
+          "label": "negative",
+          "savings_bytes": -2,
+          "overlaps_selected": [],
+          "greedy_would_select": false,
+          "retained_for_telemetry": false,
+          "explanation": "non-positive-savings"
+        }
+      ],
+      "discarded_count": 2,
+      "retained_alternative_count": 0,
+      "unexplained_discard_count": 0,
+      "candidates": [
+        {
+          "fixture": "non-positive-control",
+          "label": "zero",
+          "start_offset": 0,
+          "end_offset": 4,
+          "span_len": 4,
+          "seed_index": 20,
+          "seed_len": 1,
+          "encoded_len": 4,
+          "savings_bytes": 0
+        },
+        {
+          "fixture": "non-positive-control",
+          "label": "negative",
+          "start_offset": 2,
+          "end_offset": 8,
+          "span_len": 6,
+          "seed_index": 21,
+          "seed_len": 1,
+          "encoded_len": 8,
+          "savings_bytes": -2
+        },
+        {
+          "fixture": "non-positive-control",
+          "label": "positive",
+          "start_offset": 10,
+          "end_offset": 15,
+          "span_len": 5,
+          "seed_index": 22,
+          "seed_len": 1,
+          "encoded_len": 2,
+          "savings_bytes": 3
+        }
+      ]
+    }
+  ]
+}

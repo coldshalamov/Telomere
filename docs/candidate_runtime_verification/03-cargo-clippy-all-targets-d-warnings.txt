@@ -1,0 +1,10 @@
+command: cargo clippy --all-targets -- -D warnings
+started_at: 2026-05-25T22:08:46.992725+00:00
+finished_at: 2026-05-25T22:08:47.638251+00:00
+returncode: 0
+
+----- stdout -----
+
+
+----- stderr -----
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.39s

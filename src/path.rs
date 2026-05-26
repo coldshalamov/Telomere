@@ -1,5 +1,3 @@
-//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
-
 //! Representation of a candidate compression path across multiple blocks.
 //!
 //! A [`CompressionPath`] collects the seeds and SHA‑256 hashes used when

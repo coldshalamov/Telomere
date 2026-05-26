@@ -1,0 +1,419 @@
+{
+  "generated_by": "scripts/generate_research_agent_prompts.py",
+  "generated_at": "2026-05-26T06:46:47.037537+00:00",
+  "format_version": 1,
+  "scope": {
+    "kind": "research-agent prompt pack",
+    "dispatching_parallel_agents": true,
+    "launches_agents": false,
+    "performs_seed_search": false,
+    "makes_compression_claim": false,
+    "is_natural_corpus_proof": false,
+    "is_production_proof": false,
+    "allows_compute": false
+  },
+  "source_hashes": {
+    "research_team_packet_sha256": "f53d098d49e00ea0bc1a1f5451059d188746b66005d77828f5af6b7a4b278cb3"
+  },
+  "summary": {
+    "agent_prompt_count": 6,
+    "parallel_groups": [
+      "corpus-transform",
+      "compute-economics",
+      "format-policy",
+      "acceleration",
+      "operator-ui",
+      "meta-research"
+    ],
+    "launch_ready_agent_count": 0,
+    "ungated_compute_allowed": false,
+    "broad_depth_search_allowed": false,
+    "natural_corpus_proven": false,
+    "production_proven": false,
+    "team_mode": "parallel_research_design_and_evidence_maintenance",
+    "claim_boundary": "No Seed Search; not natural-corpus proof; not production proof; not a compression claim.",
+    "dispatch_boundary": "Human-dispatchable prompts only; no agents are launched by this artifact."
+  },
+  "integration_protocol": {
+    "integration_gates": [
+      "python scripts/generate_research_team_packet.py --check",
+      "python scripts/generate_research_hypotheses.py --check",
+      "python scripts/generate_external_corpus_accession.py --check",
+      "python scripts/generate_evidence_regimen.py --start-at external-corpus-accession --check",
+      "python scripts/doc_lint.py"
+    ],
+    "global_forbidden_actions": [
+      "do not launch broad compute",
+      "No Seed Search: do not start new depth-3, depth-4, or long-span sweeps",
+      "do not claim natural-corpus compression is proven",
+      "do not claim production readiness",
+      "do not weaken controls or source-hash checks",
+      "do not edit generated markdown or JSON by hand"
+    ],
+    "merge_policy": [
+      "integrate one parallel group at a time",
+      "prefer generator changes over hand-written generated-doc edits",
+      "rerun the final evidence-regimen segment after packet or hypothesis changes",
+      "reject any lane that removes blockers without source evidence moving"
+    ],
+    "conflict_policy": [
+      "agents may read shared artifacts concurrently",
+      "agents should not edit the same generator in parallel",
+      "format-policy must review any proposed .tlmr metadata change",
+      "meta-research owns source-hash and completion-boundary changes"
+    ]
+  },
+  "agent_prompts": [
+    {
+      "agent_id": "agent-corpus-transform",
+      "parallel_group": "corpus-transform",
+      "callsign": "corpus-alchemist",
+      "mode": "pre_register_without_compute",
+      "mission": "Audit corpus, long-span, and transform-frontier evidence while preserving controls and null-result visibility.",
+      "prompt_filename": "agent-corpus-transform-corpus-transform.prompt.txt",
+      "prompt_path": "docs/agent_prompts/agent-corpus-transform-corpus-transform.prompt.txt",
+      "hypothesis_ids": [
+        "frozen-rank-coded-span-generator",
+        "alignment-arity-frontier",
+        "natural-corpus-proof-campaign",
+        "recursive-v2-layer-dynamics",
+        "residual-sidecar-channel",
+        "reversible-transform-preconditioners",
+        "schema-native-public-dictionaries",
+        "seed-table-public-preset"
+      ],
+      "blocked_requirement_ids": [
+        "natural-corpus-viability"
+      ],
+      "source_artifacts": [
+        "docs/EXPERIMENT_QUEUE.md",
+        "docs/HELDOUT_CORPUS_EXPANSION.md",
+        "docs/LONG_SPAN_BUNDLE_GATE.md",
+        "docs/RESEARCH_DECISION.md",
+        "docs/RESEARCH_FRONTIER.md",
+        "docs/NEXT_MECHANISM_DESIGNS.md",
+        "docs/FROZEN_RANK_CODED_SPAN_GENERATOR.md",
+        "docs/FROZEN_RANK_SOURCE_CANDIDATES.md",
+        "docs/EXTERNAL_CORPUS_ACCESSION.md",
+        "docs/PUBLIC_PRESET_CONTROL_RERUN.md",
+        "docs/ALIGNMENT_ARITY_DISCOVERY.md",
+        "docs/SEARCH_FRONTIER_GATE.md",
+        "docs/NATURAL_CORPUS_PROOF_MATRIX.md",
+        "docs/NATURAL_CORPUS_REOPEN_MANIFEST.md",
+        "docs/RESEARCH_SCORECARD.md",
+        "docs/RECURSIVE_STRUCTURED_FIXTURES.md",
+        "docs/FORMAT.md",
+        "docs/PRODUCTION_PROOF_MATRIX.md",
+        "docs/WHOLE_STREAM_RESIDUAL_VECTOR_PROBE.md",
+        "docs/SIDECAR_BREAK_EVEN.md",
+        "docs/PACKED_SIDECAR_REPLICATION.md",
+        "docs/TRANSFORM_VALIDATION.md",
+        "docs/MECHANISM_EXPERIMENT_RANKING.md",
+        "docs/adr/0001-transform-preconditioners.md",
+        "docs/SCHEMA_NATIVE_PUBLIC_DICTIONARIES.md",
+        "docs/SCHEMA_NATIVE_PUBLIC_DICTIONARY_REPLICATION.md",
+        "docs/SEED_TABLE_PRESET_PROBE.md",
+        "docs/SEED_TABLE_PRESET_REPLAY.md",
+        "docs/SEED_TABLE_FASTA_ABLATION.md",
+        "docs/MECHANISM_CLOSURE_AUDIT.md",
+        "docs/PUBLIC_PRESET_PROMOTION_GATE.md",
+        "docs/PUBLIC_PRESET_CONTROL_AUDIT.md",
+        "docs/PUBLIC_PRESET_CONTROL_ABLATION.md",
+        "docs/PUBLIC_PRESET_ABLATION_PROJECTION.md",
+        "docs/VIABILITY.md"
+      ],
+      "write_scope": [
+        "docs/LONG_SPAN_BUNDLE_GATE.md",
+        "docs/HELDOUT_CORPUS_EXPANSION.md",
+        "docs/*TRANSFORM*.md",
+        "scripts/generate_*transform*.py"
+      ],
+      "integration_gates": [
+        "python scripts/generate_research_team_packet.py --check",
+        "python scripts/generate_research_hypotheses.py --check",
+        "python scripts/generate_external_corpus_accession.py --check",
+        "python scripts/generate_evidence_regimen.py --start-at external-corpus-accession --check",
+        "python scripts/doc_lint.py"
+      ],
+      "prompt": "Agent agent-corpus-transform (corpus-alchemist): use dispatching-parallel-agents as the operating model.\nMission: Audit corpus, long-span, and transform-frontier evidence while preserving controls and null-result visibility.\nMode: pre_register_without_compute\nScope: No Seed Search, not a compression claim, not natural-corpus proof, and not production proof.\nPrimary hypotheses: frozen-rank-coded-span-generator, alignment-arity-frontier, natural-corpus-proof-campaign, recursive-v2-layer-dynamics, residual-sidecar-channel, reversible-transform-preconditioners, schema-native-public-dictionaries, seed-table-public-preset.\nBlocked requirements: natural-corpus-viability.\nSource artifacts: docs/EXPERIMENT_QUEUE.md, docs/HELDOUT_CORPUS_EXPANSION.md, docs/LONG_SPAN_BUNDLE_GATE.md, docs/RESEARCH_DECISION.md, docs/RESEARCH_FRONTIER.md, docs/NEXT_MECHANISM_DESIGNS.md, docs/FROZEN_RANK_CODED_SPAN_GENERATOR.md, docs/FROZEN_RANK_SOURCE_CANDIDATES.md, docs/EXTERNAL_CORPUS_ACCESSION.md, docs/PUBLIC_PRESET_CONTROL_RERUN.md, docs/ALIGNMENT_ARITY_DISCOVERY.md, docs/SEARCH_FRONTIER_GATE.md, docs/NATURAL_CORPUS_PROOF_MATRIX.md, docs/NATURAL_CORPUS_REOPEN_MANIFEST.md, docs/RESEARCH_SCORECARD.md, docs/RECURSIVE_STRUCTURED_FIXTURES.md, docs/FORMAT.md, docs/PRODUCTION_PROOF_MATRIX.md, docs/WHOLE_STREAM_RESIDUAL_VECTOR_PROBE.md, docs/SIDECAR_BREAK_EVEN.md, docs/PACKED_SIDECAR_REPLICATION.md, docs/TRANSFORM_VALIDATION.md, docs/MECHANISM_EXPERIMENT_RANKING.md, docs/adr/0001-transform-preconditioners.md, docs/SCHEMA_NATIVE_PUBLIC_DICTIONARIES.md, docs/SCHEMA_NATIVE_PUBLIC_DICTIONARY_REPLICATION.md, docs/SEED_TABLE_PRESET_PROBE.md, docs/SEED_TABLE_PRESET_REPLAY.md, docs/SEED_TABLE_FASTA_ABLATION.md, docs/MECHANISM_CLOSURE_AUDIT.md, docs/PUBLIC_PRESET_PROMOTION_GATE.md, docs/PUBLIC_PRESET_CONTROL_AUDIT.md, docs/PUBLIC_PRESET_CONTROL_ABLATION.md, docs/PUBLIC_PRESET_ABLATION_PROJECTION.md, docs/VIABILITY.md.\nAllowed actions: read-only audits of generated evidence artifacts; generated-artifact maintenance through checked scripts; small deterministic tests for existing supported behavior; documentation clarifications that preserve current claim boundaries; subagent brainstorming that returns bounded hypotheses instead of running compute; control-matrix audits and transform-policy notes; pre-register narrow artifacts without running broad compute; read-only audits of null and near-miss ledgers; pre-register natural-corpus or transform manifests without running search; propose narrow reopen-trigger artifacts with explicit controls; tighten claims so planted evidence is not conflated with natural evidence.\nForbidden actions: do not launch broad compute; No Seed Search: do not start new depth-3, depth-4, or long-span sweeps; do not claim natural-corpus compression is proven; do not claim production readiness; do not weaken controls or source-hash checks; do not edit generated markdown or JSON by hand; do not promote .tlmr format semantics; not a compression claim: do not reword null results as wins; does not override SEARCH_FRONTIER_GATE; do not count transform-only shortening as Lotus compression; do not merge held-out corpora into canonical matrices without a regeneration budget; do not promote .tlmr v2, transform metadata, or dictionary presets to stable format support; do not weaken random, shadow, binary, or same-size control requirements.\nHandoff contract: findings first, with source artifacts and generated status; state whether current evidence proves, contradicts, or blocks the lane; list proposed files and exact check commands before broad edits; preserve No Seed Search, not natural-corpus proof, and not production proof boundaries; return a small diff plan if code/docs changes are recommended; Findings first, with source artifact paths and current hash status.; State whether every relevant stop rule remains active.; List changed files, if any, and explain why the write scope was safe.; If proposing compute, name the generated reopen trigger and budget gate.; Report verification commands run, or say exactly why they were not run.; Prefer the full evidence regimen when low-level generated artifacts move.; Keep the corpus-transform claim boundary explicit and avoid unsupported conclusions..\nIntegration gates: python scripts/generate_research_team_packet.py --check; python scripts/generate_research_hypotheses.py --check; python scripts/generate_external_corpus_accession.py --check; python scripts/generate_evidence_regimen.py --start-at external-corpus-accession --check; python scripts/doc_lint.py.\nReturn findings first and do not launch broad compute."
+    },
+    {
+      "agent_id": "agent-compute-economics",
+      "parallel_group": "compute-economics",
+      "callsign": "frontier-accountant",
+      "mode": "blocked_requirement_audit",
+      "mission": "Maintain the search-depth and scale-performance economics without starting gated depth sweeps.",
+      "prompt_filename": "agent-compute-economics-compute-economics.prompt.txt",
+      "prompt_path": "docs/agent_prompts/agent-compute-economics-compute-economics.prompt.txt",
+      "hypothesis_ids": [
+        "stratified-streaming-scale",
+        "alignment-arity-frontier",
+        "candidate-lattice-superposition",
+        "gpu-asic-acceleration-path",
+        "residual-sidecar-channel"
+      ],
+      "blocked_requirement_ids": [
+        "natural-corpus-viability"
+      ],
+      "source_artifacts": [
+        "docs/EXPERIMENT_QUEUE.md",
+        "docs/RESEARCH_DECISION.md",
+        "docs/RESEARCH_FRONTIER.md",
+        "docs/SCALE_PERFORMANCE.md",
+        "docs/SEARCH_FRONTIER_GATE.md",
+        "docs/BOUNDED_STREAMING_MEMORY_GATE.md",
+        "docs/STREAMING_ECONOMICS_GATE.md",
+        "docs/RESULTS.md",
+        "docs/ALIGNMENT_ARITY_DISCOVERY.md",
+        "docs/LONG_SPAN_BUNDLE_GATE.md",
+        "docs/SUPERPOSITION_TELEMETRY.md",
+        "docs/LATTICE_SELECTION_HELDOUT_PROBE.md",
+        "docs/CANDIDATE_LATTICE.md",
+        "docs/FORMAT.md",
+        "docs/ACCELERATION.md",
+        "docs/adr/0002-gpu-acceleration-status.md",
+        "docs/WHOLE_STREAM_RESIDUAL_VECTOR_PROBE.md",
+        "docs/SIDECAR_BREAK_EVEN.md",
+        "docs/PACKED_SIDECAR_REPLICATION.md",
+        "docs/NATURAL_CORPUS_PROOF_MATRIX.md",
+        "docs/VIABILITY.md",
+        "docs/RESEARCH_SCORECARD.md",
+        "docs/HELDOUT_CORPUS_EXPANSION.md"
+      ],
+      "write_scope": [
+        "docs/SEARCH_FRONTIER_GATE.md",
+        "docs/SCALE_PERFORMANCE.md",
+        "scripts/generate_search_frontier_gate.py",
+        "scripts/generate_scale_performance_report.py"
+      ],
+      "integration_gates": [
+        "python scripts/generate_research_team_packet.py --check",
+        "python scripts/generate_research_hypotheses.py --check",
+        "python scripts/generate_external_corpus_accession.py --check",
+        "python scripts/generate_evidence_regimen.py --start-at external-corpus-accession --check",
+        "python scripts/doc_lint.py"
+      ],
+      "prompt": "Agent agent-compute-economics (frontier-accountant): use dispatching-parallel-agents as the operating model.\nMission: Maintain the search-depth and scale-performance economics without starting gated depth sweeps.\nMode: blocked_requirement_audit\nScope: No Seed Search, not a compression claim, not natural-corpus proof, and not production proof.\nPrimary hypotheses: stratified-streaming-scale, alignment-arity-frontier, candidate-lattice-superposition, gpu-asic-acceleration-path, residual-sidecar-channel.\nBlocked requirements: natural-corpus-viability.\nSource artifacts: docs/EXPERIMENT_QUEUE.md, docs/RESEARCH_DECISION.md, docs/RESEARCH_FRONTIER.md, docs/SCALE_PERFORMANCE.md, docs/SEARCH_FRONTIER_GATE.md, docs/BOUNDED_STREAMING_MEMORY_GATE.md, docs/STREAMING_ECONOMICS_GATE.md, docs/RESULTS.md, docs/ALIGNMENT_ARITY_DISCOVERY.md, docs/LONG_SPAN_BUNDLE_GATE.md, docs/SUPERPOSITION_TELEMETRY.md, docs/LATTICE_SELECTION_HELDOUT_PROBE.md, docs/CANDIDATE_LATTICE.md, docs/FORMAT.md, docs/ACCELERATION.md, docs/adr/0002-gpu-acceleration-status.md, docs/WHOLE_STREAM_RESIDUAL_VECTOR_PROBE.md, docs/SIDECAR_BREAK_EVEN.md, docs/PACKED_SIDECAR_REPLICATION.md, docs/NATURAL_CORPUS_PROOF_MATRIX.md, docs/VIABILITY.md, docs/RESEARCH_SCORECARD.md, docs/HELDOUT_CORPUS_EXPANSION.md.\nAllowed actions: read-only audits of generated evidence artifacts; generated-artifact maintenance through checked scripts; small deterministic tests for existing supported behavior; documentation clarifications that preserve current claim boundaries; subagent brainstorming that returns bounded hypotheses instead of running compute; cost-model and gate-threshold audits without new sweeps; read-only evidence audit and generated-artifact maintenance; read-only audits of null and near-miss ledgers; pre-register natural-corpus or transform manifests without running search; propose narrow reopen-trigger artifacts with explicit controls; tighten claims so planted evidence is not conflated with natural evidence.\nForbidden actions: do not launch broad compute; No Seed Search: do not start new depth-3, depth-4, or long-span sweeps; do not claim natural-corpus compression is proven; do not claim production readiness; do not weaken controls or source-hash checks; do not edit generated markdown or JSON by hand; do not promote .tlmr format semantics; not a compression claim: do not reword null results as wins; does not override SEARCH_FRONTIER_GATE; do not run full depth-4 execution; do not expand broad raw depth search without a generated reopen trigger; do not promote .tlmr v2, transform metadata, or dictionary presets to stable format support; do not weaken random, shadow, binary, or same-size control requirements; do not count transform-only shortening as Lotus compression; do not merge held-out corpora into canonical matrices without a regeneration budget.\nHandoff contract: findings first, with source artifacts and generated status; state whether current evidence proves, contradicts, or blocks the lane; list proposed files and exact check commands before broad edits; preserve No Seed Search, not natural-corpus proof, and not production proof boundaries; return a small diff plan if code/docs changes are recommended; Findings first, with source artifact paths and current hash status.; State whether every relevant stop rule remains active.; List changed files, if any, and explain why the write scope was safe.; If proposing compute, name the generated reopen trigger and budget gate.; Report verification commands run, or say exactly why they were not run.; Prefer the full evidence regimen when low-level generated artifacts move.; Keep the compute-economics claim boundary explicit and avoid unsupported conclusions..\nIntegration gates: python scripts/generate_research_team_packet.py --check; python scripts/generate_research_hypotheses.py --check; python scripts/generate_external_corpus_accession.py --check; python scripts/generate_evidence_regimen.py --start-at external-corpus-accession --check; python scripts/doc_lint.py.\nReturn findings first and do not launch broad compute."
+    },
+    {
+      "agent_id": "agent-format-policy",
+      "parallel_group": "format-policy",
+      "callsign": "format-guardian",
+      "mode": "pre_register_without_compute",
+      "mission": "Keep format-extension proposals blocked until exact seed-span wins justify versioned metadata.",
+      "prompt_filename": "agent-format-policy-format-policy.prompt.txt",
+      "prompt_path": "docs/agent_prompts/agent-format-policy-format-policy.prompt.txt",
+      "hypothesis_ids": [
+        "frozen-rank-coded-span-generator",
+        "production-release-proof",
+        "recursive-v2-layer-dynamics",
+        "reversible-transform-preconditioners",
+        "schema-native-public-dictionaries",
+        "seed-table-public-preset"
+      ],
+      "blocked_requirement_ids": [
+        "production-proof"
+      ],
+      "source_artifacts": [
+        "docs/EXPERIMENT_QUEUE.md",
+        "docs/RESEARCH_DECISION.md",
+        "docs/RESEARCH_FRONTIER.md",
+        "docs/adr/0001-transform-preconditioners.md",
+        "docs/NEXT_MECHANISM_DESIGNS.md",
+        "docs/FROZEN_RANK_CODED_SPAN_GENERATOR.md",
+        "docs/FROZEN_RANK_SOURCE_CANDIDATES.md",
+        "docs/EXTERNAL_CORPUS_ACCESSION.md",
+        "docs/PUBLIC_PRESET_CONTROL_RERUN.md",
+        "docs/PRODUCTION_PROOF_MATRIX.md",
+        "docs/RELEASE_CHECKLIST.md",
+        "docs/UI_WORKFLOW_SMOKE.md",
+        "docs/RECURSIVE_STRUCTURED_FIXTURES.md",
+        "docs/FORMAT.md",
+        "docs/TRANSFORM_VALIDATION.md",
+        "docs/MECHANISM_EXPERIMENT_RANKING.md",
+        "docs/SCHEMA_NATIVE_PUBLIC_DICTIONARIES.md",
+        "docs/SCHEMA_NATIVE_PUBLIC_DICTIONARY_REPLICATION.md",
+        "docs/SEED_TABLE_PRESET_PROBE.md",
+        "docs/SEED_TABLE_PRESET_REPLAY.md",
+        "docs/SEED_TABLE_FASTA_ABLATION.md",
+        "docs/MECHANISM_CLOSURE_AUDIT.md",
+        "docs/PUBLIC_PRESET_PROMOTION_GATE.md",
+        "docs/PUBLIC_PRESET_CONTROL_AUDIT.md",
+        "docs/PUBLIC_PRESET_CONTROL_ABLATION.md",
+        "docs/PUBLIC_PRESET_ABLATION_PROJECTION.md",
+        "docs/ACCELERATION.md",
+        "docs/SCALE_PERFORMANCE.md"
+      ],
+      "write_scope": [
+        "docs/FORMAT.md",
+        "docs/adr/0001-transform-preconditioners.md",
+        "src/tlmr_v2.rs",
+        "tests/indexed_v2.rs"
+      ],
+      "integration_gates": [
+        "python scripts/generate_research_team_packet.py --check",
+        "python scripts/generate_research_hypotheses.py --check",
+        "python scripts/generate_external_corpus_accession.py --check",
+        "python scripts/generate_evidence_regimen.py --start-at external-corpus-accession --check",
+        "python scripts/doc_lint.py"
+      ],
+      "prompt": "Agent agent-format-policy (format-guardian): use dispatching-parallel-agents as the operating model.\nMission: Keep format-extension proposals blocked until exact seed-span wins justify versioned metadata.\nMode: pre_register_without_compute\nScope: No Seed Search, not a compression claim, not natural-corpus proof, and not production proof.\nPrimary hypotheses: frozen-rank-coded-span-generator, production-release-proof, recursive-v2-layer-dynamics, reversible-transform-preconditioners, schema-native-public-dictionaries, seed-table-public-preset.\nBlocked requirements: production-proof.\nSource artifacts: docs/EXPERIMENT_QUEUE.md, docs/RESEARCH_DECISION.md, docs/RESEARCH_FRONTIER.md, docs/adr/0001-transform-preconditioners.md, docs/NEXT_MECHANISM_DESIGNS.md, docs/FROZEN_RANK_CODED_SPAN_GENERATOR.md, docs/FROZEN_RANK_SOURCE_CANDIDATES.md, docs/EXTERNAL_CORPUS_ACCESSION.md, docs/PUBLIC_PRESET_CONTROL_RERUN.md, docs/PRODUCTION_PROOF_MATRIX.md, docs/RELEASE_CHECKLIST.md, docs/UI_WORKFLOW_SMOKE.md, docs/RECURSIVE_STRUCTURED_FIXTURES.md, docs/FORMAT.md, docs/TRANSFORM_VALIDATION.md, docs/MECHANISM_EXPERIMENT_RANKING.md, docs/SCHEMA_NATIVE_PUBLIC_DICTIONARIES.md, docs/SCHEMA_NATIVE_PUBLIC_DICTIONARY_REPLICATION.md, docs/SEED_TABLE_PRESET_PROBE.md, docs/SEED_TABLE_PRESET_REPLAY.md, docs/SEED_TABLE_FASTA_ABLATION.md, docs/MECHANISM_CLOSURE_AUDIT.md, docs/PUBLIC_PRESET_PROMOTION_GATE.md, docs/PUBLIC_PRESET_CONTROL_AUDIT.md, docs/PUBLIC_PRESET_CONTROL_ABLATION.md, docs/PUBLIC_PRESET_ABLATION_PROJECTION.md, docs/ACCELERATION.md, docs/SCALE_PERFORMANCE.md.\nAllowed actions: read-only audits of generated evidence artifacts; generated-artifact maintenance through checked scripts; small deterministic tests for existing supported behavior; documentation clarifications that preserve current claim boundaries; subagent brainstorming that returns bounded hypotheses instead of running compute; wire-format review and ADR drafting without promotion; pre-register narrow artifacts without running broad compute; read-only release-readiness audits; write compatibility-checklist proposals that do not change v1 semantics; design CPU/GPU parity tests without trusting GPU output; document production blockers and benchmark budgets.\nForbidden actions: do not launch broad compute; No Seed Search: do not start new depth-3, depth-4, or long-span sweeps; do not claim natural-corpus compression is proven; do not claim production readiness; do not weaken controls or source-hash checks; do not edit generated markdown or JSON by hand; do not promote .tlmr format semantics; not a compression claim: do not reword null results as wins; does not override SEARCH_FRONTIER_GATE; do not alter stable v1 compatibility; do not add transform metadata to .tlmr before exact seed-span wins; do not promote .tlmr v2, transform metadata, or dictionary presets to stable format support; do not weaken random, shadow, binary, or same-size control requirements; do not promote experimental v2 to stable; do not market GPU as production acceleration; do not hide null or blocked results behind optimistic UI language; do not claim production readiness from planted-density benchmarks.\nHandoff contract: findings first, with source artifacts and generated status; state whether current evidence proves, contradicts, or blocks the lane; list proposed files and exact check commands before broad edits; preserve No Seed Search, not natural-corpus proof, and not production proof boundaries; return a small diff plan if code/docs changes are recommended; Findings first, with source artifact paths and current hash status.; State whether every relevant stop rule remains active.; List changed files, if any, and explain why the write scope was safe.; If proposing compute, name the generated reopen trigger and budget gate.; Report verification commands run, or say exactly why they were not run.; Prefer the full evidence regimen when low-level generated artifacts move.; Keep the format-policy claim boundary explicit and avoid unsupported conclusions..\nIntegration gates: python scripts/generate_research_team_packet.py --check; python scripts/generate_research_hypotheses.py --check; python scripts/generate_external_corpus_accession.py --check; python scripts/generate_evidence_regimen.py --start-at external-corpus-accession --check; python scripts/doc_lint.py.\nReturn findings first and do not launch broad compute."
+    },
+    {
+      "agent_id": "agent-acceleration",
+      "parallel_group": "acceleration",
+      "callsign": "kernel-sentinel",
+      "mode": "blocked_requirement_audit",
+      "mission": "Audit acceleration readiness and keep GPU/CPU parity requirements explicit until a CPU workload justifies real GPU work.",
+      "prompt_filename": "agent-acceleration-acceleration.prompt.txt",
+      "prompt_path": "docs/agent_prompts/agent-acceleration-acceleration.prompt.txt",
+      "hypothesis_ids": [
+        "production-release-proof",
+        "stratified-streaming-scale",
+        "gpu-asic-acceleration-path"
+      ],
+      "blocked_requirement_ids": [
+        "production-proof"
+      ],
+      "source_artifacts": [
+        "docs/ACCELERATION.md",
+        "docs/EXPERIMENT_QUEUE.md",
+        "docs/RESEARCH_DECISION.md",
+        "docs/RESEARCH_FRONTIER.md",
+        "docs/PRODUCTION_PROOF_MATRIX.md",
+        "docs/RELEASE_CHECKLIST.md",
+        "docs/UI_WORKFLOW_SMOKE.md",
+        "docs/SEARCH_FRONTIER_GATE.md",
+        "docs/BOUNDED_STREAMING_MEMORY_GATE.md",
+        "docs/STREAMING_ECONOMICS_GATE.md",
+        "docs/SCALE_PERFORMANCE.md",
+        "docs/RESULTS.md",
+        "docs/adr/0002-gpu-acceleration-status.md",
+        "docs/FORMAT.md"
+      ],
+      "write_scope": [
+        "docs/ACCELERATION.md",
+        "docs/adr/0002-gpu-acceleration-status.md",
+        "tests/gpu_*.rs",
+        "src/gpu*.rs"
+      ],
+      "integration_gates": [
+        "python scripts/generate_research_team_packet.py --check",
+        "python scripts/generate_research_hypotheses.py --check",
+        "python scripts/generate_external_corpus_accession.py --check",
+        "python scripts/generate_evidence_regimen.py --start-at external-corpus-accession --check",
+        "python scripts/doc_lint.py"
+      ],
+      "prompt": "Agent agent-acceleration (kernel-sentinel): use dispatching-parallel-agents as the operating model.\nMission: Audit acceleration readiness and keep GPU/CPU parity requirements explicit until a CPU workload justifies real GPU work.\nMode: blocked_requirement_audit\nScope: No Seed Search, not a compression claim, not natural-corpus proof, and not production proof.\nPrimary hypotheses: production-release-proof, stratified-streaming-scale, gpu-asic-acceleration-path.\nBlocked requirements: production-proof.\nSource artifacts: docs/ACCELERATION.md, docs/EXPERIMENT_QUEUE.md, docs/RESEARCH_DECISION.md, docs/RESEARCH_FRONTIER.md, docs/PRODUCTION_PROOF_MATRIX.md, docs/RELEASE_CHECKLIST.md, docs/UI_WORKFLOW_SMOKE.md, docs/SEARCH_FRONTIER_GATE.md, docs/BOUNDED_STREAMING_MEMORY_GATE.md, docs/STREAMING_ECONOMICS_GATE.md, docs/SCALE_PERFORMANCE.md, docs/RESULTS.md, docs/adr/0002-gpu-acceleration-status.md, docs/FORMAT.md.\nAllowed actions: read-only audits of generated evidence artifacts; generated-artifact maintenance through checked scripts; small deterministic tests for existing supported behavior; documentation clarifications that preserve current claim boundaries; subagent brainstorming that returns bounded hypotheses instead of running compute; parity-test design and CPU fallback audits only; read-only evidence audit and generated-artifact maintenance; read-only release-readiness audits; write compatibility-checklist proposals that do not change v1 semantics; design CPU/GPU parity tests without trusting GPU output; document production blockers and benchmark budgets.\nForbidden actions: do not launch broad compute; No Seed Search: do not start new depth-3, depth-4, or long-span sweeps; do not claim natural-corpus compression is proven; do not claim production readiness; do not weaken controls or source-hash checks; do not edit generated markdown or JSON by hand; do not promote .tlmr format semantics; not a compression claim: do not reword null results as wins; does not override SEARCH_FRONTIER_GATE; do not trust GPU output without CPU parity; do not market GPU as production acceleration; do not promote .tlmr v2, transform metadata, or dictionary presets to stable format support; do not weaken random, shadow, binary, or same-size control requirements; do not promote experimental v2 to stable; do not alter stable v1 compatibility; do not hide null or blocked results behind optimistic UI language; do not claim production readiness from planted-density benchmarks.\nHandoff contract: findings first, with source artifacts and generated status; state whether current evidence proves, contradicts, or blocks the lane; list proposed files and exact check commands before broad edits; preserve No Seed Search, not natural-corpus proof, and not production proof boundaries; return a small diff plan if code/docs changes are recommended; Findings first, with source artifact paths and current hash status.; State whether every relevant stop rule remains active.; List changed files, if any, and explain why the write scope was safe.; If proposing compute, name the generated reopen trigger and budget gate.; Report verification commands run, or say exactly why they were not run.; Prefer the full evidence regimen when low-level generated artifacts move.; Keep the acceleration claim boundary explicit and avoid unsupported conclusions..\nIntegration gates: python scripts/generate_research_team_packet.py --check; python scripts/generate_research_hypotheses.py --check; python scripts/generate_external_corpus_accession.py --check; python scripts/generate_evidence_regimen.py --start-at external-corpus-accession --check; python scripts/doc_lint.py.\nReturn findings first and do not launch broad compute."
+    },
+    {
+      "agent_id": "agent-operator-ui",
+      "parallel_group": "operator-ui",
+      "callsign": "observatory-operator",
+      "mode": "blocked_requirement_audit",
+      "mission": "Keep the Tauri/operator evidence surfaces aligned with generated artifacts without making unsupported compression claims.",
+      "prompt_filename": "agent-operator-ui-operator-ui.prompt.txt",
+      "prompt_path": "docs/agent_prompts/agent-operator-ui-operator-ui.prompt.txt",
+      "hypothesis_ids": [
+        "cross-agent-brainstorming-discipline",
+        "production-release-proof"
+      ],
+      "blocked_requirement_ids": [
+        "production-proof"
+      ],
+      "source_artifacts": [
+        "docs/EXPERIMENT_QUEUE.md",
+        "docs/RESEARCH_DECISION.md",
+        "docs/RESEARCH_FRONTIER.md",
+        "docs/UI_WORKFLOW_SMOKE.md",
+        "docs/RESEARCH_TEAM_PROTOCOL.md",
+        "docs/BLOCKED_REQUIREMENT_DISPATCH.md",
+        "docs/MECHANISM_EXPERIMENT_RANKING.md",
+        "docs/MECHANISM_CLOSURE_AUDIT.md",
+        "docs/NEXT_MECHANISM_DESIGNS.md",
+        "docs/PRODUCTION_PROOF_MATRIX.md",
+        "docs/RELEASE_CHECKLIST.md",
+        "docs/FORMAT.md",
+        "docs/ACCELERATION.md",
+        "docs/SCALE_PERFORMANCE.md"
+      ],
+      "write_scope": [
+        "src-tauri/src/main.rs",
+        "ui/index.html",
+        "docs/UI_WORKFLOW_SMOKE.md",
+        "scripts/generate_ui_workflow_smoke.py"
+      ],
+      "integration_gates": [
+        "python scripts/generate_research_team_packet.py --check",
+        "python scripts/generate_research_hypotheses.py --check",
+        "python scripts/generate_external_corpus_accession.py --check",
+        "python scripts/generate_evidence_regimen.py --start-at external-corpus-accession --check",
+        "python scripts/doc_lint.py"
+      ],
+      "prompt": "Agent agent-operator-ui (observatory-operator): use dispatching-parallel-agents as the operating model.\nMission: Keep the Tauri/operator evidence surfaces aligned with generated artifacts without making unsupported compression claims.\nMode: blocked_requirement_audit\nScope: No Seed Search, not a compression claim, not natural-corpus proof, and not production proof.\nPrimary hypotheses: cross-agent-brainstorming-discipline, production-release-proof.\nBlocked requirements: production-proof.\nSource artifacts: docs/EXPERIMENT_QUEUE.md, docs/RESEARCH_DECISION.md, docs/RESEARCH_FRONTIER.md, docs/UI_WORKFLOW_SMOKE.md, docs/RESEARCH_TEAM_PROTOCOL.md, docs/BLOCKED_REQUIREMENT_DISPATCH.md, docs/MECHANISM_EXPERIMENT_RANKING.md, docs/MECHANISM_CLOSURE_AUDIT.md, docs/NEXT_MECHANISM_DESIGNS.md, docs/PRODUCTION_PROOF_MATRIX.md, docs/RELEASE_CHECKLIST.md, docs/FORMAT.md, docs/ACCELERATION.md, docs/SCALE_PERFORMANCE.md.\nAllowed actions: read-only audits of generated evidence artifacts; generated-artifact maintenance through checked scripts; small deterministic tests for existing supported behavior; documentation clarifications that preserve current claim boundaries; subagent brainstorming that returns bounded hypotheses instead of running compute; static schema and evidence-card wiring checks; read-only evidence audit and generated-artifact maintenance; read-only release-readiness audits; write compatibility-checklist proposals that do not change v1 semantics; design CPU/GPU parity tests without trusting GPU output; document production blockers and benchmark budgets.\nForbidden actions: do not launch broad compute; No Seed Search: do not start new depth-3, depth-4, or long-span sweeps; do not claim natural-corpus compression is proven; do not claim production readiness; do not weaken controls or source-hash checks; do not edit generated markdown or JSON by hand; do not promote .tlmr format semantics; not a compression claim: do not reword null results as wins; does not override SEARCH_FRONTIER_GATE; do not hide null results behind optimistic UI language; do not promote .tlmr v2, transform metadata, or dictionary presets to stable format support; do not weaken random, shadow, binary, or same-size control requirements; do not promote experimental v2 to stable; do not market GPU as production acceleration; do not alter stable v1 compatibility; do not hide null or blocked results behind optimistic UI language; do not claim production readiness from planted-density benchmarks.\nHandoff contract: findings first, with source artifacts and generated status; state whether current evidence proves, contradicts, or blocks the lane; list proposed files and exact check commands before broad edits; preserve No Seed Search, not natural-corpus proof, and not production proof boundaries; return a small diff plan if code/docs changes are recommended; Findings first, with source artifact paths and current hash status.; State whether every relevant stop rule remains active.; List changed files, if any, and explain why the write scope was safe.; If proposing compute, name the generated reopen trigger and budget gate.; Report verification commands run, or say exactly why they were not run.; Prefer the full evidence regimen when low-level generated artifacts move.; Keep the operator-ui claim boundary explicit and avoid unsupported conclusions..\nIntegration gates: python scripts/generate_research_team_packet.py --check; python scripts/generate_research_hypotheses.py --check; python scripts/generate_external_corpus_accession.py --check; python scripts/generate_evidence_regimen.py --start-at external-corpus-accession --check; python scripts/doc_lint.py.\nReturn findings first and do not launch broad compute."
+    },
+    {
+      "agent_id": "agent-meta-research",
+      "parallel_group": "meta-research",
+      "callsign": "ledger-captain",
+      "mode": "pre_register_without_compute",
+      "mission": "Keep the generated research ledgers coherent, reproducible, and honest about unresolved evidence gates.",
+      "prompt_filename": "agent-meta-research-meta-research.prompt.txt",
+      "prompt_path": "docs/agent_prompts/agent-meta-research-meta-research.prompt.txt",
+      "hypothesis_ids": [
+        "frozen-rank-coded-span-generator",
+        "completion-boundary-integrity",
+        "cross-agent-brainstorming-discipline",
+        "candidate-lattice-superposition",
+        "natural-corpus-proof-campaign"
+      ],
+      "blocked_requirement_ids": [
+        "completion-boundary"
+      ],
+      "source_artifacts": [
+        "docs/EXPERIMENT_QUEUE.md",
+        "docs/RESEARCH_DECISION.md",
+        "docs/RESEARCH_FRONTIER.md",
+        "docs/VIABILITY.md",
+        "docs/NEXT_MECHANISM_DESIGNS.md",
+        "docs/FROZEN_RANK_CODED_SPAN_GENERATOR.md",
+        "docs/FROZEN_RANK_SOURCE_CANDIDATES.md",
+        "docs/EXTERNAL_CORPUS_ACCESSION.md",
+        "docs/PUBLIC_PRESET_CONTROL_RERUN.md",
+        "docs/GOAL_COMPLETION_AUDIT.md",
+        "docs/BLOCKED_REQUIREMENT_DISPATCH.md",
+        "docs/GENERATED_LEDGER_PIPELINE.md",
+        "docs/RESEARCH_TEAM_PROTOCOL.md",
+        "docs/MECHANISM_EXPERIMENT_RANKING.md",
+        "docs/MECHANISM_CLOSURE_AUDIT.md",
+        "docs/SUPERPOSITION_TELEMETRY.md",
+        "docs/LATTICE_SELECTION_HELDOUT_PROBE.md",
+        "docs/CANDIDATE_LATTICE.md",
+        "docs/FORMAT.md",
+        "docs/NATURAL_CORPUS_PROOF_MATRIX.md",
+        "docs/NATURAL_CORPUS_REOPEN_MANIFEST.md",
+        "docs/RESEARCH_SCORECARD.md",
+        "docs/SEARCH_FRONTIER_GATE.md",
+        "docs/GOAL_AUDIT.md"
+      ],
+      "write_scope": [
+        "docs/RESEARCH_*.md",
+        "docs/GOAL_AUDIT.md",
+        "docs/EXPERIMENT_QUEUE.md",
+        "docs/GENERATED_LEDGER_PIPELINE.md",
+        "scripts/generate_evidence_regimen.py",
+        "scripts/generate_research_*.py",
+        "scripts/generate_goal_audit.py",
+        "scripts/generate_experiment_queue.py"
+      ],
+      "integration_gates": [
+        "python scripts/generate_research_team_packet.py --check",
+        "python scripts/generate_research_hypotheses.py --check",
+        "python scripts/generate_external_corpus_accession.py --check",
+        "python scripts/generate_evidence_regimen.py --start-at external-corpus-accession --check",
+        "python scripts/doc_lint.py"
+      ],
+      "prompt": "Agent agent-meta-research (ledger-captain): use dispatching-parallel-agents as the operating model.\nMission: Keep the generated research ledgers coherent, reproducible, and honest about unresolved evidence gates.\nMode: pre_register_without_compute\nScope: No Seed Search, not a compression claim, not natural-corpus proof, and not production proof.\nPrimary hypotheses: frozen-rank-coded-span-generator, completion-boundary-integrity, cross-agent-brainstorming-discipline, candidate-lattice-superposition, natural-corpus-proof-campaign.\nBlocked requirements: completion-boundary.\nSource artifacts: docs/EXPERIMENT_QUEUE.md, docs/RESEARCH_DECISION.md, docs/RESEARCH_FRONTIER.md, docs/VIABILITY.md, docs/NEXT_MECHANISM_DESIGNS.md, docs/FROZEN_RANK_CODED_SPAN_GENERATOR.md, docs/FROZEN_RANK_SOURCE_CANDIDATES.md, docs/EXTERNAL_CORPUS_ACCESSION.md, docs/PUBLIC_PRESET_CONTROL_RERUN.md, docs/GOAL_COMPLETION_AUDIT.md, docs/BLOCKED_REQUIREMENT_DISPATCH.md, docs/GENERATED_LEDGER_PIPELINE.md, docs/RESEARCH_TEAM_PROTOCOL.md, docs/MECHANISM_EXPERIMENT_RANKING.md, docs/MECHANISM_CLOSURE_AUDIT.md, docs/SUPERPOSITION_TELEMETRY.md, docs/LATTICE_SELECTION_HELDOUT_PROBE.md, docs/CANDIDATE_LATTICE.md, docs/FORMAT.md, docs/NATURAL_CORPUS_PROOF_MATRIX.md, docs/NATURAL_CORPUS_REOPEN_MANIFEST.md, docs/RESEARCH_SCORECARD.md, docs/SEARCH_FRONTIER_GATE.md, docs/GOAL_AUDIT.md.\nAllowed actions: read-only audits of generated evidence artifacts; generated-artifact maintenance through checked scripts; small deterministic tests for existing supported behavior; documentation clarifications that preserve current claim boundaries; subagent brainstorming that returns bounded hypotheses instead of running compute; ledger consistency checks and dispatch-brief maintenance; full evidence-regimen maintenance through scripts/generate_evidence_regimen.py; pre-register narrow artifacts without running broad compute; regenerate the full evidence regimen after low-level artifact changes; regenerate top-level research ledgers after rollup-only evidence changes; audit that blocked requirements still map to authoritative evidence; tighten stop rules when new artifacts introduce ambiguity; prepare integration summaries for human review.\nForbidden actions: do not launch broad compute; No Seed Search: do not start new depth-3, depth-4, or long-span sweeps; do not claim natural-corpus compression is proven; do not claim production readiness; do not weaken controls or source-hash checks; do not edit generated markdown or JSON by hand; do not promote .tlmr format semantics; not a compression claim: do not reword null results as wins; does not override SEARCH_FRONTIER_GATE; do not promote .tlmr v2, transform metadata, or dictionary presets to stable format support; do not weaken random, shadow, binary, or same-size control requirements; do not mark the active goal complete; do not downgrade blocked evidence to qualified without generated proof; do not remove completion blockers to make dashboards green.\nHandoff contract: findings first, with source artifacts and generated status; state whether current evidence proves, contradicts, or blocks the lane; list proposed files and exact check commands before broad edits; preserve No Seed Search, not natural-corpus proof, and not production proof boundaries; return a small diff plan if code/docs changes are recommended; Findings first, with source artifact paths and current hash status.; State whether every relevant stop rule remains active.; List changed files, if any, and explain why the write scope was safe.; If proposing compute, name the generated reopen trigger and budget gate.; Report verification commands run, or say exactly why they were not run.; Prefer the full evidence regimen when low-level generated artifacts move.; Keep the meta-research claim boundary explicit and avoid unsupported conclusions..\nIntegration gates: python scripts/generate_research_team_packet.py --check; python scripts/generate_research_hypotheses.py --check; python scripts/generate_external_corpus_accession.py --check; python scripts/generate_evidence_regimen.py --start-at external-corpus-accession --check; python scripts/doc_lint.py.\nReturn findings first and do not launch broad compute."
+    }
+  ]
+}

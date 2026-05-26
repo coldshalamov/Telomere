@@ -1,4 +1,3 @@
-//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 use std::fs;
 use telomere::{log_seed_to, resume_seed_index_from, HashEntry, ResourceLimits};
 use tempfile::NamedTempFile;

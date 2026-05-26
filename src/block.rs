@@ -1,4 +1,3 @@
-//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 //!
 //! A [`BlockStore`] stores all block data in a contiguous arena and manages
 //! metadata via compact `BlockRef` structures. This replaces the legacy
@@ -27,7 +26,7 @@ pub struct BlockRef {
     pub bit_len: u16,
     /// Original global index in the stream.
     pub global_index: u32,
-    /// Precomputed digest (BLAKE3/SHA256).
+    /// Precomputed BLAKE3 digest for legacy block-table matching.
     pub digest: [u8; 32],
     /// Optional arity if compressed.
     pub arity: Option<u16>,
@@ -69,14 +68,7 @@ impl BlockStore {
         self.data_arena.extend_from_slice(data);
         let byte_len = data.len() as u16;
 
-        #[cfg(feature = "gpu")]
         let digest = {
-            // Placeholder: Use actual hasher if needed
-            [0u8; 32]
-        };
-        #[cfg(not(feature = "gpu"))]
-        let digest = {
-            // Using blake3 for speed as per mandate
             let mut hasher = blake3::Hasher::new();
             hasher.update(data);
             hasher.finalize().into()
@@ -240,4 +232,19 @@ pub fn print_table_summary(store: &BlockStore) {
 #[allow(dead_code)]
 pub fn group_by_bit_length(_blocks: Vec<BlockRef>) -> BlockStore {
     BlockStore::new()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::BlockStore;
+
+    #[test]
+    fn add_block_records_blake3_digest() {
+        let data = b"telomere digest parity";
+        let mut store = BlockStore::new();
+        let id = store.add_block(data, 0, data.len() * 8);
+        let expected: [u8; 32] = blake3::hash(data).into();
+
+        assert_eq!(store.get_block(id).digest, expected);
+    }
 }

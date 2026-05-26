@@ -2,7 +2,7 @@
 //! Uses Blake3Expander to generate target data so the compressor can find seeds.
 use telomere::hasher::{Blake3Expander, SeedExpander};
 use telomere::{
-    compress_multi_pass_with_config, decode_lotus_header, decompress, Config, TLMR_HEADER_LEN,
+    compress_multi_pass_with_config, decode_lotus_header, decompress, tlmr_header_byte_len, Config,
 };
 
 fn blake3_cfg(block_size: usize) -> Config {
@@ -64,7 +64,8 @@ fn compressor_emits_arity_2_when_it_is_the_first_compressive_span() {
     let data = expand(&[0x42], 4);
 
     let (compressed, _) = compress_multi_pass_with_config(&data, &cfg, 1, false).unwrap();
-    let (first, _) = decode_lotus_header(&compressed[TLMR_HEADER_LEN..]).unwrap();
+    let header_len = tlmr_header_byte_len(&compressed).unwrap();
+    let (first, _) = decode_lotus_header(&compressed[header_len..]).unwrap();
 
     assert!(!first.is_literal);
     assert_eq!(first.arity, 2, "arity 2 is a valid compressed span");

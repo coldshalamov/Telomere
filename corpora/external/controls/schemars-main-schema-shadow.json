@@ -1,0 +1,70 @@
+{
+  "$schema": "https://example.invalid/draft/shadow",
+  "title": "ParcelShape",
+  "type": "object",
+  "properties": {
+    "flag_gate": {
+      "type": "boolean"
+    },
+    "count_value": {
+      "type": "integer",
+      "format": "int16"
+    },
+    "choice_bucket": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Choice"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "count_value",
+    "flag_gate"
+  ],
+  "$defs": {
+    "Choice": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "TextCase": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "TextCase"
+          ]
+        },
+        {
+          "type": "object",
+          "properties": {
+            "BagCase": {
+              "type": "object",
+              "properties": {
+                "ratios": {
+                  "type": "array",
+                  "items": {
+                    "type": "number",
+                    "format": "double"
+                  }
+                }
+              },
+              "required": [
+                "ratios"
+              ]
+            }
+          },
+          "additionalProperties": false,
+          "required": [
+            "BagCase"
+          ]
+        }
+      ]
+    }
+  }
+}

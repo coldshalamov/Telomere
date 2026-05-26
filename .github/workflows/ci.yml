@@ -16,11 +16,26 @@ jobs:
       - name: Format
         run: cargo fmt --all -- --check
 
+      - name: Tauri format
+        run: cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
+
       - name: Clippy
         run: cargo clippy --all-targets -- -D warnings
 
       - name: Test
         run: cargo test --all-targets
+
+      - name: GPU feature compile
+        run: cargo check --features gpu --all-targets
+
+      - name: Tauri check
+        run: cargo check --manifest-path src-tauri/Cargo.toml
+
+      - name: Tauri test
+        run: cargo test --manifest-path src-tauri/Cargo.toml
+
+      - name: Evidence regimen
+        run: python3 scripts/generate_evidence_regimen.py --check
 
       - name: Docs lint
         run: python3 scripts/doc_lint.py

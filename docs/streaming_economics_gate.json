@@ -1,0 +1,285 @@
+{
+  "generated_by": "scripts/generate_streaming_economics_gate.py",
+  "generated_at": "2026-05-26T06:46:39.083562+00:00",
+  "format_version": 1,
+  "scope": {
+    "kind": "streaming economics gate",
+    "performs_seed_search": false,
+    "performs_replay": false,
+    "launches_agents": false,
+    "makes_compression_claim": false,
+    "is_natural_corpus_proof": false,
+    "is_production_proof": false,
+    "overrides_search_frontier_gate": false
+  },
+  "source_hashes": {
+    "results_sha256": "225465824966499a8d15a5721e0698c30ae83053d072dbec6c6b21558523f9ba",
+    "results_doc_sha256": "991eb6a9a04f751cc571a04157e3b0a71139d7af0b5539dc4e80ff0084f9eba0",
+    "scale_performance_report_sha256": "fe90df91a2f992edf6f10bc115517bd9870755fd4b5e85aa0ec9a09fde1b319d",
+    "scale_performance_doc_sha256": "8a484de382a0838b8136584c40932fa88aabf436b29cf1b3183471493f10a9ab",
+    "bounded_streaming_memory_gate_sha256": "d502c2a55569ef69800d3cc57494edb752828686b1022230d26246deb53afa52",
+    "bounded_streaming_memory_gate_doc_sha256": "d0959023fda395c2bd77c1a4134761223f9859a44a8b4333841e7aa3fed85b09",
+    "search_frontier_gate_sha256": "9d39bd91dcd1d735b313fe9a40c82cec2ec37a97c5596b8ab30976d170bff9d5",
+    "search_frontier_gate_doc_sha256": "4e68614cfe623bd9b4949023de7a1d89bb56d91ed61587ff4b9775f3f755aaf2",
+    "streaming_engine_sha256": "c8527365c61fb9dd1ad202590a276c1b2c54ba0a97efc41b855c772122f31776",
+    "indexed_engine_sha256": "c53dd350709c8b1b075e968cc60417f62e01c6d197fc577bc772e6bbae9f6120",
+    "streaming_tests_sha256": "1a47d5093fec66db0a541d73592211f6c3cd544172badeac74113ef54b1ea473",
+    "indexed_v2_tests_sha256": "8a496865dcd3964f64b1f9abbb61925a8cec6dbee1ab8082229fa778a2a1ccb6",
+    "results_generator_sha256": "433470027e2b83a1b716d23de6a02c21c06c5dc69cb011aedb8bcf9d6f2af87d",
+    "scale_generator_sha256": "3d2855b0db3d16affeb33ee7403f4d9e09b0b3eb17ec50c03ab85c4bb48461ff",
+    "gate_generator_sha256": "73c7104d92527546594dd15b403c4d42432803ef0cea6869c688ec416151b4ba"
+  },
+  "summary": {
+    "streaming_v2_case_count": 10,
+    "streaming_negative_case_count": 4,
+    "streaming_planted_negative_case_count": 4,
+    "streaming_non_planted_negative_case_count": 0,
+    "streaming_ordinary_non_planted_negative_case_count": 0,
+    "streaming_control_negative_case_count": 0,
+    "streaming_case_names": [
+      "streaming-planted-span4-control",
+      "streaming-planted-span8",
+      "streaming-planted-span12",
+      "streaming-random-null-1k",
+      "streaming-planted-density10",
+      "streaming-planted-density50",
+      "streaming-planted-offset1",
+      "streaming-recursive-offset-pass2",
+      "streaming-structured-json-control",
+      "kolyma-pdf-streaming-control"
+    ],
+    "streaming_negative_case_names": [
+      "streaming-planted-span8",
+      "streaming-planted-span12",
+      "streaming-planted-density50",
+      "streaming-recursive-offset-pass2"
+    ],
+    "streaming_non_planted_negative_case_names": [],
+    "streaming_ordinary_non_planted_negative_case_names": [],
+    "streaming_control_negative_case_names": [],
+    "gate_status": "search_closed_streaming_maintenance",
+    "streaming_engine_status": "implemented_correctness_covered_experimental_path",
+    "indexed_streaming_span8_parity": true,
+    "streaming_test_marker_count": 5,
+    "streaming_test_marker_total": 5,
+    "streaming_all_test_markers_present": true,
+    "scale_promotion_met": true,
+    "scale_recommendation": "bounded_scale_interpretable_not_production",
+    "bounded_memory_gate_status": "chunked_target_table_fixture_evidence_no_rss",
+    "target_table_preflight_present": true,
+    "full_rss_containment": false,
+    "chunked_target_tables_implemented": true,
+    "largest_scale_mib": 16.0,
+    "largest_peak_memory_mib": 1934.602,
+    "largest_peak_to_estimated_table_ratio": 21.985,
+    "next_double_peak_memory_mib_at_current_ratio": 3869.204,
+    "search_frontier_status": "hold-broad-depth-search",
+    "broad_depth_search_allowed": false,
+    "format_promotion_allowed": false,
+    "selected_span_total": 0,
+    "best_non_planted_gib_for_one_expected_hit": 828.0,
+    "non_planted_streaming_evidence": false,
+    "compute_reopen_allowed": false,
+    "production_promotion_allowed": false,
+    "recommendation": "keep_streaming_cpu_maintenance_do_not_widen_search",
+    "claim_boundary": "Streaming is the scalable CPU matcher path and planted-scale evidence, not natural-corpus proof, not production proof, and not a search-frontier override.",
+    "stop_rule": "Do not widen seed depth, GPU work, or format promotion from streaming economics alone; require non-planted selected spans or negative rows with controls intact and SEARCH_FRONTIER_GATE reopened.",
+    "gate_met_count": 4,
+    "gate_count": 6,
+    "blocking_gates": [
+      "non-planted-selected-span-evidence",
+      "search-frontier-open"
+    ]
+  },
+  "test_markers": {
+    "stratified_raw_target_tables": true,
+    "streaming_brute_roundtrip_parity": true,
+    "streaming_recursive_v2_decode": true,
+    "indexed_exact_generated_prefixes": true,
+    "indexed_weighted_selection": true
+  },
+  "indexed_streaming_parity": {
+    "available": true,
+    "matches": true,
+    "compared_fields": [
+      "input_bytes",
+      "output_bytes",
+      "delta_bytes",
+      "delta_pct",
+      "hasher",
+      "block_size",
+      "max_span_len",
+      "seed_depth",
+      "passes"
+    ],
+    "mismatches": [],
+    "indexed_output_bytes": 720,
+    "streaming_output_bytes": 720,
+    "indexed_delta_bytes": -304,
+    "streaming_delta_bytes": -304,
+    "observed": "indexed and streaming planted span-8 rows match"
+  },
+  "gate_checks": [
+    {
+      "gate": "streaming-correctness-fixtures",
+      "requirement": "streaming tests cover raw target tables, brute parity, and recursive v2 decode",
+      "observed": "5 of 5 test markers present",
+      "met": true,
+      "consequence": "Keep CPU streaming as a correctness-covered experimental engine."
+    },
+    {
+      "gate": "indexed-streaming-planted-parity",
+      "requirement": "indexed and streaming v2 agree on the planted span-8 result row",
+      "observed": "indexed and streaming planted span-8 rows match",
+      "met": true,
+      "consequence": "Use indexed/brute paths as references for small streaming fixtures."
+    },
+    {
+      "gate": "planted-scale-economics",
+      "requirement": "planted scale telemetry remains interpretable before any larger run",
+      "observed": "scale promotion=True, largest peak=1934.602 MiB, peak/table=21.985",
+      "met": true,
+      "consequence": "Treat planted scale as memory evidence only, not natural-corpus proof."
+    },
+    {
+      "gate": "control-boundary-clean",
+      "requirement": "streaming null/control result rows do not go negative",
+      "observed": "0 control negative rows",
+      "met": true,
+      "consequence": "Investigate immediately if random, binary, or structured controls shrink."
+    },
+    {
+      "gate": "non-planted-selected-span-evidence",
+      "requirement": "non-planted rows show selected spans or negative delta before wider search",
+      "observed": "selected spans=0, ordinary non-planted streaming negatives=0",
+      "met": false,
+      "consequence": "Do not widen search or promote format work without non-planted evidence."
+    },
+    {
+      "gate": "search-frontier-open",
+      "requirement": "SEARCH_FRONTIER_GATE allows broad depth search",
+      "observed": "broad_depth_search_allowed=False",
+      "met": false,
+      "consequence": "Streaming implementation alone must not override the frontier gate."
+    }
+  ],
+  "streaming_cases": [
+    {
+      "name": "streaming-planted-span4-control",
+      "kind": "arity-planted",
+      "input_bytes": 1024,
+      "output_bytes": 1107,
+      "delta_bytes": 83,
+      "delta_pct": 8.10546875,
+      "max_span_len": 4,
+      "passes": 1,
+      "expected": "bloat"
+    },
+    {
+      "name": "streaming-planted-span8",
+      "kind": "mechanism-planted",
+      "input_bytes": 1024,
+      "output_bytes": 720,
+      "delta_bytes": -304,
+      "delta_pct": -29.6875,
+      "max_span_len": 8,
+      "passes": 1,
+      "expected": "negative"
+    },
+    {
+      "name": "streaming-planted-span12",
+      "kind": "arity-planted",
+      "input_bytes": 1020,
+      "output_bytes": 505,
+      "delta_bytes": -515,
+      "delta_pct": -50.49019607843137,
+      "max_span_len": 12,
+      "passes": 1,
+      "expected": "negative"
+    },
+    {
+      "name": "streaming-random-null-1k",
+      "kind": "null-random",
+      "input_bytes": 1024,
+      "output_bytes": 1107,
+      "delta_bytes": 83,
+      "delta_pct": 8.10546875,
+      "max_span_len": 8,
+      "passes": 1,
+      "expected": "bloat"
+    },
+    {
+      "name": "streaming-planted-density10",
+      "kind": "density-planted",
+      "input_bytes": 1024,
+      "output_bytes": 1068,
+      "delta_bytes": 44,
+      "delta_pct": 4.296875,
+      "max_span_len": 8,
+      "passes": 1,
+      "expected": "near-break-even-or-bloat"
+    },
+    {
+      "name": "streaming-planted-density50",
+      "kind": "density-planted",
+      "input_bytes": 1024,
+      "output_bytes": 915,
+      "delta_bytes": -109,
+      "delta_pct": -10.64453125,
+      "max_span_len": 8,
+      "passes": 1,
+      "expected": "negative"
+    },
+    {
+      "name": "streaming-planted-offset1",
+      "kind": "alignment-control",
+      "input_bytes": 1025,
+      "output_bytes": 1108,
+      "delta_bytes": 83,
+      "delta_pct": 8.097560975609756,
+      "max_span_len": 8,
+      "passes": 1,
+      "expected": "bloat"
+    },
+    {
+      "name": "streaming-recursive-offset-pass2",
+      "kind": "recursive-planted",
+      "input_bytes": 1025,
+      "output_bytes": 759,
+      "delta_bytes": -266,
+      "delta_pct": -25.951219512195124,
+      "max_span_len": 8,
+      "passes": 2,
+      "expected": "negative"
+    },
+    {
+      "name": "streaming-structured-json-control",
+      "kind": "structured-control",
+      "input_bytes": 6814,
+      "output_bytes": 6897,
+      "delta_bytes": 83,
+      "delta_pct": 1.218080422659231,
+      "max_span_len": 8,
+      "passes": 1,
+      "expected": "unknown-control"
+    },
+    {
+      "name": "kolyma-pdf-streaming-control",
+      "kind": "binary-control",
+      "input_bytes": 2602639,
+      "output_bytes": 2602839,
+      "delta_bytes": 200,
+      "delta_pct": 0.007684507916772168,
+      "max_span_len": 4,
+      "passes": 1,
+      "expected": "bloat"
+    }
+  ],
+  "promotion_criteria": [
+    "Keep raw-target-table and reference parity tests passing.",
+    "Show non-planted selected spans or negative rows while random, binary, and structured controls stay non-negative.",
+    "Keep planted-scale memory growth explainable or implement a chunked target-table strategy.",
+    "Reopen SEARCH_FRONTIER_GATE before widening raw seed depth or broad long-span search.",
+    "Treat GPU as research-only until a promoted CPU streaming workload exists."
+  ]
+}

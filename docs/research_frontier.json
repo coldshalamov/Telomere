@@ -1,0 +1,805 @@
+{
+  "generated_by": "scripts/generate_research_frontier.py",
+  "generated_at": "2026-05-26T06:46:44.356928+00:00",
+  "format_version": 1,
+  "scope": {
+    "kind": "downstream trigger ledger",
+    "performs_seed_search": false,
+    "makes_compression_claim": false,
+    "adds_format_support": false,
+    "overrides_search_frontier_gate": false
+  },
+  "source_hashes": {
+    "research_decision_sha256": "4a51e19374ac30dd3ed06b584c924fe8261b4879080a7b25e1f428c08dbbcaa2",
+    "experiment_queue_sha256": "a7fa3696351787c1075e7cb1eef91279b73123fd7047f545140fea345b9cdf62",
+    "goal_audit_sha256": "f4ad8e687c50812d33252ef9a5e56bca7c64284c0e8846d846e99ac33a0a5607",
+    "research_scorecard_sha256": "96b2171667f1a9e7d23f13be73dde047e02e8fb9e6cd062b10427aba5e94eef0",
+    "long_span_bundle_gate_sha256": "68e74aede8d58394b117282713bb6001df946a3d4d8f717aaaa60f20ad3fcd76",
+    "search_frontier_gate_sha256": "9d39bd91dcd1d735b313fe9a40c82cec2ec37a97c5596b8ab30976d170bff9d5",
+    "heldout_corpus_expansion_sha256": "a6e91a2d9d2d96b89510e4a81a685983ef394be930bfc71fde2c970c5beed149",
+    "acceleration_report_sha256": "1e89e14b95fbe6824aa4fb8aa070327bcedbcc808e4fd6cb1b71931d1206f5f8",
+    "recursive_structured_fixtures_sha256": "2ab670c13d562e52f470ebec0ae5d61db29a82350c21780f064b741b3e1e0fac",
+    "scale_performance_report_sha256": "fe90df91a2f992edf6f10bc115517bd9870755fd4b5e85aa0ec9a09fde1b319d",
+    "viability_sha256": "3fb8c563c8f180263feba11c3b01bd6f7faafb17b7f1d57dee61f2428477a208"
+  },
+  "override_policy": "A gated-compute override requires a new generated evidence artifact, an explicit compute budget, and preserved stop rules; this artifact does not override SEARCH_FRONTIER_GATE.",
+  "summary": {
+    "frontier_status": "no_ungated_compute_ready",
+    "decision": "hold_gated_compute_and_continue_evidence_maintenance",
+    "completion_boundary": "goal_not_complete_until_natural_corpus_or_supported_production_claims_are_proven",
+    "verdict": "research-viable, not production-proven",
+    "ready_count": 0,
+    "gated_count": 2,
+    "blocked_by_evidence_count": 3,
+    "qualified_count": 3,
+    "unresolved_count": 27,
+    "long_span_gate_met_count": 0,
+    "long_span_gate_count": 8,
+    "search_frontier_status": "hold-broad-depth-search",
+    "broad_depth_search_allowed": false,
+    "best_non_planted_gib_for_one_expected_hit": 828.0,
+    "no_compute_posture": true,
+    "ungated_compute_allowed": false,
+    "production_proven": false,
+    "allowed_maintenance_only": true
+  },
+  "frontier_lanes": [
+    {
+      "rank": 1,
+      "lane": "long-span-bundle-gate",
+      "status": "blocked-by-evidence",
+      "parallel_group": "corpus-transform",
+      "action": "Use the generated long-span bundle gate as the source of truth; do not run broad long-span sweeps while it reports 0 of 8 gates met.",
+      "why_now": "MECHANISM_EXPERIMENT_RANKING ranks seed-table-preset-probe as the top lane, with 7 ready lanes, 1 gated lanes, 2 blocked lanes, and natural-corpus compression proven False. SEED_TABLE_PRESET_PROBE then found 37768 canonical selected spans, 0 ordinary held-out negative groups, 0 control negative groups, and promotion met False; EXACT_SHORT_HIT_BUNDLE_ECONOMICS then reconstructed 3480 verified short hits, found a zero-overhead lower bound of -1410 bytes, 6 full-stream negative rows, 1 control negative groups, short-hit density comparable True, and promotion met False; WHOLE_STREAM_RESIDUAL_VECTOR_PROBE then tested global residual entropy and bitplane/vector channels over 2358 honest encoded rows, found 0 honest full-stream negative rows, 0 ordinary held-out negative groups, 0 control negative groups, controls null True, measured residual coding near entropy bound True, and promotion met False; EXPANDER_SALT_ENSEMBLE then tested 16 predeclared expander salts, found 0 salted exact hits against 0.648961 expected, random-trial multiplier exceeded False, 0 selected-span rows, 0 full-stream negative rows, 0 control negative groups, and promotion met False; SCHEMA_NATIVE_PUBLIC_DICTIONARIES then tested 101 frozen public entries across 7 modes, found 11302 family selected spans, 14 ordinary held-out negative groups, 0 family control negative groups, 0 wrong-schema negative groups, 0 same-size random negative groups, 0 shadow negative groups, beats generic dictionary baseline True, and promotion met True; SCHEMA_NATIVE_PUBLIC_DICTIONARY_REPLICATION then tested 20 frozen replication corpora, found 20239 standards selected spans, 9 ordinary negative groups, 2 standards control negative groups, 2 generic ordinary negative groups, claim level control_failed_on_frozen_expansion_corpora, and promotion met False; SUPERPOSITION_TELEMETRY then tested 4 deterministic fixtures with 13 candidates, retained 2 alternatives, found 4 weighted extra savings over greedy, explained 4 discarded candidates with 0 unexplained discards, and promotion met True; RECURSIVE_STRUCTURED_FIXTURES then tested 5 CLI-verified fixtures, found 0 ordinary later-win families, 0 planted offset later-win families, claim level recursive_structured_fixtures_not_promoted, and promotion met False; LONG_SPAN_BUNDLE_GATE then consolidated these signals into 0 of 8 gates met, recommendation hold_long_span_bundle_sweeps, selected-span frontier 0, best non-planted forecast 828 GiB, raw-suffix observed prefix 4 vs required 6, short-hit control groups 1, schema replication claim control_failed_on_frozen_expansion_corpora, and claim level long_span_bundle_gate_blocked_by_evidence; the queue therefore blocks broad long-span bundle sweeps. Best near miss http-headers-heldout::sub-lag-2 still expects 5.122e-08 exact hits in observed bytes, and periodic masks currently show prefix>=5 uplift in 0 held-out corpora, composed context+periodic probes show prefix>=5 uplift in 0 held-out corpora and 0 held-out exact hits, while the ladder diagnostic shows 0 held-out/control rows at prefix>=5. The fifth-byte residual diagnostic tops out at 22.7% robust XOR coverage, and residual-derived steering masks produced 0 cross-corpus prefix>=5 win rows; contextual steering checked 16 masks and produced 0 prefix>=5 win rows. Corpus generalization controls scanned 71250 spans across 6 controls and found 0 prefix>=5 rows and 0 exact hits. Vocabulary-disjoint transform validation produced 0 shadow prefix>=5 win corpora and 0 binary exact hits. The bounded structural search checked 30 candidates over 660 rows and found 0 held-out prefix>=5 win corpora, 0 held-out exact hits, and 0 binary exact hits. The byte-permutation transform search checked 7 candidates over 154 rows and found 0 prefix>=5 rows, 0 exact hits, 0 selected spans, and 0 rows negative after metadata. The BWT/MTF classic-preconditioner probe checked 9 candidates over 90 rows and found 0 prefix>=5 rows, 0 exact hits, 0 selected spans, 0 rows negative after metadata, and 6 shorter transformed-payload rows that are transform-only diagnostics. The grammar/channel match discovery checked 9 channels over 198 rows and found 0 prefix>=5 rows, 0 exact hits, 0 selected spans, and 0 rows negative after metadata. The numeric value-channel search then parsed 120214 values across 98 rows and found 0 prefix>=5 rows, 0 exact hits, 0 selected spans, and 0 rows negative after metadata. The held-out corpus expansion then audited 20 frozen replication corpora outside the canonical matrix, scanned 680395 raw spans, and found 0 prefix>=5 rows, 0 exact-hit rows, and 0 selected-span rows. The record/context transform search checked 14 candidates over 84 rows and found 0 prefix>=5 rows, 0 exact hits, 0 selected spans, and 0 rows negative after metadata. The token/dictionary transform search checked 9 candidates over 126 rows and found 0 prefix>=5 rows, 0 exact hits, 0 selected spans, and 0 rows negative after metadata. Affine remaps searched 7937 candidates and found 16 held-out prefix>=4 win corpora, but 0 held-out prefix>=5 win corpora and 0 held-out exact hits. Residual-sidecar steering found 31 held-out forced rows and 31 rows with positive seed contribution, but 0 held-out positive net-delta rows; best held-out net delta 5 bytes. The longer-span sidecar break-even report shows raw-suffix strict gain starts at prefix 6, current held-out forced prefixes stop at 4, raw-suffix viable rows at observed prefix 0, and sublinear-model viable rows 23. Residual payload compressibility then found 1 measured held-out negative row; best measured case rust-like-heldout::affine-a003-b211::prefix4-suffix-xor with zlib best delta -101 bytes. The experimental descriptor decoded 2 rows and rejected corrupt inputs, but full-stream negative rows stayed 0 with best full delta 596 bytes. The sidecar record-overhead budget found 6 negative layout rows; best safe layout delta_offset_u8_seed_u16 reaches -489 bytes. The packed sidecar descriptor then decoded 2 rows, rejected corruption, and found 2 full-stream negative rows with best delta -485 bytes. Controls encoded 10 of 96 rows, found 4 unique negative cases and 1 ordinary held-out negative case. The generalized packed sidecar offset and seed modes encoded 48 unique source rows and 1576 mode/coder rows, but ordinary held-out negative cases stayed at 1. The packed sidecar replication control-matrix then tested 20 frozen corpora, 520 source cases, and 6240 descriptor rows, producing 0 full-stream negative rows and 0 ordinary held-out negative groups. Match discovery scanned 11154720 target spans across 42 corpora, with 0 rows at prefix>=5, 0 rows with exact hits, 0 rows with selected spans, and 0 ordinary held-out selected groups. Alignment/arity discovery then scanned 25210986 target spans across 2134 rows, with 0 rows at prefix>=5, 3480 exact hits, 0 positive exact hits, and 0 selected spans. Transformed match discovery applied 21 frozen transforms over 16494870 target spans and found 0 prefix>=5 rows, 0 exact hits, 0 selected spans, and 0 metadata-profitable rows. Selected-lead exact discovery then scanned 71477770 transformed target spans across 91 selected affine/periodic/composed leads and found 0 prefix>=5 rows, 0 exact hits, 0 selected spans, and 0 metadata-profitable rows. Blind scale-up is not justified.",
+      "promotion_gate": "Open this lane only when LONG_SPAN_BUNDLE_GATE reports every prerequisite gate met or an intentional override is documented with new evidence.",
+      "stop_rule": "Do not run broad long-span bundle sweeps until search frontier, raw-suffix break-even, selected-span, and control gates pass.",
+      "suggested_artifact": "Use `docs/LONG_SPAN_BUNDLE_GATE.md`; only replace this with a sweep artifact after the generated gate passes."
+    },
+    {
+      "rank": 2,
+      "lane": "heldout-corpora",
+      "status": "gated",
+      "parallel_group": "corpus-transform",
+      "action": "Keep replication corpora in a separate frontier artifact unless the team intentionally accepts the expensive matrix-regeneration cascade.",
+      "why_now": "The held-out expansion found 20 deterministic replication corpora missing from both the corpus matrix and transform validation, including 13 ordinary corpora and 7 controls. Raw seed-frontier scanning covered 680395 spans and found 0 prefix>=5 rows, 0 exact-hit rows, and 0 selected-span rows. Current held-out transform validation still has prefix>=4 uplift in 11 corpora and 0 exact hits.",
+      "promotion_gate": "Promote into canonical matrices only for accepted coverage expansion or after unrelated ordinary groups produce prefix>=5 movement, exact hits, or selected spans while controls stay null.",
+      "stop_rule": "Keep the separate artifact as the source of truth while raw prefix>=5, exact-hit, and selected-span rows remain zero.",
+      "suggested_artifact": "Use `docs/HELDOUT_CORPUS_EXPANSION.md`; schedule matrix integration only with an explicit regeneration budget."
+    },
+    {
+      "rank": 3,
+      "lane": "search-depth",
+      "status": "gated",
+      "parallel_group": "compute-economics",
+      "action": "Keep broad depth-3 structured sweeps gated after the bounded compression follow-up returned null.",
+      "why_now": "The depth-3 prefix probe enumerated 16843008 seeds and found 3 held-out prefix>=5 uplift rows but 0 exact hits. The bounded follow-up ran 2 physical inputs / 3 aliases and found 0 selected spans. The selected-lead depth-3 probe found 2 prefix>=5 uplift rows, 0 exact hits, and the lead compression follow-up found 0 selected spans. Depth-3 frontier exact discovery then checked 26 frozen frontier rows / 15 payloads, with 2 prefix>=5 uplift rows, 0 exact hits, and 0 selected spans. The depth-4 shard plan is gated, estimates 7.8799 hours for the full 4-byte bucket at the depth-3 frontier rate, and gives exact-8 probability 0.00017141 on the current frontier. The pilot shard enumerated 16777216 four-byte seeds and found 0 prefix>=5 rows, 0 prefix>=6 rows, 0 exact hits, and 0 selected spans. Best non-planted forecast still needs about 8.280e+02 GiB for one expected exact hit under the random-suffix model. The generated search frontier gate is hold-broad-depth-search with 0 of 7 gates met, 0 selected spans, and 0.00017141 depth-4 exact-8 probability.",
+      "promotion_gate": "Promote broader depth-3 or opt-in depth-4 work only if a new lead finds prefix>=6 movement, exact hits, selected spans, negative delta, or forecast scale below 1 GiB for one expected exact hit.",
+      "stop_rule": "Abort deeper search if frontier exact discovery remains prefix-only with no exact hits.",
+      "suggested_artifact": "Use `docs/SEARCH_FRONTIER_GATE.md` as the broad go/no-go gate before any raw depth or full depth-4 proposal."
+    },
+    {
+      "rank": 4,
+      "lane": "scale-performance",
+      "status": "qualified",
+      "parallel_group": "compute-economics",
+      "action": "Interpret the current bounded planted-density scale sweeps before extending size.",
+      "why_now": "The current 16 MiB planted-density sweep is useful performance evidence but not natural-corpus proof; it now preserves seed expansions, target windows, lookup counts, and target-table byte estimates with peak/estimated-table ratio 21.98. SCALE_PERFORMANCE reports plateau ratio spread 6.514%, largest peak memory 1934.602 MiB, and next-double peak estimate 3869.204 MiB. BOUNDED_STREAMING_MEMORY_GATE reports chunked_target_table_fixture_evidence_no_rss, target-table preflight present True, full RSS containment False, and chunked target tables True.",
+      "promotion_gate": "Peak memory and runtime scale predictably without changing roundtrip or telemetry correctness, with full RSS containment or chunked target tables for promoted workloads.",
+      "stop_rule": "Stop scaling if peak working set grows faster than search-work and target-table telemetry explains, or if target-table estimates exceed the configured memory limit.",
+      "suggested_artifact": "Use `docs/SCALE_PERFORMANCE.md` and `docs/BOUNDED_STREAMING_MEMORY_GATE.md`; extend bounded sizes only if the current ratio stays explainable or chunked tables reduce memory."
+    },
+    {
+      "rank": 5,
+      "lane": "format-transforms",
+      "status": "blocked-by-evidence",
+      "parallel_group": "format-policy",
+      "action": "Do not add transform metadata to `.tlmr` yet.",
+      "why_now": "Current transform wins are transform-only or shallow prefix effects with zero selected seed spans.",
+      "promotion_gate": "Only draft a format extension after a reversible transform produces repeatable exact seed-span wins.",
+      "stop_rule": "Reject format work if exact hits remain absent after held-out validation.",
+      "suggested_artifact": "Keep ADR-0001 policy in force."
+    },
+    {
+      "rank": 6,
+      "lane": "gpu-acceleration",
+      "status": "blocked-by-evidence",
+      "parallel_group": "acceleration",
+      "action": "Do not implement production GPU acceleration until CPU evidence identifies a worthwhile target workload.",
+      "why_now": "Acceleration report status is `research-only-cpu-semantics` and current non-planted exact-hit forecasts are weak.",
+      "promotion_gate": "A CPU workload shows repeatable exact hits but is too slow, then GPU parity and benchmark work becomes valuable.",
+      "stop_rule": "Stop GPU work if it cannot beat CPU streaming on the promoted workload under parity tests.",
+      "suggested_artifact": "Keep `docs/ACCELERATION.md` as the GPU promotion gate."
+    },
+    {
+      "rank": 7,
+      "lane": "tauri-workflow",
+      "status": "qualified",
+      "parallel_group": "operator-ui",
+      "action": "Keep the Tauri evidence dashboard covered by generated static UI/bridge smoke checks.",
+      "why_now": "The research program now has generated scorecard, forecasts, validation, acceleration gates, and UI_WORKFLOW_SMOKE reports 87 UI evidence keys, 115 Tauri fields, 22 required cards, and claim level ui_workflow_static_smoke_passed.",
+      "promotion_gate": "UI smoke tests can read and render generated artifact summaries plus per-layer telemetry without desktop-only assumptions.",
+      "stop_rule": "Stop UI expansion if it encourages unsupported compression claims or hides null results.",
+      "suggested_artifact": "Use `docs/UI_WORKFLOW_SMOKE.md`; add live desktop/browser smoke only when UI behavior changes beyond static schema wiring."
+    },
+    {
+      "rank": 8,
+      "lane": "research-audit",
+      "status": "qualified",
+      "parallel_group": "meta-research",
+      "action": "Keep the open-question list synchronized with generated evidence after each new experiment family.",
+      "why_now": "The current viability ledger has 30 open questions, and the generated goal audit has 0 open requirements, 27 unresolved evidence gates, 27 blocked-by-evidence requirements, and 19 qualified requirements. The scorecard, goal audit, UI workflow smoke, and this queue have all been regenerated from current checked-in evidence.",
+      "promotion_gate": "Every open question points to a generated artifact, command gate, or explicit stop rule.",
+      "stop_rule": "Stop adding new experiment families when they do not change the scorecard or queue.",
+      "suggested_artifact": "Regenerate `docs/VIABILITY.md`, `docs/RESEARCH_SCORECARD.md`, `docs/GOAL_AUDIT.md`, and this queue after every artifact family."
+    }
+  ],
+  "frontiers": [
+    {
+      "frontier_id": "long-span-bundle-gate",
+      "status": "blocked-by-evidence",
+      "canonical_artifact": "docs/LONG_SPAN_BUNDLE_GATE.md",
+      "current_observation": "0 of 8 gates met; recommendation hold_long_span_bundle_sweeps.",
+      "blocking_gates": [
+        "search-frontier-open",
+        "forecast-scale",
+        "selected-span-frontier",
+        "raw-suffix-break-even",
+        "short-hit-controls",
+        "whole-stream-residual",
+        "seed-table-generalization",
+        "packed-replication"
+      ],
+      "promotion_trigger": "Open this lane only when LONG_SPAN_BUNDLE_GATE reports every prerequisite gate met or an intentional override is documented with new evidence.",
+      "unlocks_if_met": "a narrow long-span bundle sweep artifact, not broad production claims",
+      "still_forbidden": [
+        "broad long-span sweeps",
+        "format promotion",
+        "production compression claims"
+      ],
+      "stop_rule": "Do not run broad long-span bundle sweeps until search frontier, raw-suffix break-even, selected-span, and control gates pass.",
+      "control_requirements": [
+        "search frontier open",
+        "raw-suffix break-even met",
+        "selected spans present",
+        "controls remain null"
+      ],
+      "claim_boundary": "long-span bundle evidence only"
+    },
+    {
+      "frontier_id": "heldout-corpora",
+      "status": "gated",
+      "canonical_artifact": "docs/HELDOUT_CORPUS_EXPANSION.md",
+      "current_observation": "20 frozen corpora; prefix>=5 rows 0; exact hits 0; selected spans 0.",
+      "blocking_gates": [
+        "prefix>=5 rows remain zero",
+        "exact-hit rows remain zero",
+        "selected-span rows remain zero"
+      ],
+      "promotion_trigger": "Promote into canonical matrices only for accepted coverage expansion or after unrelated ordinary groups produce prefix>=5 movement, exact hits, or selected spans while controls stay null.",
+      "unlocks_if_met": "canonical corpus-matrix integration with explicit regeneration budget",
+      "still_forbidden": [
+        "expensive matrix regeneration by default",
+        "natural-corpus compression claims"
+      ],
+      "stop_rule": "Keep the separate artifact as the source of truth while raw prefix>=5, exact-hit, and selected-span rows remain zero.",
+      "control_requirements": [
+        "ordinary held-out movement",
+        "controls stay null",
+        "matrix-regeneration budget accepted"
+      ],
+      "claim_boundary": "corpus coverage evidence only"
+    },
+    {
+      "frontier_id": "search-depth",
+      "status": "gated",
+      "canonical_artifact": "docs/SEARCH_FRONTIER_GATE.md",
+      "current_observation": "status hold-broad-depth-search; selected spans 0; forecast 828.0 GiB.",
+      "blocking_gates": [
+        "forecast-scale",
+        "prefix-ladder",
+        "heldout-expansion",
+        "selected-spans",
+        "depth3-frontier",
+        "depth4-pilot",
+        "depth4-expectation"
+      ],
+      "promotion_trigger": "Promote broader depth-3 or opt-in depth-4 work only if a new lead finds prefix>=6 movement, exact hits, selected spans, negative delta, or forecast scale below 1 GiB for one expected exact hit.",
+      "unlocks_if_met": "broader depth-3 or opt-in depth-4 proposal",
+      "still_forbidden": [
+        "broad raw depth search",
+        "full depth-4 execution",
+        "compute escalation without exact-hit evidence"
+      ],
+      "stop_rule": "Abort deeper search if frontier exact discovery remains prefix-only with no exact hits.",
+      "control_requirements": [
+        "prefix>=6 movement or exact hits",
+        "selected spans greater than zero",
+        "forecast below configured threshold"
+      ],
+      "claim_boundary": "search-frontier evidence only"
+    },
+    {
+      "frontier_id": "format-transforms",
+      "status": "blocked-by-evidence",
+      "canonical_artifact": "docs/adr/0001-transform-preconditioners.md",
+      "current_observation": "11 transform/channel/dictionary blockers remain blocked-by-evidence.",
+      "blocking_gates": [
+        "composed-transform",
+        "schema-native-public-dictionary-replication",
+        "structural-transform-search",
+        "byte-permutation-transform-search",
+        "bwt-mtf-transform-probe",
+        "grammar-channel-match-discovery",
+        "numeric-value-channel-match-discovery",
+        "record-context-transform-search",
+        "token-dictionary-transform-search",
+        "affine-transform-search",
+        "transformed-match-discovery"
+      ],
+      "promotion_trigger": "Only draft a format extension after a reversible transform produces repeatable exact seed-span wins.",
+      "unlocks_if_met": "draft transform metadata proposal outside stable v1",
+      "still_forbidden": [
+        ".tlmr transform metadata",
+        "format support claims",
+        "counting transform-only shortening as Lotus compression"
+      ],
+      "stop_rule": "Reject format work if exact hits remain absent after held-out validation.",
+      "control_requirements": [
+        "repeatable exact seed-span wins",
+        "metadata charged",
+        "held-out/control validation"
+      ],
+      "claim_boundary": "format-research evidence only"
+    },
+    {
+      "frontier_id": "gpu-acceleration",
+      "status": "blocked-by-evidence",
+      "canonical_artifact": "docs/ACCELERATION.md",
+      "current_observation": "acceleration status research-only-cpu-semantics; real kernel detected False.",
+      "blocking_gates": [
+        "no CPU workload with repeatable exact hits",
+        "no real GPU kernel promotion",
+        "no production benchmark win"
+      ],
+      "promotion_trigger": "A CPU workload shows repeatable exact hits but is too slow, then GPU parity and benchmark work becomes valuable.",
+      "unlocks_if_met": "real GPU parity and benchmark work",
+      "still_forbidden": [
+        "production GPU acceleration",
+        "trusting GPU output without CPU parity"
+      ],
+      "stop_rule": "Stop GPU work if it cannot beat CPU streaming on the promoted workload under parity tests.",
+      "control_requirements": [
+        "CPU parity tests",
+        "benchmark superiority",
+        "same selected output as CPU"
+      ],
+      "claim_boundary": "acceleration evidence only"
+    }
+  ],
+  "reopen_triggers": [
+    {
+      "lane": "long-span-bundle-gate",
+      "status": "blocked-by-evidence",
+      "promotion_gate": "Open this lane only when LONG_SPAN_BUNDLE_GATE reports every prerequisite gate met or an intentional override is documented with new evidence.",
+      "suggested_artifact": "Use `docs/LONG_SPAN_BUNDLE_GATE.md`; only replace this with a sweep artifact after the generated gate passes."
+    },
+    {
+      "lane": "heldout-corpora",
+      "status": "gated",
+      "promotion_gate": "Promote into canonical matrices only for accepted coverage expansion or after unrelated ordinary groups produce prefix>=5 movement, exact hits, or selected spans while controls stay null.",
+      "suggested_artifact": "Use `docs/HELDOUT_CORPUS_EXPANSION.md`; schedule matrix integration only with an explicit regeneration budget."
+    },
+    {
+      "lane": "search-depth",
+      "status": "gated",
+      "promotion_gate": "Promote broader depth-3 or opt-in depth-4 work only if a new lead finds prefix>=6 movement, exact hits, selected spans, negative delta, or forecast scale below 1 GiB for one expected exact hit.",
+      "suggested_artifact": "Use `docs/SEARCH_FRONTIER_GATE.md` as the broad go/no-go gate before any raw depth or full depth-4 proposal."
+    },
+    {
+      "lane": "format-transforms",
+      "status": "blocked-by-evidence",
+      "promotion_gate": "Only draft a format extension after a reversible transform produces repeatable exact seed-span wins.",
+      "suggested_artifact": "Keep ADR-0001 policy in force."
+    },
+    {
+      "lane": "gpu-acceleration",
+      "status": "blocked-by-evidence",
+      "promotion_gate": "A CPU workload shows repeatable exact hits but is too slow, then GPU parity and benchmark work becomes valuable.",
+      "suggested_artifact": "Keep `docs/ACCELERATION.md` as the GPU promotion gate."
+    }
+  ],
+  "blocked_actions": [
+    {
+      "lane": "long-span-bundle-gate",
+      "status": "blocked-by-evidence",
+      "do_not_do": "Use the generated long-span bundle gate as the source of truth; do not run broad long-span sweeps while it reports 0 of 8 gates met.",
+      "stop_rule": "Do not run broad long-span bundle sweeps until search frontier, raw-suffix break-even, selected-span, and control gates pass."
+    },
+    {
+      "lane": "format-transforms",
+      "status": "blocked-by-evidence",
+      "do_not_do": "Do not add transform metadata to `.tlmr` yet.",
+      "stop_rule": "Reject format work if exact hits remain absent after held-out validation."
+    },
+    {
+      "lane": "gpu-acceleration",
+      "status": "blocked-by-evidence",
+      "do_not_do": "Do not implement production GPU acceleration until CPU evidence identifies a worthwhile target workload.",
+      "stop_rule": "Stop GPU work if it cannot beat CPU streaming on the promoted workload under parity tests."
+    },
+    {
+      "lane": "heldout-corpora",
+      "status": "gated",
+      "do_not_do": "Keep replication corpora in a separate frontier artifact unless the team intentionally accepts the expensive matrix-regeneration cascade.",
+      "stop_rule": "Keep the separate artifact as the source of truth while raw prefix>=5, exact-hit, and selected-span rows remain zero."
+    },
+    {
+      "lane": "search-depth",
+      "status": "gated",
+      "do_not_do": "Keep broad depth-3 structured sweeps gated after the bounded compression follow-up returned null.",
+      "stop_rule": "Abort deeper search if frontier exact discovery remains prefix-only with no exact hits."
+    }
+  ],
+  "next_evidence_triggers": [
+    {
+      "trigger": "prefix>=6",
+      "meaning": "held-out generated-prefix movement strong enough to revisit raw-suffix economics"
+    },
+    {
+      "trigger": "exact_hits>0",
+      "meaning": "a non-planted target span exactly equals a generated seed prefix"
+    },
+    {
+      "trigger": "selected_spans>0",
+      "meaning": "the compressor selected profitable seed-span records after metadata"
+    },
+    {
+      "trigger": "forecast_gib<1",
+      "meaning": "expected exact-hit cost is low enough to revisit broad depth search"
+    },
+    {
+      "trigger": "ordinary_negative_groups_with_null_controls",
+      "meaning": "negative delta appears in unrelated ordinary groups while controls stay null"
+    }
+  ],
+  "unresolved_clusters": [
+    {
+      "section": "affine-transform-search",
+      "count": 1,
+      "status_counts": {
+        "blocked-by-evidence": 1
+      },
+      "first_remaining_gate": "Treat prefix-4 movement as a steering clue only; require residual-sidecar savings, prefix>=5, or exact hits before depth escalation."
+    },
+    {
+      "section": "alignment-arity-discovery",
+      "count": 1,
+      "status_counts": {
+        "blocked-by-evidence": 1
+      },
+      "first_remaining_gate": "Find profitable exact hits or prefix>=5 movement before spending more on alignment-only tuning."
+    },
+    {
+      "section": "bwt-mtf-transform-probe",
+      "count": 1,
+      "status_counts": {
+        "blocked-by-evidence": 1
+      },
+      "first_remaining_gate": "Treat BWT/MTF/RLE as null seed-span evidence unless it produces prefix>=5, exact hits, or metadata-profitable selected spans."
+    },
+    {
+      "section": "byte-permutation-transform-search",
+      "count": 1,
+      "status_counts": {
+        "blocked-by-evidence": 1
+      },
+      "first_remaining_gate": "Treat byte-distribution alignment as null until it produces prefix>=5, exact hits, or metadata-profitable selected spans."
+    },
+    {
+      "section": "composed-transform",
+      "count": 1,
+      "status_counts": {
+        "blocked-by-evidence": 1
+      },
+      "first_remaining_gate": "Reject composition as a promotion path unless it produces held-out prefix>=5 or exact seed-span events."
+    },
+    {
+      "section": "contextual-fifth-byte-steering",
+      "count": 1,
+      "status_counts": {
+        "blocked-by-evidence": 1
+      },
+      "first_remaining_gate": "Reject contextual steering as a promotion path unless it beats null controls on held-out prefix>=5 or exact hits."
+    },
+    {
+      "section": "depth3-frontier-exact-discovery",
+      "count": 1,
+      "status_counts": {
+        "blocked-by-evidence": 1
+      },
+      "first_remaining_gate": "Keep depth 4 opt-in and sharded until this gate finds prefix>=6 movement, exact hits, or selected spans."
+    },
+    {
+      "section": "depth4-pilot-shard",
+      "count": 1,
+      "status_counts": {
+        "blocked-by-evidence": 1
+      },
+      "first_remaining_gate": "Keep remaining depth-4 shards gated unless a pilot or upstream lead produces prefix>=6, exact hits, or selected spans."
+    },
+    {
+      "section": "exact-short-hit-bundle-economics",
+      "count": 1,
+      "status_counts": {
+        "blocked-by-evidence": 1
+      },
+      "first_remaining_gate": "Do not promote span-3 hit bundling unless full-stream wins survive unrelated ordinary groups with null controls and non-comparable control density."
+    },
+    {
+      "section": "expander-salt-ensemble",
+      "count": 1,
+      "status_counts": {
+        "blocked-by-evidence": 1
+      },
+      "first_remaining_gate": "Do not promote salted expanders unless they beat equivalent random trials and create full-stream ordinary held-out wins with null controls."
+    },
+    {
+      "section": "fifth-byte-steering",
+      "count": 1,
+      "status_counts": {
+        "blocked-by-evidence": 1
+      },
+      "first_remaining_gate": "Reject residual masks unless they generalize into prefix>=5 or exact hits."
+    },
+    {
+      "section": "grammar-channel-match-discovery",
+      "count": 1,
+      "status_counts": {
+        "blocked-by-evidence": 1
+      },
+      "first_remaining_gate": "Treat grammar-channel sidecar models as null until a parser-backed channel survives held-out/control promotion."
+    },
+    {
+      "section": "lead-exact-discovery",
+      "count": 1,
+      "status_counts": {
+        "blocked-by-evidence": 1
+      },
+      "first_remaining_gate": "Stop broadening selected prefix-4 leads until a new family or deeper seed lane crosses prefix>=5 or exact-hit thresholds."
+    },
+    {
+      "section": "long-span-bundle-gate",
+      "count": 1,
+      "status_counts": {
+        "blocked-by-evidence": 1
+      },
+      "first_remaining_gate": "Do not run broad long-span bundle sweeps until the generated gate passes."
+    },
+    {
+      "section": "match-discovery",
+      "count": 1,
+      "status_counts": {
+        "blocked-by-evidence": 1
+      },
+      "first_remaining_gate": "Change match-discovery strategy before returning to sidecar packing or format work."
+    },
+    {
+      "section": "natural-corpus",
+      "count": 1,
+      "status_counts": {
+        "blocked-by-evidence": 1
+      },
+      "first_remaining_gate": "Promote only after repeatable prefix>=5 uplift or exact seed-span hits on held-out data."
+    },
+    {
+      "section": "numeric-value-channel-match-discovery",
+      "count": 1,
+      "status_counts": {
+        "blocked-by-evidence": 1
+      },
+      "first_remaining_gate": "Treat parsed numeric value channels as null until exact seed spans survive full reconstruction metadata."
+    },
+    {
+      "section": "packed-sidecar-replication",
+      "count": 1,
+      "status_counts": {
+        "blocked-by-evidence": 1
+      },
+      "first_remaining_gate": "Find new independent match-discovery leads before more descriptor packing work."
+    },
+    {
+      "section": "record-context-transform-search",
+      "count": 1,
+      "status_counts": {
+        "blocked-by-evidence": 1
+      },
+      "first_remaining_gate": "Treat the current record-context lane as null until exact seed spans appear after metadata."
+    },
+    {
+      "section": "recursive-structured-fixtures",
+      "count": 1,
+      "status_counts": {
+        "blocked-by-evidence": 1
+      },
+      "first_remaining_gate": "Do not generalize recursive v2 gains unless ordinary non-offset fixtures produce verified later-layer container wins."
+    },
+    {
+      "section": "schema-native-public-dictionary-replication",
+      "count": 1,
+      "status_counts": {
+        "blocked-by-evidence": 1
+      },
+      "first_remaining_gate": "Do not promote a public dictionary registry or format-level support until paired shadow controls and external corpora separate cleanly."
+    },
+    {
+      "section": "seed-manifold-residual-steering",
+      "count": 1,
+      "status_counts": {
+        "blocked-by-evidence": 1
+      },
+      "first_remaining_gate": "Do not promote residual steering until sidecar bytes plus metadata beat literal storage on held-out corpora."
+    },
+    {
+      "section": "seed-table-preset-probe",
+      "count": 1,
+      "status_counts": {
+        "blocked-by-evidence": 1
+      },
+      "first_remaining_gate": "Do not promote a public Lotus preset unless ordinary held-out negative groups reach the gate and controls remain null."
+    },
+    {
+      "section": "structural-transform-search",
+      "count": 1,
+      "status_counts": {
+        "blocked-by-evidence": 1
+      },
+      "first_remaining_gate": "Keep format-transform and broad depth work gated until structural or successor transforms produce repeatable promotion signals."
+    },
+    {
+      "section": "token-dictionary-transform-search",
+      "count": 1,
+      "status_counts": {
+        "blocked-by-evidence": 1
+      },
+      "first_remaining_gate": "Treat the current token-dictionary lane as null until exact seed spans appear after metadata."
+    },
+    {
+      "section": "transformed-match-discovery",
+      "count": 1,
+      "status_counts": {
+        "blocked-by-evidence": 1
+      },
+      "first_remaining_gate": "Find a new transform family or deeper seed lane before promoting transform metadata."
+    },
+    {
+      "section": "whole-stream-residual-vector-probe",
+      "count": 1,
+      "status_counts": {
+        "blocked-by-evidence": 1
+      },
+      "first_remaining_gate": "Do not continue residual-sidecar promotion unless whole-stream vector rows produce unrelated ordinary held-out wins with controls null."
+    }
+  ],
+  "unresolved_requirements": [
+    {
+      "section": "natural-corpus",
+      "requirement": "Find repeatable natural or transformed structured-corpus seed-span wins.",
+      "status": "blocked-by-evidence",
+      "remaining_gate": "Promote only after repeatable prefix>=5 uplift or exact seed-span hits on held-out data."
+    },
+    {
+      "section": "composed-transform",
+      "requirement": "Test whether context/residual transforms and periodic masks work better when composed.",
+      "status": "blocked-by-evidence",
+      "remaining_gate": "Reject composition as a promotion path unless it produces held-out prefix>=5 or exact seed-span events."
+    },
+    {
+      "section": "depth3-frontier-exact-discovery",
+      "requirement": "Enumerate the full depth-3 frontier on frozen depth-2 null/frontier rows before considering depth 4.",
+      "status": "blocked-by-evidence",
+      "remaining_gate": "Keep depth 4 opt-in and sharded until this gate finds prefix>=6 movement, exact hits, or selected spans."
+    },
+    {
+      "section": "depth4-pilot-shard",
+      "requirement": "Run bounded depth-4 pilot shards as generated evidence before considering full depth-4 execution.",
+      "status": "blocked-by-evidence",
+      "remaining_gate": "Keep remaining depth-4 shards gated unless a pilot or upstream lead produces prefix>=6, exact hits, or selected spans."
+    },
+    {
+      "section": "seed-table-preset-probe",
+      "requirement": "Execute the top-ranked seed-table/Lotus preset evidence probe.",
+      "status": "blocked-by-evidence",
+      "remaining_gate": "Do not promote a public Lotus preset unless ordinary held-out negative groups reach the gate and controls remain null."
+    },
+    {
+      "section": "exact-short-hit-bundle-economics",
+      "requirement": "Execute the exact short-hit bundle economics evidence probe.",
+      "status": "blocked-by-evidence",
+      "remaining_gate": "Do not promote span-3 hit bundling unless full-stream wins survive unrelated ordinary groups with null controls and non-comparable control density."
+    },
+    {
+      "section": "whole-stream-residual-vector-probe",
+      "requirement": "Execute the whole-stream residual-vector falsification probe.",
+      "status": "blocked-by-evidence",
+      "remaining_gate": "Do not continue residual-sidecar promotion unless whole-stream vector rows produce unrelated ordinary held-out wins with controls null."
+    },
+    {
+      "section": "expander-salt-ensemble",
+      "requirement": "Execute the expander salt/preset ensemble falsification probe.",
+      "status": "blocked-by-evidence",
+      "remaining_gate": "Do not promote salted expanders unless they beat equivalent random trials and create full-stream ordinary held-out wins with null controls."
+    },
+    {
+      "section": "schema-native-public-dictionary-replication",
+      "requirement": "Replicate and harden the schema-native public dictionary result on frozen expansion corpora.",
+      "status": "blocked-by-evidence",
+      "remaining_gate": "Do not promote a public dictionary registry or format-level support until paired shadow controls and external corpora separate cleanly."
+    },
+    {
+      "section": "long-span-bundle-gate",
+      "requirement": "Gate broad long-span bundle sweeps before spending compute.",
+      "status": "blocked-by-evidence",
+      "remaining_gate": "Do not run broad long-span bundle sweeps until the generated gate passes."
+    },
+    {
+      "section": "recursive-structured-fixtures",
+      "requirement": "Gate recursive v2 claims against ordinary structured fixtures, not planted offsets.",
+      "status": "blocked-by-evidence",
+      "remaining_gate": "Do not generalize recursive v2 gains unless ordinary non-offset fixtures produce verified later-layer container wins."
+    },
+    {
+      "section": "fifth-byte-steering",
+      "requirement": "Test whether residual fifth-byte masks make prefix ladders survive held-out data.",
+      "status": "blocked-by-evidence",
+      "remaining_gate": "Reject residual masks unless they generalize into prefix>=5 or exact hits."
+    },
+    {
+      "section": "contextual-fifth-byte-steering",
+      "requirement": "Test whether context-conditioned fifth-byte masks beat same-shape null controls.",
+      "status": "blocked-by-evidence",
+      "remaining_gate": "Reject contextual steering as a promotion path unless it beats null controls on held-out prefix>=5 or exact hits."
+    },
+    {
+      "section": "structural-transform-search",
+      "requirement": "Test bounded structural reversible transforms across held-out, shadow, and binary controls.",
+      "status": "blocked-by-evidence",
+      "remaining_gate": "Keep format-transform and broad depth work gated until structural or successor transforms produce repeatable promotion signals."
+    },
+    {
+      "section": "byte-permutation-transform-search",
+      "requirement": "Test finite seed-output byte-distribution alignment with reversible global and phase-local byte permutations.",
+      "status": "blocked-by-evidence",
+      "remaining_gate": "Treat byte-distribution alignment as null until it produces prefix>=5, exact hits, or metadata-profitable selected spans."
+    },
+    {
+      "section": "bwt-mtf-transform-probe",
+      "requirement": "Test bounded BWT/MTF/RLE classic preconditioners without counting transform-only shortening as Lotus evidence.",
+      "status": "blocked-by-evidence",
+      "remaining_gate": "Treat BWT/MTF/RLE as null seed-span evidence unless it produces prefix>=5, exact hits, or metadata-profitable selected spans."
+    },
+    {
+      "section": "grammar-channel-match-discovery",
+      "requirement": "Test reversible grammar/channel streams with literal sidecars charged before promotion.",
+      "status": "blocked-by-evidence",
+      "remaining_gate": "Treat grammar-channel sidecar models as null until a parser-backed channel survives held-out/control promotion."
+    },
+    {
+      "section": "numeric-value-channel-match-discovery",
+      "requirement": "Test parsed numeric value streams with exact reconstruction metadata charged before promotion.",
+      "status": "blocked-by-evidence",
+      "remaining_gate": "Treat parsed numeric value channels as null until exact seed spans survive full reconstruction metadata."
+    },
+    {
+      "section": "record-context-transform-search",
+      "requirement": "Test record/context-aware reversible transforms with metadata charged before promotion.",
+      "status": "blocked-by-evidence",
+      "remaining_gate": "Treat the current record-context lane as null until exact seed spans appear after metadata."
+    },
+    {
+      "section": "token-dictionary-transform-search",
+      "requirement": "Test token/dictionary reversible transforms with dictionary metadata charged before promotion.",
+      "status": "blocked-by-evidence",
+      "remaining_gate": "Treat the current token-dictionary lane as null until exact seed spans appear after metadata."
+    },
+    {
+      "section": "affine-transform-search",
+      "requirement": "Test reversible affine byte remaps as a stronger alphabet-alignment preconditioner.",
+      "status": "blocked-by-evidence",
+      "remaining_gate": "Treat prefix-4 movement as a steering clue only; require residual-sidecar savings, prefix>=5, or exact hits before depth escalation."
+    },
+    {
+      "section": "seed-manifold-residual-steering",
+      "requirement": "Test whether forced exact seed spans plus residual sidecar bytes beat literal storage.",
+      "status": "blocked-by-evidence",
+      "remaining_gate": "Do not promote residual steering until sidecar bytes plus metadata beat literal storage on held-out corpora."
+    },
+    {
+      "section": "packed-sidecar-replication",
+      "requirement": "Replicate packed sidecar descriptor evidence on predeclared unrelated held-out corpora.",
+      "status": "blocked-by-evidence",
+      "remaining_gate": "Find new independent match-discovery leads before more descriptor packing work."
+    },
+    {
+      "section": "match-discovery",
+      "requirement": "Run pre-sidecar exact match discovery across validation and replication corpora.",
+      "status": "blocked-by-evidence",
+      "remaining_gate": "Change match-discovery strategy before returning to sidecar packing or format work."
+    },
+    {
+      "section": "alignment-arity-discovery",
+      "requirement": "Test whether the match-discovery null result is caused by block alignment, phase, or arity policy.",
+      "status": "blocked-by-evidence",
+      "remaining_gate": "Find profitable exact hits or prefix>=5 movement before spending more on alignment-only tuning."
+    },
+    {
+      "section": "transformed-match-discovery",
+      "requirement": "Run exact seed-span discovery after the frozen reversible transform-validation matrix.",
+      "status": "blocked-by-evidence",
+      "remaining_gate": "Find a new transform family or deeper seed lane before promoting transform metadata."
+    },
+    {
+      "section": "lead-exact-discovery",
+      "requirement": "Run exact seed-span discovery over selected affine, periodic, and composed transform leads.",
+      "status": "blocked-by-evidence",
+      "remaining_gate": "Stop broadening selected prefix-4 leads until a new family or deeper seed lane crosses prefix>=5 or exact-hit thresholds."
+    }
+  ],
+  "subagent_work_packages": [
+    {
+      "parallel_group": "acceleration",
+      "lanes": "gpu-acceleration",
+      "status_counts": {
+        "blocked-by-evidence": 1
+      },
+      "allowed_now": "read-only audits and generated-artifact maintenance only",
+      "guardrail": "Do not launch broad compute, production GPU, or format promotion from this work package unless its generated promotion gate changes."
+    },
+    {
+      "parallel_group": "compute-economics",
+      "lanes": "search-depth, scale-performance",
+      "status_counts": {
+        "gated": 1,
+        "qualified": 1
+      },
+      "allowed_now": "read-only audits and generated-artifact maintenance only",
+      "guardrail": "Do not launch broad compute, production GPU, or format promotion from this work package unless its generated promotion gate changes."
+    },
+    {
+      "parallel_group": "corpus-transform",
+      "lanes": "long-span-bundle-gate, heldout-corpora",
+      "status_counts": {
+        "blocked-by-evidence": 1,
+        "gated": 1
+      },
+      "allowed_now": "read-only audits and generated-artifact maintenance only",
+      "guardrail": "Do not launch broad compute, production GPU, or format promotion from this work package unless its generated promotion gate changes."
+    },
+    {
+      "parallel_group": "format-policy",
+      "lanes": "format-transforms",
+      "status_counts": {
+        "blocked-by-evidence": 1
+      },
+      "allowed_now": "read-only audits and generated-artifact maintenance only",
+      "guardrail": "Do not launch broad compute, production GPU, or format promotion from this work package unless its generated promotion gate changes."
+    },
+    {
+      "parallel_group": "meta-research",
+      "lanes": "research-audit",
+      "status_counts": {
+        "qualified": 1
+      },
+      "allowed_now": "read-only audits and generated-artifact maintenance only",
+      "guardrail": "Do not launch broad compute, production GPU, or format promotion from this work package unless its generated promotion gate changes."
+    },
+    {
+      "parallel_group": "operator-ui",
+      "lanes": "tauri-workflow",
+      "status_counts": {
+        "qualified": 1
+      },
+      "allowed_now": "read-only audits and generated-artifact maintenance only",
+      "guardrail": "Do not launch broad compute, production GPU, or format promotion from this work package unless its generated promotion gate changes."
+    }
+  ]
+}

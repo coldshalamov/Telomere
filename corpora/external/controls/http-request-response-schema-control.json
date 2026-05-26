@@ -1,0 +1,11 @@
+{
+  "$schema": "https://example.invalid/schema",
+  "title": "TransportFixture",
+  "type": "object",
+  "properties": {
+    "route_code": { "type": "string" },
+    "payload_kind": { "type": "string" },
+    "retry_count": { "type": "integer" }
+  },
+  "required": ["route_code", "payload_kind"]
+}

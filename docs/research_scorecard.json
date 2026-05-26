@@ -1,0 +1,470 @@
+{
+  "generated_by": "scripts/generate_research_scorecard.py",
+  "generated_at": "2026-05-26T06:46:42.328453+00:00",
+  "format_version": 1,
+  "verdict": "research-viable, not production-proven",
+  "overall_status": "not production-proven",
+  "viability_status_counts": {
+    "qualified": 21,
+    "proved": 4,
+    "open": 29,
+    "blocked-by-evidence": 3
+  },
+  "scorecard_status_counts": {
+    "proved": 2,
+    "qualified": 16,
+    "open": 38,
+    "blocked-by-evidence": 3
+  },
+  "artifact_hashes": {
+    "results_sha256": "225465824966499a8d15a5721e0698c30ae83053d072dbec6c6b21558523f9ba",
+    "sweeps_sha256": "803c32715becd4eca7f52b5282fceaab539b953365ef223b477f3d5a6355dce7",
+    "deep_sweeps_sha256": "2176343942c8dff2eff0b9b55e0dff77fd03f5e4e010ef424e1e45524976331b",
+    "transform_sweeps_sha256": "33cef39339446bb7270c7fc35b90e7f5c79f73bb954b1ae8c4ae2db6fc7c2841",
+    "transform_probe_sha256": "93fd1f093f903b4ce00259597730c2e6d857de6ad7729d020d43731fe9264d04",
+    "transform_validation_sha256": "0267e3cbffa7b2ff0dbf8c0628ea0522253e2a45cd51b27a98f9eb8831831d6f",
+    "periodic_transform_probe_sha256": "6164cb60ab30824a396569dbc1bcfb60fe319c8da07e64c14ff672e471d1c7fc",
+    "composed_transform_probe_sha256": "c23611544994eaa766b2cb2847ce109788820a3a7706c052cc32cbea42ab1297",
+    "corpus_matrix_sha256": "2a9f8506a3c9e6aa47c0e91c1e15bf1951f9af0d0b3cb64129982e06a27e7bd2",
+    "corpus_generalization_probe_sha256": "4b687748c439a8f27897d7c7346cd088e41fa155de4c74aa190e48696c8359dd",
+    "acceleration_report_sha256": "1e89e14b95fbe6824aa4fb8aa070327bcedbcc808e4fd6cb1b71931d1206f5f8",
+    "theory_sha256": "2f94b6de0130033b68d08d0c5b8f262e56af08a0a6f85bc2a1cd08fb729f854e",
+    "manifold_sha256": "62699421e7a3411f37861522f3dfe604df91d95dc1a593da0f784af835283e85",
+    "nearmiss_forecast_sha256": "7323ac31d74df41295f7535e0caa61ab1ae37f16a11b1428a3e3b69bb453a3c4",
+    "prefix_ladder_sha256": "98ca3a9a96550050be655b32c07997e389045dca12a1c45d8b7cac5f13077a38",
+    "depth3_prefix_probe_sha256": "2d4e5a5dc19fb6403d11b3903a0f9fd086270f0a088c8e272cca79cca32719cd",
+    "depth3_compression_followup_sha256": "4bb6a9726ffdd9da1e76d43582142966a52d6accc5d9f7b71885f526bd7e129d",
+    "lead_depth3_prefix_probe_sha256": "0c37e5e2fbc02db790a021a56fffa4641ee1c06bc9de13be575f7334eb4729de",
+    "lead_depth3_compression_followup_sha256": "2ee0b23800899ee07d127914fd9ad2a161e5e25dcc7eb8dc566c653ca5248f2b",
+    "depth3_frontier_exact_discovery_sha256": "9284b7a2654fdc4610850e0e3251320f3448e715732753a2ce2526dee442e773",
+    "depth4_shard_plan_sha256": "982e56a81b0a5833f1a8b08f6696fc885f83da5440668ef277c2967757702734",
+    "depth4_pilot_shard_sha256": "f869511c072356a15ce5443f6f88a10cc75f74dd54ac321e37bf9f59d90ebf58",
+    "search_frontier_gate_sha256": "9d39bd91dcd1d735b313fe9a40c82cec2ec37a97c5596b8ab30976d170bff9d5",
+    "mechanism_experiment_ranking_sha256": "31800d430dde4b360873778de3a8437fcc836ff8fef6c3886a53eedfc550f18d",
+    "seed_table_preset_probe_sha256": "3128e58ca2d8868727d6f2cead64a6c7c57acbb199e09088bf0bdb4b6253f543",
+    "exact_short_hit_bundle_economics_sha256": "e1f2f45a8a8fdac4d5780b912e1f781de59da92dcd8d0e37c6ce8c760311350c",
+    "whole_stream_residual_vector_probe_sha256": "35f80e6345cc7230c5d615260d293d71c168664a886bcfcb2035f49be872b126",
+    "expander_salt_ensemble_sha256": "cbe5fac0b15dc49c47621005fa05f21692a39a6fdfbc1fdf000567e8468489b3",
+    "schema_native_public_dictionaries_sha256": "08e16ee9b2f67d22f340f3ef001325ff2f250f98c690bd6fcfb6397d2f96c45e",
+    "schema_native_public_dictionary_replication_sha256": "226d4446bd8930bea72d9d1f129c832c4778bd81fc2b76eeab21d6d7c2f7168e",
+    "superposition_telemetry_sha256": "447e382fb222d915f1d913e72a0a0d2bcd3eae6bb81e2a72d2acc7b030370f57",
+    "long_span_bundle_gate_sha256": "68e74aede8d58394b117282713bb6001df946a3d4d8f717aaaa60f20ad3fcd76",
+    "recursive_structured_fixtures_sha256": "2ab670c13d562e52f470ebec0ae5d61db29a82350c21780f064b741b3e1e0fac",
+    "scale_performance_report_sha256": "fe90df91a2f992edf6f10bc115517bd9870755fd4b5e85aa0ec9a09fde1b319d",
+    "ui_workflow_smoke_sha256": "ccf263cfc0fac703616c6fee57dba9e244213ae5c43464b57b93ef12f8b667b7",
+    "fifth_byte_residual_sha256": "24e6ce5a5d02ddbab41513a9398d563e8a666d3233945685549e205ed025e342",
+    "fifth_byte_steering_sha256": "907390d75e9a18c6f41ba72f50025511d2a8292af6ad5c6398165698e86cd88a",
+    "contextual_fifth_byte_steering_sha256": "ce80c9ccbb78185b3bce6b6e9562be879e37affe942aa7bebff2489a62622028",
+    "structural_transform_search_sha256": "f862b094763c7c7c1cf4ba45ac75246f3b874e51ef67afd329d803b15f7d9eb1",
+    "byte_permutation_transform_search_sha256": "a59e3b221fdacb987232b3741d7e3465ded04d0396d57171f755419dd7aff636",
+    "bwt_mtf_transform_probe_sha256": "77f27eccb2911d7220485be1a687ef49af88aaf53bbf61319e8dc01573f38138",
+    "grammar_channel_match_discovery_sha256": "79493dc0c51458571d8b3f90adc47ce1c9351328d29e6838f01169079daf5b06",
+    "numeric_value_channel_match_discovery_sha256": "81375d5f34e24927120cf49f70a8153fc2c4da910d0075250667d656469ad423",
+    "heldout_corpus_expansion_sha256": "a6e91a2d9d2d96b89510e4a81a685983ef394be930bfc71fde2c970c5beed149",
+    "record_context_transform_search_sha256": "b80fbb566ea2f5cc8159ba646c1df29381941627c92b6e86bd3b6b1d36b1d713",
+    "token_dictionary_transform_search_sha256": "045abb32731d15304d53428f101a9fa0baa8d7fb7eeea9c816251e467fe84951",
+    "affine_transform_search_sha256": "f45c9f1b1a50f3ba174e17d76a495bd4118bde5edd94419bf6a12518bc154d75",
+    "seed_manifold_residual_steering_sha256": "68d3e523b27b71ed009e3d3b52940fa3c4ccd87c3c3d06f56846711c617966a7",
+    "sidecar_break_even_sha256": "5d874157aff2e242739bfacfd1be05880ab4775ae38de1a574020105c5b41e6e",
+    "residual_payload_compressibility_sha256": "8456cf28aeca0da0121764b3fda9e812e6cfcffb018632ea737c010381649a0e",
+    "experimental_sidecar_descriptor_sha256": "4ac06d6a7c6db6cc9b4d22179e04f936d2781d692d0be8da28239be8be8cca17",
+    "sidecar_record_overhead_sha256": "201bd575e37f23af1d666e6c9bbf5a0afca1e91555d9833bc2f9f273a5960e74",
+    "packed_sidecar_descriptor_sha256": "df249b2875e3e492c1b9cd4d84ada0459b81554559b6e90dbe294dde7617bcb4",
+    "packed_sidecar_controls_sha256": "adcea5f79302d360f8fa2575c8da244cf5cf666f88736b5658240ce295a4f99a",
+    "generalized_packed_sidecar_sha256": "24c9060ef3152e0fcf9e0fe424d00a83546b66f8f9d0dea1aee64c2fb8c7ca40",
+    "packed_sidecar_replication_sha256": "31201fbd63a624f23c9437d31683e2fcb2dcbe80804e4623b5e51ec90d3b98df",
+    "match_discovery_sha256": "890b5167395b3ca5b0e622d7f7c61d565acc9665d88448edba8331bcbd70d7a0",
+    "alignment_arity_discovery_sha256": "a056600b2d110b6f4b51c02263e9a8a99862cf3f88c006f999886ac3b3f59a96",
+    "transformed_match_discovery_sha256": "ac028cc87f27652ab4ee1780a4e62100a9a14edde799394808c4a6b379d58447",
+    "lead_exact_discovery_sha256": "14d23146672c8cc1ff66250d9f6f874f9a7e4d2aa1a6abbbc24f2e32848d6ebe",
+    "viability_sha256": "3fb8c563c8f180263feba11c3b01bd6f7faafb17b7f1d57dee61f2428477a208"
+  },
+  "cards": [
+    {
+      "area": "Codec and format safety",
+      "status": "proved",
+      "evidence": "Viability level 0 plus full generated artifact checks.",
+      "next": "Keep golden vectors and corrupt-input tests tied to any format change."
+    },
+    {
+      "area": "Planted generative mechanism",
+      "status": "proved",
+      "evidence": "v1 planted arity2 -34.38%; streaming span8 -29.69%.",
+      "next": "Move beyond planted controls only when corpus evidence supports it."
+    },
+    {
+      "area": "Search farther / seed depth",
+      "status": "qualified",
+      "evidence": "depth3 planted -4.69% with 128 selected spans in 2000.703 ms.",
+      "next": "Extend depth3 only with bounded runtime and memory controls."
+    },
+    {
+      "area": "Depth-3 prefix frontier",
+      "status": "qualified",
+      "evidence": "16843008 seeds enumerated; 3 held-out rows gained prefix>=5 movement, with 0 exact hits. The bounded compression follow-up ran 2 physical inputs / 3 aliases and found 0 selected spans.",
+      "next": "Keep broad depth-3 sweeps gated until a transform/corpus lead creates exact hits or selected spans."
+    },
+    {
+      "area": "Selected-lead depth-3 follow-up",
+      "status": "open",
+      "evidence": "lead prefix probe enumerated 16843008 seeds; 2 rows gained prefix>=5, 0 exact hits. The CLI compression follow-up ran 1 physical input / 2 aliases and found 0 selected spans.",
+      "next": "Do not broaden selected-lead depth-3 compression until exact records appear."
+    },
+    {
+      "area": "Depth-3 frontier exact discovery",
+      "status": "open",
+      "evidence": "26 frontier rows / 15 payloads enumerated 16843008 seeds; prefix>=5 uplift rows 2, exact hits 0, selected spans 0.",
+      "next": "Keep depth 4 opt-in and sharded until this gate finds prefix>=6, exact hits, or selected spans."
+    },
+    {
+      "area": "Depth-4 shard plan",
+      "status": "open",
+      "evidence": "status gated; estimated incremental depth-4 time 7.8799 hours; frontier exact-8 probability 0.00017141.",
+      "next": "Run only pilot shards unless a new lead satisfies the promotion gate."
+    },
+    {
+      "area": "Depth-4 pilot shard",
+      "status": "open",
+      "evidence": "1 shard enumerated 16777216 seeds over 736265 target spans; prefix>=5 rows 0, prefix>=6 rows 0, exact hits 0, selected spans 0.",
+      "next": "Keep the remaining 255 shards gated until prefix>=6, exact hits, or selected spans appear."
+    },
+    {
+      "area": "Search frontier gate",
+      "status": "open",
+      "evidence": "status hold-broad-depth-search; best forecast 828.0 GiB per expected exact hit; depth-4 exact-8 probability 0.00017141; selected spans 0; gate checks met 0 of 7.",
+      "next": "Use this artifact as the go/no-go source before broad raw depth search, full depth-4 shards, corpus-matrix promotion, or format-transform promotion."
+    },
+    {
+      "area": "Mechanism experiment ranking",
+      "status": "open",
+      "evidence": "top lane seed-table-preset-probe; next artifact docs/SEED_TABLE_PRESET_PROBE.md; ready 7, gated 1, blocked 2; natural-corpus compression proven False.",
+      "next": "Run the generated seed-table preset probe before raw-depth escalation, format promotion, descriptor packing, or hardware acceleration."
+    },
+    {
+      "area": "Seed-table preset probe",
+      "status": "open",
+      "evidence": "canonical selected spans 37768; ordinary held-out negative groups 0; control negative groups 0; SHA-256 baseline selected spans 0; promotion met False.",
+      "next": "Treat the public seed-table preset as current null/insufficient evidence; move to the next ranked mechanism or redesign the preset only with stricter controls."
+    },
+    {
+      "area": "Exact short-hit bundle economics",
+      "status": "open",
+      "evidence": "reconstructed exact hits 3480; zero-overhead best delta -1410 bytes; full-stream negative rows 6; ordinary negative groups 3; control negative groups 1; control density comparable True; promotion met False.",
+      "next": "Treat span-3 hit bundling as blocked by controls unless a future exact-hit artifact changes density or produces longer profitable spans."
+    },
+    {
+      "area": "Whole-stream residual vector probe",
+      "status": "open",
+      "evidence": "honest encoded rows 2358; exact decode rows 2358; honest full-stream negative rows 0; ordinary held-out negative groups 0; control negative groups 0; best honest delta 25 bytes; promotion met False.",
+      "next": "Treat the residual-sidecar family as falsified for broad promotion until a materially different source of seed-span structure appears."
+    },
+    {
+      "area": "Expander salt ensemble",
+      "status": "open",
+      "evidence": "predeclared salts 16; salted exact hits 0; salted expected exact hits 0.648961; random-trial multiplier exceeded False; selected-span rows 0; full-stream negative rows 0; promotion met False.",
+      "next": "Treat salted expander presets as null until a predeclared ensemble beats equivalent random trials with full-stream wins."
+    },
+    {
+      "area": "Schema-native public dictionary probe",
+      "status": "qualified",
+      "evidence": "public entries 101; family selected spans 11302; ordinary held-out negative groups 14; family control negative groups 0; wrong-schema negative groups 0; same-size random negative groups 0; shadow negative groups 0; beats generic baseline True; promotion met True.",
+      "next": "Harden this as public dictionary-preset evidence only; do not present it as current `.tlmr` format support or proof of hash-manifold compression."
+    },
+    {
+      "area": "Schema-native public dictionary replication",
+      "status": "blocked-by-evidence",
+      "evidence": "replication corpora 20; standards selected spans 20239; ordinary negative groups 9; standards control negative groups 2; generic ordinary negative groups 2; claim level control_failed_on_frozen_expansion_corpora; promotion met False.",
+      "next": "Keep the original schema dictionary result qualified but do not promote registry or format work until paired shadow controls stay null."
+    },
+    {
+      "area": "Superposition telemetry",
+      "status": "qualified",
+      "evidence": "fixtures 4; candidates 13; retained alternatives 2; weighted extra savings 4; weighted-beats-greedy fixtures 1; unexplained discards 0; promotion met True.",
+      "next": "Treat this as selector auditability; only build more lattice machinery if future hit-discovery artifacts produce candidates worth selecting."
+    },
+    {
+      "area": "Long-span bundle gate",
+      "status": "blocked-by-evidence",
+      "evidence": "gates met 0 of 8; recommendation hold_long_span_bundle_sweeps; best forecast 828.0 GiB; selected spans 0; raw-suffix prefix 4/6; claim level long_span_bundle_gate_blocked_by_evidence.",
+      "next": "Do not run broad long-span bundle sweeps until search-frontier, selected-span, raw-suffix, and control gates pass."
+    },
+    {
+      "area": "Recursive structured fixtures",
+      "status": "blocked-by-evidence",
+      "evidence": "fixtures 5; ordinary later-win families 0; planted offset later-win families 0; first-pass control win families 1; all decoded exactly True; claim level recursive_structured_fixtures_not_promoted; promotion met False.",
+      "next": "Keep recursive v2 as format-capable but scientifically unpromoted until ordinary non-offset later-layer wins replicate."
+    },
+    {
+      "area": "Scale performance",
+      "status": "qualified",
+      "evidence": "largest scale 16.0 MiB; peak memory 1934.602 MiB; peak/table ratio 21.985; plateau ratio spread 6.514%; next doubled peak estimate 3869.204 MiB.",
+      "next": "Treat scale as interpretable but memory-heavy; do not extend planted-density size without chunked target-table or memory-ratio work."
+    },
+    {
+      "area": "UI workflow smoke",
+      "status": "qualified",
+      "evidence": "UI evidence keys 87; Tauri fields 115; required cards 22; missing Tauri fields 0; missing mock fields 0; claim level ui_workflow_static_smoke_passed.",
+      "next": "Keep this static schema smoke plus Tauri command tests green before broadening desktop UI claims."
+    },
+    {
+      "area": "Raw structured corpus",
+      "status": "open",
+      "evidence": "best raw structured row http-headers-depth2 0.18% with 0 selected spans.",
+      "next": "Theory report says current exact-prefix expectation is near zero; test different mechanisms or much larger search."
+    },
+    {
+      "area": "Corpus generalization probe",
+      "status": "open",
+      "evidence": "6 controls scanned 71250 target spans; prefix>=5 rows 0, exact hits 0, selected spans 0.",
+      "next": "Use this null to prioritize new record-aware transform families over broad corpus-matrix expansion."
+    },
+    {
+      "area": "Held-out corpus expansion",
+      "status": "qualified",
+      "evidence": "20 frozen replication corpora, 13 ordinary and 7 controls, are outside both the corpus matrix (20 missing) and transform validation (20 missing). Raw frontier rows with prefix>=5 0; exact hits 0; selected spans 0.",
+      "next": "Promote these corpora into the expensive matrices only if a follow-up creates ordinary held-out prefix>=5 movement or exact selected spans while controls stay null."
+    },
+    {
+      "area": "Hit-rate theory",
+      "status": "qualified",
+      "evidence": "Current structured controls are consistent with near-zero random exact-prefix hit expectations; planted wins prove mechanism, not natural prevalence. At depth 3, minimum profitable span 8 still leaves 39.99 gap bits.",
+      "next": "Use the model to choose future span lengths, seed depths, and corpus sizes before running expensive sweeps."
+    },
+    {
+      "area": "Manifold proximity",
+      "status": "open",
+      "evidence": "best non-planted case structured-json-raw has 0 prefix>=4 spans and 0 exact hits. Prefix>=3 best is structured-json-raw with 80 spans; planted control has 128 exact hits.",
+      "next": "Search for transforms or corpora whose prefix-proximity telemetry separates from random controls before spending on deeper search."
+    },
+    {
+      "area": "Transform/preconditioner path",
+      "status": "qualified",
+      "evidence": "best transform structured-static-token-depth2 effective -68.39% with 0 selected spans.",
+      "next": "Do not count transform-only gains as Telomere wins unless a future format records them."
+    },
+    {
+      "area": "Transform probe",
+      "status": "open",
+      "evidence": "xor-const:213 produced 7 prefix>=4 spans but 0 exact hits across 539 reversible probes.",
+      "next": "Validate any shallow prefix-lift transform on held-out corpora before adding format-level transform metadata."
+    },
+    {
+      "area": "Transform validation",
+      "status": "open",
+      "evidence": "held-out prefix>=4 uplift in 11 corpora; held-out exact hits 0.",
+      "next": "Treat non-generalizing transform leads as overfit unless held-out exact hits or repeatable prefix ladders appear."
+    },
+    {
+      "area": "Structural transform search",
+      "status": "open",
+      "evidence": "30 reversible structural candidates over 660 validation rows; held-out prefix>=5 win corpora 0; held-out exact hits 0; shadow prefix>=5 win corpora 0; binary exact hits 0.",
+      "next": "Keep structural transforms as null-control evidence unless held-out prefix>=5 uplift or exact seed-span hits appear."
+    },
+    {
+      "area": "Byte permutation transform search",
+      "status": "open",
+      "evidence": "7 byte-permutation candidates over 154 rows; prefix>=5 rows 0; exact hits 0; selected spans 0; rows negative after metadata 0.",
+      "next": "Treat finite seed-byte distribution alignment as null until phase maps produce prefix>=5 or exact hits."
+    },
+    {
+      "area": "BWT/MTF transform probe",
+      "status": "open",
+      "evidence": "9 BWT/MTF/RLE candidates over 90 rows; prefix>=5 rows 0; exact hits 0; selected spans 0; rows negative after metadata 0; shorter transformed payload rows 6.",
+      "next": "Treat classic preconditioner shortening as transform-only evidence unless exact seed-span hits survive metadata."
+    },
+    {
+      "area": "Grammar channel match discovery",
+      "status": "open",
+      "evidence": "9 reversible grammar channels over 198 rows; prefix>=5 rows 0; exact hits 0; selected spans 0; rows negative after metadata 0.",
+      "next": "Treat first-pass grammar channels as null until a parser-backed channel yields held-out/control-safe prefix>=5 or exact hits."
+    },
+    {
+      "area": "Numeric value-channel match discovery",
+      "status": "open",
+      "evidence": "7 numeric value channels over 98 rows; parsed values 120214; prefix>=5 rows 0; exact hits 0; selected spans 0; rows negative after metadata 0.",
+      "next": "Treat parsed numeric value streams as null until exact seed-span hits survive full reconstruction metadata."
+    },
+    {
+      "area": "Record context transform search",
+      "status": "open",
+      "evidence": "14 record/context candidates over 84 rows; prefix>=5 rows 0; exact hits 0; selected spans 0; rows negative after metadata 0.",
+      "next": "Treat record-aware transforms as null evidence until metadata-positive exact seed spans appear."
+    },
+    {
+      "area": "Token dictionary transform search",
+      "status": "open",
+      "evidence": "9 token/dictionary candidates over 126 rows; prefix>=5 rows 0; exact hits 0; selected spans 0; rows negative after metadata 0.",
+      "next": "Do not promote token dictionaries unless exact seed-span hits survive dictionary metadata."
+    },
+    {
+      "area": "Affine transform search",
+      "status": "open",
+      "evidence": "7937 affine/phase-affine candidates searched; 33 candidates validated over 726 rows; held-out prefix>=4 win corpora 16; held-out prefix>=5 win corpora 0; held-out exact hits 0; binary exact hits 0.",
+      "next": "Treat prefix-4 uplift as a steering clue only; test residual-sidecar economics before depth-3 escalation."
+    },
+    {
+      "area": "Seed-manifold residual steering",
+      "status": "open",
+      "evidence": "132 residual-sidecar schemes over 2904 validation rows; held-out forced rows 31; held-out rows with positive seed contribution 31; held-out positive net-delta rows 0; best held-out net delta 5 bytes.",
+      "next": "Do not promote sidecar steering unless residual bytes plus metadata beat literal storage on held-out rows."
+    },
+    {
+      "area": "Sidecar break-even",
+      "status": "open",
+      "evidence": "648 break-even rows; raw-suffix strict gain starts at prefix 6; max observed held-out forced prefix 4; raw-suffix viable rows at observed prefix 0; sublinear-model viable rows at observed prefix 23; promoted rows 0.",
+      "next": "Measure residual payload compressibility before testing more sidecar families; sublinear rows are hypotheses, not compression wins."
+    },
+    {
+      "area": "Residual payload compressibility",
+      "status": "qualified",
+      "evidence": "31 held-out payload rows; measured held-out negative rows 1; best measured held-out case rust-like-heldout::affine-a003-b211::prefix4-suffix-xor; zlib held-out best -101 bytes; LZMA held-out best -42 bytes.",
+      "next": "Prototype an experimental payload descriptor only for this narrow signal, with decode proof and controls before any format proposal."
+    },
+    {
+      "area": "Experimental sidecar descriptor",
+      "status": "qualified",
+      "evidence": "2 prototype rows; decode verified rows 2; full-stream negative rows 0; best full-stream delta 596 bytes; best local selected delta -100 bytes.",
+      "next": "Do not promote sidecar format support until record overhead or span bundles turn the decoded prototype negative as a full stream."
+    },
+    {
+      "area": "Sidecar record overhead",
+      "status": "qualified",
+      "evidence": "14 layout rows; negative rows 6; best safe layout delta_offset_u8_seed_u16 -489 bytes.",
+      "next": "Prototype the packed offset/seed-index decoder before treating this budget as format evidence."
+    },
+    {
+      "area": "Packed sidecar descriptor",
+      "status": "qualified",
+      "evidence": "2 prototype rows; decode verified rows 2; full-stream negative rows 2; best coder zlib_level9 -485 bytes.",
+      "next": "Treat as a narrow signal; validate controls and additional held-out corpora before any `.tlmr` proposal."
+    },
+    {
+      "area": "Packed sidecar controls",
+      "status": "qualified",
+      "evidence": "96 control rows; encoded rows 10; unique negative cases 4; ordinary held-out negative cases 1; best delta -485 bytes.",
+      "next": "Generalize the packed layout beyond u8-delta rows and replicate on more ordinary held-out cases before format work."
+    },
+    {
+      "area": "Generalized packed sidecar",
+      "status": "qualified",
+      "evidence": "1576 encoded rows from 48 unique source rows; unique negative cases 14; ordinary held-out negative cases 1; best-supported table bytes 2842 versus baseline 6872.",
+      "next": "Do not change `.tlmr`; descriptor packing alone needs replication before it is a format lane."
+    },
+    {
+      "area": "Packed sidecar replication",
+      "status": "open",
+      "evidence": "20 frozen corpora; 520 source cases; 6240 descriptor rows; full-stream negative rows 0; ordinary held-out negative groups 0.",
+      "next": "Shift the sidecar lane back to match discovery; do not spend more on descriptor packing until independent held-out matches exist."
+    },
+    {
+      "area": "Match discovery",
+      "status": "open",
+      "evidence": "42 corpora; 1050 rows; 11154720 target spans; rows with prefix>=5 0; rows with exact hits 0; selected spans 0.",
+      "next": "Try alignment/arity and deeper search only where a new predeclared lead moves prefix ladders or exact hits."
+    },
+    {
+      "area": "Alignment and arity discovery",
+      "status": "open",
+      "evidence": "25210986 target spans; 194 supported configs; rows with prefix>=5 0; exact hits 3480; positive exact hits 0; selected spans 0.",
+      "next": "Do not spend on more alignment tuning unless it produces profitable hits or repeatable prefix>=5 movement."
+    },
+    {
+      "area": "Transformed match discovery",
+      "status": "open",
+      "evidence": "16494870 transformed target spans; 21 frozen transforms; rows with prefix>=5 0; exact hits 0; selected spans 0; metadata-profitable rows 0.",
+      "next": "Treat the current frozen transforms as null evidence until a new family creates exact selected spans after metadata."
+    },
+    {
+      "area": "Lead exact discovery",
+      "status": "open",
+      "evidence": "71477770 selected-lead target spans; 91 leads; rows with prefix>=5 0; exact hits 0; selected spans 0; metadata-profitable rows 0.",
+      "next": "Do not broaden existing prefix-4 leads; move to new transform families or bounded deeper-seed exact discovery."
+    },
+    {
+      "area": "Periodic transform probe",
+      "status": "open",
+      "evidence": "8321 bounded periodic masks selected 25 discovery leads; held-out prefix>=5 uplift in 0 corpora; held-out exact hits 0.",
+      "next": "Promote deeper search only if periodic or related transforms produce prefix>=5 uplift or exact seed-span hits."
+    },
+    {
+      "area": "Composed transform probe",
+      "status": "open",
+      "evidence": "525 context+periodic compositions selected 33 discovery leads; held-out prefix>=5 uplift in 0 corpora; held-out exact hits 0.",
+      "next": "Composition is not a promotion path unless it creates held-out prefix>=5 or exact seed-span events."
+    },
+    {
+      "area": "Near-miss forecast",
+      "status": "open",
+      "evidence": "best non-planted case http-headers-heldout::sub-lag-2 expects 5.122e-08 exact hits in observed bytes.",
+      "next": "Use near-miss forecasts to decide whether a transform lead deserves deeper seed or larger-corpus runs."
+    },
+    {
+      "area": "Prefix ladder",
+      "status": "open",
+      "evidence": "68 held-out/control rows reach prefix>=4; 0 reach prefix>=5; best prefix-4 case http-headers-heldout::sub-lag-2 has 220 prefix>=4 spans.",
+      "next": "Target fifth-byte survival before promoting deeper exact search."
+    },
+    {
+      "area": "Fifth-byte residual",
+      "status": "open",
+      "evidence": "16 prefix-4 lead rows analyzed; best robust XOR residual coverage 22.73%; best robust add residual coverage 22.73%.",
+      "next": "Do not build format transforms from fifth-byte residuals unless coverage becomes concentrated on held-out rows."
+    },
+    {
+      "area": "Fifth-byte steering",
+      "status": "open",
+      "evidence": "20 residual-derived masks checked across 400 held-out cross-corpus rows; prefix>=4 win rows 10; prefix>=5 win rows 0; exact-hit rows 0.",
+      "next": "Residual masks are not a promotion path unless they generalize into cross-corpus prefix>=5 or exact hits."
+    },
+    {
+      "area": "Contextual fifth-byte steering",
+      "status": "open",
+      "evidence": "16 context-conditioned masks checked across 320 held-out cross-corpus rows; prefix>=5 win rows 0; exact-hit rows 0; null-control prefix>=5 win rows 0.",
+      "next": "Do not promote context-conditioned fifth-byte steering unless it beats null controls on held-out prefix>=5 or exact hits."
+    },
+    {
+      "area": "Scale economics",
+      "status": "qualified",
+      "evidence": "scale-density50-16777216 16777216 -> 13631955 bytes, peak 1934.602 MiB.",
+      "next": "Push beyond 16 MiB only after candidate telemetry and memory stay controlled."
+    },
+    {
+      "area": "Production acceleration",
+      "status": "open",
+      "evidence": "acceleration status research-only-cpu-semantics; real kernel detected False.",
+      "next": "Add real OpenCL/CUDA only behind CPU parity and benchmark gates."
+    }
+  ],
+  "open_questions": [
+    "Turn promising preconditioners into a versioned reversible format layer, or reject them as non-Telomere transform-only gains.",
+    "Find repeatable natural or transformed structured-corpus seed-span wins beyond the current seed-depth-1, seed-depth-2, and opt-in seed-depth-3 controls.",
+    "Find a transform family that survives held-out composition testing into prefix>=5 or exact seed-span hits.",
+    "Design transform families beyond the current bounded structural permutations and residuals, or retire this lane if new families keep returning null.",
+    "Find new independent match-discovery leads beyond the current depth-2 arity 1..5 validation and replication matrix.",
+    "Use depth-3 frontier exact discovery as the gate before any broad depth-3 or opt-in depth-4 search.",
+    "Use the depth-4 shard plan only for pilot shards until the promotion gate is met.",
+    "Use the generated search-frontier gate as the go/no-go source before any broad raw depth or full depth-4 execution.",
+    "Use the generated mechanism-experiment ranking to prioritize seed-table preset probing before raw-depth escalation or format promotion.",
+    "Use the generated long-span bundle gate before running long-span sweeps or optimizing bundle packing.",
+    "Use the generated seed-table preset probe as null evidence before spending further on public corpus-shaped Lotus presets.",
+    "Use the generated exact short-hit bundle economics artifact as null evidence before spending further on span-3 hit bundling.",
+    "Use the generated recursive structured fixtures as the gate before claiming recursive convergence beyond planted offset controls.",
+    "Use the generated scale-performance report before extending planted-density runs beyond the current 16 MiB memory-heavy sweep.",
+    "Keep the generated UI workflow smoke in lockstep with any Tauri evidence DTO or ledger-panel changes.",
+    "Move beyond alignment/arity tuning only after a lane produces profitable exact hits or repeatable prefix>=5 movement.",
+    "Do not promote the frozen transform-validation matrix without exact selected spans after transform metadata is charged.",
+    "Stop broadening selected affine/periodic/composed prefix-4 leads unless a new lead crosses prefix>=5 or exact-hit thresholds.",
+    "Find a new lead before spending on broad depth-3 sweeps; the bounded follow-up on current promoted rows found zero selected spans.",
+    "Use the generated vocabulary-disjoint shadow corpora and binary TLV/varint controls before trusting literal-token-driven prefix wins.",
+    "Treat the corpus generalization null as a reason to implement record-aware transforms before broadening expensive corpus discovery.",
+    "Treat the BWT/MTF null as evidence that classic entropy preconditioners do not automatically create Lotus seed-span hits.",
+    "Treat the grammar/channel null as a reason to design stronger parser-backed channels before increasing seed depth.",
+    "Treat the numeric value-channel null as evidence against simple parsed-value streams before adding format support.",
+    "Use the held-out corpus expansion as a promotion gate before mutating the expensive corpus matrix or transform-validation matrix.",
+    "Treat the record/context transform null as a reason to find stronger record descriptors before spending on format support.",
+    "Treat the token/dictionary transform null as evidence against simple lexeme dictionaries without stronger grammar models.",
+    "Extend seed-depth-3 economics beyond tiny controls only after runtime and memory stay bounded.",
+    "Replace research-only GPU fallback with real OpenCL only if it beats CPU streaming under parity tests.",
+    "Push generated scale sweeps past 16 MiB after memory telemetry and chunking are acceptable."
+  ]
+}

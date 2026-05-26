@@ -46,7 +46,7 @@ fn literal_file(bytes: &[u8], block_size: usize) -> Vec<u8> {
         hash_bits: 13,
         layer_count: 1,
         original_len: bytes.len() as u64,
-        payload_len: payload.len() as u64,
+        payload_bit_len: (payload.len() as u64) * 8,
         output_hash: truncated_hash_bits(bytes, &expander(), 13),
     });
     [header, payload].concat()
@@ -107,15 +107,25 @@ fn invalid_header_bytes_fail() {
 }
 
 #[test]
+fn pre_v1_experimental_header_is_not_silently_reinterpreted() {
+    // Pre-v1 experiments used compact headers without the TLMR magic. The
+    // production decoder must reject them instead of guessing a migration.
+    let mut old_style = vec![0u8; 40];
+    old_style[0] = 0b0000_1100;
+    old_style[1] = 0b0011_0000;
+    old_style[2] = 0x7f;
+    let cfg = fast_cfg(4);
+
+    assert!(decompress_with_limit(&old_style, &cfg, usize::MAX).is_err());
+}
+
+#[test]
 fn mismatched_block_size_fails() {
     // Header says block_size=1 but config expects block_size=3.
     let cfg = fast_cfg(3);
     let err = decompress_with_limit(&[0u8; 3], &cfg, usize::MAX).unwrap_err();
     // Should be a Header error (version/block_size mismatch).
-    assert!(matches!(
-        err,
-        telomere::TelomereError::Header(_) | telomere::TelomereError::HeaderCodec(_)
-    ));
+    assert!(matches!(err, telomere::TelomereError::Header(_)));
 }
 
 #[test]
@@ -133,10 +143,9 @@ fn empty_roundtrip() {
 }
 
 #[test]
-fn non_byte_aligned_seed_payload_is_rejected() {
+fn out_of_range_seed_index_is_rejected() {
     let block_size = 1;
-    let seed_bits = vec![true];
-    let lotus_bits = encode_lotus_header(1, &seed_bits, seed_bits.len()).unwrap();
+    let lotus_bits = encode_lotus_header(1, 256).unwrap();
     let payload = pack_bits(&lotus_bits);
     let header = encode_tlmr_header(&TlmrHeader {
         version: TLMR_FORMAT_VERSION,
@@ -149,7 +158,7 @@ fn non_byte_aligned_seed_payload_is_rejected() {
         hash_bits: 13,
         layer_count: 1,
         original_len: block_size as u64,
-        payload_len: payload.len() as u64,
+        payload_bit_len: (payload.len() as u64) * 8,
         output_hash: 0,
     });
     let mut file = header;
@@ -157,7 +166,7 @@ fn non_byte_aligned_seed_payload_is_rejected() {
 
     let err = decompress_with_limit(&file, &fast_cfg(block_size), usize::MAX).unwrap_err();
     assert!(
-        err.to_string().contains("non-byte-aligned seed payloads"),
+        err.to_string().contains("invalid seed index"),
         "unexpected error: {err}"
     );
 }

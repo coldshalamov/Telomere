@@ -1,0 +1,186 @@
+{
+  "generated_by": "scripts/generate_blocked_requirement_dispatch.py",
+  "generated_at": "2026-05-26T06:46:45.555795+00:00",
+  "format_version": 1,
+  "scope": {
+    "kind": "blocked requirement dispatch",
+    "dispatching_parallel_agents": true,
+    "performs_seed_search": false,
+    "launches_agents": false,
+    "makes_compression_claim": false,
+    "overrides_search_frontier_gate": false,
+    "marks_goal_complete": false
+  },
+  "source_hashes": {
+    "goal_completion_audit_sha256": "7fe1ac6efcdec236902475f5dcf40606874b5c07864153b1a411f8bd7b8c3332",
+    "research_frontier_sha256": "786b92019e7f7e03f0f3da0186812bc1113e61ae931d1df5bd17a0ff45c0465c",
+    "research_team_protocol_sha256": "573d3abd9e7468885b2767945de52ab788e39833327049cf37bd4fc449b70d11",
+    "research_decision_sha256": "4a51e19374ac30dd3ed06b584c924fe8261b4879080a7b25e1f428c08dbbcaa2",
+    "viability_sha256": "3fb8c563c8f180263feba11c3b01bd6f7faafb17b7f1d57dee61f2428477a208",
+    "research_scorecard_sha256": "96b2171667f1a9e7d23f13be73dde047e02e8fb9e6cd062b10427aba5e94eef0"
+  },
+  "summary": {
+    "dispatch_status": "blocked_requirements_maintenance_only",
+    "objective_status": "active_goal_not_complete",
+    "completion_recommendation": "keep_goal_active",
+    "verdict": "research-viable, not production-proven",
+    "scorecard_open_count": 38,
+    "production_proven": false,
+    "unresolved_evidence_gates": 27,
+    "blocked_requirement_count": 3,
+    "brief_count": 3,
+    "parallel_group_count": 6,
+    "parallel_groups": [
+      "acceleration",
+      "compute-economics",
+      "corpus-transform",
+      "format-policy",
+      "meta-research",
+      "operator-ui"
+    ],
+    "forbidden_action_count": 14,
+    "ready_dispatch_count": 0,
+    "ungated_compute_allowed": false,
+    "team_protocol_status": "maintenance_only_no_seed_search",
+    "research_decision": "hold_gated_compute_and_continue_evidence_maintenance"
+  },
+  "briefs": [
+    {
+      "brief_id": "blocked-natural-corpus-viability",
+      "requirement_id": "natural-corpus-viability",
+      "requirement_status": "blocked-by-evidence",
+      "requirement": "Prove generalized viability on non-planted or natural corpora.",
+      "parallel_groups": [
+        "corpus-transform",
+        "compute-economics"
+      ],
+      "mission": "Find evidence paths that could turn non-planted corpora into repeatable selected seed-span wins without weakening controls.",
+      "source_artifacts": [
+        "docs/NATURAL_CORPUS_PROOF_MATRIX.md",
+        "docs/VIABILITY.md",
+        "docs/RESEARCH_SCORECARD.md",
+        "docs/RESEARCH_FRONTIER.md",
+        "docs/SEARCH_FRONTIER_GATE.md",
+        "docs/LONG_SPAN_BUNDLE_GATE.md",
+        "docs/HELDOUT_CORPUS_EXPANSION.md"
+      ],
+      "allowed_actions": [
+        "read-only audits of null and near-miss ledgers",
+        "pre-register natural-corpus or transform manifests without running search",
+        "propose narrow reopen-trigger artifacts with explicit controls",
+        "tighten claims so planted evidence is not conflated with natural evidence"
+      ],
+      "forbidden_actions": [
+        "do not launch broad compute",
+        "No Seed Search: do not start new depth-3, depth-4, or long-span sweeps",
+        "do not claim natural-corpus compression is proven",
+        "do not count transform-only shortening as Lotus compression",
+        "do not merge held-out corpora into canonical matrices without a regeneration budget"
+      ],
+      "promotion_trigger": "A generated artifact reports repeatable non-planted selected spans or negative delta while controls remain null.",
+      "stop_rule": "Stop at audit/pre-registration while prefix>=5, exact-hit, selected-span, or control gates remain null.",
+      "remaining_proof_gap": "Need repeatable non-planted selected spans or negative delta with controls intact.",
+      "output_contract": [
+        "Findings first with file paths and current generated status.",
+        "State whether the stop rule still applies.",
+        "List any proposed new artifact, its check command, and its compute budget.",
+        "Call out any claim that would require human approval before promotion.",
+        "Report verification commands run or explain why none were needed.",
+        "Use scripts/generate_evidence_regimen.py for full generated-artifact graph changes."
+      ],
+      "prompt": "Brief blocked-natural-corpus-viability: use dispatching-parallel-agents as an operating model.\nMission: Find evidence paths that could turn non-planted corpora into repeatable selected seed-span wins without weakening controls.\nScope: No Seed Search, not a compression claim, and does not override SEARCH_FRONTIER_GATE.\nBlocking requirement: natural-corpus-viability (blocked-by-evidence).\nSource artifacts: docs/NATURAL_CORPUS_PROOF_MATRIX.md, docs/VIABILITY.md, docs/RESEARCH_SCORECARD.md, docs/RESEARCH_FRONTIER.md, docs/SEARCH_FRONTIER_GATE.md, docs/LONG_SPAN_BUNDLE_GATE.md, docs/HELDOUT_CORPUS_EXPANSION.md.\nallowed_actions: read-only audits of null and near-miss ledgers; pre-register natural-corpus or transform manifests without running search; propose narrow reopen-trigger artifacts with explicit controls; tighten claims so planted evidence is not conflated with natural evidence.\nforbidden_actions: do not launch broad compute; No Seed Search: do not start new depth-3, depth-4, or long-span sweeps; do not claim natural-corpus compression is proven; do not count transform-only shortening as Lotus compression; do not merge held-out corpora into canonical matrices without a regeneration budget.\npromotion_trigger: A generated artifact reports repeatable non-planted selected spans or negative delta while controls remain null..\nstop_rule: Stop at audit/pre-registration while prefix>=5, exact-hit, selected-span, or control gates remain null..\noutput_contract: Findings first with file paths and current generated status.; State whether the stop rule still applies.; List any proposed new artifact, its check command, and its compute budget.; Call out any claim that would require human approval before promotion.; Report verification commands run or explain why none were needed.; Use scripts/generate_evidence_regimen.py for full generated-artifact graph changes..\nReturn a findings-first audit and do not launch broad compute."
+    },
+    {
+      "brief_id": "blocked-production-proof",
+      "requirement_id": "production-proof",
+      "requirement_status": "blocked-by-evidence",
+      "requirement": "Prove production readiness, compatibility guarantees, and acceleration value.",
+      "parallel_groups": [
+        "acceleration",
+        "format-policy",
+        "operator-ui"
+      ],
+      "mission": "Define the exact evidence needed before Telomere can make production format, compatibility, performance, or acceleration claims.",
+      "source_artifacts": [
+        "docs/PRODUCTION_PROOF_MATRIX.md",
+        "docs/RELEASE_CHECKLIST.md",
+        "docs/FORMAT.md",
+        "docs/ACCELERATION.md",
+        "docs/SCALE_PERFORMANCE.md",
+        "docs/UI_WORKFLOW_SMOKE.md"
+      ],
+      "allowed_actions": [
+        "read-only release-readiness audits",
+        "write compatibility-checklist proposals that do not change v1 semantics",
+        "design CPU/GPU parity tests without trusting GPU output",
+        "document production blockers and benchmark budgets"
+      ],
+      "forbidden_actions": [
+        "do not promote experimental v2 to stable",
+        "do not market GPU as production acceleration",
+        "do not alter stable v1 compatibility",
+        "do not hide null or blocked results behind optimistic UI language",
+        "do not claim production readiness from planted-density benchmarks"
+      ],
+      "promotion_trigger": "A release-candidate artifact shows supported format guarantees, real workload wins, CPU/GPU parity where relevant, and clean release gates.",
+      "stop_rule": "Stop production promotion while acceleration is research-only, memory estimates remain bounded/planted, or compatibility guarantees are experimental.",
+      "remaining_proof_gap": "Need supported production-format claims, real acceleration evidence, and release-ready compatibility policy.",
+      "output_contract": [
+        "Findings first with file paths and current generated status.",
+        "State whether the stop rule still applies.",
+        "List any proposed new artifact, its check command, and its compute budget.",
+        "Call out any claim that would require human approval before promotion.",
+        "Report verification commands run or explain why none were needed.",
+        "Use scripts/generate_evidence_regimen.py for full generated-artifact graph changes."
+      ],
+      "prompt": "Brief blocked-production-proof: use dispatching-parallel-agents as an operating model.\nMission: Define the exact evidence needed before Telomere can make production format, compatibility, performance, or acceleration claims.\nScope: No Seed Search, not a compression claim, and does not override SEARCH_FRONTIER_GATE.\nBlocking requirement: production-proof (blocked-by-evidence).\nSource artifacts: docs/PRODUCTION_PROOF_MATRIX.md, docs/RELEASE_CHECKLIST.md, docs/FORMAT.md, docs/ACCELERATION.md, docs/SCALE_PERFORMANCE.md, docs/UI_WORKFLOW_SMOKE.md.\nallowed_actions: read-only release-readiness audits; write compatibility-checklist proposals that do not change v1 semantics; design CPU/GPU parity tests without trusting GPU output; document production blockers and benchmark budgets.\nforbidden_actions: do not promote experimental v2 to stable; do not market GPU as production acceleration; do not alter stable v1 compatibility; do not hide null or blocked results behind optimistic UI language; do not claim production readiness from planted-density benchmarks.\npromotion_trigger: A release-candidate artifact shows supported format guarantees, real workload wins, CPU/GPU parity where relevant, and clean release gates..\nstop_rule: Stop production promotion while acceleration is research-only, memory estimates remain bounded/planted, or compatibility guarantees are experimental..\noutput_contract: Findings first with file paths and current generated status.; State whether the stop rule still applies.; List any proposed new artifact, its check command, and its compute budget.; Call out any claim that would require human approval before promotion.; Report verification commands run or explain why none were needed.; Use scripts/generate_evidence_regimen.py for full generated-artifact graph changes..\nReturn a findings-first audit and do not launch broad compute."
+    },
+    {
+      "brief_id": "blocked-completion-boundary",
+      "requirement_id": "completion-boundary",
+      "requirement_status": "blocked-by-evidence",
+      "requirement": "Only mark the active goal complete when every explicit requirement is proven.",
+      "parallel_groups": [
+        "meta-research"
+      ],
+      "mission": "Keep the active-goal completion boundary honest as new evidence changes.",
+      "source_artifacts": [
+        "docs/GOAL_COMPLETION_AUDIT.md",
+        "docs/RESEARCH_DECISION.md",
+        "docs/GOAL_AUDIT.md",
+        "docs/RESEARCH_TEAM_PROTOCOL.md",
+        "docs/GENERATED_LEDGER_PIPELINE.md"
+      ],
+      "allowed_actions": [
+        "regenerate the full evidence regimen after low-level artifact changes",
+        "regenerate top-level research ledgers after rollup-only evidence changes",
+        "audit that blocked requirements still map to authoritative evidence",
+        "tighten stop rules when new artifacts introduce ambiguity",
+        "prepare integration summaries for human review"
+      ],
+      "forbidden_actions": [
+        "do not mark the active goal complete",
+        "do not downgrade blocked evidence to qualified without generated proof",
+        "do not remove completion blockers to make dashboards green",
+        "do not edit generated markdown or JSON by hand"
+      ],
+      "promotion_trigger": "GOAL_COMPLETION_AUDIT reports zero blocked requirements, zero unresolved evidence gates, and production_proven true.",
+      "stop_rule": "Keep the goal active while any blocked requirement remains or production_proven is false.",
+      "remaining_proof_gap": "Keep the active goal open until natural-corpus or supported production claims are proven.",
+      "output_contract": [
+        "Findings first with file paths and current generated status.",
+        "State whether the stop rule still applies.",
+        "List any proposed new artifact, its check command, and its compute budget.",
+        "Call out any claim that would require human approval before promotion.",
+        "Report verification commands run or explain why none were needed.",
+        "Use scripts/generate_evidence_regimen.py for full generated-artifact graph changes."
+      ],
+      "prompt": "Brief blocked-completion-boundary: use dispatching-parallel-agents as an operating model.\nMission: Keep the active-goal completion boundary honest as new evidence changes.\nScope: No Seed Search, not a compression claim, and does not override SEARCH_FRONTIER_GATE.\nBlocking requirement: completion-boundary (blocked-by-evidence).\nSource artifacts: docs/GOAL_COMPLETION_AUDIT.md, docs/RESEARCH_DECISION.md, docs/GOAL_AUDIT.md, docs/RESEARCH_TEAM_PROTOCOL.md, docs/GENERATED_LEDGER_PIPELINE.md.\nallowed_actions: regenerate the full evidence regimen after low-level artifact changes; regenerate top-level research ledgers after rollup-only evidence changes; audit that blocked requirements still map to authoritative evidence; tighten stop rules when new artifacts introduce ambiguity; prepare integration summaries for human review.\nforbidden_actions: do not mark the active goal complete; do not downgrade blocked evidence to qualified without generated proof; do not remove completion blockers to make dashboards green; do not edit generated markdown or JSON by hand.\npromotion_trigger: GOAL_COMPLETION_AUDIT reports zero blocked requirements, zero unresolved evidence gates, and production_proven true..\nstop_rule: Keep the goal active while any blocked requirement remains or production_proven is false..\noutput_contract: Findings first with file paths and current generated status.; State whether the stop rule still applies.; List any proposed new artifact, its check command, and its compute budget.; Call out any claim that would require human approval before promotion.; Report verification commands run or explain why none were needed.; Use scripts/generate_evidence_regimen.py for full generated-artifact graph changes..\nReturn a findings-first audit and do not launch broad compute."
+    }
+  ],
+  "review_contract": [
+    "Dispatch these briefs independently only for read-only audits or generated-artifact maintenance.",
+    "Integrate one returned brief at a time and rerun doc lint before any broader gate.",
+    "Reject any output that weakens no-seed-search, no-production-claim, or SEARCH_FRONTIER_GATE boundaries."
+  ]
+}

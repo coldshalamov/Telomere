@@ -1,0 +1,135 @@
+{
+  "generated_by": "scripts/generate_search_frontier_gate.py",
+  "generated_at": "2026-05-26T06:25:46.840258+00:00",
+  "format_version": 1,
+  "artifact_hashes": {
+    "theory_sha256": "2f94b6de0130033b68d08d0c5b8f262e56af08a0a6f85bc2a1cd08fb729f854e",
+    "nearmiss_forecast_sha256": "7323ac31d74df41295f7535e0caa61ab1ae37f16a11b1428a3e3b69bb453a3c4",
+    "prefix_ladder_sha256": "98ca3a9a96550050be655b32c07997e389045dca12a1c45d8b7cac5f13077a38",
+    "depth3_prefix_probe_sha256": "2d4e5a5dc19fb6403d11b3903a0f9fd086270f0a088c8e272cca79cca32719cd",
+    "depth3_compression_followup_sha256": "4bb6a9726ffdd9da1e76d43582142966a52d6accc5d9f7b71885f526bd7e129d",
+    "lead_depth3_prefix_probe_sha256": "0c37e5e2fbc02db790a021a56fffa4641ee1c06bc9de13be575f7334eb4729de",
+    "lead_depth3_compression_followup_sha256": "2ee0b23800899ee07d127914fd9ad2a161e5e25dcc7eb8dc566c653ca5248f2b",
+    "depth3_frontier_exact_discovery_sha256": "9284b7a2654fdc4610850e0e3251320f3448e715732753a2ce2526dee442e773",
+    "depth4_shard_plan_sha256": "982e56a81b0a5833f1a8b08f6696fc885f83da5440668ef277c2967757702734",
+    "depth4_pilot_shard_sha256": "f869511c072356a15ce5443f6f88a10cc75f74dd54ac321e37bf9f59d90ebf58",
+    "heldout_corpus_expansion_sha256": "a6e91a2d9d2d96b89510e4a81a685983ef394be930bfc71fde2c970c5beed149",
+    "match_discovery_sha256": "890b5167395b3ca5b0e622d7f7c61d565acc9665d88448edba8331bcbd70d7a0",
+    "alignment_arity_discovery_sha256": "a056600b2d110b6f4b51c02263e9a8a99862cf3f88c006f999886ac3b3f59a96",
+    "transformed_match_discovery_sha256": "ac028cc87f27652ab4ee1780a4e62100a9a14edde799394808c4a6b379d58447",
+    "lead_exact_discovery_sha256": "14d23146672c8cc1ff66250d9f6f874f9a7e4d2aa1a6abbbc24f2e32848d6ebe"
+  },
+  "gate_manifest_sha256": "f66a8200fda7faa9496e1110bc2e0baf67b7dc6b1f78de0efee0a0c1b7ed0451",
+  "gate_manifest": {
+    "scope": "search-frontier decision gate; no seed enumeration is performed",
+    "span_len": 8,
+    "hasher": "sha256",
+    "canonical_seed_order": "1-byte seeds first, then 2-byte, then 3-byte, then 4-byte, each bucket big-endian",
+    "target_block_hashing": false,
+    "thresholds": {
+      "forecast_gib_for_one_exact_hit": 1.0,
+      "ordinary_prefix5_group_count": 3,
+      "ordinary_selected_group_count": 2,
+      "depth3_prefix6_rows": 1,
+      "depth3_exact_hits": 1,
+      "depth3_selected_spans": 1,
+      "depth4_pilot_prefix6_rows": 1,
+      "depth4_pilot_exact_hits": 1,
+      "depth4_pilot_selected_spans": 1
+    },
+    "rules": [
+      "treat prefix-4 as steering evidence only",
+      "require prefix>=5 movement before exact-search escalation",
+      "require prefix>=6, exact hits, selected spans, or sub-1-GiB forecast before broad depth-4 execution",
+      "require selected exact spans after metadata before format promotion",
+      "keep paired shadow, binary, and high-entropy controls from inflating ordinary-corpus proof"
+    ]
+  },
+  "summary": {
+    "recommended_status": "hold-broad-depth-search",
+    "broad_depth_search_allowed": false,
+    "depth4_all_shards_allowed": false,
+    "corpus_matrix_promotion_allowed": false,
+    "format_promotion_allowed": false,
+    "gate_met_count": 0,
+    "gate_count": 7,
+    "blocking_gates": [
+      "forecast-scale",
+      "prefix-ladder",
+      "heldout-expansion",
+      "selected-spans",
+      "depth3-frontier",
+      "depth4-pilot",
+      "depth4-expectation"
+    ],
+    "best_non_planted_case": "http-headers-heldout::sub-lag-2",
+    "best_non_planted_gib_for_one_expected_hit": 828.0,
+    "frontier_rows": 26,
+    "depth3_frontier_prefix6_rows": 0,
+    "depth3_frontier_exact_hits": 0,
+    "depth3_frontier_selected_spans": 0,
+    "depth4_exact8_probability": 0.00017141036141488097,
+    "depth4_pilot_prefix6_rows": 0,
+    "depth4_pilot_exact_hits": 0,
+    "depth4_pilot_selected_spans": 0,
+    "heldout_expansion_corpus_count": 20,
+    "heldout_expansion_prefix5_rows": 0,
+    "heldout_expansion_exact_hit_rows": 0,
+    "heldout_expansion_selected_span_rows": 0,
+    "selected_span_total": 0,
+    "unprofitable_short_exact_hits": 3480,
+    "positive_alignment_exact_hits": 0,
+    "next_action": "Design a materially new byte-to-seed mechanism or stronger reversible frontier generator; do not spend on broad raw depth search from the current prefix-only frontier."
+  },
+  "gate_checks": [
+    {
+      "gate": "forecast-scale",
+      "requirement": "best non-planted exact-hit forecast below 1 GiB",
+      "observed": "828.000 GiB",
+      "met": false,
+      "consequence": "Do not broaden raw exact search while the best forecast remains hundreds of GiB per expected hit."
+    },
+    {
+      "gate": "prefix-ladder",
+      "requirement": "held-out/control rows reach prefix>=5 before exact-search escalation",
+      "observed": "0 rows",
+      "met": false,
+      "consequence": "Treat prefix-4 as transform-design telemetry, not compression evidence."
+    },
+    {
+      "gate": "heldout-expansion",
+      "requirement": "new ordinary held-out groups produce prefix>=5 movement while controls stay null",
+      "observed": "0 ordinary groups, 0 control groups",
+      "met": false,
+      "consequence": "Keep replication corpora in the frontier artifact instead of staling the expensive corpus matrices."
+    },
+    {
+      "gate": "selected-spans",
+      "requirement": "profitable selected exact spans appear after metadata accounting",
+      "observed": "0 selected spans and 0 positive/exact promotion hits",
+      "met": false,
+      "consequence": "Do not promote transform metadata or packed sidecar format work without selected exact spans."
+    },
+    {
+      "gate": "depth3-frontier",
+      "requirement": "depth-3 frontier finds prefix>=6, exact hits, or selected spans",
+      "observed": "0 prefix>=6 rows, 0 exact hits, 0 selected spans",
+      "met": false,
+      "consequence": "Keep broad depth-3 and depth-4 work gated; prefix>=5 alone did not become compression."
+    },
+    {
+      "gate": "depth4-pilot",
+      "requirement": "pilot shard finds prefix>=6, exact hits, or selected spans before all shards",
+      "observed": "0 prefix>=6 rows, 0 exact hits, 0 selected spans",
+      "met": false,
+      "consequence": "Do not run the remaining depth-4 shards from the current frontier."
+    },
+    {
+      "gate": "depth4-expectation",
+      "requirement": "full depth-4 exact probability is high enough to justify full execution",
+      "observed": "0.00017141 probability",
+      "met": false,
+      "consequence": "The current full-shard probability is too small to justify compute without a stronger frontier."
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "dataset": "ledger-control",
+  "columns": ["slot", "state", "measure"],
+  "types": ["string", "string", "integer"],
+  "required": ["slot", "measure"],
+  "delimiter": ",",
+  "version": 1
+}

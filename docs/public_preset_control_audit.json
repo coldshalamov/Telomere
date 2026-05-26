@@ -1,0 +1,416 @@
+{
+  "generated_by": "scripts/generate_public_preset_control_audit.py",
+  "generated_at": "2026-05-26T06:33:06.767938+00:00",
+  "format_version": 1,
+  "scope": {
+    "kind": "public preset control audit",
+    "performs_seed_search": false,
+    "launches_agents": false,
+    "makes_compression_claim": false,
+    "is_format_support": false,
+    "is_natural_corpus_proof": false,
+    "overrides_public_preset_gate": false
+  },
+  "source_hashes": {
+    "public_preset_promotion_gate_sha256": "d53fd27cd3ca0c4079a1601f8a762cea3a9b147ee65023fffa28fe909374fb02",
+    "schema_native_public_dictionary_replication_sha256": "226d4446bd8930bea72d9d1f129c832c4778bd81fc2b76eeab21d6d7c2f7168e",
+    "schema_native_public_dictionaries_sha256": "08e16ee9b2f67d22f340f3ef001325ff2f250f98c690bd6fcfb6397d2f96c45e",
+    "seed_table_preset_probe_sha256": "3128e58ca2d8868727d6f2cead64a6c7c57acbb199e09088bf0bdb4b6253f543",
+    "expander_salt_ensemble_sha256": "cbe5fac0b15dc49c47621005fa05f21692a39a6fdfbc1fdf000567e8468489b3",
+    "mechanism_experiment_ranking_sha256": "31800d430dde4b360873778de3a8437fcc836ff8fef6c3886a53eedfc550f18d"
+  },
+  "summary": {
+    "audit_status": "blocked_by_paired_shadow_controls",
+    "finding_count": 6,
+    "blocking_finding_count": 2,
+    "standards_negative_rows": 14,
+    "standards_ordinary_negative_rows": 10,
+    "standards_control_negative_rows": 2,
+    "standards_ordinary_negative_groups": 9,
+    "standards_control_negative_groups": 2,
+    "standards_control_negative_group_names": [
+      "api-document-shadow",
+      "schema-language-shadow"
+    ],
+    "generic_negative_rows": 2,
+    "generic_ordinary_negative_groups": 2,
+    "strongest_ordinary_case": "http-transcript-heldout",
+    "strongest_ordinary_delta_bytes": -8262,
+    "strongest_control_case": "shadow-openapi-control",
+    "strongest_control_delta_bytes": -4073,
+    "standards_project_token_hit_share": 0.275211,
+    "leakage_dominates": false,
+    "public_preset_gate_promotion_met": false,
+    "public_preset_blocked_gate_ids": [
+      "control-separation",
+      "format-promotion-boundary"
+    ],
+    "next_required_artifact": "docs/PUBLIC_PRESET_CONTROL_ABLATION.md",
+    "claim_boundary": "No Seed Search; not public preset promotion; not `.tlmr` format support; not natural-corpus proof.",
+    "conclusion": "The public-preset signal is promising but currently falsified for promotion by paired shadow controls."
+  },
+  "negative_row_groups": {
+    "near-family-code": [
+      "go-like-near",
+      "php-like-near"
+    ],
+    "ordinary-structured": [
+      "bibtex-heldout",
+      "http-transcript-heldout",
+      "ics-calendar-heldout",
+      "kubernetes-yaml-heldout",
+      "ledger-beancount-heldout",
+      "openapi-spec-heldout",
+      "proto-schema-heldout",
+      "rfc822-email-heldout",
+      "terraform-hcl-heldout",
+      "unified-diff-heldout"
+    ],
+    "paired-shadow-control": [
+      "shadow-openapi-control",
+      "shadow-proto-control"
+    ]
+  },
+  "findings": [
+    {
+      "finding_id": "paired-shadow-controls-fail",
+      "status": "blocks-promotion",
+      "question": "Do paired shadow controls stay null under the standards preset?",
+      "evidence": "2 standards control rows shrink across 2 groups: api-document-shadow, schema-language-shadow.",
+      "interpretation": "The preset is finding structure in paired shadows, so current wins cannot be treated as semantic natural-corpus proof.",
+      "next_test": "Add family-matched, vocabulary-disjoint shadows for every winning ordinary group and require zero negative control groups.",
+      "source_rows": [
+        {
+          "name": "shadow-openapi-control",
+          "mode": "standards-public-v1",
+          "control_kind": "paired-shadow-control",
+          "independence_group": "api-document-shadow",
+          "schema_family": "openapi",
+          "input_bytes": 31353,
+          "delta_bytes": -4073,
+          "selected_span_count": 409,
+          "metadata_bytes": 98,
+          "dictionary_entry_count": 26,
+          "telomere_project_token_hits": 0,
+          "selected_entry_family_counts": {
+            "openapi": 409
+          }
+        },
+        {
+          "name": "shadow-proto-control",
+          "mode": "standards-public-v1",
+          "control_kind": "paired-shadow-control",
+          "independence_group": "schema-language-shadow",
+          "schema_family": "proto",
+          "input_bytes": 12501,
+          "delta_bytes": -52,
+          "selected_span_count": 562,
+          "metadata_bytes": 98,
+          "dictionary_entry_count": 28,
+          "telomere_project_token_hits": 0,
+          "selected_entry_family_counts": {
+            "proto": 562,
+            "source": 1
+          }
+        }
+      ]
+    },
+    {
+      "finding_id": "ordinary-signal-is-real-but-not-clean",
+      "status": "promising-but-contaminated",
+      "question": "Is there a substantial ordinary held-out signal?",
+      "evidence": "10 standards ordinary rows shrink across 9 groups; strongest ordinary case http-transcript-heldout has delta -8262 bytes.",
+      "interpretation": "The public preset direction is the strongest current non-depth signal, but it is not separated from controls.",
+      "next_test": "Run leave-family-out and token-frequency-matched controls before any format or registry proposal.",
+      "source_rows": [
+        {
+          "name": "bibtex-heldout",
+          "mode": "standards-public-v1",
+          "control_kind": "ordinary-structured",
+          "independence_group": "citation-records",
+          "schema_family": "bibtex",
+          "input_bytes": 45314,
+          "delta_bytes": -4942,
+          "selected_span_count": 1680,
+          "metadata_bytes": 98,
+          "dictionary_entry_count": 24,
+          "telomere_project_token_hits": 240,
+          "selected_entry_family_counts": {
+            "bibtex": 1440,
+            "common": 240
+          }
+        },
+        {
+          "name": "http-transcript-heldout",
+          "mode": "standards-public-v1",
+          "control_kind": "ordinary-structured",
+          "independence_group": "protocol-text",
+          "schema_family": "http",
+          "input_bytes": 52678,
+          "delta_bytes": -8262,
+          "selected_span_count": 1540,
+          "metadata_bytes": 98,
+          "dictionary_entry_count": 23,
+          "telomere_project_token_hits": 440,
+          "selected_entry_family_counts": {
+            "common": 440,
+            "http": 1100
+          }
+        },
+        {
+          "name": "ics-calendar-heldout",
+          "mode": "standards-public-v1",
+          "control_kind": "ordinary-structured",
+          "independence_group": "calendar-records",
+          "schema_family": "ics",
+          "input_bytes": 34622,
+          "delta_bytes": -1232,
+          "selected_span_count": 1322,
+          "metadata_bytes": 98,
+          "dictionary_entry_count": 26,
+          "telomere_project_token_hits": 220,
+          "selected_entry_family_counts": {
+            "common": 220,
+            "ics": 1102
+          }
+        },
+        {
+          "name": "kubernetes-yaml-heldout",
+          "mode": "standards-public-v1",
+          "control_kind": "ordinary-structured",
+          "independence_group": "configuration",
+          "schema_family": "kubernetes",
+          "input_bytes": 23746,
+          "delta_bytes": -3702,
+          "selected_span_count": 855,
+          "metadata_bytes": 98,
+          "dictionary_entry_count": 25,
+          "telomere_project_token_hits": 285,
+          "selected_entry_family_counts": {
+            "common": 285,
+            "kubernetes": 570
+          }
+        },
+        {
+          "name": "ledger-beancount-heldout",
+          "mode": "standards-public-v1",
+          "control_kind": "ordinary-structured",
+          "independence_group": "financial-records",
+          "schema_family": "ledger",
+          "input_bytes": 30677,
+          "delta_bytes": -3939,
+          "selected_span_count": 781,
+          "metadata_bytes": 98,
+          "dictionary_entry_count": 23,
+          "telomere_project_token_hits": 260,
+          "selected_entry_family_counts": {
+            "common": 260,
+            "ledger": 521
+          }
+        },
+        {
+          "name": "openapi-spec-heldout",
+          "mode": "standards-public-v1",
+          "control_kind": "ordinary-structured",
+          "independence_group": "api-document",
+          "schema_family": "openapi",
+          "input_bytes": 31903,
+          "delta_bytes": -5458,
+          "selected_span_count": 573,
+          "metadata_bytes": 98,
+          "dictionary_entry_count": 26,
+          "telomere_project_token_hits": 17,
+          "selected_entry_family_counts": {
+            "common": 17,
+            "openapi": 556
+          }
+        },
+        {
+          "name": "proto-schema-heldout",
+          "mode": "standards-public-v1",
+          "control_kind": "ordinary-structured",
+          "independence_group": "schema-language",
+          "schema_family": "proto",
+          "input_bytes": 22269,
+          "delta_bytes": -1291,
+          "selected_span_count": 1335,
+          "metadata_bytes": 98,
+          "dictionary_entry_count": 28,
+          "telomere_project_token_hits": 421,
+          "selected_entry_family_counts": {
+            "common": 421,
+            "proto": 914,
+            "source": 1
+          }
+        },
+        {
+          "name": "rfc822-email-heldout",
+          "mode": "standards-public-v1",
+          "control_kind": "ordinary-structured",
+          "independence_group": "message-records",
+          "schema_family": "email",
+          "input_bytes": 51767,
+          "delta_bytes": -442,
+          "selected_span_count": 1800,
+          "metadata_bytes": 98,
+          "dictionary_entry_count": 23,
+          "telomere_project_token_hits": 1080,
+          "selected_entry_family_counts": {
+            "common": 1080,
+            "email": 720
+          }
+        },
+        {
+          "name": "terraform-hcl-heldout",
+          "mode": "standards-public-v1",
+          "control_kind": "ordinary-structured",
+          "independence_group": "configuration",
+          "schema_family": "terraform",
+          "input_bytes": 20549,
+          "delta_bytes": -2927,
+          "selected_span_count": 1202,
+          "metadata_bytes": 98,
+          "dictionary_entry_count": 25,
+          "telomere_project_token_hits": 750,
+          "selected_entry_family_counts": {
+            "common": 450,
+            "terraform": 752
+          }
+        },
+        {
+          "name": "unified-diff-heldout",
+          "mode": "standards-public-v1",
+          "control_kind": "ordinary-structured",
+          "independence_group": "patch-records",
+          "schema_family": "diff",
+          "input_bytes": 35400,
+          "delta_bytes": -1092,
+          "selected_span_count": 1700,
+          "metadata_bytes": 98,
+          "dictionary_entry_count": 25,
+          "telomere_project_token_hits": 680,
+          "selected_entry_family_counts": {
+            "common": 510,
+            "diff": 1190
+          }
+        }
+      ]
+    },
+    {
+      "finding_id": "generic-baseline-explains-part-of-signal",
+      "status": "requires-ablation",
+      "question": "Are wins specific to standards dictionaries or generic token tables?",
+      "evidence": "Generic public token dictionary has 2 negative rows across 2 ordinary groups.",
+      "interpretation": "Some savings may come from generic token coverage rather than a domain-specific public preset.",
+      "next_test": "Compare standards rows against entry-count, byte-count, and token-frequency matched generic tables.",
+      "source_rows": [
+        {
+          "name": "ledger-beancount-heldout",
+          "mode": "generic-public-token-dictionary-v1",
+          "control_kind": "ordinary-structured",
+          "independence_group": "financial-records",
+          "schema_family": "ledger",
+          "input_bytes": 30677,
+          "delta_bytes": -419,
+          "selected_span_count": 260,
+          "metadata_bytes": 98,
+          "dictionary_entry_count": 18,
+          "telomere_project_token_hits": 260,
+          "selected_entry_family_counts": {
+            "common": 260
+          }
+        },
+        {
+          "name": "rfc822-email-heldout",
+          "mode": "generic-public-token-dictionary-v1",
+          "control_kind": "ordinary-structured",
+          "independence_group": "message-records",
+          "schema_family": "email",
+          "input_bytes": 51767,
+          "delta_bytes": -259,
+          "selected_span_count": 1080,
+          "metadata_bytes": 98,
+          "dictionary_entry_count": 18,
+          "telomere_project_token_hits": 1080,
+          "selected_entry_family_counts": {
+            "common": 1080
+          }
+        }
+      ]
+    },
+    {
+      "finding_id": "wrong-random-salt-baselines-remain-null",
+      "status": "supports-mechanism-interest",
+      "question": "Do random, wrong-family, SHA-256, or salted baselines explain the signal?",
+      "evidence": "wrong-family ordinary groups 0; random-table ordinary groups 0; SHA-256 selected spans 0; salt selected rows 0.",
+      "interpretation": "The signal is not explained by plain SHA-256 or random/salted trials; the live problem is control specificity.",
+      "next_test": "Keep random and salted null controls in every future public-preset run.",
+      "source_rows": []
+    },
+    {
+      "finding_id": "project-token-leakage-watch",
+      "status": "watch",
+      "question": "Are Telomere/project-specific tokens dominating selected spans?",
+      "evidence": "standards project-token hits 5570 with share 0.275211; leakage_dominates=False.",
+      "interpretation": "Current evidence says leakage does not dominate, but project-token ablation is required before a public registry claim.",
+      "next_test": "Remove project-specific entries, rerun the standards rows, and require ordinary/control separation to remain improved.",
+      "source_rows": []
+    },
+    {
+      "finding_id": "format-boundary-closed",
+      "status": "blocks-format-support",
+      "question": "Can public presets be added to `.tlmr` yet?",
+      "evidence": "public preset promotion met=False; format promotion allowed=False; seed table ordinary groups=0; discovery promotion met=True.",
+      "interpretation": "The preset idea remains research-only; `.tlmr` registry or preset metadata would be premature.",
+      "next_test": "Only draft registry semantics after control separation and SEARCH_FRONTIER_GATE format promotion both pass.",
+      "source_rows": []
+    }
+  ],
+  "ablation_plan": [
+    {
+      "ablation_id": "paired-shadow-expansion",
+      "parallel_group": "corpus-transform",
+      "purpose": "Build multiple vocabulary-disjoint paired shadows for every ordinary winning family.",
+      "success_rule": "ordinary negative groups stay >=3 and paired shadow negative groups become 0",
+      "failure_rule": "paired shadows continue to shrink or shrink at comparable density",
+      "budget": "metadata-only plan now; future generated run must stay bounded to the frozen replication corpus bank",
+      "suggested_artifact": "docs/PUBLIC_PRESET_CONTROL_ABLATION.md"
+    },
+    {
+      "ablation_id": "dictionary-size-equalization",
+      "parallel_group": "compute-economics",
+      "purpose": "Compare standards dictionaries against entry-count, byte-count, and token-frequency matched public tables.",
+      "success_rule": "standards preset beats all matched generic baselines after metadata",
+      "failure_rule": "matched generic tables reproduce the same negative groups",
+      "budget": "no broad seed search; reuse existing frozen spans and dictionary-entry manifests",
+      "suggested_artifact": "docs/PUBLIC_PRESET_CONTROL_ABLATION.md"
+    },
+    {
+      "ablation_id": "project-token-removal",
+      "parallel_group": "corpus-transform",
+      "purpose": "Remove Telomere/project-specific entries before counting standards wins.",
+      "success_rule": "ordinary/control separation improves or stays clean without project-token entries",
+      "failure_rule": "ordinary wins collapse or controls remain negative",
+      "budget": "bounded dictionary-filter rerun only",
+      "suggested_artifact": "docs/PUBLIC_PRESET_CONTROL_ABLATION.md"
+    },
+    {
+      "ablation_id": "leave-family-out",
+      "parallel_group": "format-policy",
+      "purpose": "Pre-register public preset family identity so held-out rows cannot benefit from trained same-family literals.",
+      "success_rule": "family identity is decoder-public and ordinary wins survive leave-family-out splits",
+      "failure_rule": "wins require entries derived from the compressed family or file-local training",
+      "budget": "registry-design note before any format change",
+      "suggested_artifact": "docs/PUBLIC_PRESET_REGISTRY_REQUIREMENTS.md"
+    },
+    {
+      "ablation_id": "control-density-normalization",
+      "parallel_group": "compute-economics",
+      "purpose": "Normalize selected-span density by input bytes, dictionary bytes, and metadata bytes.",
+      "success_rule": "ordinary density remains materially above control density after normalization",
+      "failure_rule": "control density is comparable to ordinary density",
+      "budget": "read-only analysis of existing rows first",
+      "suggested_artifact": "docs/PUBLIC_PRESET_CONTROL_ABLATION.md"
+    }
+  ]
+}

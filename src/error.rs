@@ -1,7 +1,4 @@
-//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 use thiserror::Error;
-
-use crate::tlmr::TlmrError;
 
 #[derive(Error, Debug)]
 pub enum TelomereError {
@@ -24,10 +21,6 @@ pub enum TelomereError {
     /// Too many superposed candidates at a block index.
     #[error("superposition limit exceeded for block {0}")]
     SuperpositionLimitExceeded(usize),
-
-    /// Codec-specific header failure (legacy, use Header instead for new code).
-    #[error("header codec error: {0}")]
-    HeaderCodec(#[from] TlmrError),
 
     /// Hashing errors (if any).
     #[error("hashing error: {0}")]

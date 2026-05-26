@@ -1,4 +1,3 @@
-//! See [Kolyma Spec](../kolyma.pdf) - 2025-07-20 - commit c48b123cf3a8761a15713b9bf18697061ab23976
 //!
 //! Real seed search implementation using the SeedExpander trait.
 //! Seeds are enumerated deterministically: shortest first (1-byte, 2-byte, …),

@@ -1,0 +1,9 @@
+command: cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
+started_at: 2026-05-25T22:08:46.712666+00:00
+finished_at: 2026-05-25T22:08:46.974441+00:00
+returncode: 0
+
+----- stdout -----
+
+
+----- stderr -----

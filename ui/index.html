@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>TELOMERE — Compression Telemetry / RUN 0042</title>
+<title>TELOMERE — Operator Console</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link
@@ -11,912 +11,4598 @@
   rel="stylesheet"
 />
 <style>
-  :root {
-    --bg:        #0a0b0d;
-    --bg-2:      #101216;
-    --bg-3:      #15181d;
-    --rule:      #2a2f36;
-    --rule-soft: #1b1f25;
-    --bone:      #ece6d6;
-    --bone-dim:  #a8a294;
-    --iron:      #6b6e73;
-    --iron-dim:  #3e4147;
-    --amber:     #ffb547;
-    --amber-hot: #ffd58a;
-    --amber-dim: #8a6a3a;
-    --amber-glow: rgba(255, 181, 71, 0.22);
-    --red:       #ff6a5a;
-    --teal-cold: #5aa89a;
-  }
+/* =============================================================================
+   TELOMERE — operator console (single-file build, inlined for portability)
+   Aesthetic: precision scientific instrument. Sodium amber on ink black.
+   Cormorant Garamond italic marque · IBM Plex Mono data.
+   ============================================================================= */
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:        #0a0b0d;
+  --bg-2:      #101216;
+  --bg-3:      #15181d;
+  --bg-4:      #1a1e23;
+  --rule:      #2a2f36;
+  --rule-soft: #1b1f25;
+  --bone:      #ece6d6;
+  --bone-dim:  #a8a294;
+  --iron:      #6b6e73;
+  --iron-dim:  #3e4147;
 
-  html, body {
-    background: var(--bg);
-    color: var(--bone);
-    font-family: 'IBM Plex Mono', ui-monospace, monospace;
-    font-size: 11.5px;
-    font-weight: 400;
-    line-height: 1.5;
-    letter-spacing: 0.015em;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+  --amber:     #ffb547;
+  --amber-hot: #ffd58a;
+  --amber-dim: #8a6a3a;
+  --amber-mute:#5a4828;
+  --amber-glow: rgba(255, 181, 71, 0.22);
 
-  /* faint scanlines, like a CRT instrument */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    background-image: repeating-linear-gradient(
-      0deg,
-      rgba(255,255,255,0.014) 0px,
-      rgba(255,255,255,0.014) 1px,
-      transparent 1px,
-      transparent 3px
-    );
-    z-index: 100;
-    mix-blend-mode: overlay;
-  }
+  --red:       #ff6a5a;
+  --teal-cold: #5aa89a;
 
-  /* film grain */
-  body::after {
-    content: '';
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='matrix' values='0 0 0 0 0.93  0 0 0 0 0.90  0 0 0 0 0.84  0 0 0 0.55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
-    opacity: 0.035;
-    z-index: 101;
-    mix-blend-mode: screen;
-  }
+  --serif: 'Cormorant Garamond', 'Iowan Old Style', Georgia, serif;
+  --mono:  'IBM Plex Mono', ui-monospace, 'Cascadia Mono', monospace;
+}
 
-  /* shared chrome ---------------------------------------------------- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  .rule        { border-color: var(--rule); }
-  .rule-soft   { border-color: var(--rule-soft); }
+html, body {
+  background: var(--bg);
+  color: var(--bone);
+  font-family: var(--mono);
+  font-size: 11.5px;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: 0.015em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  overflow-x: hidden;
+  user-select: none;
+}
+input, textarea { user-select: text; }
 
-  .label {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 9.5px;
-    font-weight: 500;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--iron);
-  }
-  .label.hot    { color: var(--amber); }
-  .label.bone   { color: var(--bone-dim); }
+/* CRT scanlines + grain ----------------------------------------------------- */
 
-  .micro {
-    font-size: 9px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--iron);
-  }
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(255,255,255,0.014) 0px,
+    rgba(255,255,255,0.014) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  z-index: 100;
+  mix-blend-mode: overlay;
+}
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='matrix' values='0 0 0 0 0.93  0 0 0 0 0.90  0 0 0 0 0.84  0 0 0 0.55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  opacity: 0.035;
+  z-index: 101;
+  mix-blend-mode: screen;
+}
 
-  .num {
-    font-variant-numeric: tabular-nums;
-    font-feature-settings: 'tnum' 1, 'zero' 1;
-  }
+/* tiny atoms ---------------------------------------------------------------- */
 
-  .hot   { color: var(--amber); }
-  .bone  { color: var(--bone); }
-  .dim   { color: var(--bone-dim); }
-  .iron  { color: var(--iron); }
-  .red   { color: var(--red); }
-  .teal  { color: var(--teal-cold); }
+.label, .micro, .tag {
+  font-family: var(--mono);
+  text-transform: uppercase;
+  color: var(--iron);
+}
+.label  { font-size: 9.5px; letter-spacing: 0.22em; font-weight: 500; }
+.micro  { font-size: 9px;   letter-spacing: 0.18em; }
+.tag    { font-size: 8.5px; letter-spacing: 0.24em; }
 
-  /* layout ----------------------------------------------------------- */
+.num   { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum' 1, 'zero' 1; }
+.hot   { color: var(--amber); }
+.bone  { color: var(--bone); }
+.dim   { color: var(--bone-dim); }
+.iron  { color: var(--iron); }
+.red   { color: var(--red); }
+.teal  { color: var(--teal-cold); }
 
-  .frame {
-    max-width: 1480px;
-    margin: 0 auto;
-    padding: 32px 40px 48px;
-    position: relative;
-  }
+.serif-it {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 500;
+  letter-spacing: 0.005em;
+}
 
-  /* corner ticks — gives the page that "framed plate" feel */
-  .frame::before,
-  .frame::after {
-    content: '';
-    position: absolute;
-    width: 18px;
-    height: 18px;
-    border: 1px solid var(--rule);
-    pointer-events: none;
-  }
-  .frame::before {
-    top: 28px;
-    left: 36px;
-    border-right: none;
-    border-bottom: none;
-  }
-  .frame::after {
-    bottom: 44px;
-    right: 36px;
-    border-left: none;
-    border-top: none;
-  }
+.pulse {
+  display: inline-block;
+  width: 6px; height: 6px;
+  background: var(--amber);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--amber-glow), 0 0 2px var(--amber);
+  margin-right: 8px;
+  vertical-align: 1px;
+  animation: pulse 1.6s ease-in-out infinite;
+}
+.pulse.cold { background: var(--iron); box-shadow: none; animation: none; }
+@keyframes pulse {
+  0%, 100% { opacity: 0.45; transform: scale(0.85); }
+  50%      { opacity: 1;    transform: scale(1.05); }
+}
 
-  /* top bar */
-  .topbar {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    padding-bottom: 14px;
-    border-bottom: 1px solid var(--rule);
-    margin-bottom: 32px;
-  }
-  .marque {
-    font-family: 'Cormorant Garamond', serif;
-    font-style: italic;
-    font-weight: 500;
-    font-size: 26px;
-    color: var(--bone);
-    letter-spacing: 0.005em;
-  }
-  .marque sup {
-    font-style: normal;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 9.5px;
-    letter-spacing: 0.22em;
-    color: var(--amber);
-    margin-left: 10px;
-    vertical-align: 0.55em;
-  }
-  .topbar .meta {
-    display: flex;
-    gap: 32px;
-    align-items: baseline;
-  }
-  .meta .pair { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
-  .meta .pair .v { color: var(--bone); font-size: 11.5px; }
-  .meta .pair .k { font-size: 8.5px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--iron); }
+/* page frame ---------------------------------------------------------------- */
 
-  .pulse {
-    display: inline-block;
-    width: 6px;
-    height: 6px;
-    background: var(--amber);
-    border-radius: 50%;
-    box-shadow: 0 0 8px var(--amber-glow), 0 0 2px var(--amber);
-    margin-right: 8px;
-    vertical-align: 1px;
-    animation: pulse 1.6s ease-in-out infinite;
-  }
-  @keyframes pulse {
-    0%, 100% { opacity: 0.45; transform: scale(0.85); }
-    50%      { opacity: 1;    transform: scale(1.05); }
-  }
+.frame {
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: 28px 40px 56px;
+  position: relative;
+}
+.frame::before,
+.frame::after {
+  content: '';
+  position: absolute;
+  width: 18px; height: 18px;
+  border: 1px solid var(--rule);
+  pointer-events: none;
+}
+.frame::before { top: 24px;    left: 36px;  border-right: none; border-bottom: none; }
+.frame::after  { bottom: 52px; right: 36px; border-left: none;  border-top: none; }
 
-  /* HEADLINE area --------------------------------------------------- */
+/* top bar ------------------------------------------------------------------- */
 
-  .headline {
-    display: grid;
-    grid-template-columns: 1.05fr 2fr;
-    gap: 48px;
-    align-items: end;
-    padding-bottom: 30px;
-    border-bottom: 1px solid var(--rule);
-    margin-bottom: 40px;
-  }
+.topbar {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 22px;
+}
+.marque {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 26px;
+  color: var(--bone);
+}
+.marque sup {
+  font-style: normal;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.22em;
+  color: var(--amber);
+  margin-left: 10px;
+  vertical-align: 0.55em;
+}
 
-  .run-id {
-    display: flex;
-    align-items: flex-end;
-    gap: 18px;
-  }
-  .run-id .glyph {
-    font-family: 'Cormorant Garamond', serif;
-    font-style: italic;
-    font-weight: 500;
-    font-size: 108px;
-    line-height: 0.85;
-    color: var(--bone);
-    letter-spacing: -0.01em;
-  }
-  .run-id .sub { padding-bottom: 8px; }
-  .run-id .sub .t1 {
-    font-family: 'Cormorant Garamond', serif;
-    font-style: italic;
-    font-size: 19px;
-    color: var(--amber);
-    line-height: 1;
-    margin-bottom: 6px;
-    letter-spacing: 0.01em;
-  }
-  .run-id .sub .t2 {
-    font-size: 10px;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--iron);
-  }
+.topbar .meta { display: flex; gap: 32px; align-items: baseline; }
+.meta .pair { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.meta .pair .v { color: var(--bone); font-size: 11.5px; }
+.meta .pair .k { font-size: 8.5px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--iron); }
 
-  .kpis {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1px;
-    background: var(--rule-soft);
-    border: 1px solid var(--rule-soft);
-  }
-  .kpi {
-    background: var(--bg);
-    padding: 16px 18px 18px;
-    position: relative;
-  }
-  .kpi .k {
-    font-size: 8.5px;
-    letter-spacing: 0.24em;
-    text-transform: uppercase;
-    color: var(--iron);
-    margin-bottom: 14px;
-  }
-  .kpi .v {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 28px;
-    font-weight: 300;
-    color: var(--bone);
-    line-height: 1;
-    letter-spacing: -0.01em;
-  }
-  .kpi .v .unit {
-    font-size: 11px;
-    color: var(--iron);
-    margin-left: 6px;
-    letter-spacing: 0.1em;
-  }
-  .kpi .trend {
-    margin-top: 10px;
-    font-size: 9.5px;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--bone-dim);
-  }
-  .kpi .trend .arrow { color: var(--amber); margin-right: 4px; }
-  .kpi.alt .v { color: var(--amber); text-shadow: 0 0 14px var(--amber-glow); }
-  .kpi .nub {
-    position: absolute;
-    top: 12px;
-    right: 14px;
-    font-size: 8px;
-    letter-spacing: 0.18em;
-    color: var(--iron-dim);
-  }
+/* mode toggle --------------------------------------------------------------- */
 
-  /* MAIN GRID ------------------------------------------------------- */
+.modebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 0 0 22px;
+  border-bottom: 1px solid var(--rule-soft);
+  margin-bottom: 28px;
+}
 
-  .grid {
-    display: grid;
-    grid-template-columns: 1.65fr 1fr;
-    gap: 32px;
-  }
+.mode-seg {
+  display: inline-flex;
+  border: 1px solid var(--rule);
+  background: var(--bg);
+}
+.mode-seg button {
+  appearance: none;
+  background: transparent;
+  border: none;
+  color: var(--iron);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  padding: 12px 22px;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.mode-seg button + button { border-left: 1px solid var(--rule); }
+.mode-seg button:hover { color: var(--bone-dim); }
+.mode-seg button.active {
+  color: var(--amber);
+  background: rgba(255, 181, 71, 0.06);
+  text-shadow: 0 0 12px var(--amber-glow);
+}
+.mode-seg button.active::after {
+  content: '';
+  position: absolute;
+  inset: auto 14px -1px 14px;
+  height: 1px;
+  background: var(--amber);
+  box-shadow: 0 0 6px var(--amber-glow);
+}
 
-  .panel {
-    background: var(--bg);
-    border: 1px solid var(--rule);
-    position: relative;
-  }
-  .panel-head {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    padding: 14px 18px 12px;
-    border-bottom: 1px solid var(--rule-soft);
-  }
-  .panel-head .title {
-    font-family: 'Cormorant Garamond', serif;
-    font-style: italic;
-    font-size: 16px;
-    color: var(--bone);
-  }
-  .panel-head .tag {
-    font-size: 8.5px;
-    letter-spacing: 0.24em;
-    text-transform: uppercase;
-    color: var(--iron);
-  }
+.mode-hint {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 15px;
+  color: var(--bone-dim);
+}
 
-  .panel-body { padding: 18px 18px 22px; }
+/* COMMAND DECK -------------------------------------------------------------- */
 
-  /* convergence chart */
-  .conv-wrap { position: relative; }
-  .conv-legend {
-    display: flex;
-    gap: 22px;
-    font-size: 9.5px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--iron);
-    margin-bottom: 14px;
-    padding-left: 4px;
-  }
-  .conv-legend .sw {
-    display: inline-block;
-    width: 14px;
-    height: 1px;
-    margin-right: 8px;
-    vertical-align: 3px;
-  }
-  .conv-legend .sw.in   { background: var(--iron); height: 1px; }
-  .conv-legend .sw.out  { background: var(--amber); box-shadow: 0 0 6px var(--amber-glow); height: 1px; }
-  .conv-legend .sw.delta{ background: var(--bone-dim); height: 1px; }
+.deck {
+  display: grid;
+  grid-template-columns: 1fr 1.35fr 0.95fr;
+  gap: 1px;
+  background: var(--rule-soft);
+  border: 1px solid var(--rule-soft);
+  margin-bottom: 30px;
+}
 
-  svg.chart { display: block; width: 100%; }
+.bay {
+  background: var(--bg);
+  padding: 18px 22px 22px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 280px;
+}
+.bay-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.bay-head .name {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 16px;
+  color: var(--bone);
+}
 
-  .axis line, .axis path { stroke: var(--rule); stroke-width: 1; }
-  .axis .tick { stroke: var(--rule-soft); }
-  .axis text  {
-    fill: var(--iron);
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 9.5px;
-    letter-spacing: 0.1em;
-  }
+/* roman numerals as little marginalia */
+.bay::after {
+  content: attr(data-numeral);
+  position: absolute;
+  top: 14px; right: 18px;
+  font-family: var(--mono);
+  font-size: 8.5px;
+  letter-spacing: 0.22em;
+  color: var(--iron-dim);
+}
 
-  /* block heatmap */
-  .heat-grid {
-    display: grid;
-    grid-template-columns: repeat(64, 1fr);
-    gap: 1px;
-    background: var(--rule-soft);
-    padding: 1px;
-    margin: 6px 0 12px;
-    border: 1px solid var(--rule-soft);
-  }
-  .cell {
-    aspect-ratio: 1 / 1;
-    background: var(--bg-3);
-    transition: transform 0.18s ease, box-shadow 0.18s ease;
-  }
-  .cell:hover { transform: scale(1.4); z-index: 2; outline: 1px solid var(--amber); }
-  /* legend bins */
-  .cell.l0 { background: #1a1d22; }                 /* literal / miss */
-  .cell.l1 { background: #3a2e1a; }                 /* seed len 1 */
-  .cell.l2 { background: #6b4a1f; }
-  .cell.l3 { background: #a87026; }
-  .cell.l4 { background: #ffb547; box-shadow: 0 0 4px var(--amber-glow); }
+/* SOURCE BAY -------------------------------- */
 
-  .heat-legend {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    font-size: 9px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--iron);
-    margin-top: 8px;
-  }
-  .heat-legend .swatch {
-    display: inline-block;
-    width: 12px;
-    height: 12px;
-    border: 1px solid var(--rule);
-    margin-right: 6px;
-    vertical-align: -2px;
-  }
+.slot {
+  border: 1px dashed var(--rule);
+  background: var(--bg-2);
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.slot.dragover {
+  border-color: var(--amber);
+  background: rgba(255, 181, 71, 0.04);
+}
+.slot.has-file { border-style: solid; border-color: var(--rule); }
 
-  /* right column */
-  .right { display: flex; flex-direction: column; gap: 32px; }
+.slot-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 10px;
+  height: 100%;
+  color: var(--iron);
+}
+.slot-empty .icn {
+  width: 28px; height: 28px;
+  border: 1px solid var(--rule);
+  position: relative;
+}
+.slot-empty .icn::before,
+.slot-empty .icn::after {
+  content: '';
+  position: absolute;
+  background: var(--iron);
+}
+.slot-empty .icn::before { top: 13px; left: 6px; right: 6px; height: 1px; }
+.slot-empty .icn::after  { left: 13px; top: 6px; bottom: 6px; width: 1px; }
 
-  /* seed length distribution */
-  .dist-row {
-    display: grid;
-    grid-template-columns: 32px 1fr 64px;
-    align-items: center;
-    gap: 12px;
-    padding: 8px 0;
-    border-bottom: 1px dashed var(--rule-soft);
-  }
-  .dist-row:last-child { border-bottom: none; }
-  .dist-row .k {
-    font-size: 10px;
-    letter-spacing: 0.16em;
-    color: var(--bone-dim);
-  }
-  .dist-row .bar {
-    height: 6px;
-    background: var(--bg-3);
-    position: relative;
-    overflow: hidden;
-  }
-  .dist-row .bar .fill {
-    position: absolute;
-    inset: 0 auto 0 0;
-    background: linear-gradient(90deg, var(--amber-dim), var(--amber));
-    box-shadow: inset 0 0 6px rgba(0,0,0,0.4);
-    animation: bar-in 0.9s cubic-bezier(.2,.7,.1,1) backwards;
-  }
-  @keyframes bar-in { from { width: 0 !important; } }
-  .dist-row .v {
-    text-align: right;
-    font-size: 11px;
-    color: var(--bone);
-  }
-  .dist-row .v .pc { color: var(--iron); margin-left: 6px; font-size: 9.5px; }
+.slot-empty .t1 {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 15px;
+  color: var(--bone-dim);
+}
+.slot-empty .t2 { letter-spacing: 0.2em; font-size: 9.5px; text-transform: uppercase; }
 
-  /* pass log */
-  .log-list {
-    display: flex;
-    flex-direction: column;
-    border-top: 1px solid var(--rule-soft);
-  }
-  .log-row {
-    display: grid;
-    grid-template-columns: 60px 50px 1fr auto;
-    align-items: baseline;
-    gap: 14px;
-    padding: 9px 0 8px;
-    border-bottom: 1px solid var(--rule-soft);
-  }
-  .log-row .t { font-size: 10px; color: var(--iron); letter-spacing: 0.08em; }
-  .log-row .lvl {
-    font-size: 8.5px;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--bone-dim);
-  }
-  .log-row .lvl.ok   { color: var(--teal-cold); }
-  .log-row .lvl.hit  { color: var(--amber); }
-  .log-row .lvl.warn { color: var(--red); }
-  .log-row .m   { font-size: 10.5px; color: var(--bone); }
-  .log-row .v   { font-size: 10.5px; color: var(--amber); letter-spacing: 0.06em; }
+.slot-file { display: grid; grid-template-columns: 1fr auto; gap: 4px 18px; align-items: baseline; }
+.slot-file .name {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 17px;
+  color: var(--amber);
+  text-shadow: 0 0 12px var(--amber-glow);
+  grid-column: 1 / -1;
+  line-height: 1.2;
+  word-break: break-all;
+}
+.slot-file .path  { grid-column: 1 / -1; color: var(--iron); font-size: 10px; letter-spacing: 0.04em; word-break: break-all; }
+.slot-file .row   { display: contents; }
+.slot-file .k     { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--iron); }
+.slot-file .v     { font-size: 11px; color: var(--bone); text-align: right; }
 
-  /* footer */
-  .footer {
-    margin-top: 48px;
-    padding-top: 18px;
-    border-top: 1px solid var(--rule);
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    font-size: 9.5px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--iron);
-  }
-  .footer .colophon {
-    font-family: 'Cormorant Garamond', serif;
-    font-style: italic;
-    font-size: 12px;
-    letter-spacing: 0.01em;
-    text-transform: none;
-    color: var(--bone-dim);
-  }
+.slot-actions { display: flex; gap: 10px; margin-top: 12px; }
+.btn-ghost {
+  appearance: none;
+  background: transparent;
+  border: 1px solid var(--rule);
+  color: var(--bone-dim);
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+.btn-ghost:hover { color: var(--amber); border-color: var(--amber-dim); background: rgba(255, 181, 71, 0.03); }
+.btn-ghost:active { background: rgba(255, 181, 71, 0.08); }
 
-  /* page entrance — staggered */
-  .reveal { opacity: 0; transform: translateY(8px); animation: reveal 0.7s cubic-bezier(.2,.7,.1,1) forwards; }
-  .reveal.d1 { animation-delay: 0.05s; }
-  .reveal.d2 { animation-delay: 0.15s; }
-  .reveal.d3 { animation-delay: 0.28s; }
-  .reveal.d4 { animation-delay: 0.42s; }
-  .reveal.d5 { animation-delay: 0.58s; }
-  @keyframes reveal { to { opacity: 1; transform: translateY(0); } }
+/* destination strip */
+.dest-strip {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+  color: var(--iron);
+}
+.dest-strip .arr { color: var(--amber-dim); }
+.dest-strip .path { color: var(--bone-dim); word-break: break-all; flex: 1; }
 
-  /* slim screens — keep readable, no spec breakdown attempted */
-  @media (max-width: 1100px) {
-    .grid { grid-template-columns: 1fr; }
-    .headline { grid-template-columns: 1fr; gap: 28px; }
-    .kpis { grid-template-columns: repeat(2, 1fr); }
-    .run-id .glyph { font-size: 84px; }
-    .heat-grid { grid-template-columns: repeat(32, 1fr); }
+/* PARAMETERS BAY ---------------------------- */
+
+.params-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  border-top: 1px solid var(--rule-soft);
+}
+
+.param-row {
+  display: grid;
+  grid-template-columns: 158px 1fr 56px;
+  align-items: center;
+  gap: 14px;
+  padding: 11px 0 9px;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.param-row .k {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.param-row .k-name {
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--bone-dim);
+  line-height: 1;
+}
+.param-row .k-gloss {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 11.5px;
+  color: var(--iron);
+  line-height: 1.15;
+}
+.param-row .k-derived {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.04em;
+  color: var(--amber-dim);
+  line-height: 1.1;
+  margin-top: 1px;
+}
+.param-row.disabled .k-gloss   { color: var(--iron-dim); }
+.param-row.disabled .k-derived { color: var(--iron-dim); }
+
+.scale {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+}
+.scale .stepper {
+  appearance: none;
+  background: transparent;
+  border: 1px solid var(--rule);
+  color: var(--bone-dim);
+  width: 22px; height: 22px;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 14px;
+  line-height: 1;
+  padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: color 0.12s ease, border-color 0.12s ease;
+}
+.scale .stepper:hover { color: var(--amber); border-color: var(--amber-dim); }
+.scale .stepper:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.scale .track {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  height: 16px;
+  position: relative;
+}
+.scale .track .dot {
+  flex: 1;
+  height: 2px;
+  background: var(--rule);
+  margin: 0 1px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.12s ease, height 0.12s ease;
+}
+.scale .track .dot:hover { background: var(--amber-dim); }
+.scale .track .dot.on  { background: var(--amber-dim); }
+.scale .track .dot.cur { background: var(--amber); height: 4px; box-shadow: 0 0 6px var(--amber-glow); }
+
+.param-row .v {
+  text-align: right;
+  font-size: 14px;
+  color: var(--amber);
+  text-shadow: 0 0 10px var(--amber-glow);
+  font-variant-numeric: tabular-nums;
+}
+.param-row .v .u { font-size: 9.5px; color: var(--iron); margin-left: 4px; letter-spacing: 0.1em; }
+
+.param-row.disabled { opacity: 0.4; pointer-events: none; }
+.param-row.disabled .v { color: var(--iron); text-shadow: none; }
+
+/* hasher pills (full-width row) */
+.hasher-row {
+  display: grid;
+  grid-template-columns: 158px 1fr;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 0 4px;
+}
+.pills { display: flex; gap: 1px; background: var(--rule); }
+.pill {
+  appearance: none;
+  background: var(--bg-2);
+  border: none;
+  padding: 9px 14px;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--iron);
+  cursor: pointer;
+  transition: color 0.12s ease, background 0.12s ease;
+}
+.pill:hover { color: var(--bone-dim); }
+.pill.on {
+  color: var(--amber);
+  background: rgba(255, 181, 71, 0.06);
+  box-shadow: inset 0 -1px 0 var(--amber);
+}
+.index-tools {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.index-tools input {
+  width: 100%;
+  min-width: 220px;
+  background: #11151a;
+  border: 1px solid rgba(255,255,255,.14);
+  color: var(--bone);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font: 12px var(--mono);
+}
+.index-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.index-actions .btn-ghost {
+  padding: 7px 9px;
+  font-size: 8.5px;
+  letter-spacing: 0.16em;
+}
+.index-status {
+  color: var(--amber-dim);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.04em;
+  min-height: 1.2em;
+}
+
+/* ACTION BAY -------------------------------- */
+
+.action-area {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+}
+
+.execute {
+  appearance: none;
+  border: 1px solid var(--amber);
+  background: linear-gradient(180deg, rgba(255,181,71,0.10), rgba(255,181,71,0.02));
+  color: var(--amber);
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  padding: 22px 14px;
+  cursor: pointer;
+  position: relative;
+  text-shadow: 0 0 12px var(--amber-glow);
+  transition: background 0.12s ease, transform 0.06s ease, color 0.12s ease;
+}
+.execute:hover {
+  background: linear-gradient(180deg, rgba(255,181,71,0.18), rgba(255,181,71,0.04));
+  color: var(--amber-hot);
+}
+.execute:active { transform: translateY(1px); }
+.execute:disabled {
+  border-color: var(--rule);
+  color: var(--iron);
+  background: var(--bg-2);
+  text-shadow: none;
+  cursor: not-allowed;
+}
+.execute .verb { display: block; }
+.execute .sub {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 0.28em;
+  color: var(--bone-dim);
+  margin-top: 8px;
+  text-shadow: none;
+}
+
+.execute.running {
+  background: linear-gradient(90deg,
+    rgba(255,181,71,0.20) 0%,
+    rgba(255,181,71,0.05) 50%,
+    rgba(255,181,71,0.20) 100%);
+  background-size: 200% 100%;
+  animation: scanband 1.6s linear infinite;
+}
+@keyframes scanband { from { background-position: 0% 0; } to { background-position: -200% 0; } }
+
+/* secondary action row */
+.action-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--bone-dim);
+}
+.tog {
+  appearance: none;
+  background: transparent;
+  border: 1px solid var(--rule);
+  color: var(--iron);
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+.tog.on { color: var(--amber); border-color: var(--amber-dim); background: rgba(255,181,71,0.04); }
+
+/* presets */
+.presets {
+  margin-top: auto;
+  border-top: 1px solid var(--rule-soft);
+  padding-top: 14px;
+}
+.presets .lbl { margin-bottom: 8px; }
+.preset-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip {
+  appearance: none;
+  background: var(--bg-2);
+  border: 1px solid var(--rule);
+  color: var(--bone-dim);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  padding: 7px 10px;
+  cursor: pointer;
+  transition: color 0.12s ease, border-color 0.12s ease;
+}
+.chip:hover { color: var(--amber); border-color: var(--amber-dim); }
+.chip.active { color: var(--amber); border-color: var(--amber); }
+
+.research-ledger {
+  border-top: 1px solid var(--rule-soft);
+  padding-top: 14px;
+}
+.research-ledger .lbl { margin-bottom: 8px; }
+.ledger-status {
+  color: var(--amber-dim);
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 12px;
+  line-height: 1.25;
+  margin-bottom: 10px;
+}
+.evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.evidence-chip {
+  border: 1px solid var(--rule-soft);
+  background: rgba(214, 166, 83, 0.035);
+  padding: 7px 8px;
+}
+.evidence-chip .evidence-label {
+  color: var(--iron);
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.evidence-chip .evidence-value {
+  color: var(--bone);
+  font-family: var(--mono);
+  font-size: 10px;
+  margin-top: 3px;
+}
+.evidence-chip .evidence-note {
+  color: var(--iron);
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 10px;
+  line-height: 1.2;
+  margin-top: 3px;
+}
+.ledger-grid {
+  display: grid;
+  gap: 6px;
+}
+.ledger-card {
+  border: 1px solid var(--rule-soft);
+  background: rgba(255,255,255,0.018);
+  padding: 8px 9px;
+}
+.ledger-card .ledger-title {
+  color: var(--bone-dim);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.ledger-card .ledger-metric {
+  color: var(--amber);
+  font-size: 10px;
+  margin-top: 4px;
+}
+.ledger-card .ledger-note {
+  color: var(--iron);
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 11px;
+  line-height: 1.2;
+  margin-top: 3px;
+}
+
+/* PROGRESS / STATUS strip --------------------------------------------------- */
+
+.status {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 24px;
+  align-items: center;
+  padding: 14px 20px;
+  border: 1px solid var(--rule);
+  background: var(--bg-2);
+  margin-bottom: 30px;
+  min-height: 56px;
+}
+.status .badge {
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--iron);
+  display: flex;
+  align-items: center;
+}
+.status.running .badge { color: var(--amber); }
+.status.error   .badge { color: var(--red); }
+.status.done    .badge { color: var(--teal-cold); }
+
+.status .msg {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 15px;
+  color: var(--bone-dim);
+}
+.status.running .msg { color: var(--bone); }
+
+.status .meter {
+  width: 280px;
+  height: 4px;
+  background: var(--bg-3);
+  border: 1px solid var(--rule);
+  position: relative;
+  overflow: hidden;
+}
+.status .meter .fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0%;
+  background: linear-gradient(90deg, var(--amber-dim), var(--amber));
+  box-shadow: 0 0 8px var(--amber-glow);
+  transition: width 0.2s ease;
+}
+.status .pct {
+  font-size: 11px;
+  color: var(--amber);
+  width: 44px;
+  text-align: right;
+}
+
+/* RUN PLATE (telemetry, below) --------------------------------------------- */
+
+.plate {
+  opacity: 0.3;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+}
+.plate.live { opacity: 1; pointer-events: auto; }
+
+.headline {
+  display: grid;
+  grid-template-columns: 1.05fr 2fr;
+  gap: 48px;
+  align-items: end;
+  padding-bottom: 30px;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 30px;
+}
+
+.run-id { display: flex; align-items: flex-end; gap: 18px; }
+.run-id .glyph {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 108px;
+  line-height: 0.85;
+  color: var(--bone);
+  letter-spacing: -0.01em;
+}
+.run-id .sub { padding-bottom: 8px; }
+.run-id .sub .t1 {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 19px;
+  color: var(--amber);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.run-id .sub .t2 {
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--iron);
+}
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--rule-soft);
+  border: 1px solid var(--rule-soft);
+}
+.kpi {
+  background: var(--bg);
+  padding: 16px 18px 18px;
+  position: relative;
+}
+.kpi .k {
+  font-size: 8.5px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--iron);
+  margin-bottom: 14px;
+}
+.kpi .v {
+  font-family: var(--mono);
+  font-size: 28px;
+  font-weight: 300;
+  color: var(--bone);
+  line-height: 1;
+}
+.kpi .v .unit {
+  font-size: 11px;
+  color: var(--iron);
+  margin-left: 6px;
+  letter-spacing: 0.1em;
+}
+.kpi .trend {
+  margin-top: 10px;
+  font-size: 9.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--bone-dim);
+}
+.kpi .trend .arrow { color: var(--amber); margin-right: 4px; }
+.kpi.alt .v { color: var(--amber); text-shadow: 0 0 14px var(--amber-glow); }
+.kpi .nub {
+  position: absolute;
+  top: 12px; right: 14px;
+  font-size: 8px;
+  letter-spacing: 0.18em;
+  color: var(--iron-dim);
+}
+
+/* main grid panels --------------------------------------------------------- */
+
+.grid {
+  display: grid;
+  grid-template-columns: 1.65fr 1fr;
+  gap: 28px;
+}
+
+.left { display: flex; flex-direction: column; gap: 28px; }
+.right{ display: flex; flex-direction: column; gap: 28px; }
+
+.panel {
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  position: relative;
+}
+.panel-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 14px 18px 12px;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.panel-head .title {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 16px;
+  color: var(--bone);
+}
+.panel-body { padding: 18px 18px 22px; }
+
+/* convergence chart */
+.conv-legend {
+  display: flex;
+  gap: 22px;
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--iron);
+  margin-bottom: 14px;
+  padding-left: 4px;
+}
+.conv-legend .sw {
+  display: inline-block;
+  width: 14px; height: 1px;
+  margin-right: 8px;
+  vertical-align: 3px;
+  background: var(--iron);
+}
+.conv-legend .sw.out  { background: var(--amber); box-shadow: 0 0 6px var(--amber-glow); }
+.conv-legend .sw.delta{ background: var(--bone-dim); }
+
+svg.chart { display: block; width: 100%; }
+
+.axis line  { stroke: var(--rule); stroke-width: 1; }
+.axis text  {
+  fill: var(--iron);
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+}
+
+.pass-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--rule-soft);
+  margin-top: 18px;
+  border: 1px solid var(--rule-soft);
+}
+.pass-cell {
+  background: var(--bg);
+  padding: 10px 12px;
+}
+.pass-cell .b { font-size: 15px; margin-top: 4px; }
+.pass-cell.final .b { color: var(--amber); }
+
+/* block heatmap */
+.heat-grid {
+  display: grid;
+  grid-template-columns: repeat(64, 1fr);
+  gap: 1px;
+  background: var(--rule-soft);
+  padding: 1px;
+  margin: 6px 0 12px;
+  border: 1px solid var(--rule-soft);
+}
+.cell {
+  aspect-ratio: 1 / 1;
+  background: var(--bg-3);
+  transition: transform 0.18s ease;
+}
+.cell:hover { transform: scale(1.4); z-index: 2; outline: 1px solid var(--amber); }
+.cell.l0 { background: #1a1d22; }
+.cell.l1 { background: #3a2e1a; }
+.cell.l2 { background: #6b4a1f; }
+.cell.l3 { background: #a87026; }
+.cell.l4 { background: #ffb547; box-shadow: 0 0 4px var(--amber-glow); }
+
+.heat-legend {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--iron);
+  margin-top: 8px;
+}
+.heat-legend .swatch {
+  display: inline-block;
+  width: 12px; height: 12px;
+  border: 1px solid var(--rule);
+  margin-right: 6px;
+  vertical-align: -2px;
+}
+
+/* distribution rows */
+.dist-row {
+  display: grid;
+  grid-template-columns: 36px 1fr 72px;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--rule-soft);
+}
+.dist-row:last-child { border-bottom: none; }
+.dist-row .k { font-size: 10px; letter-spacing: 0.16em; color: var(--bone-dim); }
+.dist-row .bar {
+  height: 6px;
+  background: var(--bg-3);
+  position: relative;
+  overflow: hidden;
+}
+.dist-row .bar .fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: linear-gradient(90deg, var(--amber-dim), var(--amber));
+  box-shadow: inset 0 0 6px rgba(0,0,0,0.4);
+  transition: width 0.7s cubic-bezier(.2,.7,.1,1);
+}
+.dist-row .v { text-align: right; font-size: 11px; color: var(--bone); }
+.dist-row .v .pc { color: var(--iron); margin-left: 6px; font-size: 9.5px; }
+
+/* pass log */
+.log-list { display: flex; flex-direction: column; border-top: 1px solid var(--rule-soft); }
+.log-row {
+  display: grid;
+  grid-template-columns: 60px 50px 1fr auto;
+  align-items: baseline;
+  gap: 14px;
+  padding: 9px 0 8px;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.log-row .t { font-size: 10px; color: var(--iron); letter-spacing: 0.08em; }
+.log-row .lvl {
+  font-size: 8.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--bone-dim);
+}
+.log-row .lvl.ok   { color: var(--teal-cold); }
+.log-row .lvl.hit  { color: var(--amber); }
+.log-row .lvl.warn { color: var(--red); }
+.log-row .m { font-size: 10.5px; color: var(--bone); }
+.log-row .v { font-size: 10.5px; color: var(--amber); letter-spacing: 0.06em; }
+
+/* footer ------------------------------------------------------------------- */
+
+.footer {
+  margin-top: 48px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 9.5px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--iron);
+}
+.footer .colophon {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 12px;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  color: var(--bone-dim);
+}
+
+/* entrance reveal --------------------------------------------------------- */
+
+.reveal { opacity: 0; transform: translateY(8px); animation: reveal 0.7s cubic-bezier(.2,.7,.1,1) forwards; }
+.reveal.d1 { animation-delay: 0.04s; }
+.reveal.d2 { animation-delay: 0.10s; }
+.reveal.d3 { animation-delay: 0.18s; }
+.reveal.d4 { animation-delay: 0.30s; }
+.reveal.d5 { animation-delay: 0.46s; }
+@keyframes reveal { to { opacity: 1; transform: translateY(0); } }
+
+/* ===========================================================================
+   FLUID typography — hero numerals shrink with the viewport instead of
+   relying on a single breakpoint to swap fixed sizes.
+   =========================================================================== */
+.run-id .glyph     { font-size: clamp(48px, 9vw, 108px); }
+.plate-watermark   { font-size: clamp(32px, 7vw,  84px); }
+.kpi .v            { font-size: clamp(18px, 2.4vw, 28px); }
+.marque            { font-size: clamp(20px, 2.3vw, 26px); }
+
+/* ===========================================================================
+   RESPONSIVE tiers — three breakpoints instead of one naive cliff.
+   ≥ 1180  · desktop · full layout
+   1180→880· narrow  · single column, kpis 2-wide, deck stacks
+    880→600· tablet  · controls wrap, top bar drops "Active config"
+   < 600   · mobile  · chrome strips down, sidebar full-width
+   =========================================================================== */
+
+/* ---- 1180px : single column for the big grids -------------------------- */
+@media (max-width: 1180px) {
+  .grid     { grid-template-columns: 1fr; }
+  .headline { grid-template-columns: 1fr; gap: 28px; }
+  .deck     { grid-template-columns: 1fr; }
+  .kpis     { grid-template-columns: repeat(2, 1fr); }
+  .heat-grid { grid-template-columns: repeat(48, 1fr); }
+}
+
+/* ---- 880px : tablet — controls wrap, secondary chrome thins ----------- */
+@media (max-width: 880px) {
+  .frame { padding: 22px 24px 40px; }
+  .frame::before, .frame::after { width: 12px; height: 12px; }
+
+  .topbar { flex-wrap: wrap; gap: 14px 22px; }
+  .topbar .meta { gap: 18px; flex-wrap: wrap; }
+  /* "Local time" pair is the most expendable on narrow widths */
+  .topbar .meta .pair:nth-child(3) { display: none; }
+
+  .modebar { gap: 16px; flex-wrap: wrap; }
+  .mode-hint { font-size: 13px; }
+
+  .lattice-controls { gap: 14px; }
+
+  .heat-grid { grid-template-columns: repeat(40, 1fr); }
+
+  .footer { gap: 8px 18px; flex-wrap: wrap; }
+}
+
+/* ---- 600px : mobile — strip chrome, stack everything ------------------ */
+@media (max-width: 600px) {
+  .frame { padding: 16px 14px 32px; }
+  .frame::before, .frame::after { display: none; }
+
+  /* Top bar: only marque + archive button + bridge stay visible. */
+  .topbar { padding-bottom: 10px; }
+  .topbar .meta .pair:not(:first-child) { display: none; }
+  .marque sup { display: none; }
+
+  /* Mode toggle stacks full-width below the marque. */
+  .modebar { flex-direction: column; align-items: stretch; gap: 12px; padding-bottom: 16px; }
+  .mode-seg { width: 100%; }
+  .mode-seg button { flex: 1; padding: 11px 6px; font-size: 9px; letter-spacing: 0.18em; }
+
+  /* Headline stacks; KPIs become 1 column at extreme narrow. */
+  .headline { gap: 22px; padding-bottom: 22px; margin-bottom: 22px; }
+  .run-id { gap: 12px; }
+  .kpis { grid-template-columns: 1fr 1fr; }
+  .kpi { padding: 12px 14px 14px; }
+
+  /* Bay headers + numerals lose breathing room on phones. */
+  .bay { padding: 14px 14px 18px; min-height: 0; }
+  .bay::after { display: none; } /* drop the roman numeral marginalia */
+
+  /* Parameter row collapses: label on its own row above the controls. */
+  .param-row {
+    grid-template-columns: 1fr 56px;
+    grid-template-rows: auto auto;
+    row-gap: 8px;
+    column-gap: 12px;
+    padding: 14px 0 12px;
   }
+  .param-row .k     { grid-column: 1 / -1; grid-row: 1; }
+  .param-row .scale { grid-column: 1; grid-row: 2; }
+  .param-row .v     { grid-column: 2; grid-row: 2; align-self: center; text-align: right; }
+  .scale .stepper   { width: 26px; height: 26px; font-size: 15px; }
+  .hasher-row { grid-template-columns: 1fr; row-gap: 8px; }
+
+  .advanced-row { grid-template-columns: 1fr auto; column-gap: 12px; row-gap: 6px; }
+  .advanced-row .k { grid-column: 1 / -1; }
+  .advanced-row .ctrl { grid-column: 1; }
+  .advanced-row .mem-readout,
+  .advanced-row .switch { grid-column: 2; justify-self: end; }
+
+  /* Lattice controls stack vertically; the scrubber can finally squeeze. */
+  .lattice-controls { flex-direction: column; align-items: stretch; gap: 12px; }
+  .ctrl-group { width: 100%; }
+  .scrubber { min-width: 0; }
+  .color-mode-seg { width: 100%; }
+  .color-mode-seg button { flex: 1; padding: 8px 6px; }
+
+  /* Smaller lattice on phones; cells stay visible. */
+  .heat-grid { grid-template-columns: repeat(28, 1fr); }
+  .lattice-legend { gap: 16px; }
+
+  /* Cell-readout inspector stays on-screen instead of sliding off. */
+  .cell-readout { min-width: 0; max-width: calc(100vw - 60px); }
+
+  /* Status bar reflows. */
+  .status { grid-template-columns: 1fr; gap: 8px; }
+  .status .meter { width: 100%; }
+  .status > div:last-child { display: flex; }
+
+  /* Plate watermark would tilt off the page; soften & shrink. */
+  .plate-watermark { opacity: 0.05; transform: rotate(-2deg); top: -4px; }
+
+  /* Sidebar fills the screen on phones. */
+  .sidebar { width: 100vw; }
+  .sidebar-head { padding: 16px 16px 12px; }
+  .sidebar-foot { padding: 10px 16px; }
+  .history-row { padding: 10px 16px; }
+
+  /* Hex preview shouldn't push the slot wider than the viewport. */
+  .hex-preview { overflow-x: auto; }
+  .hex-row { grid-template-columns: 36px 1fr 60px; gap: 8px; }
+  .hex-row .hex, .hex-row .asc { font-size: 9.5px; letter-spacing: 0.02em; }
+
+  /* Footer collapses to one column; ceremonial colophon hides on mobile. */
+  .footer { flex-direction: column; gap: 4px; align-items: flex-start; font-size: 8.5px; padding-top: 14px; }
+  .footer .colophon { display: none; }
+
+  /* Convergence + lattice panels lose chunky padding. */
+  .panel-head { padding: 12px 14px 10px; }
+  .panel-body { padding: 14px 14px 18px; }
+}
+
+/* ============================================================================
+   v2 additions — features & effects
+   ============================================================================ */
+
+/* --- F1 · run history sidebar ---------------------------------------------- */
+
+.sidebar {
+  position: fixed;
+  top: 0; left: 0;
+  width: 320px;
+  height: 100vh;
+  background: var(--bg-2);
+  border-right: 1px solid var(--rule);
+  transform: translateX(-100%);
+  transition: transform 0.35s cubic-bezier(.2,.7,.1,1);
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 0 40px rgba(0,0,0,0.5);
+}
+.sidebar.open { transform: translateX(0); }
+
+.sidebar-head {
+  padding: 22px 22px 14px;
+  border-bottom: 1px solid var(--rule);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+.sidebar-head .ttl {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 19px;
+  color: var(--bone);
+}
+.sidebar-head .sub {
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--iron);
+  margin-top: 4px;
+}
+
+.history-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px 0;
+}
+.history-list::-webkit-scrollbar { width: 6px; }
+.history-list::-webkit-scrollbar-track { background: var(--bg-2); }
+.history-list::-webkit-scrollbar-thumb { background: var(--rule); }
+
+.history-row {
+  padding: 12px 22px;
+  border-bottom: 1px solid var(--rule-soft);
+  cursor: pointer;
+  transition: background 0.15s ease, padding-left 0.15s ease;
+  position: relative;
+}
+.history-row:hover {
+  background: rgba(255, 181, 71, 0.04);
+  padding-left: 26px;
+}
+.history-row.empty {
+  cursor: default;
+  color: var(--iron);
+  font-family: var(--serif);
+  font-style: italic;
+  text-align: center;
+  padding: 40px 22px;
+}
+.history-row.empty:hover { background: transparent; padding-left: 22px; }
+
+.history-row .top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.history-row .rid {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 17px;
+  color: var(--amber);
+}
+.history-row .ts {
+  font-size: 8.5px;
+  letter-spacing: 0.18em;
+  color: var(--iron);
+}
+.history-row .src {
+  font-size: 11px;
+  color: var(--bone-dim);
+  word-break: break-all;
+  margin-bottom: 6px;
+}
+.history-row .row2 {
+  display: flex;
+  gap: 14px;
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  color: var(--iron);
+}
+.history-row .row2 .v { color: var(--bone); }
+.history-row .row2 .ratio { color: var(--amber); }
+
+.sidebar-foot {
+  padding: 12px 22px;
+  border-top: 1px solid var(--rule);
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  z-index: 89;
+}
+.scrim.on { opacity: 1; pointer-events: auto; }
+
+.topbar-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* --- F6 · live cancel ------------------------------------------------------ */
+
+.execute.running { cursor: pointer; }
+.execute.cancellable {
+  border-color: var(--red);
+  color: var(--red);
+  background: linear-gradient(180deg, rgba(255,106,90,0.10), rgba(255,106,90,0.02));
+  text-shadow: 0 0 12px rgba(255,106,90,0.35);
+}
+.execute.cancellable:hover {
+  background: linear-gradient(180deg, rgba(255,106,90,0.18), rgba(255,106,90,0.04));
+  color: var(--red);
+}
+.execute.cancellable .sub { color: rgba(255,106,90,0.65); }
+
+/* --- F7 · advanced parameters ---------------------------------------------- */
+
+.advanced-toggle {
+  margin-top: 8px;
+  padding: 9px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--iron);
+  border-top: 1px solid var(--rule-soft);
+  user-select: none;
+  transition: color 0.12s ease;
+}
+.advanced-toggle:hover { color: var(--bone-dim); }
+.advanced-toggle.open  { color: var(--amber); }
+.advanced-toggle .chev {
+  display: inline-block;
+  width: 9px;
+  font-family: var(--mono);
+  transition: transform 0.2s ease;
+}
+.advanced-toggle.open .chev { transform: rotate(90deg); }
+
+.advanced-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s cubic-bezier(.2,.7,.1,1);
+}
+.advanced-body.open { max-height: 600px; }
+
+.advanced-row {
+  display: grid;
+  grid-template-columns: 158px 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 11px 0 9px;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.advanced-row .k {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.advanced-row .k-name {
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--bone-dim);
+  line-height: 1;
+}
+.advanced-row .k-gloss {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 11.5px;
+  color: var(--iron);
+  line-height: 1.1;
+}
+.advanced-row .ctrl { display: flex; align-items: center; gap: 10px; }
+
+.mem-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 2px;
+  background: var(--rule);
+  outline: none;
+  cursor: pointer;
+}
+.mem-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px; height: 12px;
+  background: var(--amber);
+  border: none;
+  box-shadow: 0 0 8px var(--amber-glow);
+  cursor: pointer;
+}
+.mem-slider::-moz-range-thumb {
+  width: 12px; height: 12px;
+  background: var(--amber);
+  border: none;
+  cursor: pointer;
+}
+.mem-readout {
+  width: 88px;
+  text-align: right;
+  font-size: 11px;
+  color: var(--amber);
+  text-shadow: 0 0 10px var(--amber-glow);
+  font-variant-numeric: tabular-nums;
+}
+
+.switch {
+  position: relative;
+  width: 32px;
+  height: 16px;
+  background: var(--bg-3);
+  border: 1px solid var(--rule);
+  cursor: pointer;
+}
+.switch::after {
+  content: '';
+  position: absolute;
+  top: 1px; left: 1px;
+  width: 12px; height: 12px;
+  background: var(--iron);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.switch.on { border-color: var(--amber-dim); background: rgba(255,181,71,0.08); }
+.switch.on::after { transform: translateX(16px); background: var(--amber); box-shadow: 0 0 6px var(--amber-glow); }
+
+/* --- F5 · export actions on plate ----------------------------------------- */
+
+.plate-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+.plate-actions .btn-ghost { padding: 6px 11px; font-size: 9px; }
+
+/* --- F8 · source hex preview ---------------------------------------------- */
+
+.hex-preview {
+  margin-top: 12px;
+  border-top: 1px solid var(--rule-soft);
+  padding-top: 12px;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  line-height: 1.6;
+  color: var(--bone-dim);
+  letter-spacing: 0.04em;
+}
+.hex-preview .hex-head {
+  font-size: 8.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--iron);
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+}
+.hex-row {
+  display: grid;
+  grid-template-columns: 40px 1fr 80px;
+  gap: 10px;
+  align-items: baseline;
+  white-space: pre;
+}
+.hex-row .off { color: var(--iron); font-size: 9px; }
+.hex-row .hex { color: var(--bone); font-size: 10px; letter-spacing: 0.06em; }
+.hex-row .asc { color: var(--amber-dim); font-size: 10px; letter-spacing: 0.04em; }
+.hex-row .hex .b0 { color: var(--iron-dim); }
+
+/* --- U1 · lattice hover-inspect ------------------------------------------- */
+
+.lattice-wrap { position: relative; }
+.lattice-wrap.live .cell { cursor: crosshair; }
+
+.crosshair {
+  position: absolute;
+  pointer-events: none;
+  background: var(--amber);
+  opacity: 0;
+  transition: opacity 0.1s ease;
+  box-shadow: 0 0 6px var(--amber-glow);
+  z-index: 3;
+}
+.crosshair.h { left: 0; right: 0; height: 1px; }
+.crosshair.v { top: 0; bottom: 0; width: 1px; }
+.lattice-wrap.tracking .crosshair { opacity: 0.45; }
+
+.cell-readout {
+  position: absolute;
+  z-index: 4;
+  background: var(--bg-2);
+  border: 1px solid var(--amber-dim);
+  padding: 10px 14px;
+  pointer-events: none;
+  font-family: var(--mono);
+  font-size: 10px;
+  min-width: 180px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+  opacity: 0;
+  transition: opacity 0.1s ease;
+}
+.lattice-wrap.tracking .cell-readout { opacity: 1; }
+.cell-readout .crow {
+  display: grid;
+  grid-template-columns: 70px 1fr;
+  gap: 10px;
+  padding: 3px 0;
+}
+.cell-readout .ck { color: var(--iron); font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; }
+.cell-readout .cv { color: var(--bone); text-align: right; }
+.cell-readout .cv.hot { color: var(--amber); }
+.cell-readout .ctype {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 13px;
+  color: var(--amber);
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--rule-soft);
+}
+
+/* --- U2 · stroke-on chart animation --------------------------------------- */
+
+svg.chart .conv-path {
+  stroke-dasharray: var(--len, 1000);
+  stroke-dashoffset: var(--len, 1000);
+  animation: stroke-on 0.95s cubic-bezier(.4,.7,.2,1) forwards;
+}
+@keyframes stroke-on { to { stroke-dashoffset: 0; } }
+
+svg.chart .conv-marker {
+  opacity: 0;
+  animation: marker-in 0.35s ease forwards;
+}
+@keyframes marker-in { to { opacity: 1; } }
+
+svg.chart .dbar { transform-origin: bottom center; transform: scaleY(0); animation: dbar-grow 0.5s cubic-bezier(.2,.7,.1,1) forwards; }
+@keyframes dbar-grow { to { transform: scaleY(1); } }
+
+/* --- U3 · counter-flip (CSS shell, JS drives the tween) ------------------- */
+
+.kpi .v.flipping { color: var(--amber-hot); text-shadow: 0 0 18px var(--amber-glow); }
+
+/* --- U5 · marginalia + plate watermark ----------------------------------- */
+
+.headline { position: relative; }
+.plate-watermark {
+  position: absolute;
+  pointer-events: none;
+  top: -8px; right: 0;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 84px;
+  color: var(--bone);
+  opacity: 0.04;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  transform: rotate(-3deg);
+  z-index: 0;
+}
+.run-id { position: relative; z-index: 1; }
+
+.chart-margin {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 13px;
+  fill: var(--bone-dim);
+}
+.chart-margin-mute { font-size: 9px; letter-spacing: 0.16em; fill: var(--iron); font-family: var(--mono); }
+
+/* --- U6 (bundled) · error glitch + success sweep -------------------------- */
+
+.status.error .msg {
+  animation: glitch 0.5s ease;
+}
+@keyframes glitch {
+  0%, 100% { transform: translateX(0); text-shadow: none; }
+  20% { transform: translateX(-2px); text-shadow: 2px 0 var(--red), -2px 0 var(--teal-cold); }
+  40% { transform: translateX(2px);  text-shadow: -2px 0 var(--red), 2px 0 var(--teal-cold); }
+  60% { transform: translateX(-1px); text-shadow: 1px 0 var(--red); }
+  80% { transform: translateX(1px);  text-shadow: -1px 0 var(--red); }
+}
+
+.plate.swept::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255, 181, 71, 0.0) 30%,
+    rgba(255, 181, 71, 0.14) 50%,
+    rgba(255, 181, 71, 0.0) 70%,
+    transparent 100%);
+  animation: sweep 1.1s ease-out forwards;
+  z-index: 50;
+}
+@keyframes sweep {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(100%); }
+}
+.plate { position: relative; overflow: hidden; }
+
+/* --- F7 + general --- helper for small inline rows ----------------------- */
+.inline-row { display: flex; align-items: center; gap: 12px; }
+
+/* ============================================================================
+   v3 · BLOCK LATTICE rebuild — research-grade visualization
+   ============================================================================ */
+
+.lattice-panel .panel-body { padding-top: 14px; }
+
+/* controls strip above lattice */
+.lattice-controls {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding: 6px 2px 14px;
+  border-bottom: 1px solid var(--rule-soft);
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.ctrl-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.color-mode-seg {
+  display: inline-flex;
+  border: 1px solid var(--rule);
+  background: var(--bg);
+}
+.color-mode-seg button {
+  appearance: none;
+  background: transparent;
+  border: none;
+  color: var(--iron);
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 7px 12px;
+  cursor: pointer;
+  transition: color 0.12s ease, background 0.12s ease;
+}
+.color-mode-seg button + button { border-left: 1px solid var(--rule); }
+.color-mode-seg button:hover { color: var(--bone-dim); }
+.color-mode-seg button.active {
+  color: var(--amber);
+  background: rgba(255, 181, 71, 0.06);
+}
+
+/* scrubber */
+.scrubber {
+  position: relative;
+  flex: 1;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  user-select: none;
+  cursor: grab;
+  min-width: 180px;
+}
+.scrubber:active { cursor: grabbing; }
+.scrubber .track {
+  position: relative;
+  width: 100%;
+  height: 2px;
+  background: var(--rule);
+}
+.scrubber .track-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: linear-gradient(90deg, var(--amber-dim), var(--amber));
+  box-shadow: 0 0 6px var(--amber-glow);
+  width: 0%;
+}
+.scrubber .ticks {
+  position: absolute;
+  inset: -7px 0;
+  pointer-events: none;
+}
+.scrubber .ticks .tick {
+  position: absolute;
+  top: 4px;
+  width: 1px; height: 8px;
+  background: var(--iron);
+  transform: translateX(-50%);
+}
+.scrubber .ticks .tick.cur { background: var(--amber); box-shadow: 0 0 6px var(--amber-glow); }
+.scrubber .ticks .lbl {
+  position: absolute;
+  top: 14px;
+  transform: translateX(-50%);
+  font-family: var(--mono);
+  font-size: 8.5px;
+  letter-spacing: 0.16em;
+  color: var(--iron);
+}
+.scrubber .thumb {
+  position: absolute;
+  top: 50%;
+  width: 12px; height: 12px;
+  background: var(--bg);
+  border: 1.5px solid var(--amber);
+  box-shadow: 0 0 8px var(--amber-glow);
+  transform: translate(-50%, -50%);
+  left: 0%;
+  pointer-events: none;
+  transition: left 0.18s cubic-bezier(.2,.7,.1,1);
+}
+.scrubber.live .thumb { transition: none; }
+.scrubber-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--amber);
+  text-shadow: 0 0 10px var(--amber-glow);
+  min-width: 32px;
+  text-align: right;
+}
+
+/* lattice wrap & overlay */
+.lattice-wrap { position: relative; padding-top: 4px; }
+.lattice-wrap.zoom-1 .heat-grid { grid-template-columns: repeat(64, 1fr); }
+.lattice-wrap.zoom-2 .heat-grid { grid-template-columns: repeat(48, 1fr); }
+.lattice-wrap.zoom-3 .heat-grid { grid-template-columns: repeat(32, 1fr); }
+
+.lattice-overlay {
+  position: absolute;
+  inset: 4px 0 0 0;
+  pointer-events: none;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+}
+
+/* cell variations */
+.cell {
+  position: relative;
+  overflow: visible;
+}
+/* pass-discovered pip — corner triangle in amber-hot, increasing brightness */
+.cell[data-pass] .pip {
+  position: absolute;
+  pointer-events: none;
+}
+.cell[data-pass="1"] .pip { display: none; }
+.pip {
+  top: 0; right: 0;
+  width: 0; height: 0;
+  border-top: 4px solid var(--amber);
+  border-left: 4px solid transparent;
+}
+.cell[data-pass="2"] .pip { border-top-color: #d4965b; }
+.cell[data-pass="3"] .pip { border-top-color: var(--amber); filter: drop-shadow(0 0 2px var(--amber-glow)); }
+.cell[data-pass="4"] .pip { border-top-color: var(--amber-hot); filter: drop-shadow(0 0 3px var(--amber-glow)); }
+.cell[data-pass="5"] .pip { border-top-color: #fff0c8; filter: drop-shadow(0 0 4px var(--amber-glow)); }
+
+/* depth ring — strength = how late in the seed enumeration this block matched */
+/* depth ring — how late in the seed enumeration this block was matched */
+.cell.depth-lo  { box-shadow: inset 0 0 0 1px rgba(255, 181, 71, 0.10); }
+.cell.depth-mid { box-shadow: inset 0 0 0 1px rgba(255, 181, 71, 0.28); }
+.cell.depth-hi  { box-shadow: inset 0 0 0 1px rgba(255, 181, 71, 0.50); }
+.cell.depth-max { box-shadow: inset 0 0 0 1px rgba(255, 181, 71, 0.85), 0 0 4px rgba(255,181,71,0.35); }
+
+/* bundle hover — sibling cells get a teal halo */
+.cell.bundle-hover {
+  box-shadow: inset 0 0 0 1px var(--teal-cold), 0 0 6px rgba(90, 168, 154, 0.6);
+  z-index: 3;
+}
+
+/* selected (pinned) */
+.cell.selected {
+  outline: 1px solid var(--bone);
+  outline-offset: 1px;
+  z-index: 4;
+}
+
+/* color mode: by-pass overrides background via gradient mapping */
+.lattice-wrap[data-color="pass"] .cell { background: #1a1d22; }
+.lattice-wrap[data-color="pass"] .cell[data-pass="1"] { background: #3a2e1a; }
+.lattice-wrap[data-color="pass"] .cell[data-pass="2"] { background: #6b4a1f; }
+.lattice-wrap[data-color="pass"] .cell[data-pass="3"] { background: #a87026; }
+.lattice-wrap[data-color="pass"] .cell[data-pass="4"] { background: #ffb547; box-shadow: 0 0 4px var(--amber-glow); }
+.lattice-wrap[data-color="pass"] .cell[data-pass="5"] { background: #ffd58a; box-shadow: 0 0 6px var(--amber-glow); }
+
+.lattice-wrap[data-color="depth"] .cell { background: #1a1d22; }
+.lattice-wrap[data-color="depth"] .cell.depth-lo  { background: #2a261c; }
+.lattice-wrap[data-color="depth"] .cell.depth-mid { background: #5a4118; }
+.lattice-wrap[data-color="depth"] .cell.depth-hi  { background: #a87026; }
+.lattice-wrap[data-color="depth"] .cell.depth-max { background: #ffb547; box-shadow: 0 0 4px var(--amber-glow); }
+
+/* hide pass/depth decorations when their dimension is now the fill */
+.lattice-wrap[data-color="pass"]  .cell .pip { display: none; }
+.lattice-wrap[data-color="depth"] .cell .pip { display: none; }
+.lattice-wrap[data-color="depth"].lattice-wrap .cell { box-shadow: none; } /* depth already encoded by fill */
+
+/* ligature overlay strokes */
+.lat-tie {
+  fill: none;
+  stroke: var(--amber);
+  stroke-width: 1.4;
+  filter: drop-shadow(0 0 2px var(--amber-glow));
+  opacity: 0.85;
+}
+.lat-tie.bundle-active { stroke: var(--amber-hot); stroke-width: 2; opacity: 1; }
+
+/* dim-out when filtered by scrubber (cells with pass > scrubberPass) */
+.cell.future { opacity: 0.10; box-shadow: none !important; }
+.cell.future .pip { display: none; }
+.lat-tie.future { opacity: 0.10; }
+
+/* offset axis below lattice */
+.offset-axis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+  font-family: var(--mono);
+  font-size: 8.5px;
+  letter-spacing: 0.14em;
+  color: var(--iron);
+}
+.offset-axis .otick { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.offset-axis .otick::before {
+  content: '';
+  display: block;
+  width: 1px; height: 4px;
+  background: var(--rule);
+}
+
+/* expanded cell-readout (lattice inspector) */
+.cell-readout {
+  min-width: 220px;
+  padding: 12px 14px 10px;
+}
+.cell-readout .ctype {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 14px;
+}
+.cell-readout .cr-foot {
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px dashed var(--rule-soft);
+  font-size: 8.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--iron-dim);
+  text-align: center;
+}
+.cell-readout.pinned {
+  pointer-events: auto;
+  border-color: var(--bone-dim);
+  opacity: 1 !important;
+}
+.cell-readout.pinned .cr-foot { color: var(--amber); }
+
+/* rich legend */
+.lattice-legend {
+  display: flex;
+  gap: 32px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--rule-soft);
+  flex-wrap: wrap;
+}
+.lg-block { display: flex; flex-direction: column; gap: 6px; }
+.lg-title {
+  font-size: 8.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--iron);
+}
+.lg-rows {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--bone-dim);
+  flex-wrap: wrap;
+}
+.lg-rows .swatch {
+  display: inline-block;
+  width: 12px; height: 12px;
+  border: 1px solid var(--rule);
+  margin-right: 6px;
+  vertical-align: -2px;
+}
+.lg-anatomy { display: inline-flex; align-items: center; gap: 8px; }
+.lg-cell {
+  display: inline-block;
+  width: 14px; height: 14px;
+  border: 1px solid var(--rule);
+  position: relative;
+}
+.lg-cell.l1 { background: #3a2e1a; }
+.lg-cell.l2 { background: #6b4a1f; }
+.lg-cell.l3 { background: #a87026; }
+.lg-cell .pip.p3 {
+  position: absolute;
+  top: 0; right: 0;
+  width: 0; height: 0;
+  border-top: 5px solid var(--amber);
+  border-left: 5px solid transparent;
+}
+.lg-cell.depth-hi { box-shadow: inset 0 0 0 1px rgba(255, 181, 71, 0.5); }
+.lg-cell-pair { display: inline-flex; align-items: center; }
+.lg-tie {
+  display: inline-block;
+  width: 8px;
+  height: 1.4px;
+  background: var(--amber);
+  box-shadow: 0 0 2px var(--amber-glow);
+}
+
+/* zoomed-out compactness for small files */
+.lattice-wrap.compact .heat-grid { grid-template-columns: repeat(32, 1fr); }
+
 </style>
 </head>
 <body>
-  <div class="frame">
 
-    <!-- top bar -->
-    <header class="topbar reveal d1">
-      <div class="marque">Telomere<sup>—01</sup></div>
-      <div class="meta">
-        <div class="pair">
-          <span class="v"><span class="pulse"></span>BLAKE3 / XOF</span>
-          <span class="k">Hasher</span>
+<!-- ─────────── F1 · run archive sidebar ─────────── -->
+<div class="scrim" id="scrim"></div>
+<aside class="sidebar" id="sidebar" aria-label="Run archive">
+  <div class="sidebar-head">
+    <div>
+      <div class="ttl">Run archive</div>
+      <div class="sub">specimen log · this device</div>
+    </div>
+    <button class="btn-ghost" id="btnArchiveClose">Close</button>
+  </div>
+  <div class="history-list" id="historyList">
+    <div class="history-row empty">no runs recorded yet</div>
+  </div>
+  <div class="sidebar-foot">
+    <button class="btn-ghost" id="btnExportAll">Export all (.json)</button>
+    <button class="btn-ghost" id="btnClearHistory">Clear archive</button>
+  </div>
+</aside>
+
+<div class="frame">
+
+  <!-- ─────────── top bar ─────────── -->
+  <header class="topbar reveal d1">
+    <div class="marque">Telomere<sup>—01</sup></div>
+    <div class="topbar-actions">
+      <button class="btn-ghost" id="btnArchive" title="Open run archive">☰ Archive · <span id="archiveCount" class="num">0</span></button>
+    </div>
+    <div class="meta">
+      <div class="pair">
+        <span class="v"><span class="pulse"></span><span id="bridgeMode">tauri · linked</span></span>
+        <span class="k">Bridge</span>
+      </div>
+      <div class="pair">
+        <span class="v num" id="topConfig">block=4 · seed≤1 · h=13</span>
+        <span class="k">Active config</span>
+      </div>
+      <div class="pair">
+        <span class="v num" id="topClock">—</span>
+        <span class="k">Local time</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ─────────── mode toggle ─────────── -->
+  <nav class="modebar reveal d1">
+    <div class="mode-seg" role="tablist" aria-label="Operation mode">
+      <button data-mode="compress"   class="active">I · Compress</button>
+      <button data-mode="decompress">II · Decompress</button>
+      <button data-mode="verify">III · Verify</button>
+    </div>
+    <div class="mode-hint" id="modeHint">Encode a source file into a Telomere container.</div>
+  </nav>
+
+  <!-- ─────────── COMMAND DECK ─────────── -->
+  <section class="deck reveal d2">
+
+    <!-- Source bay -->
+    <div class="bay" data-numeral="I.">
+      <div class="bay-head">
+        <div class="name">Source</div>
+        <div class="tag">Slot · A</div>
+      </div>
+      <div class="slot" id="sourceSlot">
+        <!-- populated by app.js -->
+      </div>
+    </div>
+
+    <!-- Parameters bay -->
+    <div class="bay" data-numeral="II.">
+      <div class="bay-head">
+        <div class="name" id="paramsHead">Parameters</div>
+        <div class="tag">Calibration</div>
+      </div>
+      <div class="params-grid" id="paramsGrid">
+        <!-- populated by app.js -->
+      </div>
+
+      <!-- F7 · advanced parameter panel -->
+      <div class="advanced-toggle" id="advToggle">
+        <span class="chev">›</span>
+        <span>Advanced</span>
+        <span style="margin-left:auto;" class="iron">memory · superposition · gpu</span>
+      </div>
+      <div class="advanced-body" id="advBody">
+        <div class="advanced-row">
+          <div class="k">
+            <span class="k-name">memory cap</span>
+            <span class="k-gloss">abort if the engine grows past this</span>
+          </div>
+          <div class="ctrl">
+            <input type="range" min="0" max="34" value="34" step="1" class="mem-slider" id="memSlider" />
+          </div>
+          <div class="mem-readout num" id="memReadout">∞</div>
         </div>
-        <div class="pair">
-          <span class="v num">block=4 · seed≤3 · h=13</span>
-          <span class="k">Config</span>
+        <div class="advanced-row">
+          <div class="k">
+            <span class="k-name">superposition</span>
+            <span class="k-gloss">keep multiple candidate seeds per block</span>
+          </div>
+          <div class="ctrl iron num" style="font-size:9.5px; letter-spacing:0.08em;">slower · better ratio</div>
+          <div class="switch" id="swSuper" role="switch" aria-checked="false"></div>
         </div>
-        <div class="pair">
-          <span class="v num">2026-05-24 · 14:02:11Z</span>
-          <span class="k">Telemetry</span>
+        <div class="advanced-row">
+          <div class="k">
+            <span class="k-name">gpu accel</span>
+            <span class="k-gloss">offload seed search to OpenCL</span>
+          </div>
+          <div class="ctrl iron num" style="font-size:9.5px; letter-spacing:0.08em;">needs <span class="num">--features gpu</span></div>
+          <div class="switch" id="swGpu" role="switch" aria-checked="false"></div>
+        </div>
+        <div class="advanced-row">
+          <div class="k">
+            <span class="k-name">show status</span>
+            <span class="k-gloss">engine prints per-block progress to stderr</span>
+          </div>
+          <div class="ctrl iron num" style="font-size:9.5px; letter-spacing:0.08em;">CLI-style progress bar</div>
+          <div class="switch on" id="swStatus" role="switch" aria-checked="true"></div>
         </div>
       </div>
-    </header>
+    </div>
+
+    <!-- Action bay -->
+    <div class="bay" data-numeral="III.">
+      <div class="bay-head">
+        <div class="name">Action</div>
+        <div class="tag">Console</div>
+      </div>
+
+      <div class="action-area">
+        <button id="execute" class="execute" disabled>
+          <span class="verb" id="executeVerb">COMPRESS</span>
+          <span class="sub"  id="executeSub">src → .tlmr</span>
+        </button>
+
+        <div class="action-row">
+          <button class="tog" id="togVerify">+ verify after</button>
+        </div>
+
+        <div class="presets">
+          <div class="micro lbl">Presets</div>
+          <div class="preset-chips">
+            <button class="chip" data-preset="fast">Fast</button>
+            <button class="chip" data-preset="balanced">Balanced</button>
+            <button class="chip" data-preset="research">Research</button>
+          </div>
+        </div>
+
+        <div class="research-ledger" id="researchLedger">
+          <div class="micro lbl">Evidence ledger</div>
+          <div class="ledger-status" id="ledgerStatus">Loading generated research artifacts...</div>
+          <div class="evidence-grid" id="evidenceGates"></div>
+          <div class="ledger-grid" id="ledgerCards"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─────────── status / progress strip ─────────── -->
+  <section class="status reveal d3" id="status">
+    <div class="badge" id="statusBadge">○ idle</div>
+    <div class="msg"   id="statusMsg">Idle — select a source and execute.</div>
+    <div style="display:flex; align-items:center; gap:12px;">
+      <div class="meter"><div class="fill" id="statusFill"></div></div>
+      <div class="pct num" id="statusPct">0%</div>
+    </div>
+  </section>
+
+  <!-- ─────────── RUN PLATE (telemetry results) ─────────── -->
+  <div id="plate" class="plate">
 
     <!-- headline -->
-    <section class="headline reveal d2">
+    <section class="headline reveal d4">
+      <!-- U5 · plate watermark -->
+      <div class="plate-watermark" id="plateWatermark">Plate I · Specimen 0042</div>
+
       <div class="run-id">
-        <div class="glyph">0042</div>
+        <div class="glyph" id="runGlyph">0042</div>
         <div class="sub">
-          <div class="t1">enwik8 / first 16 KiB</div>
-          <div class="t2">Run · 3 passes · converged at p3</div>
+          <div class="t1" id="runT1">—</div>
+          <div class="t2" id="runT2">Awaiting run</div>
+
+          <!-- F5 · export actions -->
+          <div class="plate-actions">
+            <button class="btn-ghost" id="btnExportJson" disabled>↓ JSON</button>
+            <button class="btn-ghost" id="btnExportCsv"  disabled>↓ CSV</button>
+            <button class="btn-ghost" id="btnCopyId"     disabled>⎘ Run-ID</button>
+          </div>
         </div>
       </div>
 
       <div class="kpis">
-        <div class="kpi">
+        <div class="kpi"     id="kpiIn">
           <div class="nub num">I.</div>
           <div class="k">Bytes in</div>
-          <div class="v num">16,384<span class="unit">B</span></div>
-          <div class="trend"><span class="arrow">·</span>SRC</div>
+          <div class="v num"><span class="cur">—</span><span class="unit u"></span></div>
+          <div class="trend"><span class="arrow">·</span><span>SRC</span></div>
         </div>
-        <div class="kpi alt">
+        <div class="kpi alt" id="kpiOut">
           <div class="nub num">II.</div>
           <div class="k">Bytes out</div>
-          <div class="v num">12,734<span class="unit">B</span></div>
-          <div class="trend"><span class="arrow">↘</span>−3,650 B</div>
+          <div class="v num"><span class="cur">—</span><span class="unit u"></span></div>
+          <div class="trend"><span class="arrow">↘</span><span>—</span></div>
         </div>
-        <div class="kpi">
+        <div class="kpi"     id="kpiRatio">
           <div class="nub num">III.</div>
           <div class="k">Ratio</div>
-          <div class="v num">0.777<span class="unit">×</span></div>
-          <div class="trend"><span class="arrow">·</span>22.3 % saved</div>
+          <div class="v num"><span class="cur">—</span><span class="unit u">×</span></div>
+          <div class="trend"><span class="arrow">·</span><span>—</span></div>
         </div>
-        <div class="kpi">
+        <div class="kpi"     id="kpiHits">
           <div class="nub num">IV.</div>
           <div class="k">Hit rate</div>
-          <div class="v num">38.4<span class="unit">%</span></div>
-          <div class="trend"><span class="arrow">↗</span>+11.2 pp pass-on-pass</div>
+          <div class="v num"><span class="cur">—</span><span class="unit u">%</span></div>
+          <div class="trend"><span class="arrow">↗</span><span>—</span></div>
         </div>
       </div>
     </section>
 
     <!-- main grid -->
     <main class="grid">
+      <div class="left">
 
-      <!-- LEFT: hero chart + heatmap -->
-      <div class="left" style="display:flex; flex-direction:column; gap:32px;">
-
-        <!-- CONVERGENCE CHART -->
-        <section class="panel reveal d3">
+        <section class="panel reveal d4">
           <div class="panel-head">
-            <div>
-              <div class="title">Convergence — bytes per pass</div>
-            </div>
+            <div class="title">Convergence — bytes per pass</div>
             <div class="tag">FIG · 01</div>
           </div>
           <div class="panel-body">
             <div class="conv-legend">
-              <span><span class="sw in"></span>bytes_in</span>
+              <span><span class="sw"></span>bytes_in</span>
               <span><span class="sw out"></span>bytes_out</span>
               <span><span class="sw delta"></span>δ %</span>
             </div>
-
-            <div class="conv-wrap">
-              <svg class="chart" viewBox="0 0 760 320" preserveAspectRatio="none" aria-label="Convergence chart">
-                <!-- frame -->
-                <g class="axis" transform="translate(56,18)">
-                  <!-- y grid -->
-                  <g stroke="var(--rule-soft)" stroke-dasharray="2 4">
-                    <line x1="0" y1="0"   x2="660" y2="0" />
-                    <line x1="0" y1="60"  x2="660" y2="60" />
-                    <line x1="0" y1="120" x2="660" y2="120" />
-                    <line x1="0" y1="180" x2="660" y2="180" />
-                    <line x1="0" y1="240" x2="660" y2="240" />
-                  </g>
-                  <!-- y axis -->
-                  <line x1="0" y1="0" x2="0" y2="260" stroke="var(--rule)" />
-                  <!-- x axis -->
-                  <line x1="0" y1="260" x2="660" y2="260" stroke="var(--rule)" />
-
-                  <!-- y ticks (bytes) -->
-                  <g font-size="9.5" fill="var(--iron)" font-family="IBM Plex Mono">
-                    <text x="-12" y="4"   text-anchor="end">18 000</text>
-                    <text x="-12" y="64"  text-anchor="end">16 000</text>
-                    <text x="-12" y="124" text-anchor="end">14 000</text>
-                    <text x="-12" y="184" text-anchor="end">12 000</text>
-                    <text x="-12" y="244" text-anchor="end">10 000</text>
-                  </g>
-
-                  <!-- x ticks (pass) -->
-                  <g font-size="9.5" fill="var(--iron)" font-family="IBM Plex Mono" letter-spacing="0.12em">
-                    <text x="0"   y="278" text-anchor="middle">P0</text>
-                    <text x="220" y="278" text-anchor="middle">P1</text>
-                    <text x="440" y="278" text-anchor="middle">P2</text>
-                    <text x="660" y="278" text-anchor="middle">P3</text>
-                  </g>
-
-                  <!-- bytes_in baseline (flat) -->
-                  <line x1="0" y1="48" x2="660" y2="48" stroke="var(--iron)" stroke-width="1" stroke-dasharray="3 3" opacity="0.65"/>
-                  <text x="664" y="51" font-size="9.5" fill="var(--iron)" font-family="IBM Plex Mono">16 384 B  (src)</text>
-
-                  <!-- bytes_out curve -->
-                  <!-- P0 = 16384 (y=48), P1=14102, P2=13247, P3=12734 -->
-                  <!-- y mapping: bytes_out 18000 -> 0, 10000 -> 240. scale = 240/8000 = 0.03 per byte -->
-                  <!-- P0 y = (18000-16384)*0.03 = 48.48
-                       P1 y = (18000-14102)*0.03 = 116.94
-                       P2 y = (18000-13247)*0.03 = 142.59
-                       P3 y = (18000-12734)*0.03 = 157.98 -->
-                  <path d="M 0 48 L 220 117 L 440 143 L 660 158"
-                        fill="none" stroke="var(--amber)" stroke-width="1.5"
-                        stroke-linecap="square" stroke-linejoin="miter"
-                        style="filter: drop-shadow(0 0 6px var(--amber-glow));" />
-                  <!-- markers -->
-                  <g fill="var(--bg)" stroke="var(--amber)" stroke-width="1.4">
-                    <rect x="-4" y="44"    width="8" height="8" />
-                    <rect x="216" y="113"  width="8" height="8" />
-                    <rect x="436" y="139"  width="8" height="8" />
-                    <rect x="656" y="154"  width="8" height="8" />
-                  </g>
-
-                  <!-- δ% bars (secondary) -->
-                  <!-- delta P1 = 13.9%, P2 = 6.06%, P3 = 3.87% -->
-                  <!-- scale so 20% = 60px of bar -->
-                  <g>
-                    <rect x="200" y="220" width="40" height="40" fill="var(--bone-dim)" opacity="0.18"/>
-                    <rect x="420" y="242" width="40" height="18" fill="var(--bone-dim)" opacity="0.18"/>
-                    <rect x="640" y="248" width="40" height="12" fill="var(--bone-dim)" opacity="0.18"/>
-                  </g>
-                  <g font-size="9.5" fill="var(--bone-dim)" font-family="IBM Plex Mono">
-                    <text x="220" y="214" text-anchor="middle">−13.9%</text>
-                    <text x="440" y="236" text-anchor="middle">−6.1%</text>
-                    <text x="660" y="242" text-anchor="middle">−3.9%</text>
-                  </g>
-
-                  <!-- annotation: converged -->
-                  <g transform="translate(540, 100)" font-family="Cormorant Garamond" font-style="italic">
-                    <line x1="0" y1="0" x2="60" y2="0" stroke="var(--amber)" stroke-dasharray="2 2"/>
-                    <line x1="60" y1="0" x2="60" y2="50" stroke="var(--amber)" stroke-dasharray="2 2"/>
-                    <text x="0" y="-6" font-size="13" fill="var(--amber)">converged</text>
-                    <text x="0" y="8" font-size="9" fill="var(--iron)" font-family="IBM Plex Mono" letter-spacing="0.16em">δ &lt; 5% · k=1</text>
-                  </g>
-                </g>
-              </svg>
-            </div>
-
-            <!-- pass values strip -->
-            <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:1px; background:var(--rule-soft); margin-top:18px; border:1px solid var(--rule-soft);">
-              <div style="background:var(--bg); padding:10px 12px;">
-                <div class="micro">Pass P0 · source</div>
-                <div class="num bone" style="font-size:15px; margin-top:4px;">16,384 B</div>
-                <div class="micro" style="margin-top:4px;">δ —</div>
-              </div>
-              <div style="background:var(--bg); padding:10px 12px;">
-                <div class="micro">Pass P1</div>
-                <div class="num bone" style="font-size:15px; margin-top:4px;">14,102 B</div>
-                <div class="micro hot" style="margin-top:4px;">δ −13.9 %</div>
-              </div>
-              <div style="background:var(--bg); padding:10px 12px;">
-                <div class="micro">Pass P2</div>
-                <div class="num bone" style="font-size:15px; margin-top:4px;">13,247 B</div>
-                <div class="micro hot" style="margin-top:4px;">δ −6.1 %</div>
-              </div>
-              <div style="background:var(--bg); padding:10px 12px;">
-                <div class="micro">Pass P3 · final</div>
-                <div class="num hot" style="font-size:15px; margin-top:4px;">12,734 B</div>
-                <div class="micro hot" style="margin-top:4px;">δ −3.9 %</div>
-              </div>
-            </div>
+            <svg class="chart" id="convSvg" viewBox="0 0 760 320" preserveAspectRatio="xMidYMid meet" aria-label="Convergence chart"></svg>
+            <div class="pass-strip" id="passStrip"></div>
           </div>
         </section>
 
-        <!-- BLOCK HEATMAP -->
-        <section class="panel reveal d4">
+        <section class="panel lattice-panel reveal d5">
           <div class="panel-head">
-            <div class="title">Block lattice — 4 096 blocks, coloured by terminal seed length</div>
-            <div class="tag">FIG · 02</div>
+            <div class="title">Block lattice — generative map of the run</div>
+            <div class="tag" id="latticeTag">FIG · 02</div>
           </div>
           <div class="panel-body">
-            <div class="heat-grid" id="heatGrid" aria-hidden="true"></div>
-            <div class="heat-legend">
-              <span><span class="swatch" style="background:#1a1d22"></span>literal</span>
-              <span><span class="swatch" style="background:#3a2e1a"></span>seed=1</span>
-              <span><span class="swatch" style="background:#6b4a1f"></span>seed=2</span>
-              <span><span class="swatch" style="background:#a87026"></span>seed=3</span>
-              <span><span class="swatch" style="background:#ffb547; box-shadow:0 0 6px var(--amber-glow)"></span>bundle</span>
-              <span style="margin-left:auto;" class="dim">scan order · row-major · cell = 1 block (4 B)</span>
+
+            <!-- ── controls strip ─────────────────────────── -->
+            <div class="lattice-controls">
+              <div class="ctrl-group">
+                <span class="micro">Color by</span>
+                <div class="color-mode-seg" id="latColorMode">
+                  <button data-mode="seed"   class="active">seed len</button>
+                  <button data-mode="depth">match depth</button>
+                  <button data-mode="pass">pass found</button>
+                </div>
+              </div>
+              <div class="ctrl-group" style="flex:1;">
+                <span class="micro">Replay</span>
+                <div class="scrubber" id="scrubber">
+                  <div class="track">
+                    <div class="track-fill" id="scrubberFill"></div>
+                    <div class="ticks" id="scrubberTicks"></div>
+                  </div>
+                  <div class="thumb" id="scrubberThumb"></div>
+                </div>
+                <span class="scrubber-label num" id="scrubberLabel">P—</span>
+              </div>
+              <div class="ctrl-group">
+                <span class="micro">View</span>
+                <button class="btn-ghost" id="btnZoomCells" title="Zoom cells">⊕</button>
+                <button class="btn-ghost" id="btnFitCells"  title="Fit lattice">▣</button>
+              </div>
+            </div>
+
+            <!-- ── the lattice ────────────────────────────── -->
+            <div class="lattice-wrap zoom-1" id="latticeWrap">
+              <div class="heat-grid" id="heatGrid" aria-hidden="true"></div>
+              <svg class="lattice-overlay" id="latticeOverlay" preserveAspectRatio="none"></svg>
+              <div class="crosshair h" id="xhairH"></div>
+              <div class="crosshair v" id="xhairV"></div>
+              <div class="cell-readout" id="cellReadout">
+                <div class="ctype" id="crType">block · pending</div>
+                <div class="crow"><span class="ck">index</span><span class="cv num" id="crIdx">—</span></div>
+                <div class="crow"><span class="ck">offset</span><span class="cv num" id="crOff">—</span></div>
+                <div class="crow"><span class="ck">bytes</span><span class="cv num" id="crBytes">—</span></div>
+                <div class="crow"><span class="ck">seed</span><span class="cv num hot" id="crSeed">—</span></div>
+                <div class="crow"><span class="ck">hash 13b</span><span class="cv num" id="crHash">—</span></div>
+                <div class="crow"><span class="ck">pass</span><span class="cv num" id="crPass">—</span></div>
+                <div class="crow"><span class="ck">found at</span><span class="cv num" id="crEffort">—</span></div>
+                <div class="crow"><span class="ck">bundle</span><span class="cv" id="crBundle">—</span></div>
+                <div class="cr-foot" id="crFoot">hover · click to pin</div>
+              </div>
+            </div>
+
+            <!-- ── byte-offset axis ───────────────────────── -->
+            <div class="offset-axis" id="offsetAxis"></div>
+
+            <!-- ── rich legend ────────────────────────────── -->
+            <div class="lattice-legend">
+              <div class="lg-block">
+                <div class="lg-title">Fill</div>
+                <div class="lg-rows" id="lgFill">
+                  <span><span class="swatch" style="background:#1a1d22"></span>literal</span>
+                  <span><span class="swatch" style="background:#3a2e1a"></span>seed=1</span>
+                  <span><span class="swatch" style="background:#6b4a1f"></span>seed=2</span>
+                  <span><span class="swatch" style="background:#a87026"></span>seed=3</span>
+                </div>
+              </div>
+              <div class="lg-block">
+                <div class="lg-title">Encodings</div>
+                <div class="lg-rows">
+                  <span class="lg-anatomy">
+                    <span class="lg-cell l3"><span class="pip p3"></span></span>
+                    pip · pass discovered
+                  </span>
+                  <span class="lg-anatomy">
+                    <span class="lg-cell l2 depth-hi"></span>
+                    ring · seed-index at match
+                  </span>
+                  <span class="lg-anatomy">
+                    <span class="lg-cell-pair">
+                      <span class="lg-cell l1"></span><span class="lg-tie"></span><span class="lg-cell l1"></span>
+                    </span>
+                    ligature · bundled
+                  </span>
+                </div>
+              </div>
+              <div class="lg-block" style="margin-left:auto; text-align:right;">
+                <div class="lg-title">Order</div>
+                <div class="lg-rows"><span class="dim">row-major · left-to-right top-to-bottom · cell = <span id="lgBlockSize" class="num">4</span> B</span></div>
+              </div>
             </div>
           </div>
         </section>
-
       </div>
 
-      <!-- RIGHT column -->
       <div class="right">
-
-        <!-- SEED LENGTH DISTRIBUTION -->
-        <section class="panel reveal d3">
+        <section class="panel reveal d4">
           <div class="panel-head">
             <div class="title">Seed length distribution</div>
             <div class="tag">DIST · A</div>
           </div>
           <div class="panel-body">
-            <div class="dist-row">
-              <div class="k num">L=0</div>
-              <div class="bar"><div class="fill" style="width:62%; background:linear-gradient(90deg, #2a2e34, #5a5e64);"></div></div>
-              <div class="v num">2 521<span class="pc">61.6%</span></div>
-            </div>
-            <div class="dist-row">
-              <div class="k num">L=1</div>
-              <div class="bar"><div class="fill" style="width:24%;"></div></div>
-              <div class="v num">988<span class="pc">24.1%</span></div>
-            </div>
-            <div class="dist-row">
-              <div class="k num">L=2</div>
-              <div class="bar"><div class="fill" style="width:11%;"></div></div>
-              <div class="v num">441<span class="pc">10.8%</span></div>
-            </div>
-            <div class="dist-row">
-              <div class="k num">L=3</div>
-              <div class="bar"><div class="fill" style="width:3.5%;"></div></div>
-              <div class="v num">146<span class="pc">3.5%</span></div>
-            </div>
-            <div class="dist-row">
-              <div class="k num">BND</div>
-              <div class="bar"><div class="fill" style="width:1.2%; background:linear-gradient(90deg, #c9963f, var(--amber-hot));"></div></div>
-              <div class="v num hot">36<span class="pc" style="color:var(--amber-dim)">0.9%</span></div>
-            </div>
-
+            <div id="distList"></div>
             <div style="margin-top:18px; padding-top:14px; border-top:1px dashed var(--rule); display:grid; grid-template-columns:1fr 1fr; gap:12px;">
               <div>
                 <div class="micro">Mean seed</div>
-                <div class="num bone" style="font-size:14px; margin-top:2px;">0.59 B</div>
+                <div class="num bone" style="font-size:14px; margin-top:2px;" id="distMean">—</div>
               </div>
               <div>
                 <div class="micro">Saved by bundle</div>
-                <div class="num hot" style="font-size:14px; margin-top:2px;">412 B</div>
+                <div class="num hot" style="font-size:14px; margin-top:2px;" id="distBundle">—</div>
               </div>
             </div>
           </div>
         </section>
 
-        <!-- PASS LOG -->
-        <section class="panel reveal d4">
+        <section class="panel reveal d5">
           <div class="panel-head">
             <div class="title">Pass log</div>
             <div class="tag">STREAM</div>
           </div>
           <div class="panel-body">
-            <div class="log-list">
-              <div class="log-row">
-                <span class="t num">14:02:08</span>
-                <span class="lvl ok">init</span>
-                <span class="m">hasher = blake3 / xof · 13-bit prefix</span>
-                <span class="v num">—</span>
-              </div>
-              <div class="log-row">
-                <span class="t num">14:02:08</span>
-                <span class="lvl">p0</span>
-                <span class="m">loaded source · 4 096 blocks</span>
-                <span class="v num">16,384 B</span>
-              </div>
-              <div class="log-row">
-                <span class="t num">14:02:09</span>
-                <span class="lvl hit">p1</span>
-                <span class="m">find_seed_match · 1 575 matches / 4 096</span>
-                <span class="v num">−2 282 B</span>
-              </div>
-              <div class="log-row">
-                <span class="t num">14:02:10</span>
-                <span class="lvl hit">p2</span>
-                <span class="m">bundler · arity 2–4 over residue</span>
-                <span class="v num">−855 B</span>
-              </div>
-              <div class="log-row">
-                <span class="t num">14:02:11</span>
-                <span class="lvl hit">p3</span>
-                <span class="m">find_seed_match · second sweep</span>
-                <span class="v num">−513 B</span>
-              </div>
-              <div class="log-row">
-                <span class="t num">14:02:11</span>
-                <span class="lvl ok">halt</span>
-                <span class="m">δ &lt; 5% for k=1 — converged</span>
-                <span class="v num">12,734 B</span>
-              </div>
-            </div>
+            <div class="log-list" id="logList"></div>
           </div>
         </section>
-
       </div>
-
     </main>
-
-    <!-- footer -->
-    <footer class="footer reveal d5">
-      <div>build f46394c · 106 tests · 0 warnings</div>
-      <div class="colophon">Telomere — generative compression telemetry, plate i</div>
-      <div>specimen 0042 / 0042</div>
-    </footer>
-
   </div>
 
+  <!-- ─────────── footer ─────────── -->
+  <footer class="footer reveal d5">
+    <div>build f46394c · 106 tests · 0 warnings</div>
+    <div class="colophon">Telomere — generative compression operator console, plate i</div>
+    <div>specimen log · in session</div>
+  </footer>
+
+</div>
+
 <script>
-  // Build a 4096-cell heatmap (64 × 64). Bias towards "literal" then trail off.
-  (function () {
-    const N = 4096;
-    const grid = document.getElementById('heatGrid');
-    if (!grid) return;
+// =============================================================================
+// TELOMERE — operator console front-end.
+// Single-file vanilla JS (no build step). Detects Tauri at runtime;
+// falls back to a deterministic mock engine when run as a static page.
+// =============================================================================
 
-    // Reproducible pseudo-random: xmur3 + sfc32
-    function xmur3(s) {
-      let h = 1779033703 ^ s.length;
-      for (let i = 0; i < s.length; i++) {
-        h = Math.imul(h ^ s.charCodeAt(i), 3432918353);
-        h = (h << 13) | (h >>> 19);
+// ---------- Tauri bridge ----------------------------------------------------
+
+const TAURI = (() => {
+  // Tauri 2 exposes APIs on window.__TAURI__ (with `withGlobalTauri: true` in conf).
+  if (typeof window !== 'undefined' && window.__TAURI__) {
+    return {
+      invoke:  window.__TAURI__.core?.invoke   ?? null,
+      listen:  window.__TAURI__.event?.listen  ?? null,
+      dialog:  window.__TAURI__.dialog         ?? null,
+    };
+  }
+  return null;
+})();
+const IS_TAURI = !!(TAURI && TAURI.invoke);
+
+// ---------- State -----------------------------------------------------------
+
+// Ranges below match the engine source — see notes above each line.
+// block_size  · src/tlmr.rs   MAX_BLOCK_SIZE = 16
+// max_seed_len· src/tlmr.rs   MAX_SEED_LEN   = 3
+// hash_bits   · src/tlmr.rs   MAX_HASH_BITS  = 64 (8..32 is the practical band)
+// max_arity   · src/tlmr.rs   MAX_ARITY      = 5  — Lotus header field is fixed-width;
+//                                                 lifting the cap requires a format version bump
+// passes      · src/compress.rs:61 clamps max_passes.min(1) in v1 .tlmr;
+//                                  v2 layered/indexed engines honor it.
+// max_span_len· v2-only · tier ceiling for the indexed/streaming engines
+const PARAMS = {
+  block_size:   { min: 1,  max: 16, step: 1, unit: 'B',  gloss: 'splits the file into N-byte blocks · the playing field', decompressLocked: true },
+  max_seed_len: { min: 1,  max: 3,  step: 1, unit: 'B',  gloss: 'how far the engine counts seeds upward before halting the pass', decompressLocked: true },
+  passes:       { min: 1,  max: 10, step: 1, unit: '×',  gloss: 're-run on the swapped-out playing field to catch emergent matches', decompressLocked: true },
+  hash_bits:    { min: 8,  max: 32, step: 1, unit: 'b',  gloss: 'v1 legacy digest-prefix knob; indexed/streaming v2 verifies generated bytes exactly', decompressLocked: true },
+  max_arity:    { min: 1,  max: 5,  step: 1, unit: '',   gloss: 'consecutive blocks one seed expansion may cover · Lotus header pins this at 5', decompressLocked: true },
+  max_span_len: { min: 4,  max: 80, step: 4, unit: 'B',  gloss: 'largest indexed/streaming span tier to search · v2 engines only', decompressLocked: true },
+};
+
+// Live "what this value asks the engine to do" string for each param.
+// Framing matches the research engine: enumerate seeds, expand each seed, and
+// probe equal-length target span tiers by generated prefix.
+function derivedFor(key, value, cfg) {
+  const bs = cfg?.block_size ?? state.config.block_size;
+  switch (key) {
+    case 'block_size': {
+      const bits = value * 8;
+      return `each block is ${bits} bits · the dataset of coin-flips`;
+    }
+    case 'max_seed_len': {
+      const bits = value * 8;
+      const tries = Math.pow(2, bits);
+      return `enumerates seeds 0…2^${bits}−1 = ${formatBigCount(tries)} seeds / pass`;
+    }
+    case 'passes': {
+      if (value === 1) return 'single pass · halt after the swap';
+      const engine = cfg?.engine ?? state.config.engine;
+      const note = engine === 'brute' || (cfg?.format ?? state.config.format) === 'v1'
+        ? ` · v1 format clamps to 1; v2 engine needed for >1`
+        : '';
+      return `${value} passes · each on the previous pass's stream${note}`;
+    }
+    case 'hash_bits': {
+      return `${value}-bit v1 prefix knob · v2 hits still require exact regenerated span bytes`;
+    }
+    case 'max_arity': {
+      const lock = value === 5 ? ' · format-locked maximum' : '';
+      return `one seed expansion can replace up to ${value * bs} B of stream${lock}`;
+    }
+    case 'max_span_len': {
+      return `v2 tiers search spans up to ${value} B (block-size aligned)`;
+    }
+  }
+  return '';
+}
+
+function formatBigCount(n) {
+  if (n < 1e3)  return Math.round(n).toLocaleString('en-US');
+  if (n < 1e6)  return `${(n / 1e3).toFixed(n < 1e4 ? 1 : 0)} K`;
+  if (n < 1e9)  return `${(n / 1e6).toFixed(n < 1e7 ? 1 : 0)} M`;
+  if (n < 1e12) return `${(n / 1e9).toFixed(1)} G`;
+  return `${(n / 1e12).toFixed(1)} T`;
+}
+
+const PRESETS = {
+  fast:     { block_size: 4,  max_seed_len: 1, passes: 1, hash_bits: 13, max_arity: 5, max_span_len: 20, hasher: 'blake3', engine: 'brute',     format: 'v1', index_path: '' },
+  balanced: { block_size: 4,  max_seed_len: 1, passes: 2, hash_bits: 13, max_arity: 5, max_span_len: 20, hasher: 'blake3', engine: 'streaming', format: 'v2', index_path: '' },
+  research: { block_size: 4,  max_seed_len: 1, passes: 5, hash_bits: 13, max_arity: 5, max_span_len: 20, hasher: 'sha256', engine: 'streaming', format: 'v2', index_path: '' },
+};
+
+const ADV_DEFAULTS = {
+  memory_limit: Infinity, // bytes; Infinity = unbounded
+  enable_superposition: false,
+  gpu: false,
+  show_status: true,
+};
+
+const state = {
+  mode: 'compress',           // 'compress' | 'decompress' | 'verify'
+  source: null,               // { path, name, size, file? (browser File) }
+  sourcePreview: null,        // Uint8Array of first 64 B for hex preview
+  config: { ...PRESETS.fast, ...ADV_DEFAULTS },
+  verifyAfter: false,
+  lastIndex: null,
+  running: false,
+  aborter: null,              // F6 · AbortController for current run
+  status: { stage: 'idle', msg: 'Idle — select a source and execute.', pct: 0 },
+  lastRun: null,
+  researchArtifacts: null,
+  history: [],                // F1 · loaded from localStorage in init
+  runCounter: 41,
+};
+
+const HISTORY_KEY = 'telomere.archive.v1';
+const HISTORY_LIMIT = 24; // bounded so lattice arrays don't blow past localStorage quota
+
+// ---------- Element refs ----------------------------------------------------
+
+const $ = (sel) => document.querySelector(sel);
+const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+// ---------- Mode toggle -----------------------------------------------------
+
+const MODE_LABELS = {
+  compress:   { verb: 'COMPRESS',   sub: 'src → .tlmr',  hint: 'Encode a source file into a Telomere container.' },
+  decompress: { verb: 'DECOMPRESS', sub: '.tlmr → src',  hint: 'Decode a .tlmr container back to its source bytes.' },
+  verify:     { verb: 'VERIFY',     sub: 'roundtrip',     hint: 'Compress then decompress and confirm byte-for-byte match.' },
+};
+
+function setMode(mode) {
+  state.mode = mode;
+  $$('.mode-seg button').forEach((b) => b.classList.toggle('active', b.dataset.mode === mode));
+  $('#modeHint').textContent = MODE_LABELS[mode].hint;
+  $('#executeVerb').textContent = MODE_LABELS[mode].verb;
+  $('#executeSub').textContent  = MODE_LABELS[mode].sub;
+
+  const lock = mode === 'decompress';
+  $$('.param-row').forEach((row) => row.classList.toggle('disabled', lock));
+  $('#paramsHead').textContent = lock ? 'Header readout' : 'Parameters';
+  refreshDest();
+}
+
+// ---------- Parameter controls ---------------------------------------------
+
+function renderParams() {
+  const root = $('#paramsGrid');
+  root.innerHTML = '';
+  for (const [key, meta] of Object.entries(PARAMS)) {
+    const row = document.createElement('div');
+    row.className = 'param-row';
+    row.dataset.key = key;
+    const label = key.replace(/_/g, ' ');
+    row.innerHTML = `
+      <div class="k">
+        <span class="k-name">${label}</span>
+        <span class="k-gloss">${meta.gloss}</span>
+        <span class="k-derived" data-derived="${key}">—</span>
+      </div>
+      <div class="scale">
+        <button class="stepper" data-act="dec" aria-label="decrement">−</button>
+        <div class="track" data-key="${key}"></div>
+        <button class="stepper" data-act="inc" aria-label="increment">+</button>
+      </div>
+      <div class="v num">
+        <span class="cur">00</span><span class="u">${meta.unit}</span>
+      </div>
+    `;
+    root.appendChild(row);
+    drawTrack(key);
+  }
+  // hasher pills
+  const hrow = document.createElement('div');
+  hrow.className = 'hasher-row';
+  hrow.innerHTML = `
+    <div class="k">
+      <span class="k-name">hasher</span>
+      <span class="k-gloss">family that turns a seed into bytes</span>
+    </div>
+    <div class="pills" role="radiogroup" aria-label="hasher">
+      <button class="pill" data-hasher="blake3">BLAKE3 / XOF</button>
+      <button class="pill" data-hasher="sha256">SHA-256 / counter</button>
+    </div>`;
+  root.appendChild(hrow);
+  hrow.querySelectorAll('.pill').forEach((p) => {
+    p.addEventListener('click', () => {
+      state.config.hasher = p.dataset.hasher;
+      refreshParams();
+    });
+  });
+
+  const engineRow = document.createElement('div');
+  engineRow.className = 'hasher-row';
+  engineRow.innerHTML = `
+    <div class="k">
+      <span class="k-name">engine / format</span>
+      <span class="k-gloss">safe v1 brute or experimental v2 research engines</span>
+    </div>
+    <div class="pills" role="radiogroup" aria-label="engine">
+      <button class="pill" data-engine="brute" data-format="v1">brute · v1</button>
+      <button class="pill" data-engine="streaming" data-format="v2">streaming · v2</button>
+      <button class="pill" data-engine="indexed" data-format="v2">indexed · v2</button>
+    </div>`;
+  root.appendChild(engineRow);
+  engineRow.querySelectorAll('.pill').forEach((p) => {
+    p.addEventListener('click', () => {
+      state.config.engine = p.dataset.engine;
+      state.config.format = p.dataset.format;
+      refreshParams();
+    });
+  });
+
+  const indexRow = document.createElement('div');
+  indexRow.className = 'hasher-row';
+  indexRow.innerHTML = `
+    <div class="k">
+      <span class="k-name">index path</span>
+      <span class="k-gloss">build, inspect, and verify reusable indexed/v2 seed tiers</span>
+    </div>
+    <div class="index-tools">
+      <input id="indexPathInput" placeholder="C:\\path\\to\\seed-index" />
+      <div class="index-actions">
+        <button class="btn-ghost" id="btnIndexPick" type="button">Pick</button>
+        <button class="btn-ghost" id="btnIndexBuild" type="button">Build</button>
+        <button class="btn-ghost" id="btnIndexInfo" type="button">Info</button>
+        <button class="btn-ghost" id="btnIndexVerify" type="button">Verify</button>
+      </div>
+      <div class="index-status" id="indexStatus">indexed/v2 requires this path; streaming/v2 does not</div>
+    </div>`;
+  root.appendChild(indexRow);
+  indexRow.querySelector('#indexPathInput').addEventListener('input', (ev) => {
+    state.config.index_path = ev.target.value.trim();
+    refreshExecutable();
+  });
+  indexRow.querySelector('#btnIndexPick').addEventListener('click', pickIndexPath);
+  indexRow.querySelector('#btnIndexBuild').addEventListener('click', () => runIndexAction('build'));
+  indexRow.querySelector('#btnIndexInfo').addEventListener('click', () => runIndexAction('info'));
+  indexRow.querySelector('#btnIndexVerify').addEventListener('click', () => runIndexAction('verify'));
+
+  root.addEventListener('click', (ev) => {
+    const stepBtn = ev.target.closest('.stepper');
+    if (stepBtn) {
+      const row = stepBtn.closest('.param-row');
+      const key = row.dataset.key;
+      const meta = PARAMS[key];
+      const dir = stepBtn.dataset.act === 'inc' ? 1 : -1;
+      const next = clamp(state.config[key] + dir * meta.step, meta.min, meta.max);
+      state.config[key] = next;
+      refreshParams();
+      return;
+    }
+    const dot = ev.target.closest('.track .dot');
+    if (dot) {
+      const key = dot.parentElement.dataset.key;
+      const v = Number(dot.dataset.v);
+      state.config[key] = v;
+      refreshParams();
+    }
+  });
+
+  refreshParams();
+}
+
+function drawTrack(key) {
+  const meta = PARAMS[key];
+  const track = document.querySelector(`.track[data-key="${key}"]`);
+  track.innerHTML = '';
+  for (let v = meta.min; v <= meta.max; v += meta.step) {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    d.dataset.v = v;
+    track.appendChild(d);
+  }
+}
+
+function refreshParams() {
+  state.config.max_span_len = Math.max(state.config.block_size, state.config.max_span_len);
+  for (const key of Object.keys(PARAMS)) {
+    const row = document.querySelector(`.param-row[data-key="${key}"]`);
+    if (!row) continue;
+    const v = state.config[key];
+    row.querySelector('.cur').textContent = String(v).padStart(2, '0');
+    row.querySelectorAll('.track .dot').forEach((d) => {
+      const dv = Number(d.dataset.v);
+      d.classList.toggle('cur', dv === v);
+      d.classList.toggle('on',  dv <  v);
+    });
+    const derived = row.querySelector(`.k-derived[data-derived="${key}"]`);
+    if (derived) derived.textContent = derivedFor(key, v, state.config);
+  }
+  $$('.pill').forEach((p) => p.classList.toggle('on', p.dataset.hasher === state.config.hasher));
+  $$('.pill[data-engine]').forEach((p) => {
+    p.classList.toggle(
+      'on',
+      p.dataset.engine === state.config.engine && p.dataset.format === state.config.format,
+    );
+  });
+  const indexInput = $('#indexPathInput');
+  if (indexInput && indexInput.value !== (state.config.index_path ?? '')) {
+    indexInput.value = state.config.index_path ?? '';
+  }
+  // Reflect the active config in the topbar.
+  const tc = $('#topConfig');
+  if (tc) tc.textContent = `${state.config.engine}/${state.config.format} · block=${state.config.block_size} · seed≤${state.config.max_seed_len} · span≤${state.config.max_span_len}`;
+  detectActivePreset();
+  refreshExecutable();
+}
+
+function detectActivePreset() {
+  let match = null;
+  for (const [name, cfg] of Object.entries(PRESETS)) {
+    if (Object.keys(cfg).every((k) => cfg[k] === state.config[k])) {
+      match = name; break;
+    }
+  }
+  $$('.chip').forEach((c) => c.classList.toggle('active', c.dataset.preset === match));
+}
+
+async function pickIndexPath() {
+  if (!IS_TAURI || !TAURI.dialog?.open) {
+    flashError('Index directory picking requires the Tauri bridge.');
+    return;
+  }
+  try {
+    const path = await TAURI.dialog.open({
+      multiple: false,
+      directory: true,
+      title: 'Select Telomere seed index directory',
+    });
+    if (!path) return;
+    state.config.index_path = path;
+    refreshParams();
+  } catch (e) {
+    flashError(String(e?.message ?? e));
+  }
+}
+
+async function runIndexAction(action) {
+  if (!IS_TAURI) {
+    flashError('Index actions require the Tauri bridge; static preview mode is mock-only.');
+    return;
+  }
+  const path = (state.config.index_path ?? '').trim();
+  if (!path) {
+    flashError('Set an index path first.');
+    return;
+  }
+
+  const label = action === 'build' ? 'building index' : `${action} index`;
+  setStatus('running', `${label} ...`, action === 'build' ? 5 : 40);
+  setIndexStatus(`${label} ...`);
+
+  try {
+    let result;
+    if (action === 'build') {
+      result = await TAURI.invoke('index_build', {
+        output: path,
+        hasher: state.config.hasher,
+        maxSeedLen: state.config.max_seed_len,
+        maxSpanLen: state.config.max_span_len,
+        blockSize: state.config.block_size,
+      });
+    } else if (action === 'info') {
+      result = await TAURI.invoke('index_info', { path });
+    } else if (action === 'verify') {
+      result = await TAURI.invoke('index_verify', { path });
+    } else {
+      throw new Error(`unknown index action: ${action}`);
+    }
+
+    state.lastIndex = result;
+    const summary = summarizeIndex(result);
+    setIndexStatus(summary);
+    setStatus('done', summary, 100);
+  } catch (e) {
+    flashError(String(e?.message ?? e));
+    setIndexStatus('index command failed');
+  }
+}
+
+function setIndexStatus(message) {
+  const el = $('#indexStatus');
+  if (el) el.textContent = message;
+}
+
+function summarizeIndex(result) {
+  const manifest = result?.manifest ?? {};
+  const tiers = Array.isArray(manifest.tiers) ? manifest.tiers : [];
+  const records = tiers.reduce((sum, tier) => sum + Number(tier.record_count ?? 0), 0);
+  const spanMax = tiers.reduce((max, tier) => Math.max(max, Number(tier.span_len ?? 0)), 0);
+  const verb = String(result?.kind ?? 'index').replace(/^index-/, '');
+  return `index ${verb} · ${manifest.hasher ?? 'unknown'} · seed≤${manifest.max_seed_len ?? '?'} · span≤${spanMax || manifest.max_span_len || '?'} · ${records.toLocaleString('en-US')} records`;
+}
+
+async function loadResearchArtifacts() {
+  if (!IS_TAURI) {
+    renderResearchArtifacts({
+      verdict: 'preview mode',
+      overall_status: 'generated research ledger loads through the Tauri bridge',
+      open_gates: ['Open the desktop app to read docs/GOAL_AUDIT.md and docs/EXPERIMENT_QUEUE.md.'],
+      evidence: {
+        top_ready_lane: 'desktop-preview',
+        ready_count: 0,
+        gated_count: 0,
+        blocked_by_evidence_count: 0,
+        frontier_status: 'no_ungated_compute_ready',
+        frontier_unresolved_count: 0,
+        frontier_ungated_compute_allowed: false,
+        frontier_allowed_maintenance_only: true,
+        frontier_broad_depth_search_allowed: false,
+        frontier_best_non_planted_gib: 0,
+        frontier_long_span_gate_met_count: 0,
+        frontier_long_span_gate_count: 0,
+        frontier_count: 0,
+        research_team_protocol_status: 'maintenance_only_no_seed_search',
+        research_team_ready_dispatch_count: 0,
+        research_team_brief_count: 0,
+        research_team_work_package_count: 0,
+        research_team_forbidden_action_count: 0,
+        research_team_maintenance_only: true,
+        goal_completion_objective_status: 'active_goal_not_complete',
+        goal_completion_recommendation: 'keep_goal_active',
+        goal_completion_production_proven: false,
+        goal_completion_unresolved_evidence_gates: 0,
+        goal_completion_requirements_total: 0,
+        goal_completion_requirements_blocked_by_evidence: 0,
+        blocked_dispatch_status: 'blocked_requirements_maintenance_only',
+        blocked_dispatch_requirement_count: 0,
+        blocked_dispatch_brief_count: 0,
+        blocked_dispatch_parallel_group_count: 0,
+        blocked_dispatch_ready_dispatch_count: 0,
+        blocked_dispatch_forbidden_action_count: 0,
+        blocked_dispatch_ungated_compute_allowed: false,
+        blocked_dispatch_research_decision: 'hold_gated_compute_and_continue_evidence_maintenance',
+        natural_corpus_status: 'not_natural_corpus_proven',
+        natural_corpus_proven: false,
+        natural_corpus_gate_count: 0,
+        natural_corpus_qualified_count: 0,
+        natural_corpus_blocked_gate_count: 0,
+        natural_corpus_heldout_corpus_count: 0,
+        natural_corpus_heldout_prefix5_rows: 0,
+        natural_corpus_heldout_exact_hit_rows: 0,
+        natural_corpus_heldout_selected_span_rows: 0,
+        natural_corpus_match_target_spans: 0,
+        natural_corpus_match_selected_span_rows: 0,
+        natural_corpus_best_non_planted_gib: 0,
+        production_status: 'not_production_ready',
+        production_proven: false,
+        production_gate_count: 0,
+        production_qualified_count: 0,
+        production_blocked_gate_count: 0,
+        production_runtime_required_count: 0,
+        production_real_gpu_kernel_detected: false,
+        production_scale_next_double_peak_mib: 0,
+        current_scale_mib: 'mock',
+        heldout_prefix4_win_corpora: 0,
+        heldout_exact_hits: 0,
+        heldout_expansion_corpora: 0,
+        heldout_expansion_missing_matrix: 0,
+        heldout_expansion_prefix5_rows: 0,
+        heldout_expansion_exact_hit_rows: 0,
+        heldout_expansion_selected_span_rows: 0,
+        match_target_spans: 0,
+        match_selected_spans: 0,
+        lead_exact_target_spans: 0,
+        lead_exact_hits: 0,
+        lead_selected_spans: 0,
+        exact_short_verified_hits: 0,
+        exact_short_best_delta_bytes: 0,
+        exact_short_full_stream_negative_groups: 0,
+        exact_short_control_negative_groups: 0,
+        exact_short_promotion_met: false,
+        whole_stream_honest_rows: 0,
+        whole_stream_honest_negative_rows: 0,
+        whole_stream_ordinary_negative_groups: 0,
+        whole_stream_control_negative_groups: 0,
+        whole_stream_best_honest_delta_bytes: 0,
+        whole_stream_promotion_met: false,
+        expander_salt_exact_hits: 0,
+        expander_salt_expected_exact_hits: 0,
+        expander_salt_selected_span_rows: 0,
+        expander_salt_full_stream_negative_rows: 0,
+        expander_salt_random_multiplier_exceeded: false,
+        expander_salt_promotion_met: false,
+        schema_native_family_selected_spans: 0,
+        schema_native_ordinary_negative_groups: 0,
+        schema_native_control_negative_groups: 0,
+        schema_native_wrong_schema_negative_groups: 0,
+        schema_native_random_negative_groups: 0,
+        schema_native_shadow_negative_groups: 0,
+        schema_native_promotion_met: false,
+        schema_replication_selected_spans: 0,
+        schema_replication_ordinary_negative_groups: 0,
+        schema_replication_control_negative_groups: 0,
+        schema_replication_generic_negative_groups: 0,
+        schema_replication_claim_level: 'preview-not-format-support',
+        schema_replication_promotion_met: false,
+        superposition_retained_alternatives: 0,
+        superposition_weighted_extra_savings: 0,
+        superposition_unexplained_discards: 0,
+        superposition_promotion_met: false,
+        recursive_structured_ordinary_later_win_families: 0,
+        recursive_structured_planted_offset_later_win_families: 0,
+        recursive_structured_claim_level: 'preview-not-promoted',
+        recursive_structured_promotion_met: false,
+        scale_performance_largest_peak_memory_mib: 0,
+        scale_performance_peak_table_ratio: 0,
+        scale_performance_next_double_peak_mib: 0,
+        scale_performance_promotion_met: false,
+        depth4_enumerated_seeds: 0,
+        depth4_exact_hits: 0,
+        depth4_selected_spans: 0,
+        gpu_status: 'mock',
+        gpu_real_kernel_detected: false,
+      },
+      cards: [
+        {
+          title: 'Goal Audit',
+          status: 'mock preview',
+          metric: 'bridge offline',
+          headline: 'Static preview keeps UI layout visible without claiming live evidence.',
+        },
+      ],
+    });
+    return;
+  }
+
+  try {
+    const result = await TAURI.invoke('research_artifacts');
+    state.researchArtifacts = result;
+    renderResearchArtifacts(result);
+  } catch (e) {
+    const status = $('#ledgerStatus');
+    if (status) status.textContent = `research ledger unavailable: ${String(e?.message ?? e)}`;
+  }
+}
+
+function renderResearchArtifacts(result) {
+  const status = $('#ledgerStatus');
+  const grid = $('#ledgerCards');
+  const evidenceGrid = $('#evidenceGates');
+  if (!status || !grid) return;
+
+  const gates = Array.isArray(result?.open_gates) ? result.open_gates.length : 0;
+  status.textContent = `${result?.verdict ?? 'unknown'} · ${gates} unresolved evidence gates`;
+  if (evidenceGrid) {
+    evidenceGrid.innerHTML = '';
+    const evidence = result?.evidence;
+    if (evidence) {
+      const chips = [
+        [
+          'Queue',
+          `${Number(evidence.ready_count ?? 0)} ready / ${Number(evidence.gated_count ?? 0)} gated`,
+          evidence.top_ready_lane ?? 'no ready lane',
+        ],
+        [
+          'Frontier',
+          `${Number(evidence.frontier_count ?? 0)} lanes / ${Number(evidence.frontier_unresolved_count ?? 0)} unresolved`,
+          `ungated compute ${Boolean(evidence.frontier_ungated_compute_allowed) ? 'open' : 'closed'}, maintenance ${Boolean(evidence.frontier_allowed_maintenance_only) ? 'only' : 'expanded'}`,
+        ],
+        [
+          'Research team',
+          `${Number(evidence.research_team_brief_count ?? 0)} briefs / ${Number(evidence.research_team_ready_dispatch_count ?? 0)} ready dispatches`,
+          `${evidence.research_team_protocol_status ?? 'unknown'}, forbidden actions ${Number(evidence.research_team_forbidden_action_count ?? 0)}, maintenance ${Boolean(evidence.research_team_maintenance_only) ? 'only' : 'expanded'}`,
+        ],
+        [
+          'Completion',
+          `${Number(evidence.goal_completion_requirements_blocked_by_evidence ?? 0)} blocked / ${Number(evidence.goal_completion_requirements_total ?? 0)} requirements`,
+          `${evidence.goal_completion_recommendation ?? 'unknown'}, unresolved gates ${Number(evidence.goal_completion_unresolved_evidence_gates ?? 0)}, production ${Boolean(evidence.goal_completion_production_proven) ? 'proven' : 'unproven'}`,
+        ],
+        [
+          'Blocked dispatch',
+          `${Number(evidence.blocked_dispatch_brief_count ?? 0)} briefs / ${Number(evidence.blocked_dispatch_requirement_count ?? 0)} blockers`,
+          `${evidence.blocked_dispatch_status ?? 'unknown'}, ready ${Number(evidence.blocked_dispatch_ready_dispatch_count ?? 0)}, ungated compute ${Boolean(evidence.blocked_dispatch_ungated_compute_allowed) ? 'open' : 'closed'}`,
+        ],
+        [
+          'Natural proof',
+          `${Number(evidence.natural_corpus_blocked_gate_count ?? 0)} blocked / ${Number(evidence.natural_corpus_gate_count ?? 0)} gates`,
+          `${evidence.natural_corpus_status ?? 'unknown'}, selected ${Number(evidence.natural_corpus_heldout_selected_span_rows ?? 0)}, forecast ${Number(evidence.natural_corpus_best_non_planted_gib ?? 0).toFixed(1)} GiB`,
+        ],
+        [
+          'Production proof',
+          `${Number(evidence.production_blocked_gate_count ?? 0)} blocked / ${Number(evidence.production_gate_count ?? 0)} gates`,
+          `${evidence.production_status ?? 'unknown'}, runtime ${Number(evidence.production_runtime_required_count ?? 0)}, GPU kernel ${Boolean(evidence.production_real_gpu_kernel_detected) ? 'yes' : 'no'}, scale ${Number(evidence.production_scale_next_double_peak_mib ?? 0).toFixed(1)} MiB`,
+        ],
+        [
+          'Search gate',
+          `${Number(evidence.frontier_long_span_gate_met_count ?? 0)} / ${Number(evidence.frontier_long_span_gate_count ?? 0)} long-span gates`,
+          `broad depth ${Boolean(evidence.frontier_broad_depth_search_allowed) ? 'allowed' : 'blocked'}, forecast ${Number(evidence.frontier_best_non_planted_gib ?? 0).toFixed(1)} GiB`,
+        ],
+        [
+          'Held-out',
+          `${Number(evidence.heldout_prefix4_win_corpora ?? 0)} prefix>=4 / ${Number(evidence.heldout_exact_hits ?? 0)} exact`,
+          'prefix motion is not yet compression evidence',
+        ],
+        [
+          'Expansion',
+          `${Number(evidence.heldout_expansion_corpora ?? 0)} corpora / ${Number(evidence.heldout_expansion_prefix5_rows ?? 0)} prefix>=5`,
+          `${Number(evidence.heldout_expansion_missing_matrix ?? 0)} matrix gaps, ${Number(evidence.heldout_expansion_selected_span_rows ?? 0)} selected`,
+        ],
+        [
+          'Discovery',
+          `${formatBigCount(Number(evidence.match_target_spans ?? 0))} spans / ${Number(evidence.match_selected_spans ?? 0)} selected`,
+          `${formatBigCount(Number(evidence.lead_exact_target_spans ?? 0))} lead spans, ${Number(evidence.lead_exact_hits ?? 0)} exact`,
+        ],
+        [
+          'Short hits',
+          `${formatBigCount(Number(evidence.exact_short_verified_hits ?? 0))} verified / ${Number(evidence.exact_short_full_stream_negative_groups ?? 0)} groups`,
+          `${Number(evidence.exact_short_control_negative_groups ?? 0)} control groups, best ${Number(evidence.exact_short_best_delta_bytes ?? 0)} bytes`,
+        ],
+        [
+          'Residual vector',
+          `${formatBigCount(Number(evidence.whole_stream_honest_rows ?? 0))} honest / ${Number(evidence.whole_stream_honest_negative_rows ?? 0)} negative`,
+          `${Number(evidence.whole_stream_ordinary_negative_groups ?? 0)} ordinary groups, ${Number(evidence.whole_stream_control_negative_groups ?? 0)} controls`,
+        ],
+        [
+          'Salt ensemble',
+          `${Number(evidence.expander_salt_exact_hits ?? 0)} exact / ${Number(evidence.expander_salt_selected_span_rows ?? 0)} selected`,
+          `${Number(evidence.expander_salt_expected_exact_hits ?? 0).toFixed(3)} expected; random multiplier ${Boolean(evidence.expander_salt_random_multiplier_exceeded)}`,
+        ],
+        [
+          'Schema dictionaries',
+          `${formatBigCount(Number(evidence.schema_native_family_selected_spans ?? 0))} selected / ${Number(evidence.schema_native_ordinary_negative_groups ?? 0)} groups`,
+          `controls ${Number(evidence.schema_native_control_negative_groups ?? 0)}/${Number(evidence.schema_native_wrong_schema_negative_groups ?? 0)}/${Number(evidence.schema_native_random_negative_groups ?? 0)}, promotion ${Boolean(evidence.schema_native_promotion_met)}`,
+        ],
+        [
+          'Schema replication',
+          `${formatBigCount(Number(evidence.schema_replication_selected_spans ?? 0))} selected / ${Number(evidence.schema_replication_ordinary_negative_groups ?? 0)} groups`,
+          `controls ${Number(evidence.schema_replication_control_negative_groups ?? 0)}, generic ${Number(evidence.schema_replication_generic_negative_groups ?? 0)}, ${evidence.schema_replication_claim_level ?? 'not format support'}`,
+        ],
+        [
+          'Superposition',
+          `${Number(evidence.superposition_retained_alternatives ?? 0)} retained / extra ${Number(evidence.superposition_weighted_extra_savings ?? 0)}`,
+          `${Number(evidence.superposition_unexplained_discards ?? 0)} unexplained discards, promotion ${Boolean(evidence.superposition_promotion_met)}`,
+        ],
+        [
+          'Recursive fixtures',
+          `${Number(evidence.recursive_structured_ordinary_later_win_families ?? 0)} ordinary wins / ${Number(evidence.recursive_structured_planted_offset_later_win_families ?? 0)} planted`,
+          `${evidence.recursive_structured_claim_level ?? 'not promoted'}, promotion ${Boolean(evidence.recursive_structured_promotion_met)}`,
+        ],
+        [
+          'Scale',
+          `${Number(evidence.scale_performance_largest_peak_memory_mib ?? 0).toFixed(1)} MiB peak / ratio ${Number(evidence.scale_performance_peak_table_ratio ?? 0).toFixed(2)}`,
+          `next double estimate ${Number(evidence.scale_performance_next_double_peak_mib ?? 0).toFixed(1)} MiB, promotion ${Boolean(evidence.scale_performance_promotion_met)}`,
+        ],
+        [
+          'Depth-4',
+          `${formatBigCount(Number(evidence.depth4_enumerated_seeds ?? 0))} seeds / ${Number(evidence.depth4_exact_hits ?? 0)} exact`,
+          `${Number(evidence.depth4_selected_spans ?? 0)} selected spans`,
+        ],
+        [
+          'GPU',
+          evidence.gpu_real_kernel_detected ? 'real kernel detected' : 'research-only gate',
+          evidence.gpu_status ?? 'unknown acceleration status',
+        ],
+      ];
+
+      for (const [label, value, note] of chips) {
+        const chip = document.createElement('div');
+        chip.className = 'evidence-chip';
+
+        const labelNode = document.createElement('div');
+        labelNode.className = 'evidence-label';
+        labelNode.textContent = label;
+
+        const valueNode = document.createElement('div');
+        valueNode.className = 'evidence-value num';
+        valueNode.textContent = value;
+
+        const noteNode = document.createElement('div');
+        noteNode.className = 'evidence-note';
+        noteNode.textContent = note;
+
+        chip.append(labelNode, valueNode, noteNode);
+        evidenceGrid.appendChild(chip);
       }
-      return function () {
-        h = Math.imul(h ^ (h >>> 16), 2246822507);
-        h = Math.imul(h ^ (h >>> 13), 3266489909);
-        return (h ^= h >>> 16) >>> 0;
-      };
     }
-    function mulberry32(a) {
-      return function () {
-        let t = (a += 0x6D2B79F5);
-        t = Math.imul(t ^ (t >>> 15), t | 1);
-        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-      };
+  }
+  grid.innerHTML = '';
+
+  const cards = Array.isArray(result?.cards) ? result.cards.slice(0, 24) : [];
+  for (const card of cards) {
+    const node = document.createElement('div');
+    node.className = 'ledger-card';
+
+    const title = document.createElement('div');
+    title.className = 'ledger-title';
+    title.textContent = card.title ?? card.id ?? 'Artifact';
+
+    const metric = document.createElement('div');
+    metric.className = 'ledger-metric num';
+    metric.textContent = card.metric ?? card.status ?? '';
+
+    const note = document.createElement('div');
+    note.className = 'ledger-note';
+    note.textContent = card.headline ?? card.source ?? '';
+
+    node.append(title, metric, note);
+    grid.appendChild(node);
+  }
+}
+
+// ---------- Source slot -----------------------------------------------------
+
+async function pickSource() {
+  if (IS_TAURI && TAURI.dialog?.open) {
+    try {
+      const filters = state.mode === 'decompress'
+        ? [{ name: 'Telomere container', extensions: ['tlmr'] }]
+        : [{ name: 'Any file', extensions: ['*'] }];
+      const path = await TAURI.dialog.open({ multiple: false, directory: false, filters });
+      if (!path) return;
+      const meta = await TAURI.invoke('stat_file', { path });
+      setSource({ path, name: meta.name, size: meta.size });
+    } catch (e) {
+      flashError(String(e));
     }
-    const seed = xmur3('telomere-0042');
-    const rand = mulberry32(seed());
+  } else {
+    // browser fallback — use a hidden <input type=file>
+    const input = document.createElement('input');
+    input.type = 'file';
+    if (state.mode === 'decompress') input.accept = '.tlmr';
+    input.onchange = () => {
+      const f = input.files?.[0];
+      if (!f) return;
+      setSource({ path: f.name, name: f.name, size: f.size, file: f });
+    };
+    input.click();
+  }
+}
 
-    // Distribution targets (rough): 61.6 / 24.1 / 10.8 / 3.5 / 0.9 / + literal mix
-    // We'll bake "literal" into l0, seeds 1..3 into l1..l3, bundle into l4.
-    function pick(r) {
-      if (r < 0.616) return 'l0';
-      if (r < 0.857) return 'l1';
-      if (r < 0.965) return 'l2';
-      if (r < 0.991) return 'l3';
-      return 'l4';
+async function setSource(file) {
+  state.source = file;
+  state.sourcePreview = null;
+  renderSlot();
+  // F8 · capture first 64 bytes for hex preview.
+  try {
+    if (file.file) {
+      const buf = await file.file.slice(0, 64).arrayBuffer();
+      state.sourcePreview = new Uint8Array(buf);
+    } else if (IS_TAURI && TAURI.invoke) {
+      try {
+        const hex = await TAURI.invoke('peek_file', { path: file.path, n: 64 });
+        if (hex && hex.bytes) state.sourcePreview = Uint8Array.from(hex.bytes);
+      } catch (_) { /* command may not yet exist — silent */ }
     }
+  } catch (_) {}
+  if (state.sourcePreview) renderHexPreview();
+}
 
-    // Add a few "structured" runs — bands of seed-1 / seed-2 to make the plate look real.
-    const cells = new Array(N);
-    for (let i = 0; i < N; i++) cells[i] = pick(rand());
+function clearSource() {
+  state.source = null;
+  renderSlot();
+}
 
-    // Inject 3 clusters of brighter activity (simulates a structured region)
-    function paintCluster(startRow, startCol, w, h, weights) {
-      for (let r = 0; r < h; r++) {
-        for (let c = 0; c < w; c++) {
-          const idx = (startRow + r) * 64 + (startCol + c);
-          if (idx < N) {
-            const v = rand();
-            let cum = 0;
-            for (const [k, p] of weights) {
-              cum += p;
-              if (v < cum) { cells[idx] = k; break; }
-            }
-          }
+function renderSlot() {
+  const slot = $('#sourceSlot');
+  slot.classList.toggle('has-file', !!state.source);
+  if (!state.source) {
+    slot.innerHTML = `
+      <div class="slot-empty">
+        <div class="icn"></div>
+        <div class="t1">drop a file</div>
+        <div class="t2">or browse below</div>
+      </div>
+      <div class="slot-actions">
+        <button class="btn-ghost" id="btnPick">Browse…</button>
+      </div>
+      <div class="dest-strip"><span class="micro">Output</span><span class="arr">→</span><span class="path">—</span></div>
+    `;
+  } else {
+    const kindLabel = state.mode === 'decompress' ? 'container' : 'source';
+    slot.innerHTML = `
+      <div class="slot-file">
+        <div class="name">${escapeHTML(state.source.name)}</div>
+        <div class="path">${escapeHTML(state.source.path)}</div>
+        <div class="row">
+          <div class="k">${kindLabel}</div>
+          <div class="v num">${formatBytes(state.source.size)}</div>
+        </div>
+        <div class="row">
+          <div class="k">blocks</div>
+          <div class="v num">${Math.max(1, Math.ceil(state.source.size / state.config.block_size)).toLocaleString()}</div>
+        </div>
+        <div class="row">
+          <div class="k">hash bits</div>
+          <div class="v num">${state.config.hash_bits} b</div>
+        </div>
+      </div>
+      <div class="slot-actions">
+        <button class="btn-ghost" id="btnPick">Replace…</button>
+        <button class="btn-ghost" id="btnClear">Clear</button>
+      </div>
+      <div class="dest-strip">
+        <span class="micro">Output</span>
+        <span class="arr">→</span>
+        <span class="path">${escapeHTML(derivedOutput())}</span>
+      </div>
+
+      <!-- F8 · hex preview, filled async by renderHexPreview() -->
+      <div class="hex-preview" id="hexPreview" style="display:none;">
+        <div class="hex-head"><span>First 64 bytes</span><span class="iron num" id="hexEntropy">—</span></div>
+        <div id="hexBody"></div>
+      </div>
+    `;
+  }
+  $('#btnPick')?.addEventListener('click', pickSource);
+  $('#btnClear')?.addEventListener('click', clearSource);
+  refreshExecutable();
+}
+
+function refreshDest() { renderSlot(); }
+
+function derivedOutput() {
+  if (!state.source) return '—';
+  if (state.mode === 'decompress') {
+    return state.source.path.replace(/\.tlmr$/i, '') + '.out';
+  }
+  if (state.mode === 'verify') return '(in-memory · no file)';
+  return state.source.path + '.tlmr';
+}
+
+// ---------- Status bar ------------------------------------------------------
+
+function setStatus(stage, msg, pct = 0) {
+  state.status = { stage, msg, pct };
+  const bar = $('#status');
+  bar.classList.remove('running', 'error', 'done');
+  if (stage === 'running') bar.classList.add('running');
+  if (stage === 'error')   bar.classList.add('error');
+  if (stage === 'done')    bar.classList.add('done');
+  $('#statusBadge').textContent = badge(stage);
+  $('#statusMsg').textContent = msg;
+  $('#statusPct').textContent = `${pct.toFixed(0)}%`;
+  $('#statusFill').style.width = `${Math.max(0, Math.min(100, pct))}%`;
+}
+function badge(stage) {
+  if (stage === 'running') return '◉ running';
+  if (stage === 'error')   return '× error';
+  if (stage === 'done')    return '✓ complete';
+  return '○ idle';
+}
+function flashError(m) { setStatus('error', m, 0); }
+
+// ---------- Execute ---------------------------------------------------------
+
+function refreshExecutable() {
+  // F6 · keep clickable during running so user can abort.
+  const needsIndex = state.mode !== 'decompress'
+    && state.config.engine === 'indexed'
+    && state.config.format === 'v2';
+  const hasIndex = !!(state.config.index_path ?? '').trim();
+  const ready = state.running || (!!state.source && (!needsIndex || hasIndex));
+  $('#execute').disabled = !ready;
+  $('#execute').title = needsIndex && !hasIndex
+    ? 'indexed/v2 requires an index path first'
+    : '';
+}
+
+function setExecuteCancelMode(running) {
+  const btn = $('#execute');
+  btn.classList.toggle('running', running);
+  btn.classList.toggle('cancellable', running);
+  if (running) {
+    btn.querySelector('.verb').textContent = 'ABORT';
+    btn.querySelector('.sub').textContent  = 'click to stop';
+  } else {
+    btn.querySelector('.verb').textContent = MODE_LABELS[state.mode].verb;
+    btn.querySelector('.sub').textContent  = MODE_LABELS[state.mode].sub;
+  }
+}
+
+function setExportButtonsEnabled(on) {
+  ['btnExportJson','btnExportCsv','btnCopyId'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.disabled = !on;
+  });
+}
+
+async function execute() {
+  // F6 · clicking EXECUTE while running aborts the in-flight run.
+  if (state.running) {
+    if (state.aborter) state.aborter.abort();
+    return;
+  }
+  if (!state.source) return;
+
+  state.running = true;
+  state.aborter = new AbortController();
+  setExecuteCancelMode(true);
+  refreshExecutable();
+  setStatus('running', `${MODE_LABELS[state.mode].verb.toLowerCase()} · pass 1 …`, 1);
+  $('#plate').classList.remove('live', 'swept');
+
+  try {
+    let result;
+    if (state.mode === 'compress' || state.mode === 'verify') {
+      result = await invokeCompress(state.aborter.signal);
+    } else {
+      result = await invokeDecompress(state.aborter.signal);
+    }
+    state.runCounter += 1;
+    state.lastRun = result;
+    renderRun(result);
+    setStatus('done', summarize(result), 100);
+    $('#plate').classList.add('live');
+
+    // U6 · success sweep — brief left-to-right amber wash across the plate.
+    $('#plate').classList.add('swept');
+    setTimeout(() => $('#plate').classList.remove('swept'), 1200);
+
+    // F1 · persist to archive.
+    saveRunToHistory(result);
+
+    // F5 · export buttons become live.
+    setExportButtonsEnabled(true);
+  } catch (e) {
+    if (e?.name === 'AbortError') {
+      setStatus('idle', 'Run aborted — partial output discarded.', 0);
+    } else {
+      flashError(String(e?.message ?? e));
+    }
+  } finally {
+    state.running = false;
+    state.aborter = null;
+    setExecuteCancelMode(false);
+    refreshExecutable();
+  }
+}
+
+async function invokeCompress(signal) {
+  if (IS_TAURI) {
+    return TAURI.invoke('compress_file', {
+      path: state.source.path,
+      config: state.config,
+      verify: state.mode === 'verify' || state.verifyAfter,
+    });
+  }
+  return mockCompress({ signal });
+}
+async function invokeDecompress(signal) {
+  if (IS_TAURI) {
+    return TAURI.invoke('decompress_file', { path: state.source.path });
+  }
+  return mockDecompress({ signal });
+}
+
+function summarize(r) {
+  if (r.kind === 'decompress') {
+    return `Decoded ${formatBytes(r.bytes_out)} from ${formatBytes(r.bytes_in)} in ${r.duration_ms} ms.`;
+  }
+  const saved = r.bytes_in - r.bytes_out;
+  const pct = ((1 - r.bytes_out / r.bytes_in) * 100).toFixed(2);
+  const v = r.verified === true ? ' · roundtrip ✓'
+          : r.verified === false ? ' · roundtrip ✗'
+          : '';
+  return `Compressed ${formatBytes(r.bytes_in)} → ${formatBytes(r.bytes_out)} (saved ${formatBytes(saved)}, ${pct} %)${v}.`;
+}
+
+// ---------- Mock engine (used when run outside Tauri) ----------------------
+
+async function mockCompress(opts = {}) {
+  const { signal } = opts;
+  const t0 = performance.now();
+  const N = state.source.size;
+  const blocks = Math.max(1, Math.ceil(N / state.config.block_size));
+  const passes = state.config.passes;
+
+  const seedFactor = 0.08 + 0.06 * state.config.max_seed_len;
+  const hashFactor = 1 - Math.exp(-state.config.hash_bits / 16);
+  const baseSave = Math.min(0.35, seedFactor * hashFactor);
+  const passHistory = [{ pass: 0, bytes_out: N, delta_pct: 0, hits: 0 }];
+
+  // U4 · prime the lattice grid empty, then we'll fill in as work proceeds.
+  const finalLattice = synthLattice();
+  primeLattice(finalLattice.length);
+  $('#plate').classList.add('live');
+
+  let cur = N;
+  for (let p = 1; p <= passes; p++) {
+    if (signal?.aborted) throw new DOMException('aborted', 'AbortError');
+    const decay = Math.pow(0.42, p - 1);
+    const delta = baseSave * decay * (0.85 + Math.random() * 0.3);
+    const next = Math.max(Math.floor(N * 0.45), Math.floor(cur * (1 - delta)));
+    passHistory.push({
+      pass: p,
+      bytes_out: next,
+      delta_pct: -delta * 100,
+      hits: Math.floor(blocks * (delta + 0.05)),
+    });
+    cur = next;
+
+    // Live lattice paint, true to the algorithm: the engine counts seeds
+    // upward (0, 1, 2, …) and on each one checks the whole block table.
+    // So cells appear when the cursor passes their assigned match seed —
+    // scattered across the file, not in scan order.
+    //
+    // For this pass we filter cells whose .pass === p, sort by seedIdx
+    // (ascending), and reveal them as the seed cursor sweeps through.
+    const passCells = [];
+    for (let i = 0; i < finalLattice.length; i++) {
+      if ((finalLattice[i].pass || 0) === p && finalLattice[i].seedIdx != null) {
+        passCells.push({ idx: i, seedIdx: finalLattice[i].seedIdx });
+      }
+    }
+    passCells.sort((a, b) => a.seedIdx - b.seedIdx);
+
+    const seedBudget = Math.pow(2, 8 * state.config.max_seed_len);
+    const seedSpaceLabel = state.config.max_seed_len === 1 ? '0x000…0xFF'
+                         : state.config.max_seed_len === 2 ? '0x0000…0xFFFF'
+                         :                                   '0x000000…0xFFFFFF';
+
+    const ticks = 32;
+    let nextCellIdx = 0;
+    for (let s = 0; s < ticks; s++) {
+      if (signal?.aborted) throw new DOMException('aborted', 'AbortError');
+      const cursor = Math.floor((s + 1) / ticks * seedBudget);
+      // Reveal every cell whose matching seed is at or before the cursor.
+      while (nextCellIdx < passCells.length && passCells[nextCellIdx].seedIdx <= cursor) {
+        paintCell(passCells[nextCellIdx].idx, finalLattice[passCells[nextCellIdx].idx]);
+        nextCellIdx += 1;
+      }
+      const subPct = ((p - 1) / passes + (s + 1) / ticks / passes) * 95;
+      const cursorHex = '0x' + cursor.toString(16).padStart(state.config.max_seed_len * 2, '0');
+      setStatus('running',
+        `pass ${p} / ${passes} · seed cursor ${cursorHex} of ${seedSpaceLabel} · ${nextCellIdx} of ${passCells.length} matches landed`,
+        subPct);
+      await sleep(22 + Math.random() * 22);
+    }
+    // Drain any stragglers that fell on the budget boundary.
+    while (nextCellIdx < passCells.length) {
+      paintCell(passCells[nextCellIdx].idx, finalLattice[passCells[nextCellIdx].idx]);
+      nextCellIdx += 1;
+    }
+  }
+
+  // Distribution + bundles
+  const dist = synthDist(blocks);
+  const bundles = Math.floor(blocks * 0.009);
+
+  return {
+    kind: 'compress',
+    run_id: state.runCounter + 1,
+    source_name: state.source.name,
+    bytes_in: N,
+    bytes_out: cur,
+    passes: passHistory,
+    duration_ms: Math.round(performance.now() - t0),
+    hits_total: passHistory.reduce((s, p) => s + p.hits, 0),
+    blocks,
+    seed_dist: dist,
+    bundles,
+    lattice: finalLattice,
+    verified: (state.mode === 'verify' || state.verifyAfter) ? true : null,
+    hasher: state.config.hasher,
+    engine: state.config.engine,
+    format: state.config.format,
+    config: { ...state.config },
+    timestamp: Date.now(),
+  };
+}
+
+async function mockDecompress(opts = {}) {
+  const { signal } = opts;
+  for (let i = 0; i < 8; i++) {
+    if (signal?.aborted) throw new DOMException('aborted', 'AbortError');
+    await sleep(50);
+  }
+  const N = state.source.size;
+  const expanded = Math.round(N * (1 / 0.78));
+  return {
+    kind: 'decompress',
+    run_id: state.runCounter + 1,
+    source_name: state.source.name,
+    bytes_in: N,
+    bytes_out: expanded,
+    duration_ms: 380,
+    header: {
+      hasher: state.config.hasher,
+      block_size: state.config.block_size,
+      max_seed_len: state.config.max_seed_len,
+      hash_bits: state.config.hash_bits,
+      max_arity: state.config.max_arity,
+    },
+  };
+}
+
+function synthDist(blocks) {
+  // Approximate distribution that the heatmap synth uses.
+  return {
+    l0: Math.round(blocks * 0.616),
+    l1: Math.round(blocks * 0.241),
+    l2: Math.round(blocks * 0.108),
+    l3: Math.round(blocks * 0.035),
+  };
+}
+
+// ---------- v3 · richer lattice synthesis ---------------------------------
+//
+// Each cell records everything the engine knows about that block: which
+// seed-length bin it landed in, what pass found it, the seed-enumeration
+// index at which it matched (= how late in the seed search), whether it's
+// tied into a bundle, plus the seed value and stored hash prefix.
+//
+// The algorithm walks seeds outer (counting from 0 upward) and checks each
+// against ALL blocks via a hash table — so "depth" is per-block (where in
+// the enumeration its matching seed was found), not per-block-search.
+//
+// Shape per cell:
+//   { bin:        'l0'|'l1'|'l2'|'l3'|'l4',
+//     pass:       1..N (0 = literal/never compressed),
+//     seedIdx:    integer | null  (index in the seed enumeration where matched),
+//     depth:      0..1 normalized position of seedIdx within full search budget,
+//     bundle:     null | number   (group id; consecutive cells with same id are tied),
+//     seedHex:    string | null,
+//     hashPrefix: string }
+function synthLattice() {
+  const N = 4096;
+  const cells = new Array(N);
+  const rand = mulberry32(hash32('telomere-' + (state.runCounter + 1)));
+  const totalPasses = Math.max(1, state.config.passes || 3);
+
+  const pickBin = (r) => r < 0.616 ? 'l0' : r < 0.857 ? 'l1' : r < 0.965 ? 'l2' : r < 0.991 ? 'l3' : 'l4';
+
+  for (let i = 0; i < N; i++) {
+    const bin = pickBin(rand());
+    cells[i] = makeCell(bin, rand, totalPasses);
+  }
+  // Inject structured clusters (regions where the algorithm does well).
+  const clusters = [
+    [ 6,  8, 18, 6, [['l1', .30], ['l2', .34], ['l3', .22], ['l4', .10], ['l0', .04]]],
+    [36, 22, 12, 5, [['l2', .42], ['l3', .30], ['l4', .18], ['l1', .08], ['l0', .02]]],
+    [52, 40, 10, 9, [['l1', .55], ['l2', .25], ['l3', .10], ['l4', .04], ['l0', .06]]],
+  ];
+  for (const [r0, c0, w, h, wts] of clusters) {
+    for (let r = 0; r < h; r++) for (let c = 0; c < w; c++) {
+      const idx = (r0 + r) * 64 + (c0 + c);
+      if (idx >= N) continue;
+      const v = rand();
+      let cum = 0;
+      for (const [k, p] of wts) { cum += p; if (v < cum) { cells[idx] = makeCell(k, rand, totalPasses); break; } }
+    }
+  }
+  // Stitch bundles: spans of 2-4 consecutive non-literal cells in the same row
+  // get unified under a bundle id. ~9% of blocks belong to bundles.
+  let bundleId = 1;
+  const targetBundled = Math.floor(N * 0.09);
+  let bundled = 0;
+  let i = 0;
+  while (i < N && bundled < targetBundled) {
+    // Try to plant a bundle starting at i if conditions favour it.
+    if (cells[i].bin !== 'l0' && rand() < 0.18) {
+      // Pick a bundle length 2..4 that stays inside the current row.
+      const colStart = i % 64;
+      const maxLen = Math.min(4, 64 - colStart, N - i);
+      const len = 2 + Math.floor(rand() * (maxLen - 1));
+      if (len >= 2) {
+        // Same pass for the whole bundle.
+        const pass = cells[i].pass || 1;
+        for (let j = 0; j < len; j++) {
+          cells[i + j].bundle = bundleId;
+          cells[i + j].pass = pass;
+          if (cells[i + j].bin === 'l0') cells[i + j].bin = 'l1';
         }
+        // Mark the "anchor" cell as the actual seed location; visually we tint
+        // bundles a touch brighter.
+        if (len >= 3) cells[i].bin = 'l4';
+        bundleId += 1;
+        bundled += len;
+        i += len;
+        continue;
       }
     }
-    paintCluster( 6,  8, 18, 6, [['l1', 0.30], ['l2', 0.34], ['l3', 0.22], ['l4', 0.10], ['l0', 0.04]]);
-    paintCluster(36, 22, 12, 5, [['l2', 0.42], ['l3', 0.30], ['l4', 0.18], ['l1', 0.08], ['l0', 0.02]]);
-    paintCluster(52, 40, 10, 9, [['l1', 0.55], ['l2', 0.25], ['l3', 0.10], ['l4', 0.04], ['l0', 0.06]]);
+    i += 1;
+  }
+  return cells;
+}
 
-    // Build DOM in one shot.
-    const frag = document.createDocumentFragment();
-    for (let i = 0; i < N; i++) {
-      const d = document.createElement('div');
-      d.className = 'cell ' + cells[i];
-      // light entrance — only a few sample cells animate to keep it cheap
-      frag.appendChild(d);
-    }
-    grid.appendChild(frag);
+function makeCell(bin, rand, totalPasses) {
+  // Pass distribution: most blocks discovered in P1, with fewer carried into
+  // later passes. Literals never have a pass.
+  let pass = 0;
+  if (bin !== 'l0') {
+    const r = rand();
+    if (r < 0.62) pass = 1;
+    else if (r < 0.86) pass = Math.min(2, totalPasses);
+    else if (r < 0.96) pass = Math.min(3, totalPasses);
+    else              pass = Math.min(totalPasses, Math.max(1, Math.floor(r * totalPasses) + 1));
+  }
+  // Where in the seed enumeration the matching seed was found. The total
+  // search space is 2^(8 × seedLen). A block matched by a short seed is found
+  // early; one matched near the end of a longer-seed search is found late.
+  // We assign a seedIdx uniformly inside the bin's region.
+  const seedLen = bin === 'l1' ? 1 : bin === 'l2' ? 2 : bin === 'l3' ? 3 : (bin === 'l4' ? 2 : 0);
+  let seedIdx = null;
+  let depth = 0; // 0..1 fraction of the full enumeration
+  if (seedLen > 0) {
+    const totalSeeds = Math.pow(2, 8 * seedLen);
+    seedIdx = Math.floor(rand() * totalSeeds);
+    // The "depth" used to drive the effort ring is the seedIdx normalized to
+    // the *full* current search budget (max_seed_len), so a 1-B seed found
+    // at index 100 sits very early in a 16-M-seed run.
+    const maxSeedLen = state.config.max_seed_len || seedLen;
+    const fullBudget = Math.pow(2, 8 * maxSeedLen);
+    depth = Math.min(1, seedIdx / fullBudget);
+  }
+  // Synth a hex seed value matching seedIdx.
+  let seedHex = null;
+  if (seedLen > 0) {
+    let v = seedIdx;
+    const parts = [];
+    for (let k = 0; k < seedLen; k++) { parts.unshift((v & 0xff).toString(16).padStart(2, '0')); v >>>= 8; }
+    seedHex = parts.join(' ');
+  }
+  // hash_bits prefix (binary)
+  const hb = state.config.hash_bits || 13;
+  const hashPrefix = Math.floor(rand() * Math.pow(2, hb)).toString(2).padStart(hb, '0');
+  return { bin, pass, depth, seedIdx, bundle: null, seedHex, hashPrefix };
+}
 
-    // Counter flip on the headline number — small detail
-    const out = document.querySelector('.kpi.alt .v');
-    if (out) {
-      const target = 12734;
-      let cur = 16384;
-      const t0 = performance.now();
-      const dur = 900;
-      function step(now) {
-        const k = Math.min(1, (now - t0) / dur);
-        const e = 1 - Math.pow(1 - k, 3);
-        const v = Math.round(16384 + (target - 16384) * e);
-        out.firstChild.nodeValue = v.toLocaleString('en-US');
-        if (k < 1) requestAnimationFrame(step);
-      }
-      // preserve <span class="unit"> as second child
-      out.innerHTML = '16,384<span class="unit">B</span>';
-      requestAnimationFrame(step);
+// Classify a normalized seed-depth (0..1) into one of the 4 CSS bins.
+function depthClass(d) {
+  if (d <= 0) return '';
+  if (d < 0.25) return 'depth-lo';
+  if (d < 0.55) return 'depth-mid';
+  if (d < 0.82) return 'depth-hi';
+  return 'depth-max';
+}
+
+// ---------- Run plate rendering --------------------------------------------
+
+function renderRun(r) {
+  if (r.kind === 'decompress') {
+    renderRunDecompress(r);
+    return;
+  }
+  const runId = String(r.run_id).padStart(4, '0');
+  $('#runGlyph').textContent = runId;
+  $('#runT1').textContent = r.source_name;
+  $('#runT2').textContent = `Run · ${r.passes.length - 1} passes · ${r.duration_ms} ms · ${r.hasher.toUpperCase()}`;
+  $('#plateWatermark').textContent = `Plate I · Specimen ${runId}`;
+  $('#topConfig').textContent = `block=${r.config?.block_size ?? state.config.block_size} · seed≤${r.config?.max_seed_len ?? state.config.max_seed_len} · h=${r.config?.hash_bits ?? state.config.hash_bits}`;
+
+  // KPIs
+  const saved = r.bytes_in - r.bytes_out;
+  const ratio = r.bytes_out / r.bytes_in;
+  const hitPct = (r.hits_total / Math.max(1, r.blocks * (r.passes.length - 1))) * 100;
+
+  setKpi('#kpiIn',    formatNumber(r.bytes_in), 'B', 'SRC');
+  setKpi('#kpiOut',   formatNumber(r.bytes_out), 'B', `↘ −${formatNumber(saved)} B`);
+  setKpi('#kpiRatio', ratio.toFixed(3), '×', `${((1 - ratio) * 100).toFixed(1)} % saved`);
+  setKpi('#kpiHits',  hitPct.toFixed(1), '%', `over ${r.passes.length - 1} pass${r.passes.length === 2 ? '' : 'es'}`);
+
+  drawConvergence(r);
+  drawPassStrip(r);
+  drawLattice(r.lattice, r.config?.block_size ?? state.config.block_size);
+  drawDistribution(r);
+  drawLog(r);
+}
+
+function renderRunDecompress(r) {
+  const runId = String(r.run_id).padStart(4, '0');
+  $('#runGlyph').textContent = runId;
+  $('#runT1').textContent = r.source_name;
+  $('#runT2').textContent = `Decompress · ${r.duration_ms} ms · ${r.header.hasher.toUpperCase()}`;
+
+  setKpi('#kpiIn',    formatNumber(r.bytes_in),  'B', 'CONTAINER');
+  setKpi('#kpiOut',   formatNumber(r.bytes_out), 'B', `↗ +${formatNumber(r.bytes_out - r.bytes_in)} B`);
+  setKpi('#kpiRatio', (r.bytes_in / r.bytes_out).toFixed(3), '×', 'recovered');
+  setKpi('#kpiHits',  '—', '', 'n/a · decode');
+
+  // Replace plate panels with header readout
+  drawHeaderReadout(r);
+}
+
+function setKpi(sel, value, unit, trend) {
+  const el = $(sel);
+  const curEl = el.querySelector('.cur');
+  el.querySelector('.u').textContent = unit;
+  el.querySelector('.trend').textContent = trend;
+
+  // U3 · counter flip: tween numeric values; non-numeric snap.
+  const target = typeof value === 'string' ? value : String(value);
+  const num = Number(String(target).replace(/[, ]/g, ''));
+  const prevTxt = curEl.textContent;
+  const prev = Number(String(prevTxt).replace(/[, ]/g, ''));
+  if (!Number.isFinite(num) || !Number.isFinite(prev)) {
+    curEl.textContent = target;
+    return;
+  }
+  const v = el.querySelector('.v');
+  v.classList.add('flipping');
+  const t0 = performance.now();
+  const dur = 650;
+  const isFloat = /\./.test(target);
+  function step(now) {
+    const k = Math.min(1, (now - t0) / dur);
+    const e = 1 - Math.pow(1 - k, 3);
+    const cur = prev + (num - prev) * e;
+    curEl.textContent = isFloat ? cur.toFixed(target.split('.')[1].length) : Math.round(cur).toLocaleString('en-US');
+    if (k < 1) requestAnimationFrame(step);
+    else { v.classList.remove('flipping'); curEl.textContent = target; }
+  }
+  requestAnimationFrame(step);
+}
+
+function drawConvergence(r) {
+  // y-axis: bytes (range maxBytes → minBytes with padding)
+  const yMax = r.bytes_in * 1.10;
+  const yMin = Math.min(r.bytes_out * 0.85, r.bytes_in * 0.55);
+  const W = 660, H = 260;
+  const xs = r.passes.map((_, i) => (i / (r.passes.length - 1)) * W);
+  const ys = r.passes.map((p) => ((yMax - p.bytes_out) / (yMax - yMin)) * H);
+  const baselineY = ((yMax - r.bytes_in) / (yMax - yMin)) * H;
+  const d = xs.map((x, i) => `${i === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${ys[i].toFixed(1)}`).join(' ');
+
+  const markers = xs.map((x, i) => `<rect class="conv-marker" style="animation-delay:${(0.7 + i * 0.07).toFixed(2)}s" x="${(x - 4).toFixed(1)}" y="${(ys[i] - 4).toFixed(1)}" width="8" height="8" fill="var(--bg)" stroke="var(--amber)" stroke-width="1.4"/>`).join('');
+
+  // y-axis ticks (5)
+  const ticks = [];
+  for (let i = 0; i <= 4; i++) {
+    const v = yMax - (i / 4) * (yMax - yMin);
+    const y = (i / 4) * H;
+    ticks.push(`<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="var(--rule-soft)" stroke-dasharray="2 4"/>
+                <text x="-12" y="${y + 4}" text-anchor="end">${shortNum(v)}</text>`);
+  }
+
+  // x-axis labels (P0..Pn)
+  const xlabels = r.passes.map((p, i) => `<text x="${xs[i]}" y="${H + 18}" text-anchor="middle">P${i}</text>`).join('');
+
+  // δ% bars (skip P0)
+  const dbars = r.passes.slice(1).map((p, i) => {
+    const x = xs[i + 1];
+    const mag = Math.min(50, Math.abs(p.delta_pct) * 3);
+    return `<rect class="dbar" style="animation-delay:${(0.4 + i * 0.08).toFixed(2)}s; transform-origin: ${x}px ${H}px;" x="${x - 20}" y="${H - mag}" width="40" height="${mag}" fill="var(--bone-dim)" opacity="0.18"/>
+            <text class="conv-marker" style="animation-delay:${(0.55 + i * 0.08).toFixed(2)}s" x="${x}" y="${H - mag - 6}" text-anchor="middle" fill="var(--bone-dim)">${p.delta_pct.toFixed(1)}%</text>`;
+  }).join('');
+
+  // U5 · marginalia — small italic notes at the right edge of the chart.
+  const finalY = ys[ys.length - 1];
+  const savedPct = ((1 - r.bytes_out / r.bytes_in) * 100).toFixed(1);
+  const marginalia = `
+    <g class="conv-marker" style="animation-delay:1.0s">
+      <line x1="${xs[xs.length-1] + 10}" y1="${finalY}" x2="${xs[xs.length-1] + 32}" y2="${finalY - 14}" stroke="var(--amber-dim)" stroke-dasharray="2 2"/>
+      <text class="chart-margin" x="${xs[xs.length-1] + 36}" y="${finalY - 18}">terminus</text>
+      <text class="chart-margin-mute" x="${xs[xs.length-1] + 36}" y="${finalY - 4}">−${savedPct}%</text>
+    </g>`;
+
+  // The stroke-on length is approximated from the polyline length.
+  const len = Math.ceil(xs.reduce((s, _, i) => i === 0 ? 0 : s + Math.hypot(xs[i]-xs[i-1], ys[i]-ys[i-1]), 0)) + 4;
+
+  const svg = `
+    <g class="axis" transform="translate(56,18)">
+      ${ticks.join('')}
+      <line x1="0" y1="0" x2="0" y2="${H}" stroke="var(--rule)"/>
+      <line x1="0" y1="${H}" x2="${W}" y2="${H}" stroke="var(--rule)"/>
+      <line x1="0" y1="${baselineY}" x2="${W}" y2="${baselineY}" stroke="var(--iron)" stroke-dasharray="3 3" opacity="0.65"/>
+      <text x="${W + 4}" y="${baselineY + 3}" font-family="IBM Plex Mono" font-size="9.5" fill="var(--iron)">${shortNum(r.bytes_in)} B (src)</text>
+      <path class="conv-path" style="--len:${len}; filter: drop-shadow(0 0 6px var(--amber-glow));" d="${d}" fill="none" stroke="var(--amber)" stroke-width="1.5" stroke-linejoin="miter" stroke-linecap="square" />
+      ${markers}
+      ${dbars}
+      ${marginalia}
+      ${xlabels}
+    </g>`;
+  $('#convSvg').innerHTML = svg;
+}
+
+function drawPassStrip(r) {
+  const strip = $('#passStrip');
+  strip.innerHTML = '';
+  r.passes.forEach((p, i) => {
+    const isFinal = i === r.passes.length - 1;
+    const cell = document.createElement('div');
+    cell.className = 'pass-cell' + (isFinal ? ' final' : '');
+    cell.innerHTML = `
+      <div class="micro">${i === 0 ? 'Pass P0 · source' : `Pass P${i}${isFinal ? ' · final' : ''}`}</div>
+      <div class="num b ${isFinal ? 'hot' : 'bone'}">${formatNumber(p.bytes_out)} B</div>
+      <div class="micro ${i === 0 ? '' : 'hot'}" style="margin-top:4px;">${i === 0 ? 'δ —' : `δ ${p.delta_pct.toFixed(1)} %`}</div>
+    `;
+    strip.appendChild(cell);
+  });
+}
+
+// v3 · render the lattice from rich cell objects (or fall back to legacy
+// string bins for back-compat).
+function drawLattice(lattice, blockSize) {
+  const grid = $('#heatGrid');
+  const wrap = $('#latticeWrap');
+  const bs = blockSize || 4;
+  grid.innerHTML = '';
+
+  // Cache the rich model on the wrap node so handlers can read it.
+  state.latticeModel = lattice.map((c) => (typeof c === 'string' ? { bin: c, pass: c === 'l0' ? 0 : 1, depth: 0, seedIdx: null, bundle: null, seedHex: null, hashPrefix: '' } : c));
+  state.latticePasses = state.lastRun?.passes?.length ?? state.config.passes ?? 1;
+  state.scrubberPass = Math.max(1, state.latticePasses - 1);
+  state.pinnedCell = null;
+  state.selectedBundle = null;
+
+  const frag = document.createDocumentFragment();
+  for (let i = 0; i < state.latticeModel.length; i++) {
+    frag.appendChild(makeCellNode(i, state.latticeModel[i]));
+  }
+  grid.appendChild(frag);
+
+  wrap.classList.add('live');
+  wrap.dataset.blockSize = bs;
+  wrap.dataset.color = (state.latticeColorMode || 'seed');
+
+  // Update legend block-size label.
+  const lgBs = $('#lgBlockSize'); if (lgBs) lgBs.textContent = bs;
+
+  drawOffsetAxis(state.latticeModel.length, bs);
+  drawLigatures();
+  buildScrubber();
+  applyScrubber(state.scrubberPass);
+}
+
+// Build one cell node from a model entry. Pure: no DOM lookups beyond create.
+function makeCellNode(idx, c) {
+  const d = document.createElement('div');
+  let cls = 'cell ' + (c.bin || '');
+  const ec = depthClass(c.depth);
+  if (ec) cls += ' ' + ec;
+  d.className = cls;
+  d.dataset.idx = idx;
+  if (c.pass) d.dataset.pass = c.pass;
+  if (c.bundle != null) d.dataset.bundle = c.bundle;
+  if (c.pass && c.pass > 1) {
+    const pip = document.createElement('span');
+    pip.className = 'pip';
+    d.appendChild(pip);
+  }
+  return d;
+}
+
+// Replace a single cell in place — used by primeLattice's live painting.
+function paintCell(idx, c) {
+  const grid = $('#heatGrid');
+  const cell = grid.children[idx];
+  if (!cell) return;
+  // Update the model so hover/click sees the live state.
+  if (state.latticeModel) state.latticeModel[idx] = (typeof c === 'string'
+    ? { bin: c, pass: c === 'l0' ? 0 : 1, depth: 0, seedIdx: null, bundle: null, seedHex: null, hashPrefix: '' }
+    : c);
+  const model = state.latticeModel[idx];
+  let cls = 'cell ' + (model.bin || '');
+  const ec = depthClass(model.depth);
+  if (ec) cls += ' ' + ec;
+  cell.className = cls;
+  cell.innerHTML = '';
+  if (model.pass) cell.dataset.pass = model.pass;
+  if (model.bundle != null) cell.dataset.bundle = model.bundle;
+  if (model.pass && model.pass > 1) {
+    const pip = document.createElement('span');
+    pip.className = 'pip';
+    cell.appendChild(pip);
+  }
+}
+
+// Draw an SVG ligature overlay across consecutive cells that share a bundle id.
+// Each tie is a thin amber stroke a few px above the cell row.
+function drawLigatures() {
+  const overlay = $('#latticeOverlay');
+  const grid = $('#heatGrid');
+  if (!overlay || !grid || !state.latticeModel) return;
+  // Group by bundle id.
+  const groups = new Map();
+  state.latticeModel.forEach((c, i) => {
+    if (c.bundle == null) return;
+    if (!groups.has(c.bundle)) groups.set(c.bundle, []);
+    groups.get(c.bundle).push(i);
+  });
+  // For each group, gather contiguous runs (in case of multiple ties under one id).
+  const gridRect = grid.getBoundingClientRect();
+  const wrapRect = overlay.parentElement.getBoundingClientRect();
+  if (gridRect.width === 0) {
+    // Lattice not yet laid out; retry on next tick.
+    requestAnimationFrame(drawLigatures);
+    return;
+  }
+  overlay.setAttribute('viewBox', `0 0 ${gridRect.width} ${gridRect.height}`);
+  overlay.style.width = `${gridRect.width}px`;
+  overlay.style.height = `${gridRect.height}px`;
+  // Offset of grid within wrap (wrap has padding-top: 4px).
+  const offsetX = gridRect.left - wrapRect.left;
+  const offsetY = gridRect.top  - wrapRect.top;
+  overlay.style.left = `${offsetX}px`;
+  overlay.style.top  = `${offsetY}px`;
+
+  let svg = '';
+  for (const [bid, idxs] of groups) {
+    // Sort then split into contiguous runs.
+    idxs.sort((a, b) => a - b);
+    const runs = [];
+    let curr = [idxs[0]];
+    for (let i = 1; i < idxs.length; i++) {
+      if (idxs[i] === idxs[i - 1] + 1) curr.push(idxs[i]);
+      else { runs.push(curr); curr = [idxs[i]]; }
     }
+    runs.push(curr);
+    for (const run of runs) {
+      if (run.length < 2) continue;
+      const first = grid.children[run[0]];
+      const last  = grid.children[run[run.length - 1]];
+      if (!first || !last) continue;
+      const fr = first.getBoundingClientRect();
+      const lr = last.getBoundingClientRect();
+      // All cells in a bundle share a row, so we can draw a single arc.
+      const x1 = fr.left - gridRect.left + fr.width * 0.18;
+      const x2 = lr.left - gridRect.left + lr.width * 0.82;
+      const y  = fr.top  - gridRect.top  - 2;
+      const dip = Math.max(3, Math.min(8, (x2 - x1) * 0.06));
+      // Maximum pass for this bundle (controls future-dim under scrubber).
+      const maxPass = run.reduce((m, i) => Math.max(m, state.latticeModel[i].pass || 0), 0);
+      svg += `<path class="lat-tie" data-bundle="${bid}" data-pass="${maxPass}" d="M ${x1.toFixed(1)} ${y.toFixed(1)} Q ${((x1+x2)/2).toFixed(1)} ${(y-dip).toFixed(1)} ${x2.toFixed(1)} ${y.toFixed(1)}"/>`;
+    }
+  }
+  overlay.innerHTML = svg;
+}
+
+// Lay out tick marks along the bottom showing byte offsets.
+function drawOffsetAxis(nCells, blockSize) {
+  const axis = $('#offsetAxis');
+  if (!axis) return;
+  const totalBytes = nCells * blockSize;
+  // 5 ticks
+  const html = [];
+  for (let i = 0; i <= 4; i++) {
+    const off = Math.round((i / 4) * totalBytes);
+    html.push(`<span class="otick"><span class="num">0x${off.toString(16).padStart(4, '0')}</span></span>`);
+  }
+  axis.innerHTML = html.join('');
+}
+
+// Build scrubber thumb positions + ticks.
+function buildScrubber() {
+  const passes = state.latticePasses || 1;
+  const ticks = $('#scrubberTicks');
+  if (!ticks) return;
+  let html = '';
+  for (let p = 0; p < passes; p++) {
+    const pct = passes <= 1 ? 100 : (p / (passes - 1)) * 100;
+    const cls = (p === state.scrubberPass) ? 'tick cur' : 'tick';
+    html += `<div class="${cls}" style="left:${pct.toFixed(1)}%"></div>`;
+    html += `<div class="lbl" style="left:${pct.toFixed(1)}%">P${p}</div>`;
+  }
+  ticks.innerHTML = html;
+  positionScrubberThumb();
+}
+function positionScrubberThumb() {
+  const passes = state.latticePasses || 1;
+  const p = state.scrubberPass ?? Math.max(0, passes - 1);
+  const pct = passes <= 1 ? 100 : (p / (passes - 1)) * 100;
+  const thumb = $('#scrubberThumb');
+  const fill  = $('#scrubberFill');
+  const lbl   = $('#scrubberLabel');
+  if (thumb) thumb.style.left = pct + '%';
+  if (fill)  fill.style.width = pct + '%';
+  if (lbl)   lbl.textContent = passes <= 1 ? 'P0' : `P${p}`;
+  buildScrubberTickHighlights();
+}
+function buildScrubberTickHighlights() {
+  const ticks = $('#scrubberTicks');
+  if (!ticks) return;
+  ticks.querySelectorAll('.tick').forEach((t, i) => t.classList.toggle('cur', i === state.scrubberPass));
+}
+
+// Apply scrubber: cells whose pass > scrubberPass get the .future class
+// (and so do bundle ligatures that depend on a later pass).
+function applyScrubber(p) {
+  state.scrubberPass = p;
+  const grid = $('#heatGrid');
+  if (grid) {
+    Array.from(grid.children).forEach((cell) => {
+      const cp = Number(cell.dataset.pass || 0);
+      cell.classList.toggle('future', cp > p);
+    });
+  }
+  const overlay = $('#latticeOverlay');
+  if (overlay) {
+    overlay.querySelectorAll('.lat-tie').forEach((t) => {
+      const tp = Number(t.dataset.pass || 0);
+      t.classList.toggle('future', tp > p);
+    });
+  }
+  positionScrubberThumb();
+}
+
+// v3 · prime an empty lattice with full-size cell nodes ready for live paint.
+function primeLattice(blocks) {
+  const grid = $('#heatGrid');
+  const wrap = $('#latticeWrap');
+  grid.innerHTML = '';
+  state.latticeModel = new Array(Math.min(4096, Math.max(64, blocks))).fill(null).map(() => ({ bin: '', pass: 0, depth: 0, seedIdx: null, bundle: null, seedHex: null, hashPrefix: '' }));
+  state.latticePasses = state.config.passes || 1;
+  state.scrubberPass  = state.latticePasses - 1;
+  state.pinnedCell    = null;
+  const frag = document.createDocumentFragment();
+  for (let i = 0; i < state.latticeModel.length; i++) {
+    const d = document.createElement('div');
+    d.className = 'cell';
+    d.dataset.idx = i;
+    frag.appendChild(d);
+  }
+  grid.appendChild(frag);
+  wrap.classList.add('live');
+}
+
+function drawDistribution(r) {
+  const root = $('#distList');
+  const total = r.blocks;
+  const rows = [
+    ['L=0', r.seed_dist.l0, 'literal'],
+    ['L=1', r.seed_dist.l1, 'seed len 1'],
+    ['L=2', r.seed_dist.l2, 'seed len 2'],
+    ['L=3', r.seed_dist.l3, 'seed len 3'],
+    ['BND', r.bundles ?? 0, 'bundles'],
+  ];
+  // First row uses a neutral fill instead of amber
+  root.innerHTML = '';
+  rows.forEach(([k, v, _title], i) => {
+    const pct = total > 0 ? (v / total) * 100 : 0;
+    const fillStyle = i === 0
+      ? 'background: linear-gradient(90deg, #2a2e34, #5a5e64);'
+      : i === 4
+      ? 'background: linear-gradient(90deg, #c9963f, var(--amber-hot));'
+      : '';
+    const valueColor = i === 4 ? 'hot' : '';
+    const row = document.createElement('div');
+    row.className = 'dist-row';
+    row.innerHTML = `
+      <div class="k num">${k}</div>
+      <div class="bar"><div class="fill" style="width:${pct.toFixed(2)}%; ${fillStyle}"></div></div>
+      <div class="v num ${valueColor}">${formatNumber(v)}<span class="pc">${pct.toFixed(1)}%</span></div>
+    `;
+    root.appendChild(row);
+  });
+
+  // summary stats
+  const totalSeed = r.seed_dist.l0 + r.seed_dist.l1 + r.seed_dist.l2 + r.seed_dist.l3;
+  const weighted = (r.seed_dist.l0 * 0 + r.seed_dist.l1 * 1 + r.seed_dist.l2 * 2 + r.seed_dist.l3 * 3) / Math.max(1, totalSeed);
+  $('#distMean').textContent = `${weighted.toFixed(2)} B`;
+  $('#distBundle').textContent = `${formatNumber((r.bundles ?? 0) * state.config.block_size)} B`;
+}
+
+function drawLog(r) {
+  const list = $('#logList');
+  const t0 = Date.now() - r.duration_ms;
+  function stamp(offset) {
+    const d = new Date(t0 + offset);
+    return d.toISOString().substr(11, 8);
+  }
+  const rows = [];
+  rows.push(row(stamp(0), 'ok',  'init',  `hasher = ${r.hasher} · ${state.config.hash_bits}-bit prefix`, '—'));
+  rows.push(row(stamp(20), '', 'p0', `loaded source · ${r.blocks.toLocaleString()} blocks`, `${formatNumber(r.bytes_in)} B`));
+  for (let i = 1; i < r.passes.length; i++) {
+    const p = r.passes[i];
+    const prev = r.passes[i - 1].bytes_out;
+    const offset = (i / r.passes.length) * r.duration_ms;
+    rows.push(row(stamp(offset), 'hit', `p${i}`, `find_seed_match · ${p.hits.toLocaleString()} matches / ${r.blocks.toLocaleString()}`, `−${formatNumber(prev - p.bytes_out)} B`));
+  }
+  rows.push(row(stamp(r.duration_ms), 'ok', 'halt', r.verified === true ? 'roundtrip verified ✓' : (r.verified === false ? 'roundtrip mismatch ✗' : `converged · ${r.duration_ms} ms`), `${formatNumber(r.bytes_out)} B`));
+  list.innerHTML = rows.join('');
+
+  function row(t, lvl, code, msg, val) {
+    return `<div class="log-row">
+      <span class="t num">${t}</span>
+      <span class="lvl ${lvl}">${code}</span>
+      <span class="m">${escapeHTML(msg)}</span>
+      <span class="v num">${escapeHTML(val)}</span>
+    </div>`;
+  }
+}
+
+function drawHeaderReadout(r) {
+  $('#convSvg').innerHTML = `
+    <g transform="translate(56,18)">
+      <text x="0"  y="20" font-family="Cormorant Garamond" font-style="italic" font-size="22" fill="var(--bone)">Container header</text>
+      <text x="0"  y="60" font-family="IBM Plex Mono" font-size="10" letter-spacing="0.2em" fill="var(--iron)">HASHER</text>
+      <text x="120" y="60" font-family="IBM Plex Mono" font-size="13" fill="var(--amber)">${r.header.hasher.toUpperCase()}</text>
+      <text x="0"  y="84" font-family="IBM Plex Mono" font-size="10" letter-spacing="0.2em" fill="var(--iron)">BLOCK SIZE</text>
+      <text x="120" y="84" font-family="IBM Plex Mono" font-size="13" fill="var(--bone)">${r.header.block_size} B</text>
+      <text x="0"  y="108" font-family="IBM Plex Mono" font-size="10" letter-spacing="0.2em" fill="var(--iron)">MAX SEED LEN</text>
+      <text x="120" y="108" font-family="IBM Plex Mono" font-size="13" fill="var(--bone)">${r.header.max_seed_len} B</text>
+      <text x="0"  y="132" font-family="IBM Plex Mono" font-size="10" letter-spacing="0.2em" fill="var(--iron)">HASH BITS</text>
+      <text x="120" y="132" font-family="IBM Plex Mono" font-size="13" fill="var(--bone)">${r.header.hash_bits} b</text>
+      <text x="0"  y="156" font-family="IBM Plex Mono" font-size="10" letter-spacing="0.2em" fill="var(--iron)">MAX ARITY</text>
+      <text x="120" y="156" font-family="IBM Plex Mono" font-size="13" fill="var(--bone)">${r.header.max_arity}</text>
+    </g>`;
+  $('#passStrip').innerHTML = '';
+  $('#heatGrid').innerHTML = '';
+  $('#latticeOverlay').innerHTML = '';
+  $('#offsetAxis').innerHTML = '';
+  $('#scrubberTicks').innerHTML = '';
+  $('#distList').innerHTML = '';
+  $('#logList').innerHTML = '';
+  $('#distMean').textContent = '—';
+  $('#distBundle').textContent = '—';
+}
+
+// ---------- Utilities ------------------------------------------------------
+
+function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+function sleep(ms) { return new Promise((res) => setTimeout(res, ms)); }
+function escapeHTML(s) { return String(s).replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function formatBytes(n) {
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(2)} KiB`;
+  if (n < 1024 * 1024 * 1024) return `${(n / 1024 / 1024).toFixed(2)} MiB`;
+  return `${(n / 1024 / 1024 / 1024).toFixed(2)} GiB`;
+}
+function formatNumber(n) { return Number(n).toLocaleString('en-US'); }
+function shortNum(n) {
+  if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return Math.round(n / 1000) + ' ' + '000'; // "16 000"-style
+  return String(n);
+}
+
+function hash32(s) {
+  let h = 2166136261 >>> 0;
+  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return h >>> 0;
+}
+function mulberry32(a) {
+  return function () {
+    let t = (a += 0x6D2B79F5);
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// ---------- Drag-drop -------------------------------------------------------
+
+function wireDragDrop() {
+  const slot = $('#sourceSlot');
+  ['dragenter', 'dragover'].forEach((ev) =>
+    slot.addEventListener(ev, (e) => { e.preventDefault(); slot.classList.add('dragover'); })
+  );
+  ['dragleave', 'drop'].forEach((ev) =>
+    slot.addEventListener(ev, (e) => { e.preventDefault(); slot.classList.remove('dragover'); })
+  );
+  slot.addEventListener('drop', async (e) => {
+    const f = e.dataTransfer?.files?.[0];
+    if (!f) return;
+    if (IS_TAURI && f.path) {
+      try {
+        const meta = await TAURI.invoke('stat_file', { path: f.path });
+        setSource({ path: f.path, name: meta.name, size: meta.size });
+      } catch (err) { flashError(String(err)); }
+    } else {
+      setSource({ path: f.name, name: f.name, size: f.size, file: f });
+    }
+  });
+}
+
+// ---------- Progress events from Tauri -------------------------------------
+
+function wireProgress() {
+  if (!IS_TAURI || !TAURI.listen) return;
+  TAURI.listen('telomere://progress', (e) => {
+    const { stage, message, pct } = e.payload || {};
+    if (state.running) setStatus(stage || 'running', message || state.status.msg, pct ?? state.status.pct);
+  });
+}
+
+// ---------- Keyboard shortcuts ---------------------------------------------
+
+function wireShortcuts() {
+  document.addEventListener('keydown', (e) => {
+    if (e.target.matches('input, textarea')) return;
+    if (e.key === '1') setMode('compress');
+    if (e.key === '2') setMode('decompress');
+    if (e.key === '3') setMode('verify');
+    if (e.key === 'Enter') execute();
+    if (e.key === 'Escape') {
+      if (state.running && state.aborter) state.aborter.abort();
+      else closeArchive();
+    }
+    if ((e.key === 'a' || e.key === 'A') && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault(); openArchive();
+    }
+  });
+}
+
+// ---------- Bootstrap ------------------------------------------------------
+
+function applyPreset(name) {
+  Object.assign(state.config, PRESETS[name]);
+  refreshParams();
+}
+
+function init() {
+  $$('.mode-seg button').forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode)));
+  $$('.chip').forEach((c) => c.addEventListener('click', () => applyPreset(c.dataset.preset)));
+  $('#togVerify').addEventListener('click', () => {
+    state.verifyAfter = !state.verifyAfter;
+    $('#togVerify').classList.toggle('on', state.verifyAfter);
+  });
+  $('#execute').addEventListener('click', execute);
+
+  renderParams();
+  renderSlot();
+  setMode('compress');
+  wireDragDrop();
+  wireProgress();
+  wireShortcuts();
+  setStatus('idle', IS_TAURI ? 'Idle — select a source and execute.' : 'Idle — preview mode (mock engine). Wire to Tauri for real runs.', 0);
+
+  // Build banner pulse colour reflects bridge state
+  if (!IS_TAURI) {
+    document.querySelectorAll('.pulse').forEach((p) => p.classList.add('cold'));
+    $('#bridgeMode').textContent = 'preview · mock';
+  } else {
+    $('#bridgeMode').textContent = 'tauri · linked';
+  }
+  loadResearchArtifacts();
+}
+
+// =============================================================================
+// v2 modules — features F1, F5, F6, F7, F8 · effects U1, U4 · wiring
+// =============================================================================
+
+// ---------- F8 · Hex preview ----------------------------------------------
+
+function renderHexPreview() {
+  const bytes = state.sourcePreview;
+  if (!bytes) return;
+  const root = $('#hexPreview');
+  const body = $('#hexBody');
+  if (!root || !body) return;
+
+  const lines = [];
+  for (let off = 0; off < bytes.length; off += 16) {
+    const slice = bytes.slice(off, off + 16);
+    const hex = Array.from(slice).map((b) => {
+      const h = b.toString(16).padStart(2, '0');
+      return b === 0 ? `<span class="b0">${h}</span>` : h;
+    }).join(' ');
+    const asc = Array.from(slice).map((b) => (b >= 32 && b < 127) ? String.fromCharCode(b) : '·').join('');
+    lines.push(`<div class="hex-row"><span class="off num">${off.toString(16).padStart(4,'0')}</span><span class="hex">${hex}</span><span class="asc">${escapeHTML(asc)}</span></div>`);
+  }
+  body.innerHTML = lines.join('');
+
+  // Shannon entropy estimate over the preview window.
+  const counts = new Array(256).fill(0);
+  for (const b of bytes) counts[b]++;
+  let H = 0;
+  for (const c of counts) if (c > 0) { const p = c / bytes.length; H -= p * Math.log2(p); }
+  $('#hexEntropy').textContent = `entropy ≈ ${H.toFixed(2)} bits/B`;
+  root.style.display = 'block';
+}
+
+// ---------- F1 · Run archive ----------------------------------------------
+
+function loadHistory() {
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY);
+    state.history = raw ? JSON.parse(raw) : [];
+  } catch (_) { state.history = []; }
+}
+
+function saveRunToHistory(run) {
+  const slim = {
+    run_id: run.run_id,
+    kind: run.kind,
+    source_name: run.source_name,
+    bytes_in: run.bytes_in,
+    bytes_out: run.bytes_out,
+    duration_ms: run.duration_ms,
+    timestamp: run.timestamp ?? Date.now(),
+    hasher: run.hasher ?? run.header?.hasher,
+    config: run.config,
+    // keep full payload for re-render — bounded by HISTORY_LIMIT
+    payload: run,
+  };
+  state.history.unshift(slim);
+  state.history = state.history.slice(0, HISTORY_LIMIT);
+  try {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(state.history));
+  } catch (e) {
+    // Quota? Drop the heaviest payload field (lattice) from older entries.
+    state.history.forEach((h, i) => {
+      if (i > 4 && h.payload?.lattice) h.payload = { ...h.payload, lattice: undefined };
+    });
+    try { localStorage.setItem(HISTORY_KEY, JSON.stringify(state.history)); } catch (_) {}
+  }
+  renderHistory();
+}
+
+function clearHistory() {
+  state.history = [];
+  try { localStorage.removeItem(HISTORY_KEY); } catch (_) {}
+  renderHistory();
+}
+
+function renderHistory() {
+  const list = $('#historyList');
+  const cnt = $('#archiveCount');
+  if (cnt) cnt.textContent = state.history.length;
+  if (!list) return;
+  if (state.history.length === 0) {
+    list.innerHTML = `<div class="history-row empty">no runs recorded yet</div>`;
+    return;
+  }
+  list.innerHTML = state.history.map((h, i) => {
+    const rid = String(h.run_id).padStart(4, '0');
+    const d = new Date(h.timestamp);
+    const ts = d.toISOString().substr(0, 19).replace('T', ' ');
+    const ratio = (h.bytes_out && h.bytes_in) ? (h.bytes_out / h.bytes_in).toFixed(3) : '—';
+    const kind = h.kind === 'decompress' ? 'DEC' : 'CMP';
+    return `<div class="history-row" data-i="${i}">
+      <div class="top"><span class="rid">${rid}</span><span class="ts">${ts}</span></div>
+      <div class="src">${escapeHTML(h.source_name || '—')}</div>
+      <div class="row2">
+        <span>${kind}</span>
+        <span class="num">${formatBytes(h.bytes_in)} → ${formatBytes(h.bytes_out)}</span>
+        <span class="ratio num">${ratio}×</span>
+      </div>
+    </div>`;
+  }).join('');
+  list.querySelectorAll('.history-row[data-i]').forEach((row) => {
+    row.addEventListener('click', () => {
+      const idx = Number(row.dataset.i);
+      const entry = state.history[idx];
+      if (!entry?.payload) return;
+      state.lastRun = entry.payload;
+      renderRun(entry.payload);
+      setStatus('done', `Loaded ${entry.kind} run ${String(entry.run_id).padStart(4,'0')} from archive.`, 100);
+      $('#plate').classList.add('live');
+      setExportButtonsEnabled(true);
+      closeArchive();
+    });
+  });
+}
+
+function openArchive()  { $('#sidebar').classList.add('open'); $('#scrim').classList.add('on'); }
+function closeArchive() { $('#sidebar').classList.remove('open'); $('#scrim').classList.remove('on'); }
+
+// ---------- F5 · Export run ------------------------------------------------
+
+function downloadBlob(name, mime, content) {
+  const blob = new Blob([content], { type: mime });
+  const url  = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
+function exportRunJson() {
+  if (!state.lastRun) return;
+  const rid = String(state.lastRun.run_id).padStart(4, '0');
+  // Strip the lattice from JSON export — it's huge and reproducible.
+  const clone = { ...state.lastRun, lattice: undefined };
+  downloadBlob(`telomere-run-${rid}.json`, 'application/json',
+    JSON.stringify(clone, null, 2));
+}
+function exportRunCsv() {
+  if (!state.lastRun) return;
+  const r = state.lastRun;
+  const rid = String(r.run_id).padStart(4, '0');
+  const head = 'pass,bytes_out,delta_pct,hits\n';
+  const rows = (r.passes || []).map((p) => `${p.pass},${p.bytes_out},${p.delta_pct.toFixed(4)},${p.hits}`).join('\n');
+  downloadBlob(`telomere-run-${rid}.csv`, 'text/csv', head + rows + '\n');
+}
+function copyRunId() {
+  if (!state.lastRun) return;
+  const rid = String(state.lastRun.run_id).padStart(4, '0');
+  if (navigator.clipboard?.writeText) navigator.clipboard.writeText(`telomere-run-${rid}`);
+}
+function exportAllHistory() {
+  const slim = state.history.map((h) => ({
+    run_id: h.run_id, source_name: h.source_name, timestamp: h.timestamp,
+    bytes_in: h.bytes_in, bytes_out: h.bytes_out, duration_ms: h.duration_ms,
+    config: h.config, kind: h.kind, hasher: h.hasher,
+    passes: h.payload?.passes, seed_dist: h.payload?.seed_dist,
+  }));
+  downloadBlob('telomere-archive.json', 'application/json', JSON.stringify(slim, null, 2));
+}
+
+// ---------- F7 · Advanced parameters --------------------------------------
+
+// memory slider: 0..34 → log scale 0 = 1 KiB, 34 = ∞ (Infinity marker)
+function memSliderToBytes(s) {
+  if (s >= 34) return Infinity;
+  // exponential: 1 KiB at s=0, doubling every step.  s=33 → ~8 TiB.
+  return 1024 * Math.pow(2, s);
+}
+function formatMemCap(b) {
+  if (!Number.isFinite(b)) return '∞';
+  return formatBytes(b);
+}
+
+function wireAdvanced() {
+  const tog = $('#advToggle');
+  const body = $('#advBody');
+  tog.addEventListener('click', () => {
+    const open = tog.classList.toggle('open');
+    body.classList.toggle('open', open);
+  });
+
+  const slider = $('#memSlider');
+  const ro = $('#memReadout');
+  slider.addEventListener('input', () => {
+    const b = memSliderToBytes(Number(slider.value));
+    state.config.memory_limit = b;
+    ro.textContent = formatMemCap(b);
+  });
+  ro.textContent = formatMemCap(state.config.memory_limit);
+
+  function bindSwitch(id, key) {
+    const el = $('#' + id);
+    el.addEventListener('click', () => {
+      const on = !el.classList.contains('on');
+      el.classList.toggle('on', on);
+      el.setAttribute('aria-checked', on ? 'true' : 'false');
+      state.config[key] = on;
+    });
+  }
+  bindSwitch('swSuper',  'enable_superposition');
+  bindSwitch('swGpu',    'gpu');
+  bindSwitch('swStatus', 'show_status');
+}
+
+// ---------- U1 · Lattice hover-inspect ------------------------------------
+
+// v3 · lattice interactivity — hover-inspect, bundle-aware highlight,
+// click-to-pin inspector, scrubber drag, color-mode toggle, zoom buttons.
+function wireLatticeHover() {
+  const wrap = $('#latticeWrap');
+  const grid = $('#heatGrid');
+  const xh = $('#xhairH');
+  const xv = $('#xhairV');
+  const card = $('#cellReadout');
+  if (!wrap || !grid) return;
+
+  const BIN_LABELS = {
+    'l0': 'literal',
+    'l1': 'seed · 1 B',
+    'l2': 'seed · 2 B',
+    'l3': 'seed · 3 B',
+    'l4': 'bundle anchor',
+    '':   'pending',
+  };
+
+  function fillCard(idx) {
+    const m = state.latticeModel?.[idx];
+    if (!m) return;
+    const bs  = Number(wrap.dataset.blockSize || 4);
+    const off = idx * bs;
+    $('#crType').textContent = BIN_LABELS[m.bin] || '—';
+    $('#crIdx').textContent  = idx.toLocaleString();
+    $('#crOff').textContent  = `0x${off.toString(16).padStart(6, '0')} · ${off.toLocaleString()}`;
+    $('#crBytes').textContent = `${bs} B span`;
+    $('#crSeed').textContent  = m.seedHex ? `0x ${m.seedHex}` : '—';
+    $('#crHash').textContent  = m.hashPrefix ? m.hashPrefix.replace(/(.{4})/g, '$1 ').trim() : '—';
+    $('#crPass').textContent  = m.pass ? `P${m.pass}` : '—';
+    // "found at": where in the seed enumeration the matching seed sat. We
+    // show the raw seed index (hex) and its position within the full search
+    // budget so the user reads it as "matched at seed 0x05A1F · 35 % in".
+    if (m.seedIdx == null) {
+      $('#crEffort').textContent = '—';
+    } else {
+      const seedBytes = Math.max(1, Math.ceil(Math.log2(Math.max(2, m.seedIdx + 1)) / 8));
+      const hex = m.seedIdx.toString(16).padStart(seedBytes * 2, '0');
+      const pct = (m.depth * 100).toFixed(0);
+      $('#crEffort').textContent = `seed 0x${hex} · ${pct} % in`;
+    }
+    $('#crBundle').textContent = m.bundle != null ? `id ${m.bundle}` : '—';
+  }
+
+  function highlightBundle(bid) {
+    if (state.selectedBundle === bid) return;
+    state.selectedBundle = bid;
+    grid.querySelectorAll('.cell.bundle-hover').forEach((c) => c.classList.remove('bundle-hover'));
+    if (bid == null) {
+      $('#latticeOverlay').querySelectorAll('.lat-tie.bundle-active').forEach((t) => t.classList.remove('bundle-active'));
+      return;
+    }
+    grid.querySelectorAll(`.cell[data-bundle="${bid}"]`).forEach((c) => c.classList.add('bundle-hover'));
+    $('#latticeOverlay').querySelectorAll(`.lat-tie[data-bundle="${bid}"]`).forEach((t) => t.classList.add('bundle-active'));
+  }
+
+  function moveCardTo(cell) {
+    const wrect = wrap.getBoundingClientRect();
+    const crect = cell.getBoundingClientRect();
+    const cx = crect.left - wrect.left + crect.width / 2;
+    const cy = crect.top  - wrect.top  + crect.height / 2;
+    xh.style.top  = `${cy.toFixed(1)}px`;
+    xv.style.left = `${cx.toFixed(1)}px`;
+    const cardW = 240, cardH = 220;
+    let cardX = cx + 14;
+    if (cardX + cardW > wrect.width) cardX = cx - cardW - 14;
+    const cardY = Math.min(Math.max(4, cy + 10), wrect.height - cardH);
+    card.style.left = `${Math.max(4, cardX).toFixed(0)}px`;
+    card.style.top  = `${Math.max(4, cardY).toFixed(0)}px`;
+  }
+
+  function handleMove(e) {
+    if (!wrap.classList.contains('live')) return;
+    if (card.classList.contains('pinned')) return; // pinned: don't follow cursor
+    const cell = e.target.closest('.cell');
+    if (!cell) {
+      wrap.classList.remove('tracking');
+      highlightBundle(null);
+      return;
+    }
+    wrap.classList.add('tracking');
+    moveCardTo(cell);
+    const idx = Number(cell.dataset.idx ?? -1);
+    fillCard(idx);
+    const bid = cell.dataset.bundle != null ? Number(cell.dataset.bundle) : null;
+    highlightBundle(bid);
+  }
+
+  function handleClick(e) {
+    const cell = e.target.closest('.cell');
+    if (!cell) {
+      unpinInspector();
+      return;
+    }
+    // Toggle pin on the same cell, otherwise re-pin to this one.
+    const idx = Number(cell.dataset.idx ?? -1);
+    if (state.pinnedCell === idx) { unpinInspector(); return; }
+    grid.querySelectorAll('.cell.selected').forEach((c) => c.classList.remove('selected'));
+    cell.classList.add('selected');
+    state.pinnedCell = idx;
+    fillCard(idx);
+    moveCardTo(cell);
+    card.classList.add('pinned');
+    wrap.classList.add('tracking');
+    $('#crFoot').textContent = 'pinned · click again to release';
+  }
+
+  function unpinInspector() {
+    state.pinnedCell = null;
+    card.classList.remove('pinned');
+    grid.querySelectorAll('.cell.selected').forEach((c) => c.classList.remove('selected'));
+    $('#crFoot').textContent = 'hover · click to pin';
+  }
+
+  grid.addEventListener('mousemove', handleMove);
+  grid.addEventListener('mouseleave', () => {
+    if (!card.classList.contains('pinned')) {
+      wrap.classList.remove('tracking');
+      highlightBundle(null);
+    }
+  });
+  grid.addEventListener('click', handleClick);
+
+  // Color-mode segmented control.
+  const seg = $('#latColorMode');
+  seg?.addEventListener('click', (e) => {
+    const b = e.target.closest('button[data-mode]');
+    if (!b) return;
+    state.latticeColorMode = b.dataset.mode;
+    seg.querySelectorAll('button').forEach((x) => x.classList.toggle('active', x === b));
+    wrap.dataset.color = state.latticeColorMode;
+    requestAnimationFrame(drawLigatures);
+  });
+
+  // Scrubber drag.
+  const scrubber = $('#scrubber');
+  let dragging = false;
+  function passFromX(clientX) {
+    const r = scrubber.getBoundingClientRect();
+    const pct = clamp((clientX - r.left) / r.width, 0, 1);
+    const passes = state.latticePasses || 1;
+    return passes <= 1 ? 0 : Math.round(pct * (passes - 1));
+  }
+  scrubber?.addEventListener('pointerdown', (e) => {
+    dragging = true;
+    scrubber.classList.add('live');
+    scrubber.setPointerCapture(e.pointerId);
+    applyScrubber(passFromX(e.clientX));
+  });
+  scrubber?.addEventListener('pointermove', (e) => {
+    if (!dragging) return;
+    applyScrubber(passFromX(e.clientX));
+  });
+  scrubber?.addEventListener('pointerup', (e) => {
+    dragging = false;
+    scrubber.classList.remove('live');
+    try { scrubber.releasePointerCapture(e.pointerId); } catch (_) {}
+  });
+
+  // Zoom buttons (cycle column counts).
+  $('#btnZoomCells')?.addEventListener('click', () => cycleZoom(+1));
+  $('#btnFitCells')?.addEventListener('click',  () => cycleZoom(-1));
+}
+
+function cycleZoom(dir) {
+  const wrap = $('#latticeWrap');
+  if (!wrap) return;
+  const states = ['zoom-1', 'zoom-2', 'zoom-3'];
+  let i = states.findIndex((s) => wrap.classList.contains(s));
+  if (i < 0) i = 0;
+  i = clamp(i + dir, 0, states.length - 1);
+  states.forEach((s) => wrap.classList.remove(s));
+  wrap.classList.add(states[i]);
+  requestAnimationFrame(drawLigatures);
+}
+
+// ---------- Wiring ---------------------------------------------------------
+
+function wireV2() {
+  // F1 · archive sidebar
+  $('#btnArchive')?.addEventListener('click', openArchive);
+  $('#btnArchiveClose')?.addEventListener('click', closeArchive);
+  $('#scrim')?.addEventListener('click', closeArchive);
+  $('#btnClearHistory')?.addEventListener('click', () => {
+    if (confirm('Clear all archived runs from this device?')) clearHistory();
+  });
+  $('#btnExportAll')?.addEventListener('click', exportAllHistory);
+
+  // F5 · export buttons
+  $('#btnExportJson')?.addEventListener('click', exportRunJson);
+  $('#btnExportCsv')?.addEventListener('click', exportRunCsv);
+  $('#btnCopyId')?.addEventListener('click', copyRunId);
+
+  // F7 · advanced panel
+  wireAdvanced();
+
+  // U1 · lattice hover + v3 lattice instrument
+  state.latticeColorMode = 'seed';
+  state.latticeModel = null;
+  state.latticePasses = 0;
+  state.scrubberPass  = 0;
+  state.pinnedCell    = null;
+  state.selectedBundle = null;
+  wireLatticeHover();
+
+  // Redraw ligature overlay on resize (cell positions are in pixels).
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => { if (state.latticeModel) drawLigatures(); }, 80);
+  });
+
+  // Load + render archive
+  loadHistory();
+  renderHistory();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => { init(); wireV2(); });
+} else {
+  init(); wireV2();
+}
+</script>
+<script>
+  // small live clock in the topbar
+  (function () {
+    function tick() {
+      const d = new Date();
+      const iso = d.toISOString().substr(0, 19).replace('T', ' ') + 'Z';
+      const el = document.getElementById('topClock');
+      if (el) el.textContent = iso;
+    }
+    tick(); setInterval(tick, 1000);
   })();
 </script>
 </body>

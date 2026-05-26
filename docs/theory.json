@@ -1,0 +1,431 @@
+{
+  "generated_by": "scripts/generate_theory_report.py",
+  "generated_at": "2026-05-26T06:02:39.821636+00:00",
+  "format_version": 1,
+  "artifact_hashes": {
+    "corpus_matrix_sha256": "2a9f8506a3c9e6aa47c0e91c1e15bf1951f9af0d0b3cb64129982e06a27e7bd2",
+    "deep_sweeps_sha256": "2176343942c8dff2eff0b9b55e0dff77fd03f5e4e010ef424e1e45524976331b",
+    "sweeps_sha256": "803c32715becd4eca7f52b5282fceaab539b953365ef223b477f3d5a6355dce7"
+  },
+  "model": "expected_hits = candidate_spans * seed_count / 2^(8*span_len)",
+  "seed_depth_table": [
+    {
+      "max_seed_len": 1,
+      "seed_count": 256,
+      "log2_seed_count": 8.0
+    },
+    {
+      "max_seed_len": 2,
+      "seed_count": 65792,
+      "log2_seed_count": 16.005625
+    },
+    {
+      "max_seed_len": 3,
+      "seed_count": 16843008,
+      "log2_seed_count": 24.005646
+    }
+  ],
+  "overhead_table": [
+    {
+      "seed_len": 1,
+      "record_len": 5,
+      "minimum_profitable_span_len": 6,
+      "savings_at_span8": 3
+    },
+    {
+      "seed_len": 2,
+      "record_len": 6,
+      "minimum_profitable_span_len": 7,
+      "savings_at_span8": 2
+    },
+    {
+      "seed_len": 3,
+      "record_len": 7,
+      "minimum_profitable_span_len": 8,
+      "savings_at_span8": 1
+    }
+  ],
+  "minimum_profitable_frontier": [
+    {
+      "max_seed_len": 1,
+      "seed_count": 256,
+      "minimum_profitable_span_len": 6,
+      "gap_bits_at_minimum_profitable_span": 40.0,
+      "spans_for_one_expected_hit": 1099511627776.0,
+      "expected_hits_per_mib": 9.536697689327411e-07,
+      "expected_hits_per_gib": 0.0009765624954525265
+    },
+    {
+      "max_seed_len": 2,
+      "seed_count": 65792,
+      "minimum_profitable_span_len": 7,
+      "gap_bits_at_minimum_profitable_span": 39.994375,
+      "spans_for_one_expected_hit": 1095233372415.0006,
+      "expected_hits_per_mib": 9.573941284202192e-07,
+      "expected_hits_per_gib": 0.0009803771917873405
+    },
+    {
+      "max_seed_len": 3,
+      "seed_count": 16843008,
+      "minimum_profitable_span_len": 8,
+      "gap_bits_at_minimum_profitable_span": 39.994354,
+      "spans_for_one_expected_hit": 1095216725760.0071,
+      "expected_hits_per_mib": 9.574077671908876e-07,
+      "expected_hits_per_gib": 0.0009803920920353898
+    },
+    {
+      "max_seed_len": 4,
+      "seed_count": 4311810304,
+      "minimum_profitable_span_len": 9,
+      "gap_bits_at_minimum_profitable_span": 39.994353,
+      "spans_for_one_expected_hit": 1095216660734.9993,
+      "expected_hits_per_mib": 9.574069109725795e-07,
+      "expected_hits_per_gib": 0.000980392149329989
+    },
+    {
+      "max_seed_len": 5,
+      "seed_count": 1103823438080,
+      "minimum_profitable_span_len": 10,
+      "gap_bits_at_minimum_profitable_span": 39.994353,
+      "spans_for_one_expected_hit": 1095216660480.9984,
+      "expected_hits_per_mib": 9.574059981332748e-07,
+      "expected_hits_per_gib": 0.0009803921486443014
+    },
+    {
+      "max_seed_len": 6,
+      "seed_count": 282578800148736,
+      "minimum_profitable_span_len": 11,
+      "gap_bits_at_minimum_profitable_span": 39.994353,
+      "spans_for_one_expected_hit": 1095216660480.006,
+      "expected_hits_per_mib": 9.574050850727945e-07,
+      "expected_hits_per_gib": 0.000980392147732128
+    },
+    {
+      "max_seed_len": 7,
+      "seed_count": 72340172838076672,
+      "minimum_profitable_span_len": 12,
+      "gap_bits_at_minimum_profitable_span": 39.994353,
+      "spans_for_one_expected_hit": 1095216660480.0006,
+      "expected_hits_per_mib": 9.574041720114502e-07,
+      "expected_hits_per_gib": 0.0009803921468190702
+    },
+    {
+      "max_seed_len": 8,
+      "seed_count": 18519084246547628288,
+      "minimum_profitable_span_len": 13,
+      "gap_bits_at_minimum_profitable_span": 39.994353,
+      "spans_for_one_expected_hit": 1095216660480.0006,
+      "expected_hits_per_mib": 9.574032589501026e-07,
+      "expected_hits_per_gib": 0.000980392145906009
+    }
+  ],
+  "structured_expectations": [
+    {
+      "name": "json-depth2",
+      "input_bytes": 6814,
+      "span_len": 8,
+      "span_step": 1,
+      "seed_depth": 2,
+      "candidate_spans": 6807,
+      "seed_count": 65792,
+      "expected_random_hits": 2.4277788113202803e-11,
+      "observed_candidates": 0,
+      "observed_selected": 0
+    },
+    {
+      "name": "markdown-depth2",
+      "input_bytes": 19095,
+      "span_len": 8,
+      "span_step": 1,
+      "seed_depth": 2,
+      "candidate_spans": 19088,
+      "seed_count": 65792,
+      "expected_random_hits": 6.807909791461952e-11,
+      "observed_candidates": 0,
+      "observed_selected": 0
+    },
+    {
+      "name": "csv-depth2",
+      "input_bytes": 7269,
+      "span_len": 8,
+      "span_step": 1,
+      "seed_depth": 2,
+      "candidate_spans": 7262,
+      "seed_count": 65792,
+      "expected_random_hits": 2.5900587230509586e-11,
+      "observed_candidates": 0,
+      "observed_selected": 0
+    },
+    {
+      "name": "rust-like-depth2",
+      "input_bytes": 19107,
+      "span_len": 8,
+      "span_step": 1,
+      "seed_depth": 2,
+      "candidate_spans": 19100,
+      "seed_count": 65792,
+      "expected_random_hits": 6.812189701221882e-11,
+      "observed_candidates": 0,
+      "observed_selected": 0
+    },
+    {
+      "name": "html-depth2",
+      "input_bytes": 14214,
+      "span_len": 8,
+      "span_step": 1,
+      "seed_depth": 2,
+      "candidate_spans": 14207,
+      "seed_count": 65792,
+      "expected_random_hits": 5.0670564966104337e-11,
+      "observed_candidates": 0,
+      "observed_selected": 0
+    },
+    {
+      "name": "python-like-depth2",
+      "input_bytes": 17923,
+      "span_len": 8,
+      "span_step": 1,
+      "seed_depth": 2,
+      "candidate_spans": 17916,
+      "seed_count": 65792,
+      "expected_random_hits": 6.389905271575458e-11,
+      "observed_candidates": 0,
+      "observed_selected": 0
+    },
+    {
+      "name": "sql-depth2",
+      "input_bytes": 18126,
+      "span_len": 8,
+      "span_step": 1,
+      "seed_depth": 2,
+      "candidate_spans": 18119,
+      "seed_count": 65792,
+      "expected_random_hits": 6.462307078347607e-11,
+      "observed_candidates": 0,
+      "observed_selected": 0
+    },
+    {
+      "name": "toml-depth2",
+      "input_bytes": 12190,
+      "span_len": 8,
+      "span_step": 1,
+      "seed_depth": 2,
+      "candidate_spans": 12183,
+      "seed_count": 65792,
+      "expected_random_hits": 4.3451783837689106e-11,
+      "observed_candidates": 0,
+      "observed_selected": 0
+    },
+    {
+      "name": "xml-depth2",
+      "input_bytes": 19175,
+      "span_len": 8,
+      "span_step": 1,
+      "seed_depth": 2,
+      "candidate_spans": 19168,
+      "seed_count": 65792,
+      "expected_random_hits": 6.836442523194819e-11,
+      "observed_candidates": 0,
+      "observed_selected": 0
+    },
+    {
+      "name": "log-depth2",
+      "input_bytes": 29440,
+      "span_len": 8,
+      "span_step": 1,
+      "seed_depth": 2,
+      "candidate_spans": 29433,
+      "seed_count": 65792,
+      "expected_random_hits": 1.0497548663668255e-10,
+      "observed_candidates": 0,
+      "observed_selected": 0
+    },
+    {
+      "name": "yaml-depth2",
+      "input_bytes": 24632,
+      "span_len": 8,
+      "span_step": 1,
+      "seed_depth": 2,
+      "candidate_spans": 24625,
+      "seed_count": 65792,
+      "expected_random_hits": 8.782731486522977e-11,
+      "observed_candidates": 0,
+      "observed_selected": 0
+    },
+    {
+      "name": "css-depth2",
+      "input_bytes": 23342,
+      "span_len": 8,
+      "span_step": 1,
+      "seed_depth": 2,
+      "candidate_spans": 23335,
+      "seed_count": 65792,
+      "expected_random_hits": 8.322641187330504e-11,
+      "observed_candidates": 0,
+      "observed_selected": 0
+    },
+    {
+      "name": "javascript-like-depth2",
+      "input_bytes": 28315,
+      "span_len": 8,
+      "span_step": 1,
+      "seed_depth": 2,
+      "candidate_spans": 28308,
+      "seed_count": 65792,
+      "expected_random_hits": 1.0096307123674819e-10,
+      "observed_candidates": 0,
+      "observed_selected": 0
+    },
+    {
+      "name": "graphql-depth2",
+      "input_bytes": 18639,
+      "span_len": 8,
+      "span_step": 1,
+      "seed_depth": 2,
+      "candidate_spans": 18632,
+      "seed_count": 65792,
+      "expected_random_hits": 6.645273220584613e-11,
+      "observed_candidates": 0,
+      "observed_selected": 0
+    },
+    {
+      "name": "nginx-conf-depth2",
+      "input_bytes": 15074,
+      "span_len": 8,
+      "span_step": 1,
+      "seed_depth": 2,
+      "candidate_spans": 15067,
+      "seed_count": 65792,
+      "expected_random_hits": 5.373783362738749e-11,
+      "observed_candidates": 0,
+      "observed_selected": 0
+    },
+    {
+      "name": "ini-depth2",
+      "input_bytes": 19969,
+      "span_len": 8,
+      "span_step": 1,
+      "seed_depth": 2,
+      "candidate_spans": 19962,
+      "seed_count": 65792,
+      "expected_random_hits": 7.119629885643519e-11,
+      "observed_candidates": 0,
+      "observed_selected": 0
+    },
+    {
+      "name": "fasta-depth2",
+      "input_bytes": 18888,
+      "span_len": 8,
+      "span_step": 1,
+      "seed_depth": 2,
+      "candidate_spans": 18881,
+      "seed_count": 65792,
+      "expected_random_hits": 6.73408134810316e-11,
+      "observed_candidates": 0,
+      "observed_selected": 0
+    },
+    {
+      "name": "svg-depth2",
+      "input_bytes": 29482,
+      "span_len": 8,
+      "span_step": 1,
+      "seed_depth": 2,
+      "candidate_spans": 29475,
+      "seed_count": 65792,
+      "expected_random_hits": 1.051252834782801e-10,
+      "observed_candidates": 0,
+      "observed_selected": 0
+    },
+    {
+      "name": "http-headers-depth2",
+      "input_bytes": 45540,
+      "span_len": 8,
+      "span_step": 1,
+      "seed_depth": 2,
+      "candidate_spans": 45533,
+      "seed_count": 65792,
+      "expected_random_hits": 1.6239760924907642e-10,
+      "observed_candidates": 0,
+      "observed_selected": 0
+    },
+    {
+      "name": "shadow-json-depth2",
+      "input_bytes": 38874,
+      "span_len": 8,
+      "span_step": 1,
+      "seed_depth": 2,
+      "candidate_spans": 38867,
+      "seed_count": 65792,
+      "expected_random_hits": 1.386227105326654e-10,
+      "observed_candidates": 0,
+      "observed_selected": 0
+    },
+    {
+      "name": "binary-tlv-depth2",
+      "input_bytes": 5031,
+      "span_len": 8,
+      "span_step": 1,
+      "seed_depth": 2,
+      "candidate_spans": 5024,
+      "seed_count": 65792,
+      "expected_random_hits": 1.7918555528240176e-11,
+      "observed_candidates": 0,
+      "observed_selected": 0
+    },
+    {
+      "name": "binary-varint-depth2",
+      "input_bytes": 4260,
+      "span_len": 8,
+      "span_step": 1,
+      "seed_depth": 2,
+      "candidate_spans": 4253,
+      "seed_count": 65792,
+      "expected_random_hits": 1.5168713507485165e-11,
+      "observed_candidates": 0,
+      "observed_selected": 0
+    }
+  ],
+  "structured_depth3_expectation": {
+    "name": "structured-json-depth3-span8-step1-pass1",
+    "input_bytes": 6814,
+    "span_len": 8,
+    "span_step": 1,
+    "seed_depth": 3,
+    "candidate_spans": 6807,
+    "seed_count": 16843008,
+    "expected_random_hits": 6.215208223081525e-09,
+    "observed_candidates": 0,
+    "observed_selected": 0
+  },
+  "planted_controls": [
+    {
+      "name": "seed2-planted-depth1",
+      "seed_depth": 1,
+      "delta_pct": 8.10546875,
+      "observed_selected": 0,
+      "interpretation": "planted/non-random control"
+    },
+    {
+      "name": "seed2-planted-depth2",
+      "seed_depth": 2,
+      "delta_pct": -17.1875,
+      "observed_selected": 128,
+      "interpretation": "planted/non-random control"
+    },
+    {
+      "name": "seed3-planted-depth2",
+      "seed_depth": 2,
+      "delta_pct": 8.10546875,
+      "observed_selected": 0,
+      "interpretation": "planted/non-random control"
+    },
+    {
+      "name": "seed3-planted-depth3",
+      "seed_depth": 3,
+      "delta_pct": -4.6875,
+      "observed_selected": 128,
+      "interpretation": "planted/non-random control"
+    }
+  ],
+  "conclusion": "Current structured controls are consistent with near-zero random exact-prefix hit expectations; planted wins prove mechanism, not natural prevalence."
+}
