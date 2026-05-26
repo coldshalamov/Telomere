@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 from datetime import datetime, timezone
 from pathlib import Path
@@ -55,6 +56,52 @@ def require_heldouts() -> list[Path]:
     return paths
 
 
+def shadow_source_bytes(data: bytes, label: str, forbidden_tokens: tuple[bytes, ...]) -> bytes:
+    """Preserve source byte shape while removing public Rust vocabulary.
+
+    Whitespace and punctuation stay byte-for-byte so the control keeps line
+    lengths, indentation, comment markers, braces, separators, and string
+    punctuation. ASCII letters/digits are replaced by deterministic
+    vocabulary-disjoint glyphs so source-family token hits must come from
+    learned lexical coverage, not generic source-shaped layout.
+    """
+
+    alpha_lower = b"qzxvjk"
+    alpha_upper = b"QZXVJK"
+    digit_shadow = b"739105"
+    salt = hashlib.sha256(label.encode("utf-8")).digest()
+    out = bytearray()
+    for idx, byte in enumerate(data):
+        offset = salt[idx % len(salt)]
+        if 97 <= byte <= 122:
+            out.append(alpha_lower[(idx + offset) % len(alpha_lower)])
+        elif 65 <= byte <= 90:
+            out.append(alpha_upper[(idx + offset) % len(alpha_upper)])
+        elif 48 <= byte <= 57:
+            out.append(digit_shadow[(idx + offset) % len(digit_shadow)])
+        else:
+            out.append(byte)
+    # The first pass preserves source shape, but repeated shadow glyphs can
+    # accidentally synthesize a learned token. Scrub those exact token bytes so
+    # the paired control is vocabulary-disjoint by construction.
+    changed = True
+    while changed:
+        changed = False
+        for token in sorted(forbidden_tokens, key=len, reverse=True):
+            start = bytes(out).find(token)
+            while start != -1:
+                changed = True
+                for idx in range(start, start + len(token)):
+                    if (
+                        48 <= out[idx] <= 57
+                        or 65 <= out[idx] <= 90
+                        or 97 <= out[idx] <= 122
+                    ):
+                        out[idx] = ord("~")
+                start = bytes(out).find(token, start + 1)
+    return bytes(out)
+
+
 def source_hashes() -> dict[str, str]:
     hashes = {
         "generator": sha256(ROOT / GENERATED_BY),
@@ -89,8 +136,9 @@ def build_rows() -> tuple[list[dict[str, Any]], dict[str, Any]]:
         random_path.write_bytes(
             deterministic_random(len(data), f"source-family:{heldout_id}".encode())
         )
-
         tokens, token_stats = learned_public_source_tokens(heldout)
+        shadow_path = RUN_DIR / f"{heldout_id}-paired-shadow-source.rs"
+        shadow_path.write_bytes(shadow_source_bytes(data, heldout_id, tokens))
         token_metadata[heldout_id] = {
             "heldout": rel.as_posix(),
             "token_count": len(tokens),
@@ -99,6 +147,7 @@ def build_rows() -> tuple[list[dict[str, Any]], dict[str, Any]]:
 
         corpora = {
             "heldout-source": source_path,
+            "paired-shadow-source": shadow_path,
             "same-size-random": random_path,
         }
         for corpus, input_path in corpora.items():
@@ -146,7 +195,11 @@ def build_rows() -> tuple[list[dict[str, Any]], dict[str, Any]]:
 
 def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
     comparisons = []
-    for seed in [row for row in rows if row["variant"] == "seed"]:
+    seed_rows = [row for row in rows if row["variant"] == "seed"]
+    seed_lookup = {
+        (row["heldout_id"], row["corpus"], row["frame_mode"]): row for row in seed_rows
+    }
+    for seed in seed_rows:
         controls = [
             row
             for row in rows
@@ -156,6 +209,16 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
             and row["variant"] != "seed"
         ]
         best_control = min(controls, key=lambda row: row["delta_bytes"])
+        paired_shadow = seed_lookup.get(
+            (seed["heldout_id"], "paired-shadow-source", seed["frame_mode"])
+        )
+        paired_shadow_clean = (
+            seed["corpus"] == "heldout-source"
+            and paired_shadow is not None
+            and paired_shadow["delta_bytes"] >= 0
+            and paired_shadow["selected_spans"] == 0
+            and paired_shadow["token_replacements"] == 0
+        )
         comparisons.append(
             {
                 "heldout": seed["heldout"],
@@ -169,18 +232,30 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
                 "best_control_variant": best_control["variant"],
                 "best_control_delta_bytes": best_control["delta_bytes"],
                 "best_control_selected_spans": best_control["selected_spans"],
+                "paired_shadow_delta_bytes": (
+                    paired_shadow["delta_bytes"] if paired_shadow else None
+                ),
+                "paired_shadow_selected_spans": (
+                    paired_shadow["selected_spans"] if paired_shadow else None
+                ),
+                "paired_shadow_token_replacements": (
+                    paired_shadow["token_replacements"] if paired_shadow else None
+                ),
                 "seed_minus_best_control_bytes": seed["delta_bytes"]
                 - best_control["delta_bytes"],
                 "clean_seed_specific_win": (
-                    seed["delta_bytes"] < 0
+                    seed["corpus"] == "heldout-source"
+                    and seed["delta_bytes"] < 0
                     and seed["selected_spans"] > 0
                     and best_control["delta_bytes"] >= 0
+                    and paired_shadow_clean
                 ),
             }
         )
 
     source = [row for row in comparisons if row["corpus"] == "heldout-source"]
     random_rows = [row for row in comparisons if row["corpus"] == "same-size-random"]
+    shadow_rows = [row for row in comparisons if row["corpus"] == "paired-shadow-source"]
     clean_source = [row for row in source if row["clean_seed_specific_win"]]
     best_source = min(source, key=lambda row: row["seed_delta_bytes"])
     wins_by_heldout = {
@@ -207,6 +282,12 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "same_size_random_selected_spans": sum(
             row["seed_selected_spans"] for row in random_rows
         ),
+        "paired_shadow_selected_spans": sum(
+            row["seed_selected_spans"] for row in shadow_rows
+        ),
+        "paired_shadow_token_replacements": sum(
+            row["token_replacements"] for row in shadow_rows
+        ),
         "best_source_seed_delta_bytes": best_source["seed_delta_bytes"],
         "best_source_seed_minus_control_bytes": best_source[
             "seed_minus_best_control_bytes"
@@ -216,9 +297,9 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "best_source": best_source,
         "comparisons": comparisons,
         "conclusion": (
-            "source-family exact seed-span compression generalizes when public "
-            "Rust tokens are learned from non-held-out files, but the win rate "
-            "is corpus dependent and remains a source-preset research problem"
+            "source-family exact seed-span compression generalizes across "
+            "held-out Rust files and separates from paired vocabulary-shadow "
+            "and random controls, but coverage remains preset dependent"
         ),
     }
 
@@ -268,23 +349,26 @@ def write_markdown(payload: dict[str, Any]) -> None:
         f"- Source clean win rows: `{summary['source_clean_win_rows']}`",
         f"- Source clean win held-outs: `{summary['source_clean_win_heldouts']}`",
         f"- Same-size random selected spans: `{summary['same_size_random_selected_spans']}`",
+        f"- Paired shadow selected spans: `{summary['paired_shadow_selected_spans']}`",
+        f"- Paired shadow token replacements: `{summary['paired_shadow_token_replacements']}`",
         f"- Best source seed delta bytes: `{summary['best_source_seed_delta_bytes']}`",
         f"- Best source seed minus control bytes: `{summary['best_source_seed_minus_control_bytes']}`",
         f"- Conclusion: `{summary['conclusion']}`",
         "",
         "## Best By Held-Out",
         "",
-        "| Held-out | Frame | Seed delta | Selected spans | Best control delta | Seed minus control | Clean win |",
-        "| --- | --- | ---: | ---: | ---: | ---: | --- |",
+        "| Held-out | Frame | Seed delta | Selected spans | Best control delta | Shadow selected | Seed minus control | Clean win |",
+        "| --- | --- | ---: | ---: | ---: | ---: | ---: | --- |",
     ]
     for heldout, row in summary["best_by_heldout"].items():
         lines.append(
-            "| {heldout} | `{frame}` | {delta} | {selected} | {control} | {minus} | `{clean}` |".format(
+            "| {heldout} | `{frame}` | {delta} | {selected} | {control} | {shadow_selected} | {minus} | `{clean}` |".format(
                 heldout=row["heldout"],
                 frame=row["frame_mode"],
                 delta=row["seed_delta_bytes"],
                 selected=row["seed_selected_spans"],
                 control=row["best_control_delta_bytes"],
+                shadow_selected=row["paired_shadow_selected_spans"],
                 minus=row["seed_minus_best_control_bytes"],
                 clean=row["clean_seed_specific_win"],
             )
@@ -294,13 +378,13 @@ def write_markdown(payload: dict[str, Any]) -> None:
             "",
             "## All Comparisons",
             "",
-            "| Held-out | Corpus | Frame | Seed delta | Public-preset delta | Selected spans | Best control delta | Seed minus control | Clean win |",
-            "| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | --- |",
+            "| Held-out | Corpus | Frame | Seed delta | Public-preset delta | Selected spans | Best control delta | Shadow selected | Seed minus control | Clean win |",
+            "| --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |",
         ]
     )
     for row in summary["comparisons"]:
         lines.append(
-            "| {heldout} | `{corpus}` | `{frame}` | {delta} | {public_delta} | {selected} | {control} | {minus} | `{clean}` |".format(
+            "| {heldout} | `{corpus}` | `{frame}` | {delta} | {public_delta} | {selected} | {control} | {shadow_selected} | {minus} | `{clean}` |".format(
                 heldout=row["heldout"],
                 corpus=row["corpus"],
                 frame=row["frame_mode"],
@@ -308,6 +392,7 @@ def write_markdown(payload: dict[str, Any]) -> None:
                 public_delta=row["seed_public_preset_delta_bytes"],
                 selected=row["seed_selected_spans"],
                 control=row["best_control_delta_bytes"],
+                shadow_selected=row["paired_shadow_selected_spans"],
                 minus=row["seed_minus_best_control_bytes"],
                 clean=row["clean_seed_specific_win"],
             )
@@ -318,6 +403,7 @@ def write_markdown(payload: dict[str, Any]) -> None:
             "Interpretation:",
             "",
             "- A clean win requires negative full `.tlmr` bytes, at least one selected exact seed span, and non-negative paired codeword controls.",
+            "- Paired shadow rows preserve byte length, whitespace, punctuation, comments, and source delimiters while replacing source vocabulary; clean wins require these rows to keep zero token replacements and zero selected spans.",
             "- Same-size random rows test whether the source-family token transform creates accidental seed-span matches on non-source bytes.",
             "- The research question is no longer whether source-family codeword transforms can work at all; it is which public preset families provide enough coverage reliably.",
             "",
@@ -339,8 +425,12 @@ def check_report() -> None:
         raise SystemExit("source family cross-validation heldout count is stale")
     if summary.get("same_size_random_selected_spans", 1) != 0:
         raise SystemExit("same-size random source-family controls must stay null")
-    if summary.get("source_clean_win_heldouts", 0) <= 0:
-        raise SystemExit("expected at least one held-out source clean win")
+    if summary.get("paired_shadow_selected_spans", 1) != 0:
+        raise SystemExit("paired shadow source controls must select zero spans")
+    if summary.get("paired_shadow_token_replacements", 1) != 0:
+        raise SystemExit("paired shadow source controls must replace zero tokens")
+    if summary.get("source_clean_win_heldouts", 0) != len(HELDOUT_RELS):
+        raise SystemExit("expected every held-out source to produce a clean win")
     if summary.get("best_source_seed_delta_bytes", 0) >= 0:
         raise SystemExit("expected best held-out source row to be negative")
     text = OUT_MD.read_text(encoding="utf-8")
@@ -348,6 +438,7 @@ def check_report() -> None:
         "Source Family Cross-Validation",
         "Best By Held-Out",
         "Same-size random",
+        "Paired shadow",
         "public preset families",
     ):
         if phrase not in text:
