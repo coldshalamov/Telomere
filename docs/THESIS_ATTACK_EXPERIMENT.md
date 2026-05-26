@@ -5,117 +5,153 @@ This records a focused mechanism experiment, not a production or natural-corpus 
 
 ## Summary
 
-- Rows: `63`
-- Non-planted rows with exact selected spans: `13`
-- Non-planted profitable rows after charged `.tlmr` accounting: `6`
+- Rows: `96`
+- Non-planted rows with exact selected spans: `15`
+- Non-planted profitable rows after charged `.tlmr` accounting: `8`
 - Non-seed codeword control rows with exact selected spans: `0`
 - Non-seed codeword control rows profitable after charged accounting: `0`
-- Seed rows beating all same-token codeword controls: `9`
+- Seed rows beating all same-token codeword controls: `11`
+- Learned public seed rows with exact selected spans: `2`
+- Learned public seed rows profitable after charged accounting: `2`
+- Learned leave-family-out seed rows with exact selected spans: `0`
+- Learned public rows beating all same-token codeword controls: `2`
 - Best non-planted delta bytes: `-678`
-- Conclusion: `public-preset transform produced profitable non-planted rows`
+- Conclusion: `public preset and learned public codebook produced seed-specific profitable non-planted rows`
 
 ## Bottleneck Math
 
 - Expected exact hits: `target_windows * seed_space / 2^(8 * span_len)`.
-- v2 seed-span record bytes: `4 + seed_len`.
-- A one-layer v2 container costs `80` bytes before payload.
-- Literal records cost `3` bytes plus literal payload.
-- `span=6` and `span=7` are shortest profitable windows for 1-byte and 2-byte seeds, but are skipped by the default `block_size=4` arity grid.
+- v2 seed-span record bytes are variable Lotus bit lengths; actual row output bytes come from the current encoder.
+- Literal-only charged bytes are measured by a real CLI probe using `block_size=1` and `max_span_len=1`, so no seed-span can be profitable.
+- This table is probability-only; profitability is decided by actual `.tlmr` rows and same-token controls.
 
-| span | depth | seed space | windows @1KiB | expected hits | seed expansions for one expected hit | arity grid reachable | locally profitable |
-| ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |
-| 4 | 1 | 256 | 1021 | 6.086e-05 | 4.207e+06 | `True` | `False` |
-| 4 | 2 | 65792 | 1021 | 1.564e-02 | 4.207e+06 | `True` | `False` |
-| 4 | 3 | 16843008 | 1021 | 4.004e+00 | 4.207e+06 | `True` | `False` |
-| 6 | 1 | 256 | 1019 | 9.268e-10 | 2.762e+11 | `False` | `True` |
-| 6 | 2 | 65792 | 1019 | 2.382e-07 | 2.762e+11 | `False` | `False` |
-| 6 | 3 | 16843008 | 1019 | 6.098e-05 | 2.762e+11 | `False` | `False` |
-| 7 | 1 | 256 | 1018 | 3.617e-12 | 7.078e+13 | `False` | `True` |
-| 7 | 2 | 65792 | 1018 | 9.295e-10 | 7.078e+13 | `False` | `True` |
-| 7 | 3 | 16843008 | 1018 | 2.380e-07 | 7.078e+13 | `False` | `False` |
-| 8 | 1 | 256 | 1017 | 1.411e-14 | 1.814e+16 | `True` | `True` |
-| 8 | 2 | 65792 | 1017 | 3.627e-12 | 1.814e+16 | `True` | `True` |
-| 8 | 3 | 16843008 | 1017 | 9.286e-10 | 1.814e+16 | `True` | `True` |
-| 9 | 1 | 256 | 1016 | 5.508e-17 | 4.648e+18 | `False` | `True` |
-| 9 | 2 | 65792 | 1016 | 1.415e-14 | 4.648e+18 | `False` | `True` |
-| 9 | 3 | 16843008 | 1016 | 3.624e-12 | 4.648e+18 | `False` | `True` |
-| 12 | 1 | 256 | 1013 | 3.273e-24 | 7.821e+25 | `True` | `True` |
-| 12 | 2 | 65792 | 1013 | 8.412e-22 | 7.821e+25 | `True` | `True` |
-| 12 | 3 | 16843008 | 1013 | 2.154e-19 | 7.821e+25 | `True` | `True` |
-| 16 | 1 | 256 | 1009 | 7.591e-34 | 3.372e+35 | `True` | `True` |
-| 16 | 2 | 65792 | 1009 | 1.951e-31 | 3.372e+35 | `True` | `True` |
-| 16 | 3 | 16843008 | 1009 | 4.994e-29 | 3.372e+35 | `True` | `True` |
-| 20 | 1 | 256 | 1005 | 1.760e-43 | 1.454e+45 | `True` | `True` |
-| 20 | 2 | 65792 | 1005 | 4.524e-41 | 1.454e+45 | `True` | `True` |
-| 20 | 3 | 16843008 | 1005 | 1.158e-38 | 1.454e+45 | `True` | `True` |
+| span | depth | seed space | windows @1KiB | expected hits | seed expansions for one expected hit | arity grid reachable |
+| ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| 4 | 1 | 256 | 1021 | 6.086e-05 | 4.207e+06 | `True` |
+| 4 | 2 | 65792 | 1021 | 1.564e-02 | 4.207e+06 | `True` |
+| 4 | 3 | 16843008 | 1021 | 4.004e+00 | 4.207e+06 | `True` |
+| 6 | 1 | 256 | 1019 | 9.268e-10 | 2.762e+11 | `False` |
+| 6 | 2 | 65792 | 1019 | 2.382e-07 | 2.762e+11 | `False` |
+| 6 | 3 | 16843008 | 1019 | 6.098e-05 | 2.762e+11 | `False` |
+| 7 | 1 | 256 | 1018 | 3.617e-12 | 7.078e+13 | `False` |
+| 7 | 2 | 65792 | 1018 | 9.295e-10 | 7.078e+13 | `False` |
+| 7 | 3 | 16843008 | 1018 | 2.380e-07 | 7.078e+13 | `False` |
+| 8 | 1 | 256 | 1017 | 1.411e-14 | 1.814e+16 | `True` |
+| 8 | 2 | 65792 | 1017 | 3.627e-12 | 1.814e+16 | `True` |
+| 8 | 3 | 16843008 | 1017 | 9.286e-10 | 1.814e+16 | `True` |
+| 9 | 1 | 256 | 1016 | 5.508e-17 | 4.648e+18 | `False` |
+| 9 | 2 | 65792 | 1016 | 1.415e-14 | 4.648e+18 | `False` |
+| 9 | 3 | 16843008 | 1016 | 3.624e-12 | 4.648e+18 | `False` |
+| 12 | 1 | 256 | 1013 | 3.273e-24 | 7.821e+25 | `True` |
+| 12 | 2 | 65792 | 1013 | 8.412e-22 | 7.821e+25 | `True` |
+| 12 | 3 | 16843008 | 1013 | 2.154e-19 | 7.821e+25 | `True` |
+| 16 | 1 | 256 | 1009 | 7.591e-34 | 3.372e+35 | `True` |
+| 16 | 2 | 65792 | 1009 | 1.951e-31 | 3.372e+35 | `True` |
+| 16 | 3 | 16843008 | 1009 | 4.994e-29 | 3.372e+35 | `True` |
+| 20 | 1 | 256 | 1005 | 1.760e-43 | 1.454e+45 | `True` |
+| 20 | 2 | 65792 | 1005 | 4.524e-41 | 1.454e+45 | `True` |
+| 20 | 3 | 16843008 | 1005 | 1.158e-38 | 1.454e+45 | `True` |
 
 ## Experiment Rows
 
 | corpus | transform | original | transformed | selected spans | candidates | literal-only charged | charged bytes | seed-span benefit | delta | token replacements |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| `planted-positive` | `identity` | 2048 | 2048 | 128 | 512 | 2131 | 481 | 1650 | -1567 | 0 |
-| `planted-positive` | `xor-delta1` | 2048 | 2048 | 0 | 0 | 2132 | 2081 | 51 | 33 | 0 |
-| `planted-positive` | `public-preset-framed-v0` | 2048 | 2051 | 128 | 512 | 2142 | 495 | 1647 | -1553 | 0 |
-| `planted-positive` | `public-preset-selective-v0` | 2048 | 2051 | 128 | 512 | 2142 | 495 | 1647 | -1553 | 0 |
-| `planted-positive` | `public-preset-framed-random-codeword-v0` | 2048 | 2051 | 128 | 512 | 2142 | 495 | 1647 | -1553 | 0 |
-| `planted-positive` | `public-preset-selective-random-codeword-v0` | 2048 | 2051 | 128 | 512 | 2142 | 495 | 1647 | -1553 | 0 |
-| `planted-positive` | `public-preset-framed-out-of-budget-codeword-v0` | 2048 | 2051 | 128 | 512 | 2142 | 495 | 1647 | -1553 | 0 |
-| `planted-positive` | `public-preset-selective-out-of-budget-codeword-v0` | 2048 | 2051 | 128 | 512 | 2142 | 495 | 1647 | -1553 | 0 |
-| `planted-positive` | `public-preset-selective-native-v0` | 2048 | 2048 | 128 | 512 | 2166 | 498 | 1668 | -1550 | 0 |
-| `structured-json` | `identity` | 6814 | 6814 | 0 | 0 | 6897 | 6846 | 51 | 32 | 0 |
-| `structured-json` | `xor-delta1` | 6814 | 6814 | 0 | 0 | 6898 | 6847 | 51 | 33 | 0 |
-| `structured-json` | `public-preset-framed-v0` | 6814 | 12313 | 560 | 2240 | 12404 | 6673 | 5731 | -141 | 560 |
-| `structured-json` | `public-preset-selective-v0` | 6814 | 7697 | 160 | 640 | 7788 | 6136 | 1652 | -678 | 160 |
-| `structured-json` | `public-preset-framed-random-codeword-v0` | 6814 | 12313 | 0 | 0 | 12404 | 12354 | 50 | 5540 | 560 |
-| `structured-json` | `public-preset-selective-random-codeword-v0` | 6814 | 7697 | 0 | 0 | 7788 | 7737 | 51 | 923 | 160 |
-| `structured-json` | `public-preset-framed-out-of-budget-codeword-v0` | 6814 | 12313 | 0 | 0 | 12404 | 12354 | 50 | 5540 | 560 |
-| `structured-json` | `public-preset-selective-out-of-budget-codeword-v0` | 6814 | 7697 | 0 | 0 | 7788 | 7737 | 51 | 923 | 160 |
-| `structured-json` | `public-preset-selective-native-v0` | 6814 | 6814 | 160 | 640 | 7812 | 6139 | 1673 | -675 | 160 |
-| `external-json-schema` | `identity` | 1382 | 1382 | 0 | 0 | 1465 | 1414 | 51 | 32 | 0 |
-| `external-json-schema` | `xor-delta1` | 1382 | 1382 | 0 | 0 | 1466 | 1415 | 51 | 33 | 0 |
-| `external-json-schema` | `public-preset-framed-v0` | 1382 | 1659 | 25 | 100 | 1750 | 1458 | 292 | 76 | 25 |
-| `external-json-schema` | `public-preset-selective-v0` | 1382 | 1413 | 4 | 16 | 1504 | 1416 | 88 | 34 | 4 |
-| `external-json-schema` | `public-preset-framed-random-codeword-v0` | 1382 | 1659 | 0 | 0 | 1750 | 1699 | 51 | 317 | 25 |
-| `external-json-schema` | `public-preset-selective-random-codeword-v0` | 1382 | 1413 | 0 | 0 | 1504 | 1453 | 51 | 71 | 4 |
-| `external-json-schema` | `public-preset-framed-out-of-budget-codeword-v0` | 1382 | 1659 | 0 | 0 | 1750 | 1699 | 51 | 317 | 25 |
-| `external-json-schema` | `public-preset-selective-out-of-budget-codeword-v0` | 1382 | 1413 | 0 | 0 | 1504 | 1453 | 51 | 71 | 4 |
-| `external-json-schema` | `public-preset-selective-native-v0` | 1382 | 1382 | 4 | 16 | 1528 | 1421 | 107 | 39 | 4 |
-| `external-csv` | `identity` | 379 | 379 | 0 | 0 | 462 | 410 | 52 | 31 | 0 |
-| `external-csv` | `xor-delta1` | 379 | 379 | 0 | 0 | 463 | 411 | 52 | 32 | 0 |
-| `external-csv` | `public-preset-framed-v0` | 379 | 418 | 11 | 44 | 509 | 345 | 164 | -34 | 11 |
-| `external-csv` | `public-preset-selective-v0` | 379 | 418 | 11 | 44 | 509 | 345 | 164 | -34 | 11 |
-| `external-csv` | `public-preset-framed-random-codeword-v0` | 379 | 418 | 0 | 0 | 509 | 457 | 52 | 78 | 11 |
-| `external-csv` | `public-preset-selective-random-codeword-v0` | 379 | 418 | 0 | 0 | 509 | 457 | 52 | 78 | 11 |
-| `external-csv` | `public-preset-framed-out-of-budget-codeword-v0` | 379 | 418 | 0 | 0 | 509 | 457 | 52 | 78 | 11 |
-| `external-csv` | `public-preset-selective-out-of-budget-codeword-v0` | 379 | 418 | 0 | 0 | 509 | 457 | 52 | 78 | 11 |
-| `external-csv` | `public-preset-selective-native-v0` | 379 | 379 | 11 | 44 | 533 | 347 | 186 | -32 | 11 |
-| `external-http` | `identity` | 537 | 537 | 0 | 0 | 620 | 568 | 52 | 31 | 0 |
-| `external-http` | `xor-delta1` | 537 | 537 | 0 | 0 | 621 | 569 | 52 | 32 | 0 |
-| `external-http` | `public-preset-framed-v0` | 537 | 601 | 8 | 32 | 692 | 565 | 127 | 28 | 8 |
-| `external-http` | `public-preset-selective-v0` | 537 | 555 | 4 | 16 | 646 | 557 | 89 | 20 | 4 |
-| `external-http` | `public-preset-framed-random-codeword-v0` | 537 | 601 | 0 | 0 | 692 | 640 | 52 | 103 | 8 |
-| `external-http` | `public-preset-selective-random-codeword-v0` | 537 | 555 | 0 | 0 | 646 | 594 | 52 | 57 | 4 |
-| `external-http` | `public-preset-framed-out-of-budget-codeword-v0` | 537 | 601 | 0 | 0 | 692 | 640 | 52 | 103 | 8 |
-| `external-http` | `public-preset-selective-out-of-budget-codeword-v0` | 537 | 555 | 0 | 0 | 646 | 594 | 52 | 57 | 4 |
-| `external-http` | `public-preset-selective-native-v0` | 537 | 537 | 4 | 16 | 670 | 559 | 111 | 22 | 4 |
-| `external-source` | `identity` | 1368 | 1368 | 0 | 0 | 1451 | 1400 | 51 | 32 | 0 |
-| `external-source` | `xor-delta1` | 1368 | 1368 | 0 | 0 | 1452 | 1401 | 51 | 33 | 0 |
-| `external-source` | `public-preset-framed-v0` | 1368 | 1593 | 15 | 60 | 1684 | 1496 | 188 | 128 | 15 |
-| `external-source` | `public-preset-selective-v0` | 1368 | 1371 | 0 | 0 | 1462 | 1411 | 51 | 43 | 0 |
-| `external-source` | `public-preset-framed-random-codeword-v0` | 1368 | 1593 | 0 | 0 | 1684 | 1633 | 51 | 265 | 15 |
-| `external-source` | `public-preset-selective-random-codeword-v0` | 1368 | 1371 | 0 | 0 | 1462 | 1411 | 51 | 43 | 0 |
-| `external-source` | `public-preset-framed-out-of-budget-codeword-v0` | 1368 | 1593 | 0 | 0 | 1684 | 1633 | 51 | 265 | 15 |
-| `external-source` | `public-preset-selective-out-of-budget-codeword-v0` | 1368 | 1371 | 0 | 0 | 1462 | 1411 | 51 | 43 | 0 |
-| `external-source` | `public-preset-selective-native-v0` | 1368 | 1368 | 0 | 0 | 1486 | 1414 | 72 | 46 | 0 |
-| `random-null-structured-len` | `identity` | 6814 | 6814 | 0 | 0 | 6897 | 6846 | 51 | 32 | 0 |
-| `random-null-structured-len` | `xor-delta1` | 6814 | 6814 | 0 | 0 | 6898 | 6847 | 51 | 33 | 0 |
-| `random-null-structured-len` | `public-preset-framed-v0` | 6814 | 6817 | 0 | 0 | 6908 | 6857 | 51 | 43 | 0 |
-| `random-null-structured-len` | `public-preset-selective-v0` | 6814 | 6817 | 0 | 0 | 6908 | 6857 | 51 | 43 | 0 |
-| `random-null-structured-len` | `public-preset-framed-random-codeword-v0` | 6814 | 6817 | 0 | 0 | 6908 | 6857 | 51 | 43 | 0 |
-| `random-null-structured-len` | `public-preset-selective-random-codeword-v0` | 6814 | 6817 | 0 | 0 | 6908 | 6857 | 51 | 43 | 0 |
-| `random-null-structured-len` | `public-preset-framed-out-of-budget-codeword-v0` | 6814 | 6817 | 0 | 0 | 6908 | 6857 | 51 | 43 | 0 |
-| `random-null-structured-len` | `public-preset-selective-out-of-budget-codeword-v0` | 6814 | 6817 | 0 | 0 | 6908 | 6857 | 51 | 43 | 0 |
-| `random-null-structured-len` | `public-preset-selective-native-v0` | 6814 | 6814 | 0 | 0 | 6932 | 6861 | 71 | 47 | 0 |
+| `planted-positive` | `identity` | 2048 | 2048 | 128 | 512 | 2080 | 481 | 1599 | -1567 | 0 |
+| `planted-positive` | `xor-delta1` | 2048 | 2048 | 0 | 0 | 2081 | 2081 | 0 | 33 | 0 |
+| `planted-positive` | `public-preset-framed-v0` | 2048 | 2051 | 128 | 512 | 2091 | 495 | 1596 | -1553 | 0 |
+| `planted-positive` | `public-preset-selective-v0` | 2048 | 2051 | 128 | 512 | 2091 | 495 | 1596 | -1553 | 0 |
+| `planted-positive` | `public-preset-framed-random-codeword-v0` | 2048 | 2051 | 128 | 512 | 2091 | 495 | 1596 | -1553 | 0 |
+| `planted-positive` | `public-preset-selective-random-codeword-v0` | 2048 | 2051 | 128 | 512 | 2091 | 495 | 1596 | -1553 | 0 |
+| `planted-positive` | `public-preset-framed-out-of-budget-codeword-v0` | 2048 | 2051 | 128 | 512 | 2091 | 495 | 1596 | -1553 | 0 |
+| `planted-positive` | `public-preset-selective-out-of-budget-codeword-v0` | 2048 | 2051 | 128 | 512 | 2091 | 495 | 1596 | -1553 | 0 |
+| `planted-positive` | `public-preset-selective-native-v0` | 2048 | 2048 | 128 | 512 | 2094 | 498 | 1596 | -1550 | 0 |
+| `planted-positive` | `public-learned-global-v0` | 2048 | 2051 | 128 | 512 | 2091 | 495 | 1596 | -1553 | 0 |
+| `planted-positive` | `public-learned-global-random-codeword-v0` | 2048 | 2051 | 128 | 512 | 2091 | 495 | 1596 | -1553 | 0 |
+| `planted-positive` | `public-learned-global-out-of-budget-codeword-v0` | 2048 | 2051 | 128 | 512 | 2091 | 495 | 1596 | -1553 | 0 |
+| `structured-json` | `identity` | 6814 | 6814 | 0 | 0 | 6846 | 6846 | 0 | 32 | 0 |
+| `structured-json` | `xor-delta1` | 6814 | 6814 | 0 | 0 | 6847 | 6847 | 0 | 33 | 0 |
+| `structured-json` | `public-preset-framed-v0` | 6814 | 12313 | 560 | 2240 | 12354 | 6673 | 5681 | -141 | 560 |
+| `structured-json` | `public-preset-selective-v0` | 6814 | 7697 | 160 | 640 | 7737 | 6136 | 1601 | -678 | 160 |
+| `structured-json` | `public-preset-framed-random-codeword-v0` | 6814 | 12313 | 0 | 0 | 12354 | 12354 | 0 | 5540 | 560 |
+| `structured-json` | `public-preset-selective-random-codeword-v0` | 6814 | 7697 | 0 | 0 | 7737 | 7737 | 0 | 923 | 160 |
+| `structured-json` | `public-preset-framed-out-of-budget-codeword-v0` | 6814 | 12313 | 0 | 0 | 12354 | 12354 | 0 | 5540 | 560 |
+| `structured-json` | `public-preset-selective-out-of-budget-codeword-v0` | 6814 | 7697 | 0 | 0 | 7737 | 7737 | 0 | 923 | 160 |
+| `structured-json` | `public-preset-selective-native-v0` | 6814 | 6814 | 160 | 640 | 7739 | 6139 | 1600 | -675 | 160 |
+| `structured-json` | `public-learned-global-v0` | 6814 | 6817 | 0 | 0 | 6857 | 6857 | 0 | 43 | 0 |
+| `structured-json` | `public-learned-global-random-codeword-v0` | 6814 | 6817 | 0 | 0 | 6857 | 6857 | 0 | 43 | 0 |
+| `structured-json` | `public-learned-global-out-of-budget-codeword-v0` | 6814 | 6817 | 0 | 0 | 6857 | 6857 | 0 | 43 | 0 |
+| `external-json-schema` | `identity` | 1382 | 1382 | 0 | 0 | 1413 | 1414 | -1 | 32 | 0 |
+| `external-json-schema` | `xor-delta1` | 1382 | 1382 | 0 | 0 | 1414 | 1415 | -1 | 33 | 0 |
+| `external-json-schema` | `public-preset-framed-v0` | 1382 | 1659 | 25 | 100 | 1698 | 1458 | 240 | 76 | 25 |
+| `external-json-schema` | `public-preset-selective-v0` | 1382 | 1413 | 4 | 16 | 1452 | 1416 | 36 | 34 | 4 |
+| `external-json-schema` | `public-preset-framed-random-codeword-v0` | 1382 | 1659 | 0 | 0 | 1698 | 1699 | -1 | 317 | 25 |
+| `external-json-schema` | `public-preset-selective-random-codeword-v0` | 1382 | 1413 | 0 | 0 | 1452 | 1453 | -1 | 71 | 4 |
+| `external-json-schema` | `public-preset-framed-out-of-budget-codeword-v0` | 1382 | 1659 | 0 | 0 | 1698 | 1699 | -1 | 317 | 25 |
+| `external-json-schema` | `public-preset-selective-out-of-budget-codeword-v0` | 1382 | 1413 | 0 | 0 | 1452 | 1453 | -1 | 71 | 4 |
+| `external-json-schema` | `public-preset-selective-native-v0` | 1382 | 1382 | 4 | 16 | 1457 | 1421 | 36 | 39 | 4 |
+| `external-json-schema` | `public-learned-global-v0` | 1382 | 1465 | 23 | 92 | 1504 | 1279 | 225 | -103 | 23 |
+| `external-json-schema` | `public-learned-lfo-v0` | 1382 | 1385 | 0 | 0 | 1424 | 1425 | -1 | 43 | 0 |
+| `external-json-schema` | `public-learned-global-random-codeword-v0` | 1382 | 1465 | 0 | 0 | 1504 | 1505 | -1 | 123 | 23 |
+| `external-json-schema` | `public-learned-lfo-random-codeword-v0` | 1382 | 1385 | 0 | 0 | 1424 | 1425 | -1 | 43 | 0 |
+| `external-json-schema` | `public-learned-global-out-of-budget-codeword-v0` | 1382 | 1465 | 0 | 0 | 1504 | 1505 | -1 | 123 | 23 |
+| `external-json-schema` | `public-learned-lfo-out-of-budget-codeword-v0` | 1382 | 1385 | 0 | 0 | 1424 | 1425 | -1 | 43 | 0 |
+| `external-csv` | `identity` | 379 | 379 | 0 | 0 | 410 | 410 | 0 | 31 | 0 |
+| `external-csv` | `xor-delta1` | 379 | 379 | 0 | 0 | 411 | 411 | 0 | 32 | 0 |
+| `external-csv` | `public-preset-framed-v0` | 379 | 418 | 11 | 44 | 457 | 345 | 112 | -34 | 11 |
+| `external-csv` | `public-preset-selective-v0` | 379 | 418 | 11 | 44 | 457 | 345 | 112 | -34 | 11 |
+| `external-csv` | `public-preset-framed-random-codeword-v0` | 379 | 418 | 0 | 0 | 457 | 457 | 0 | 78 | 11 |
+| `external-csv` | `public-preset-selective-random-codeword-v0` | 379 | 418 | 0 | 0 | 457 | 457 | 0 | 78 | 11 |
+| `external-csv` | `public-preset-framed-out-of-budget-codeword-v0` | 379 | 418 | 0 | 0 | 457 | 457 | 0 | 78 | 11 |
+| `external-csv` | `public-preset-selective-out-of-budget-codeword-v0` | 379 | 418 | 0 | 0 | 457 | 457 | 0 | 78 | 11 |
+| `external-csv` | `public-preset-selective-native-v0` | 379 | 379 | 11 | 44 | 458 | 347 | 111 | -32 | 11 |
+| `external-csv` | `public-learned-global-v0` | 379 | 427 | 10 | 40 | 466 | 365 | 101 | -14 | 10 |
+| `external-csv` | `public-learned-lfo-v0` | 379 | 382 | 0 | 0 | 421 | 421 | 0 | 42 | 0 |
+| `external-csv` | `public-learned-global-random-codeword-v0` | 379 | 427 | 0 | 0 | 466 | 466 | 0 | 87 | 10 |
+| `external-csv` | `public-learned-lfo-random-codeword-v0` | 379 | 382 | 0 | 0 | 421 | 421 | 0 | 42 | 0 |
+| `external-csv` | `public-learned-global-out-of-budget-codeword-v0` | 379 | 427 | 0 | 0 | 466 | 466 | 0 | 87 | 10 |
+| `external-csv` | `public-learned-lfo-out-of-budget-codeword-v0` | 379 | 382 | 0 | 0 | 421 | 421 | 0 | 42 | 0 |
+| `external-http` | `identity` | 537 | 537 | 0 | 0 | 568 | 568 | 0 | 31 | 0 |
+| `external-http` | `xor-delta1` | 537 | 537 | 0 | 0 | 569 | 569 | 0 | 32 | 0 |
+| `external-http` | `public-preset-framed-v0` | 537 | 601 | 8 | 32 | 640 | 565 | 75 | 28 | 8 |
+| `external-http` | `public-preset-selective-v0` | 537 | 555 | 4 | 16 | 594 | 557 | 37 | 20 | 4 |
+| `external-http` | `public-preset-framed-random-codeword-v0` | 537 | 601 | 0 | 0 | 640 | 640 | 0 | 103 | 8 |
+| `external-http` | `public-preset-selective-random-codeword-v0` | 537 | 555 | 0 | 0 | 594 | 594 | 0 | 57 | 4 |
+| `external-http` | `public-preset-framed-out-of-budget-codeword-v0` | 537 | 601 | 0 | 0 | 640 | 640 | 0 | 103 | 8 |
+| `external-http` | `public-preset-selective-out-of-budget-codeword-v0` | 537 | 555 | 0 | 0 | 594 | 594 | 0 | 57 | 4 |
+| `external-http` | `public-preset-selective-native-v0` | 537 | 537 | 4 | 16 | 596 | 559 | 37 | 22 | 4 |
+| `external-http` | `public-learned-global-v0` | 537 | 540 | 0 | 0 | 579 | 579 | 0 | 42 | 0 |
+| `external-http` | `public-learned-lfo-v0` | 537 | 540 | 0 | 0 | 579 | 579 | 0 | 42 | 0 |
+| `external-http` | `public-learned-global-random-codeword-v0` | 537 | 540 | 0 | 0 | 579 | 579 | 0 | 42 | 0 |
+| `external-http` | `public-learned-lfo-random-codeword-v0` | 537 | 540 | 0 | 0 | 579 | 579 | 0 | 42 | 0 |
+| `external-http` | `public-learned-global-out-of-budget-codeword-v0` | 537 | 540 | 0 | 0 | 579 | 579 | 0 | 42 | 0 |
+| `external-http` | `public-learned-lfo-out-of-budget-codeword-v0` | 537 | 540 | 0 | 0 | 579 | 579 | 0 | 42 | 0 |
+| `external-source` | `identity` | 1368 | 1368 | 0 | 0 | 1399 | 1400 | -1 | 32 | 0 |
+| `external-source` | `xor-delta1` | 1368 | 1368 | 0 | 0 | 1400 | 1401 | -1 | 33 | 0 |
+| `external-source` | `public-preset-framed-v0` | 1368 | 1593 | 15 | 60 | 1632 | 1496 | 136 | 128 | 15 |
+| `external-source` | `public-preset-selective-v0` | 1368 | 1371 | 0 | 0 | 1410 | 1411 | -1 | 43 | 0 |
+| `external-source` | `public-preset-framed-random-codeword-v0` | 1368 | 1593 | 0 | 0 | 1632 | 1633 | -1 | 265 | 15 |
+| `external-source` | `public-preset-selective-random-codeword-v0` | 1368 | 1371 | 0 | 0 | 1410 | 1411 | -1 | 43 | 0 |
+| `external-source` | `public-preset-framed-out-of-budget-codeword-v0` | 1368 | 1593 | 0 | 0 | 1632 | 1633 | -1 | 265 | 15 |
+| `external-source` | `public-preset-selective-out-of-budget-codeword-v0` | 1368 | 1371 | 0 | 0 | 1410 | 1411 | -1 | 43 | 0 |
+| `external-source` | `public-preset-selective-native-v0` | 1368 | 1368 | 0 | 0 | 1413 | 1414 | -1 | 46 | 0 |
+| `external-source` | `public-learned-global-v0` | 1368 | 1371 | 0 | 0 | 1410 | 1411 | -1 | 43 | 0 |
+| `external-source` | `public-learned-lfo-v0` | 1368 | 1371 | 0 | 0 | 1410 | 1411 | -1 | 43 | 0 |
+| `external-source` | `public-learned-global-random-codeword-v0` | 1368 | 1371 | 0 | 0 | 1410 | 1411 | -1 | 43 | 0 |
+| `external-source` | `public-learned-lfo-random-codeword-v0` | 1368 | 1371 | 0 | 0 | 1410 | 1411 | -1 | 43 | 0 |
+| `external-source` | `public-learned-global-out-of-budget-codeword-v0` | 1368 | 1371 | 0 | 0 | 1410 | 1411 | -1 | 43 | 0 |
+| `external-source` | `public-learned-lfo-out-of-budget-codeword-v0` | 1368 | 1371 | 0 | 0 | 1410 | 1411 | -1 | 43 | 0 |
+| `random-null-structured-len` | `identity` | 6814 | 6814 | 0 | 0 | 6846 | 6846 | 0 | 32 | 0 |
+| `random-null-structured-len` | `xor-delta1` | 6814 | 6814 | 0 | 0 | 6847 | 6847 | 0 | 33 | 0 |
+| `random-null-structured-len` | `public-preset-framed-v0` | 6814 | 6817 | 0 | 0 | 6857 | 6857 | 0 | 43 | 0 |
+| `random-null-structured-len` | `public-preset-selective-v0` | 6814 | 6817 | 0 | 0 | 6857 | 6857 | 0 | 43 | 0 |
+| `random-null-structured-len` | `public-preset-framed-random-codeword-v0` | 6814 | 6817 | 0 | 0 | 6857 | 6857 | 0 | 43 | 0 |
+| `random-null-structured-len` | `public-preset-selective-random-codeword-v0` | 6814 | 6817 | 0 | 0 | 6857 | 6857 | 0 | 43 | 0 |
+| `random-null-structured-len` | `public-preset-framed-out-of-budget-codeword-v0` | 6814 | 6817 | 0 | 0 | 6857 | 6857 | 0 | 43 | 0 |
+| `random-null-structured-len` | `public-preset-selective-out-of-budget-codeword-v0` | 6814 | 6817 | 0 | 0 | 6857 | 6857 | 0 | 43 | 0 |
+| `random-null-structured-len` | `public-preset-selective-native-v0` | 6814 | 6814 | 0 | 0 | 6860 | 6861 | -1 | 47 | 0 |
+| `random-null-structured-len` | `public-learned-global-v0` | 6814 | 6817 | 0 | 0 | 6857 | 6857 | 0 | 43 | 0 |
+| `random-null-structured-len` | `public-learned-global-random-codeword-v0` | 6814 | 6817 | 0 | 0 | 6857 | 6857 | 0 | 43 | 0 |
+| `random-null-structured-len` | `public-learned-global-out-of-budget-codeword-v0` | 6814 | 6817 | 0 | 0 | 6857 | 6857 | 0 | 43 | 0 |
 
 ## Codeword Control Comparisons
 
@@ -123,18 +159,29 @@ This records a focused mechanism experiment, not a production or natural-corpus 
 | --- | --- | ---: | ---: | ---: | ---: | ---: | --- |
 | planted-positive | `public-preset-framed-v0` | -1553 | 128 | -1553 | -1553 | 0 | `False` |
 | planted-positive | `public-preset-selective-v0` | -1553 | 128 | -1553 | -1553 | 0 | `False` |
+| planted-positive | `public-learned-global-v0` | -1553 | 128 | -1553 | -1553 | 0 | `False` |
 | structured-json | `public-preset-framed-v0` | -141 | 560 | 5540 | 5540 | -5681 | `True` |
 | structured-json | `public-preset-selective-v0` | -678 | 160 | 923 | 923 | -1601 | `True` |
+| structured-json | `public-learned-global-v0` | 43 | 0 | 43 | 43 | 0 | `True` |
 | external-json-schema | `public-preset-framed-v0` | 76 | 25 | 317 | 317 | -241 | `True` |
 | external-json-schema | `public-preset-selective-v0` | 34 | 4 | 71 | 71 | -37 | `True` |
+| external-json-schema | `public-learned-global-v0` | -103 | 23 | 123 | 123 | -226 | `True` |
+| external-json-schema | `public-learned-lfo-v0` | 43 | 0 | 43 | 43 | 0 | `True` |
 | external-csv | `public-preset-framed-v0` | -34 | 11 | 78 | 78 | -112 | `True` |
 | external-csv | `public-preset-selective-v0` | -34 | 11 | 78 | 78 | -112 | `True` |
+| external-csv | `public-learned-global-v0` | -14 | 10 | 87 | 87 | -101 | `True` |
+| external-csv | `public-learned-lfo-v0` | 42 | 0 | 42 | 42 | 0 | `True` |
 | external-http | `public-preset-framed-v0` | 28 | 8 | 103 | 103 | -75 | `True` |
 | external-http | `public-preset-selective-v0` | 20 | 4 | 57 | 57 | -37 | `True` |
+| external-http | `public-learned-global-v0` | 42 | 0 | 42 | 42 | 0 | `True` |
+| external-http | `public-learned-lfo-v0` | 42 | 0 | 42 | 42 | 0 | `True` |
 | external-source | `public-preset-framed-v0` | 128 | 15 | 265 | 265 | -137 | `True` |
 | external-source | `public-preset-selective-v0` | 43 | 0 | 43 | 43 | 0 | `True` |
+| external-source | `public-learned-global-v0` | 43 | 0 | 43 | 43 | 0 | `True` |
+| external-source | `public-learned-lfo-v0` | 43 | 0 | 43 | 43 | 0 | `True` |
 | random-null-structured-len | `public-preset-framed-v0` | 43 | 0 | 43 | 43 | 0 | `True` |
 | random-null-structured-len | `public-preset-selective-v0` | 43 | 0 | 43 | 43 | 0 | `True` |
+| random-null-structured-len | `public-learned-global-v0` | 43 | 0 | 43 | 43 | 0 | `True` |
 
 ## Interpretation
 
@@ -142,6 +189,9 @@ This records a focused mechanism experiment, not a production or natural-corpus 
 - `public-preset-framed-v0` is a next-architecture probe: it intentionally maps public grammar tokens to SHA-256 seed spans, charges a small transform descriptor, then lets `.tlmr` v2 account for the generated spans.
 - `public-preset-selective-v0` keeps that mechanism but only replaces tokens with length at least `13` so each replacement has positive framing margin.
 - `public-preset-selective-native-v0` uses the Rust v2 transform layer; `telomere decompress` returns the original bytes without the Python harness.
+- `public-learned-global-v0` learns a deterministic public codebook from external ordinary corpora, then maps those learned spans to in-budget seed expansions.
+- `public-learned-lfo-v0` repeats that learned-codebook test while leaving the current external corpus family out of the training set, so it measures cross-family generalization instead of same-family memorization.
+- Learned public tokens are capped at `16` bytes so same-token non-seed controls cannot win merely by replacing long source tokens with shorter opaque codewords.
 - `seed-span benefit` compares the actual `.tlmr` bytes against a literal-only v2 container for the same transformed representation.
 - Same-token `random-codeword` and `out-of-budget-codeword` rows are codeword controls: they preserve transform opportunities while removing in-budget seed-generated spans.
 - If random/null rows become profitable under the public preset, the dictionary is too broad or the accounting is broken.

@@ -11,7 +11,6 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import math
 import subprocess
 import tempfile
 from datetime import datetime, timezone
@@ -68,6 +67,24 @@ PUBLIC_PRESET_TOKENS = [
     b"Option",
 ]
 PUBLIC_PRESET_CODEWORD_VARIANTS = ("seed", "random-codeword", "out-of-budget-codeword")
+LEARNED_PUBLIC_MIN_TOKEN_LEN = 13
+LEARNED_PUBLIC_MAX_TOKEN_LEN = MAX_SPAN_LEN
+LEARNED_PUBLIC_TOKEN_LIMIT = 32
+EXTERNAL_CORPUS_FAMILIES = {
+    "external-json-schema": "schema-and-config",
+    "external-csv": "records-and-ledgers",
+    "external-http": "standards-protocol-text",
+    "external-source": "source-code",
+}
+EXTERNAL_ORDINARY_PATHS = {
+    "schema-and-config": ROOT
+    / "corpora/external/schema-and-config/schemars-main-schema-excerpt.json",
+    "records-and-ledgers": ROOT
+    / "corpora/external/records-and-ledgers/csv-smallpop-excerpt.csv",
+    "standards-protocol-text": ROOT
+    / "corpora/external/standards-protocol-text/http-request-response-excerpt.md",
+    "source-code": ROOT / "corpora/external/source-code/rust-option-excerpt.rs",
+}
 
 
 def sha256(path: Path) -> str:
@@ -278,6 +295,208 @@ def public_preset_codebook(variant: str = "seed") -> dict[bytes, bytes]:
     return codebook
 
 
+def codewords_for_tokens(
+    tokens: list[bytes],
+    variant: str = "seed",
+    label: str = "learned-public",
+) -> dict[bytes, bytes]:
+    if variant not in PUBLIC_PRESET_CODEWORD_VARIANTS:
+        raise ValueError(f"unknown public preset codeword variant: {variant}")
+    seed_codewords = {
+        seed_span(bytes([idx])) for idx in range(1 << (8 * SEED_DEPTH))
+    }
+    used: set[bytes] = set()
+    codebook: dict[bytes, bytes] = {}
+    for idx, token in enumerate(tokens):
+        if variant == "seed":
+            codeword = seed_span(bytes([idx]))
+        elif variant == "out-of-budget-codeword":
+            seed_index = (1 << (8 * SEED_DEPTH)) + idx
+            while True:
+                codeword = seed_span(canonical_seed_from_index(seed_index))
+                if codeword not in seed_codewords and codeword not in used:
+                    break
+                seed_index += max(len(tokens), 1)
+        else:
+            codeword = unique_deterministic_bytes(
+                f"thesis-{label}-control:{variant}:{idx}",
+                MAX_SPAN_LEN,
+                used,
+                seed_codewords,
+            )
+        used.add(codeword)
+        codebook[token] = codeword
+    return codebook
+
+
+def is_learnable_public_token(token: bytes) -> bool:
+    if len(token) < LEARNED_PUBLIC_MIN_TOKEN_LEN:
+        return False
+    has_alnum = False
+    for byte in token:
+        if 48 <= byte <= 57 or 65 <= byte <= 90 or 97 <= byte <= 122:
+            has_alnum = True
+            continue
+        if byte in (9, 10, 13) or 32 <= byte <= 126:
+            continue
+        return False
+    return has_alnum
+
+
+def learned_public_tokens(training_blobs: list[bytes]) -> list[bytes]:
+    counts: dict[bytes, int] = {}
+    for data in training_blobs:
+        upper = min(LEARNED_PUBLIC_MAX_TOKEN_LEN, len(data))
+        for span_len in range(LEARNED_PUBLIC_MIN_TOKEN_LEN, upper + 1):
+            for start in range(0, len(data) - span_len + 1):
+                token = data[start : start + span_len]
+                if is_learnable_public_token(token):
+                    counts[token] = counts.get(token, 0) + 1
+    ranked = [
+        {
+            "token": token,
+            "count": count,
+            "score": count * (len(token) - LEARNED_PUBLIC_MIN_TOKEN_LEN + 1),
+        }
+        for token, count in counts.items()
+        if count >= 2
+    ]
+    ranked.sort(
+        key=lambda row: (
+            -row["score"],
+            -row["count"],
+            -len(row["token"]),
+            row["token"],
+        )
+    )
+
+    selected: list[bytes] = []
+    for row in ranked:
+        token = row["token"]
+        if any(token in existing or existing in token for existing in selected):
+            continue
+        selected.append(token)
+        if len(selected) >= LEARNED_PUBLIC_TOKEN_LIMIT:
+            break
+    return selected
+
+
+def external_ordinary_blobs(exclude_family: str | None = None) -> list[bytes]:
+    return [
+        path.read_bytes()
+        for family, path in sorted(EXTERNAL_ORDINARY_PATHS.items())
+        if family != exclude_family
+    ]
+
+
+def learned_public_codebook(
+    mode: str,
+    corpus_name: str,
+    codeword_variant: str = "seed",
+) -> tuple[dict[bytes, bytes], dict[str, Any]]:
+    exclude_family = None
+    if mode == "lfo":
+        exclude_family = EXTERNAL_CORPUS_FAMILIES.get(corpus_name)
+        if exclude_family is None:
+            raise ValueError(f"leave-family-out codebook has no family for {corpus_name}")
+    elif mode != "global":
+        raise ValueError(f"unknown learned public codebook mode: {mode}")
+
+    training_families = [
+        family for family in sorted(EXTERNAL_ORDINARY_PATHS) if family != exclude_family
+    ]
+    tokens = learned_public_tokens(external_ordinary_blobs(exclude_family))
+    metadata = {
+        "learned_public_codebook_mode": mode,
+        "learned_public_training_families": training_families,
+        "learned_public_excluded_family": exclude_family,
+        "learned_public_token_count": len(tokens),
+        "learned_public_min_token_len": LEARNED_PUBLIC_MIN_TOKEN_LEN,
+        "learned_public_max_token_len": LEARNED_PUBLIC_MAX_TOKEN_LEN,
+        "learned_public_token_limit": LEARNED_PUBLIC_TOKEN_LIMIT,
+        "learned_public_tokens_hex": [token.hex() for token in tokens],
+    }
+    return (
+        codewords_for_tokens(
+            tokens,
+            codeword_variant,
+            label=f"learned-public-{mode}-{corpus_name}",
+        ),
+        metadata,
+    )
+
+
+def codebook_framed(
+    data: bytes,
+    codebook: dict[bytes, bytes],
+    metadata: dict[str, Any],
+) -> tuple[bytes, dict[str, Any]]:
+    token_order = sorted(codebook, key=len, reverse=True)
+    out = bytearray()
+    literal = bytearray()
+    replacements = 0
+
+    def flush_literal() -> None:
+        nonlocal literal
+        while literal:
+            chunk = bytes(literal[:65535])
+            del literal[: len(chunk)]
+            out.append(0)
+            out.extend(len(chunk).to_bytes(2, "big"))
+            out.extend(chunk)
+
+    pos = 0
+    while pos < len(data):
+        matched = None
+        for token in token_order:
+            if data.startswith(token, pos):
+                matched = token
+                break
+        if matched is None:
+            literal.append(data[pos])
+            pos += 1
+            continue
+        flush_literal()
+        out.append(1)
+        out.extend(codebook[matched])
+        replacements += 1
+        pos += len(matched)
+    flush_literal()
+
+    return (
+        bytes(out),
+        {
+            **metadata,
+            "transform_metadata_bytes": TRANSFORM_METADATA_BYTES,
+            "token_replacements": replacements,
+            "token_code_span_len": MAX_SPAN_LEN,
+        },
+    )
+
+
+def invert_codebook_framed(encoded: bytes, codebook: dict[bytes, bytes]) -> bytes:
+    reverse = {span: token for token, span in codebook.items()}
+    out = bytearray()
+    pos = 0
+    while pos < len(encoded):
+        tag = encoded[pos]
+        pos += 1
+        if tag == 0:
+            if pos + 2 > len(encoded):
+                raise ValueError("truncated literal frame")
+            length = int.from_bytes(encoded[pos : pos + 2], "big")
+            pos += 2
+            out.extend(encoded[pos : pos + length])
+            pos += length
+        elif tag == 1:
+            span = encoded[pos : pos + MAX_SPAN_LEN]
+            pos += MAX_SPAN_LEN
+            out.extend(reverse[span])
+        else:
+            raise ValueError(f"unknown frame tag {tag}")
+    return bytes(out)
+
+
 def public_preset_framed(
     data: bytes,
     min_token_len: int = 0,
@@ -328,14 +547,6 @@ def public_preset_framed(
         "token_code_span_len": MAX_SPAN_LEN,
     }
     return bytes(out), metadata
-
-
-def v2_literal_only_bytes(payload_len: int, layer_count: int) -> int:
-    if payload_len == 0:
-        literal_records = 0
-    else:
-        literal_records = math.ceil(payload_len / 65535)
-    return 48 + (32 * layer_count) + payload_len + (3 * literal_records)
 
 
 def invert_public_preset_framed(encoded: bytes, codeword_variant: str = "seed") -> bytes:
@@ -430,9 +641,6 @@ def transform_variants(name: str, data: bytes) -> list[dict[str, Any]]:
         "transform_metadata_bytes": 0,
         "format_native_transform": True,
         "native_transform_transformed_bytes": seed_selective_len,
-        "native_transform_literal_only_bytes": v2_literal_only_bytes(
-            seed_selective_len, 2
-        ),
         "cli_extra_args": ["--transform", "public-preset-selective"],
     }
     variants.append(
@@ -443,6 +651,61 @@ def transform_variants(name: str, data: bytes) -> list[dict[str, Any]]:
             "roundtrip_ok": True,
         }
     )
+
+    for codeword_variant in PUBLIC_PRESET_CODEWORD_VARIANTS:
+        suffix = "" if codeword_variant == "seed" else f"-{codeword_variant}"
+        global_codebook, global_meta = learned_public_codebook(
+            "global",
+            name,
+            codeword_variant,
+        )
+        global_framed, global_framed_meta = codebook_framed(
+            data,
+            global_codebook,
+            global_meta,
+        )
+        variants.append(
+            {
+                "transform": f"public-learned-global{suffix}-v0",
+                "data": global_framed,
+                "metadata": {
+                    **global_framed_meta,
+                    "public_preset_codeword_variant": codeword_variant,
+                },
+                "roundtrip_ok": invert_codebook_framed(
+                    global_framed,
+                    global_codebook,
+                )
+                == data,
+            }
+        )
+
+        if name in EXTERNAL_CORPUS_FAMILIES:
+            lfo_codebook, lfo_meta = learned_public_codebook(
+                "lfo",
+                name,
+                codeword_variant,
+            )
+            lfo_framed, lfo_framed_meta = codebook_framed(
+                data,
+                lfo_codebook,
+                lfo_meta,
+            )
+            variants.append(
+                {
+                    "transform": f"public-learned-lfo{suffix}-v0",
+                    "data": lfo_framed,
+                    "metadata": {
+                        **lfo_framed_meta,
+                        "public_preset_codeword_variant": codeword_variant,
+                    },
+                    "roundtrip_ok": invert_codebook_framed(
+                        lfo_framed,
+                        lfo_codebook,
+                    )
+                    == data,
+                }
+            )
     return variants
 
 
@@ -453,12 +716,16 @@ def run_telomere(
     transform: str,
     extra_args: list[str] | None = None,
     decode_artifact: bool = False,
+    literal_probe: bool = False,
 ) -> dict[str, Any]:
-    basename = safe_slug(f"{name}-{transform}")
+    probe_suffix = "-literal-probe" if literal_probe else ""
+    basename = safe_slug(f"{name}-{transform}{probe_suffix}")
     input_path = tmp / f"{basename}.input.bin"
     output_path = tmp / f"{basename}.tlmr"
     decoded_path = tmp / f"{basename}.decoded.bin"
     input_path.write_bytes(data)
+    block_size = 1 if literal_probe else BLOCK_SIZE
+    max_span_len = 1 if literal_probe else MAX_SPAN_LEN
     cmd = [
         "cargo",
         "run",
@@ -474,9 +741,9 @@ def run_telomere(
         "--hasher",
         HASHER,
         "--block-size",
-        str(BLOCK_SIZE),
+        str(block_size),
         "--max-span-len",
-        str(MAX_SPAN_LEN),
+        str(max_span_len),
         "--span-step",
         str(SPAN_STEP),
         "--seed-depth",
@@ -577,8 +844,6 @@ def expected_hit_rows(input_len: int = 1024) -> list[dict[str, Any]]:
                     "seed_space": seeds,
                     "target_windows": windows,
                     "arity_grid_reachable_at_block_size": arity_grid_reachable,
-                    "v2_seed_record_bytes_for_longest_seed": 4 + depth,
-                    "local_profitable_for_longest_seed": span_len > 4 + depth,
                     "expected_exact_hits": expected_hits,
                     "seed_expansions_for_one_expected_hit": seed_expansions_for_one,
                     "depth_space_fraction_for_one_hit": seed_expansions_for_one
@@ -598,7 +863,7 @@ def codeword_control_comparisons(rows: list[dict[str, Any]]) -> list[dict[str, A
         if row.get("public_preset_codeword_variant") != "seed":
             continue
         transform = row["transform"]
-        if not transform.startswith("public-preset-") or "native" in transform:
+        if not transform.startswith("public-") or "native" in transform:
             continue
         controls = []
         for variant in ("random-codeword", "out-of-budget-codeword"):
@@ -651,11 +916,16 @@ def build_rows(corpora: dict[str, bytes], tmp: Path, decode_artifacts: bool) -> 
             )
             metadata_bytes = int(variant["metadata"].get("transform_metadata_bytes", 0))
             charged_bytes = result["tlmr_bytes"] + metadata_bytes
+            literal_probe = run_telomere(
+                variant["data"],
+                tmp,
+                corpus_name,
+                variant["transform"],
+                variant["metadata"].get("cli_extra_args"),
+                literal_probe=True,
+            )
             literal_only_charged_bytes = int(
-                variant["metadata"].get(
-                    "native_transform_literal_only_bytes",
-                    v2_literal_only_bytes(len(variant["data"]), 1) + metadata_bytes,
-                )
+                literal_probe["tlmr_bytes"] + metadata_bytes
             )
             rows.append(
                 {
@@ -667,6 +937,8 @@ def build_rows(corpora: dict[str, bytes], tmp: Path, decode_artifacts: bool) -> 
                     "literal_only_charged_bytes": literal_only_charged_bytes,
                     "seed_span_benefit_bytes": literal_only_charged_bytes - charged_bytes,
                     "charged_output_bytes": charged_bytes,
+                    "literal_probe_tlmr_bytes": literal_probe["tlmr_bytes"],
+                    "literal_probe_json_final_bytes": literal_probe["json_final_bytes"],
                     "delta_bytes": charged_bytes - len(original),
                     "delta_pct": (charged_bytes - len(original)) * 100.0 / max(len(original), 1),
                     "roundtrip_ok": variant["roundtrip_ok"],
@@ -711,6 +983,27 @@ def build_report(
         if row.get("public_preset_codeword_variant")
         in ("random-codeword", "out-of-budget-codeword")
     ]
+    learned_public_seed_rows = [
+        row
+        for row in non_planted
+        if row.get("public_preset_codeword_variant") == "seed"
+        and row["transform"].startswith("public-learned-")
+    ]
+    learned_public_profitable_seed_rows = [
+        row for row in learned_public_seed_rows if row["delta_bytes"] < 0
+    ]
+    learned_public_lfo_seed_rows = [
+        row
+        for row in learned_public_seed_rows
+        if row.get("learned_public_codebook_mode") == "lfo"
+    ]
+    learned_public_control_wins = [
+        row
+        for row in control_comparisons
+        if row["transform"].startswith("public-learned-")
+        and row["beats_all_controls"]
+        and row["controls_are_span_null"]
+    ]
     return {
         "generated_by": GENERATED_BY,
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -738,9 +1031,8 @@ def build_report(
         },
         "math": {
             "formula": "expected_hits = target_windows * seed_space / 2^(8 * span_len)",
-            "v2_seed_span_record_bytes": "4 + seed_len",
-            "v2_container_bytes_one_layer": 80,
-            "literal_record_overhead_bytes": 3,
+            "literal_baseline": "measured with the current CLI encoder using block_size=1 and max_span_len=1 so no seed-span can be profitable",
+            "v2_seed_span_record_bytes": "variable Lotus bit length; exact output bytes come from the current encoder",
             "rows": expected_hit_rows(),
         },
         "experiment_config": {
@@ -757,6 +1049,9 @@ def build_report(
             "transform_metadata_bytes_for_public_preset": TRANSFORM_METADATA_BYTES,
             "public_preset_token_count": len(PUBLIC_PRESET_TOKENS),
             "public_preset_selective_min_token_len": PUBLIC_PRESET_SELECTIVE_MIN_TOKEN_LEN,
+            "learned_public_min_token_len": LEARNED_PUBLIC_MIN_TOKEN_LEN,
+            "learned_public_max_token_len": LEARNED_PUBLIC_MAX_TOKEN_LEN,
+            "learned_public_token_limit": LEARNED_PUBLIC_TOKEN_LIMIT,
         },
         "summary": {
             "row_count": len(rows),
@@ -782,6 +1077,27 @@ def build_report(
                     if row["beats_all_controls"] and row["controls_are_span_null"]
                 ]
             ),
+            "learned_public_seed_rows": len(learned_public_seed_rows),
+            "learned_public_profitable_seed_rows": len(
+                learned_public_profitable_seed_rows
+            ),
+            "learned_public_exact_span_seed_rows": len(
+                [
+                    row
+                    for row in learned_public_seed_rows
+                    if row["selected_spans_total"] > 0
+                ]
+            ),
+            "learned_public_lfo_exact_span_seed_rows": len(
+                [
+                    row
+                    for row in learned_public_lfo_seed_rows
+                    if row["selected_spans_total"] > 0
+                ]
+            ),
+            "learned_public_rows_beating_all_codeword_controls": len(
+                learned_public_control_wins
+            ),
             "best_non_planted_delta_bytes": min(
                 (row["delta_bytes"] for row in non_planted), default=None
             ),
@@ -791,7 +1107,9 @@ def build_report(
                 default=None,
             ),
             "conclusion": (
-                "public-preset transform produced profitable non-planted rows"
+                "public preset and learned public codebook produced seed-specific profitable non-planted rows"
+                if learned_public_control_wins
+                else "public-preset transform produced profitable non-planted rows"
                 if profitable_non_planted
                 else "current hash-only and tested transforms did not produce profitable non-planted rows"
             ),
@@ -818,23 +1136,26 @@ def write_report(payload: dict[str, Any]) -> None:
         f"- Non-seed codeword control rows with exact selected spans: `{summary['codeword_control_exact_span_rows']}`",
         f"- Non-seed codeword control rows profitable after charged accounting: `{summary['codeword_control_profitable_rows']}`",
         f"- Seed rows beating all same-token codeword controls: `{summary['seed_rows_beating_all_codeword_controls']}`",
+        f"- Learned public seed rows with exact selected spans: `{summary['learned_public_exact_span_seed_rows']}`",
+        f"- Learned public seed rows profitable after charged accounting: `{summary['learned_public_profitable_seed_rows']}`",
+        f"- Learned leave-family-out seed rows with exact selected spans: `{summary['learned_public_lfo_exact_span_seed_rows']}`",
+        f"- Learned public rows beating all same-token codeword controls: `{summary['learned_public_rows_beating_all_codeword_controls']}`",
         f"- Best non-planted delta bytes: `{summary['best_non_planted_delta_bytes']}`",
         f"- Conclusion: `{summary['conclusion']}`",
         "",
         "## Bottleneck Math",
         "",
         "- Expected exact hits: `target_windows * seed_space / 2^(8 * span_len)`.",
-        "- v2 seed-span record bytes: `4 + seed_len`.",
-        "- A one-layer v2 container costs `80` bytes before payload.",
-        "- Literal records cost `3` bytes plus literal payload.",
-        "- `span=6` and `span=7` are shortest profitable windows for 1-byte and 2-byte seeds, but are skipped by the default `block_size=4` arity grid.",
+        "- v2 seed-span record bytes are variable Lotus bit lengths; actual row output bytes come from the current encoder.",
+        "- Literal-only charged bytes are measured by a real CLI probe using `block_size=1` and `max_span_len=1`, so no seed-span can be profitable.",
+        "- This table is probability-only; profitability is decided by actual `.tlmr` rows and same-token controls.",
         "",
-        "| span | depth | seed space | windows @1KiB | expected hits | seed expansions for one expected hit | arity grid reachable | locally profitable |",
-        "| ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |",
+        "| span | depth | seed space | windows @1KiB | expected hits | seed expansions for one expected hit | arity grid reachable |",
+        "| ---: | ---: | ---: | ---: | ---: | ---: | --- |",
     ]
     for row in payload["math"]["rows"]:
         lines.append(
-            "| {span_len} | {seed_depth} | {seed_space} | {target_windows} | {expected_exact_hits:.3e} | {seed_expansions_for_one_expected_hit:.3e} | `{arity_grid_reachable_at_block_size}` | `{local_profitable_for_longest_seed}` |".format(
+            "| {span_len} | {seed_depth} | {seed_space} | {target_windows} | {expected_exact_hits:.3e} | {seed_expansions_for_one_expected_hit:.3e} | `{arity_grid_reachable_at_block_size}` |".format(
                 **row
             )
         )
@@ -896,6 +1217,9 @@ def write_report(payload: dict[str, Any]) -> None:
             "- `public-preset-framed-v0` is a next-architecture probe: it intentionally maps public grammar tokens to SHA-256 seed spans, charges a small transform descriptor, then lets `.tlmr` v2 account for the generated spans.",
             f"- `public-preset-selective-v0` keeps that mechanism but only replaces tokens with length at least `{PUBLIC_PRESET_SELECTIVE_MIN_TOKEN_LEN}` so each replacement has positive framing margin.",
             "- `public-preset-selective-native-v0` uses the Rust v2 transform layer; `telomere decompress` returns the original bytes without the Python harness.",
+            "- `public-learned-global-v0` learns a deterministic public codebook from external ordinary corpora, then maps those learned spans to in-budget seed expansions.",
+            "- `public-learned-lfo-v0` repeats that learned-codebook test while leaving the current external corpus family out of the training set, so it measures cross-family generalization instead of same-family memorization.",
+            f"- Learned public tokens are capped at `{LEARNED_PUBLIC_MAX_TOKEN_LEN}` bytes so same-token non-seed controls cannot win merely by replacing long source tokens with shorter opaque codewords.",
             "- `seed-span benefit` compares the actual `.tlmr` bytes against a literal-only v2 container for the same transformed representation.",
             "- Same-token `random-codeword` and `out-of-budget-codeword` rows are codeword controls: they preserve transform opportunities while removing in-budget seed-generated spans.",
             "- If random/null rows become profitable under the public preset, the dictionary is too broad or the accounting is broken.",
