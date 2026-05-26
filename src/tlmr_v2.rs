@@ -636,13 +636,26 @@ pub fn decode_v2_payload(
         .decoded_len
         .try_into()
         .map_err(|_| TelomereError::Header("v2 decoded length out of range".into()))?;
-    // Cap the pre-allocation at `isize::MAX as usize` (Rust's documented
-    // upper bound for `Vec::with_capacity`). Without this clamp a malicious
-    // descriptor with `decoded_len` close to `u64::MAX` would trip the
-    // allocator's "capacity overflow" panic instead of returning a clean
-    // error. Per-record checks (`next_len > decoded_len`) still enforce the
-    // payload bound; this only protects the initial allocation.
-    let cap = decoded_len.min(isize::MAX as usize);
+    // Cap the pre-allocation so a malicious descriptor with `decoded_len`
+    // close to `u64::MAX` cannot trip the allocator's "capacity overflow"
+    // abort. Two bounds apply:
+    //   1. `isize::MAX as usize` is Rust's documented upper limit for
+    //      `Vec::with_capacity`.
+    //   2. `payload.len() * max_span_len` is a tight input-derived bound:
+    //      each record consumes at least one bit of payload (so at most
+    //      `payload.len() * 8` records), and each record produces at most
+    //      `max_span_len` output bytes. The multiplication uses
+    //      `saturating_mul` so the bound itself can't overflow.
+    // Per-record checks (`next_len > decoded_len`) still enforce the actual
+    // payload bound; this only protects the initial allocation from a
+    // hostile descriptor whose `memory_limit` guard was bypassed (e.g.
+    // a library consumer using `Config::default()` with `memory_limit =
+    // usize::MAX`).
+    let payload_cap = payload
+        .len()
+        .saturating_mul(8)
+        .saturating_mul(descriptor.max_span_len);
+    let cap = decoded_len.min(payload_cap).min(isize::MAX as usize);
     let mut out = Vec::with_capacity(cap);
     let expander = hasher.get_expander();
     let mut reader = BitReader::new(payload);
