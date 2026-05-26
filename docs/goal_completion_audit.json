@@ -1,6 +1,6 @@
 {
   "generated_by": "scripts/generate_goal_completion_audit.py",
-  "generated_at": "2026-05-26T17:24:17.156464+00:00",
+  "generated_at": "2026-05-26T17:46:31.529244+00:00",
   "format_version": 1,
   "scope": {
     "kind": "active goal completion audit",
@@ -16,15 +16,15 @@
     "format_sha256": "4207afbe822f13f9a1968cfbc99954b19ce47480d199998dcbb6a69c891bd67d",
     "research_program_sha256": "cbe3599df6bf657c69dae9ea5754efba891c1d7cd66731b73aad8132955c70d9",
     "results_sha256": "225465824966499a8d15a5721e0698c30ae83053d072dbec6c6b21558523f9ba",
-    "viability_sha256": "6ff4dd440fcd69b40bddd0b1b22f3afbfed1336d558970a039f763fcfeeb6558",
-    "research_scorecard_sha256": "a0f9768ef1aed8932d5d50f01fa4a0c1d39ff212bcc5edff1789057a315b5ca3",
-    "goal_audit_sha256": "b8ebd830d931fce145f98c66c97fd2041f4c6acbd0fe3c4eee7c7cb0adada948",
-    "research_decision_sha256": "bf453e2ad671a05e07f3dad2d4de62a6b75a5e6f6971b2fd9871b1202fca9f76",
-    "research_frontier_sha256": "1bcef032be36588c9491ac41eef4059e8469402c715f0a7455a9c7f7a52b5ab9",
-    "natural_corpus_proof_matrix_sha256": "9995fba8743ba9d827a9118c779840f11ede213245364de7d6217dcabac9a26e",
-    "production_proof_matrix_sha256": "1ff8e6360b625752851eb3aa04bea65330dd739aae3b7b061b59721822f9ad1f",
-    "research_team_protocol_sha256": "67757b553fed45c77289390e350e5baa6d71a93feed945ee2c78b1d61242ad48",
-    "ui_workflow_smoke_sha256": "c27135281129de90bcde0eca08f3779b065ce41aec0721a0bc3ff77475c6ecfb"
+    "viability_sha256": "0d84f29873d28a9e1819e534787d80f8a039f8b9d512032c36d4486094c2b837",
+    "research_scorecard_sha256": "c7933918a7fc578af9ba11ba4096c61a7d00eaf9d071bdeb76a620c90e392697",
+    "goal_audit_sha256": "437625c4b32a66952aa3590cd6bf76ecec407dbf452263f243fde1bb1c1d9499",
+    "research_decision_sha256": "9b5de8be630c2cb54ebdb922e14e83bed5b013acaf9cbcb013f830fa2f82eb29",
+    "research_frontier_sha256": "a2864df9b71dd19f9fae7a7bafe453b1a90a6574dc2cca9d0f1d394781f5de23",
+    "natural_corpus_proof_matrix_sha256": "5a529a33f841075567061937975cb5b79012e55b8f92c44e25a5bca248d83aae",
+    "production_proof_matrix_sha256": "7df42f6fb39ce0b020b18dd755fd9c469795324cfe06af0791e30b145b7d5751",
+    "research_team_protocol_sha256": "516ce867021f4366e8582fd6111cd27f5d0dd428d6c307337a0d166ba1080b6b",
+    "ui_workflow_smoke_sha256": "ff136eef61deb921f425296bbb56c313e6e4915ce6430777074a2275f5481e03"
   },
   "summary": {
     "objective_status": "active_goal_not_complete",

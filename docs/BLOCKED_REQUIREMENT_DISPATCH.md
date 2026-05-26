@@ -119,9 +119,9 @@ Return a findings-first audit and do not launch broad compute.
 ## Source Artifacts
 
 The JSON `source_hashes` map pins this dispatch plan to the exact upstream evidence files below.
-- `goal_completion_audit_sha256`: `89ebf21248ff44508b106e5c6532cb3123acffed80f26773e456fc3eedef1f65`
-- `research_frontier_sha256`: `1bcef032be36588c9491ac41eef4059e8469402c715f0a7455a9c7f7a52b5ab9`
-- `research_team_protocol_sha256`: `67757b553fed45c77289390e350e5baa6d71a93feed945ee2c78b1d61242ad48`
-- `research_decision_sha256`: `bf453e2ad671a05e07f3dad2d4de62a6b75a5e6f6971b2fd9871b1202fca9f76`
-- `viability_sha256`: `6ff4dd440fcd69b40bddd0b1b22f3afbfed1336d558970a039f763fcfeeb6558`
-- `research_scorecard_sha256`: `a0f9768ef1aed8932d5d50f01fa4a0c1d39ff212bcc5edff1789057a315b5ca3`
+- `goal_completion_audit_sha256`: `c9ffa0072f052218b3946b87c432c261adac0f87676b4d8f2c5d97bc93bad359`
+- `research_frontier_sha256`: `a2864df9b71dd19f9fae7a7bafe453b1a90a6574dc2cca9d0f1d394781f5de23`
+- `research_team_protocol_sha256`: `516ce867021f4366e8582fd6111cd27f5d0dd428d6c307337a0d166ba1080b6b`
+- `research_decision_sha256`: `9b5de8be630c2cb54ebdb922e14e83bed5b013acaf9cbcb013f830fa2f82eb29`
+- `viability_sha256`: `0d84f29873d28a9e1819e534787d80f8a039f8b9d512032c36d4486094c2b837`
+- `research_scorecard_sha256`: `c7933918a7fc578af9ba11ba4096c61a7d00eaf9d071bdeb76a620c90e392697`

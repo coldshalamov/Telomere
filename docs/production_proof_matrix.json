@@ -1,6 +1,6 @@
 {
   "generated_by": "scripts/generate_production_proof_matrix.py",
-  "generated_at": "2026-05-26T17:24:16.901240+00:00",
+  "generated_at": "2026-05-26T17:46:31.265111+00:00",
   "format_version": 1,
   "scope": {
     "kind": "production proof matrix",
@@ -21,9 +21,9 @@
     "streaming_economics_gate_md_sha256": "b2cb0a642bc4b1e5c8aa3ace96febde3ffab99c9e2dce3e224631cead7da4eee",
     "streaming_economics_gate_json_sha256": "1eeda757af896498acd82e09441942b8a8ab8afe219849303048cb68366fc102",
     "ui_workflow_smoke_md_sha256": "080c036e335451a2a3e5d3b1e37e46bfd061721374783d4fcf3be26d9755c2dc",
-    "ui_workflow_smoke_json_sha256": "c27135281129de90bcde0eca08f3779b065ce41aec0721a0bc3ff77475c6ecfb",
-    "research_decision_sha256": "bf453e2ad671a05e07f3dad2d4de62a6b75a5e6f6971b2fd9871b1202fca9f76",
-    "research_frontier_sha256": "1bcef032be36588c9491ac41eef4059e8469402c715f0a7455a9c7f7a52b5ab9",
+    "ui_workflow_smoke_json_sha256": "ff136eef61deb921f425296bbb56c313e6e4915ce6430777074a2275f5481e03",
+    "research_decision_sha256": "9b5de8be630c2cb54ebdb922e14e83bed5b013acaf9cbcb013f830fa2f82eb29",
+    "research_frontier_sha256": "a2864df9b71dd19f9fae7a7bafe453b1a90a6574dc2cca9d0f1d394781f5de23",
     "ci_workflow_sha256": "2df1495a9a67d51538fdea719eca9b947edf4a998e3da1550ad7c3d0627a136e",
     "cargo_toml_sha256": "a623beee089b74ee04fd55ad5a972ad89e4599d98967958a4c0537ff7ddc132d",
     "evidence_regimen_sha256": "a5986022bfc24b9dcccfdda0fd57019760c489f5cb32f37063f2cd9661ea3984",

@@ -1,9 +1,9 @@
 {
   "generated_by": "scripts/generate_experiment_queue.py",
-  "generated_at": "2026-05-26T17:24:15.694209+00:00",
+  "generated_at": "2026-05-26T17:46:30.289962+00:00",
   "format_version": 1,
   "artifact_hashes": {
-    "research_scorecard_sha256": "a0f9768ef1aed8932d5d50f01fa4a0c1d39ff212bcc5edff1789057a315b5ca3",
+    "research_scorecard_sha256": "c7933918a7fc578af9ba11ba4096c61a7d00eaf9d071bdeb76a620c90e392697",
     "nearmiss_forecast_sha256": "9fcbbbbd262c63812e06eced771d35a5a237995dce0ab3f311c09a8400376edb",
     "prefix_ladder_sha256": "bfdcd900fb57e838ebf43ecaaf679b1e20ac56ebf3508cbf8ddf56c4e09dc22a",
     "depth3_prefix_probe_sha256": "655684cd381cb79f89d856f260358a6598c6e901b9fd4b3bf69ab85e7df27c90",
@@ -26,7 +26,7 @@
     "recursive_structured_fixtures_sha256": "4bf8fc5493b708c28039c7b3a2d61bb875cc26f368d78eb4ef4d68c935837a67",
     "scale_performance_report_sha256": "c0ed7d303139e360f1fa128ff9f207db22990c5f5f937945f94ede25bfd7b5e3",
     "bounded_streaming_memory_gate_sha256": "455e80b9f5a04c9703026a49902823d94c2fb898c8b5e3fe561aa15d5128fedf",
-    "ui_workflow_smoke_sha256": "c27135281129de90bcde0eca08f3779b065ce41aec0721a0bc3ff77475c6ecfb",
+    "ui_workflow_smoke_sha256": "ff136eef61deb921f425296bbb56c313e6e4915ce6430777074a2275f5481e03",
     "fifth_byte_residual_sha256": "e7d87f24bca8d04f50245fcdaae440f8141e6c0e7fe174d85ab53da666b91abf",
     "fifth_byte_steering_sha256": "0912df3b99a4de7bad4cbe7730f67456766bda6098b6b58be5cb273b4fa5a4e9",
     "contextual_fifth_byte_steering_sha256": "9af6f8167f51596840783bf31a7cf6a15e37e15c7f308a941de0982cf4502c4b",
@@ -56,9 +56,9 @@
     "alignment_arity_discovery_sha256": "a99701608fb38b3d476a332772b4c4eb69fcfda52ddccf1d32de6cd7bfa0cb8f",
     "transformed_match_discovery_sha256": "bba81480bb2b2ae5c6a35d5f289724b33522d2f24e7aff806676b6a8cf8268ec",
     "lead_exact_discovery_sha256": "7826d7439905a6765c1bf0fbfeb87b65c8a4cb78d28a8c37455bd54199301f6d",
-    "viability_sha256": "6ff4dd440fcd69b40bddd0b1b22f3afbfed1336d558970a039f763fcfeeb6558",
+    "viability_sha256": "0d84f29873d28a9e1819e534787d80f8a039f8b9d512032c36d4486094c2b837",
     "acceleration_report_sha256": "6b2aef961578f0e312395d006be014ac47c081f221f675f479304045979f3cce",
-    "goal_audit_sha256": "b8ebd830d931fce145f98c66c97fd2041f4c6acbd0fe3c4eee7c7cb0adada948",
+    "goal_audit_sha256": "437625c4b32a66952aa3590cd6bf76ecec407dbf452263f243fde1bb1c1d9499",
     "sweeps_sha256": "803c32715becd4eca7f52b5282fceaab539b953365ef223b477f3d5a6355dce7"
   },
   "overall_status": "not production-proven",

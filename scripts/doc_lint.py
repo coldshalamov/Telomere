@@ -73,6 +73,7 @@ import generate_public_preset_control_audit
 import generate_public_preset_control_ablation
 import generate_public_preset_ablation_projection
 import generate_public_preset_control_rerun
+import generate_public_preset_codeword_sweep
 import generate_seed_table_preset_replay
 import generate_superposition_telemetry
 import generate_lattice_selection_heldout_probe
@@ -204,6 +205,8 @@ REQUIRED_FILES = [
     "docs/public_preset_ablation_projection.json",
     "docs/PUBLIC_PRESET_CONTROL_RERUN.md",
     "docs/public_preset_control_rerun.json",
+    "docs/PUBLIC_PRESET_CODEWORD_SWEEP.md",
+    "docs/public_preset_codeword_sweep.json",
     "docs/LONG_SPAN_BUNDLE_GATE.md",
     "docs/long_span_bundle_gate.json",
     "docs/MECHANISM_CLOSURE_AUDIT.md",
@@ -669,6 +672,7 @@ def main() -> None:
     generate_public_preset_control_ablation.check_report()
     generate_public_preset_ablation_projection.check_report()
     generate_public_preset_control_rerun.check_report()
+    generate_public_preset_codeword_sweep.check_report()
     generate_superposition_telemetry.check_report()
     generate_lattice_selection_heldout_probe.check_report()
     generate_long_span_bundle_gate.check_report()

@@ -1,6 +1,6 @@
 {
   "generated_by": "scripts/generate_frozen_rank_source_candidates.py",
-  "generated_at": "2026-05-26T17:24:17.580954+00:00",
+  "generated_at": "2026-05-26T17:49:50.762871+00:00",
   "format_version": 1,
   "scope": {
     "kind": "frozen rank source candidate requirements",
@@ -17,7 +17,7 @@
   },
   "source_hashes": {
     "next_mechanism_designs_sha256": "66a0de1c8f1173bad169c218cde326ed2e9242d3aef0e2555f6b7434ed4ba3b9",
-    "natural_corpus_reopen_manifest_sha256": "0b9dce7a6904e6370494c43da1b475f73b252ed87d97a08aa81d8ea9b5599206",
+    "natural_corpus_reopen_manifest_sha256": "6e75736e7ee7b39cda844cf38c9d959636d7266976c5fd2bd51ae05f233a8246",
     "public_preset_control_rerun_sha256": "430a379cbde2377a787ea5a54ac29277814ede5f6308a95e9084350f72db8da0",
     "search_frontier_gate_sha256": "bd06b160c2dda144c49709449e1607d7332bf0d2b7873177e2e6c06ec3c9d114",
     "frozen_rank_source_candidates_generator_sha256": "06fa9d336f93ac4a0dbd1d5e50ad182fa50dc6616461d3f088b618f90d4f65f5"

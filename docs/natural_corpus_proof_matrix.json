@@ -1,6 +1,6 @@
 {
   "generated_by": "scripts/generate_natural_corpus_proof_matrix.py",
-  "generated_at": "2026-05-26T17:24:16.260934+00:00",
+  "generated_at": "2026-05-26T17:46:30.835888+00:00",
   "format_version": 1,
   "scope": {
     "kind": "natural corpus proof matrix",
@@ -9,10 +9,10 @@
     "marks_natural_corpus_proven": false
   },
   "source_hashes": {
-    "viability_sha256": "6ff4dd440fcd69b40bddd0b1b22f3afbfed1336d558970a039f763fcfeeb6558",
-    "research_scorecard_sha256": "a0f9768ef1aed8932d5d50f01fa4a0c1d39ff212bcc5edff1789057a315b5ca3",
-    "research_decision_sha256": "bf453e2ad671a05e07f3dad2d4de62a6b75a5e6f6971b2fd9871b1202fca9f76",
-    "research_frontier_sha256": "1bcef032be36588c9491ac41eef4059e8469402c715f0a7455a9c7f7a52b5ab9",
+    "viability_sha256": "0d84f29873d28a9e1819e534787d80f8a039f8b9d512032c36d4486094c2b837",
+    "research_scorecard_sha256": "c7933918a7fc578af9ba11ba4096c61a7d00eaf9d071bdeb76a620c90e392697",
+    "research_decision_sha256": "9b5de8be630c2cb54ebdb922e14e83bed5b013acaf9cbcb013f830fa2f82eb29",
+    "research_frontier_sha256": "a2864df9b71dd19f9fae7a7bafe453b1a90a6574dc2cca9d0f1d394781f5de23",
     "search_frontier_gate_sha256": "bd06b160c2dda144c49709449e1607d7332bf0d2b7873177e2e6c06ec3c9d114",
     "long_span_bundle_gate_sha256": "a579cd30d361c4023ceeac73e58d4fb2be92a63ab6df58bb5ce18f3da4ec2f8d",
     "heldout_corpus_expansion_sha256": "01a2ab439e60ff6f0cdb4f116ce893282a576cca51527c0a8abb93259a60425f",

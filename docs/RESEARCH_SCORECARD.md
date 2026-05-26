@@ -153,7 +153,7 @@ Viability verdict: **research-viable, not production-proven**.
 - `long_span_bundle_gate_sha256`: `a579cd30d361c4023ceeac73e58d4fb2be92a63ab6df58bb5ce18f3da4ec2f8d`
 - `recursive_structured_fixtures_sha256`: `4bf8fc5493b708c28039c7b3a2d61bb875cc26f368d78eb4ef4d68c935837a67`
 - `scale_performance_report_sha256`: `c0ed7d303139e360f1fa128ff9f207db22990c5f5f937945f94ede25bfd7b5e3`
-- `ui_workflow_smoke_sha256`: `c27135281129de90bcde0eca08f3779b065ce41aec0721a0bc3ff77475c6ecfb`
+- `ui_workflow_smoke_sha256`: `ff136eef61deb921f425296bbb56c313e6e4915ce6430777074a2275f5481e03`
 - `fifth_byte_residual_sha256`: `e7d87f24bca8d04f50245fcdaae440f8141e6c0e7fe174d85ab53da666b91abf`
 - `fifth_byte_steering_sha256`: `0912df3b99a4de7bad4cbe7730f67456766bda6098b6b58be5cb273b4fa5a4e9`
 - `contextual_fifth_byte_steering_sha256`: `9af6f8167f51596840783bf31a7cf6a15e37e15c7f308a941de0982cf4502c4b`
@@ -179,4 +179,4 @@ Viability verdict: **research-viable, not production-proven**.
 - `alignment_arity_discovery_sha256`: `a99701608fb38b3d476a332772b4c4eb69fcfda52ddccf1d32de6cd7bfa0cb8f`
 - `transformed_match_discovery_sha256`: `bba81480bb2b2ae5c6a35d5f289724b33522d2f24e7aff806676b6a8cf8268ec`
 - `lead_exact_discovery_sha256`: `7826d7439905a6765c1bf0fbfeb87b65c8a4cb78d28a8c37455bd54199301f6d`
-- `viability_sha256`: `6ff4dd440fcd69b40bddd0b1b22f3afbfed1336d558970a039f763fcfeeb6558`
+- `viability_sha256`: `0d84f29873d28a9e1819e534787d80f8a039f8b9d512032c36d4486094c2b837`
