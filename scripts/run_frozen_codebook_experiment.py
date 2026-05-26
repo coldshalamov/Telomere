@@ -34,7 +34,7 @@ CONTROL_VARIANTS = (
     "random-codeword",
     "out-of-budget-codeword",
 )
-SELECTION_MODES = ("score", "train-greedy")
+SELECTION_MODES = ("score", "train-greedy", "train-exact-greedy", "joint-marginal")
 
 
 def is_printable_window(window: bytes) -> bool:
@@ -144,6 +144,21 @@ def estimate_package_proxy(
     seed_record_cost: float,
     token_metadata_cost: float,
 ) -> float:
+    return estimate_package_proxy_stats(
+        train_data,
+        tokens,
+        seed_record_cost=seed_record_cost,
+        token_metadata_cost=token_metadata_cost,
+    )["proxy_bytes"]
+
+
+def estimate_package_proxy_stats(
+    train_data: list[bytes],
+    tokens: list[bytes],
+    *,
+    seed_record_cost: float,
+    token_metadata_cost: float,
+) -> dict[str, float]:
     """Training-only proxy for post-Telomere package bytes.
 
     A selected token becomes one 1-byte frame tag plus a 16-byte generated
@@ -155,10 +170,20 @@ def estimate_package_proxy(
 
     seed_savings = CODEWORD_LEN - seed_record_cost
     total = token_metadata_cost * len(tokens)
+    framed_len = 0
+    replacements = 0
     for data in train_data:
-        framed_len, replacements = estimate_transform_len_and_replacements(data, tokens)
-        total += framed_len - (seed_savings * replacements)
-    return total
+        file_framed_len, file_replacements = estimate_transform_len_and_replacements(
+            data, tokens
+        )
+        framed_len += file_framed_len
+        replacements += file_replacements
+        total += file_framed_len - (seed_savings * file_replacements)
+    return {
+        "proxy_bytes": total,
+        "framed_bytes": float(framed_len),
+        "replacements": float(replacements),
+    }
 
 
 def train_codebook(
@@ -217,6 +242,9 @@ def train_codebook(
         raise ValueError(f"unknown selection mode: {selection}")
 
     candidate_tokens = [token for _, _, _, token in candidates]
+    candidate_stats = {
+        token: (distinct_files, count) for _, distinct_files, count, token in candidates
+    }
     selection_details: dict[bytes, dict[str, Any]] = {}
     if selection == "train-greedy":
         pool = candidate_tokens[: max(1, candidate_pool)]
@@ -269,12 +297,95 @@ def train_codebook(
                 "train_marginal_replacements": len(best_accepted),
             }
         candidate_tokens = selected_tokens
+    elif selection in ("train-exact-greedy", "joint-marginal"):
+        pool = candidate_tokens[: max(1, candidate_pool)]
+        selected_tokens = []
+        remaining = list(pool)
+        current_stats = estimate_package_proxy_stats(
+            train_data,
+            selected_tokens,
+            seed_record_cost=seed_record_cost,
+            token_metadata_cost=token_metadata_cost,
+        )
+        current_proxy = current_stats["proxy_bytes"]
+        while remaining and len(selected_tokens) < max_tokens:
+            best_index: int | None = None
+            best_stats: dict[str, float] | None = None
+            best_marginal = float("-inf")
+            best_package_delta = float("inf")
+            best_replacement_delta = 0.0
+            best_rank: tuple[float, float, int, int, int] | None = None
+            best_digest: bytes | None = None
+            for index, token in enumerate(remaining):
+                trial_tokens = selected_tokens + [token]
+                trial_stats = estimate_package_proxy_stats(
+                    train_data,
+                    trial_tokens,
+                    seed_record_cost=seed_record_cost,
+                    token_metadata_cost=token_metadata_cost,
+                )
+                package_delta = trial_stats["proxy_bytes"] - current_stats["proxy_bytes"]
+                replacement_delta = (
+                    trial_stats["replacements"] - current_stats["replacements"]
+                )
+                if selection == "joint-marginal":
+                    if replacement_delta <= 0 or package_delta > 0:
+                        continue
+                    distinct_files, count = candidate_stats[token]
+                    rank = (
+                        replacement_delta,
+                        -package_delta,
+                        distinct_files,
+                        count,
+                        len(token),
+                    )
+                    digest = hashlib.sha256(token).digest()
+                    if (
+                        best_rank is None
+                        or rank > best_rank
+                        or (rank == best_rank and digest < (best_digest or digest))
+                    ):
+                        best_index = index
+                        best_stats = trial_stats
+                        best_marginal = -package_delta
+                        best_package_delta = package_delta
+                        best_replacement_delta = replacement_delta
+                        best_rank = rank
+                        best_digest = digest
+                    continue
+                marginal = -package_delta
+                if marginal > best_marginal:
+                    best_index = index
+                    best_stats = trial_stats
+                    best_marginal = marginal
+                    best_package_delta = package_delta
+                    best_replacement_delta = replacement_delta
+            if best_index is None:
+                break
+            if (
+                selection == "train-exact-greedy"
+                and stop_nonpositive_marginal
+                and best_marginal <= 0
+            ):
+                break
+            token = remaining.pop(best_index)
+            selected_tokens.append(token)
+            current_stats = best_stats if best_stats else current_stats
+            current_proxy = current_stats["proxy_bytes"]
+            selection_details[token] = {
+                "selection": selection,
+                "selection_rank": len(selected_tokens) - 1,
+                "train_proxy_bytes_after_selection": round(current_proxy, 3),
+                "train_marginal_proxy_bytes": round(best_marginal, 3),
+                "train_marginal_replacements": int(best_replacement_delta),
+                "train_marginal_selected_proxy": int(best_replacement_delta),
+                "train_marginal_package_proxy_bytes": round(best_package_delta, 3),
+                "train_package_proxy_after_selection": round(current_proxy, 3),
+            }
+        candidate_tokens = selected_tokens
 
     codebook = []
     used: set[bytes] = set()
-    candidate_stats = {
-        token: (distinct_files, count) for _, distinct_files, count, token in candidates
-    }
     for token in candidate_tokens:
         if token in used:
             continue
@@ -1009,13 +1120,13 @@ def main() -> int:
         "--selection",
         choices=SELECTION_MODES,
         default="score",
-        help="token selection policy: legacy frequency score or training-only greedy package proxy",
+        help="token selection policy: legacy frequency score, fast occurrence proxy, or exact training package proxy",
     )
     parser.add_argument(
         "--candidate-pool",
         type=int,
         default=512,
-        help="top scored candidates considered by --selection train-greedy",
+        help="top scored candidates considered by greedy selection modes",
     )
     parser.add_argument(
         "--seed-record-cost",

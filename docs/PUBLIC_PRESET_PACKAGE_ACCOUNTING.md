@@ -8,9 +8,11 @@ Package accounting charges the frozen public codebook once per evaluated package
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | calgary_to_canterbury_tokens32 | 2810784 | 10002 | 9568 | -306021 | -206001 | -101749 |
 | calgary_to_canterbury_train_greedy_pool128 | 2810784 | 5652 | 15366 | -266586 | -210066 | -162509 |
+| calgary_to_canterbury_joint_marginal_pool8 | 2810784 | 3690 | 28873 | -176478 | -139578 | -312395 |
 | calgary_to_canterbury_tokens128 | 2810784 | 34598 | 9486 | -284015 | 61965 | -109839 |
 | calgary_to_silesia_under7mb_tokens64 | 18124674 | 18200 | 2618 | -38092 | -1692 | -33358 |
 | calgary_to_silesia_under7mb_train_greedy_pool128 | 18124674 | 5652 | 3519 | -40402 | -29098 | -37119 |
+| calgary_to_silesia_under7mb_joint_marginal_pool8 | 18124674 | 3690 | 5869 | -27881 | -20501 | -63084 |
 | calgary_to_silesia_under7mb_tokens128 | 18124674 | 34598 | 2618 | -21694 | 47502 | -40206 |
 
 Control interpretation:

@@ -31,6 +31,11 @@ RUNS = [
         "role": "training-greedy Canterbury comparison",
     },
     {
+        "id": "calgary_to_canterbury_joint_marginal_pool8",
+        "path": RUN_DIR / "calgary_to_canterbury_joint_marginal_pool8_package_accounting.json",
+        "role": "joint-marginal Canterbury falsification probe",
+    },
+    {
         "id": "calgary_to_canterbury_tokens128",
         "path": RUN_DIR / "calgary_to_canterbury_package_accounting.json",
         "role": "larger-table Canterbury comparison",
@@ -45,6 +50,12 @@ RUNS = [
         "path": RUN_DIR
         / "calgary_to_silesia_under7mb_train_greedy_pool128_package_accounting.json",
         "role": "training-greedy Silesia under-7MB comparison",
+    },
+    {
+        "id": "calgary_to_silesia_under7mb_joint_marginal_pool8",
+        "path": RUN_DIR
+        / "calgary_to_silesia_under7mb_joint_marginal_pool8_package_accounting.json",
+        "role": "joint-marginal Silesia under-7MB falsification probe",
     },
     {
         "id": "calgary_to_silesia_under7mb_tokens128",
