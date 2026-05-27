@@ -1,6 +1,6 @@
 {
   "generated_by": "scripts/generate_frozen_rank_coded_span_generator.py",
-  "generated_at": "2026-05-26T23:01:52.616145+00:00",
+  "generated_at": "2026-05-27T01:34:22.271049+00:00",
   "format_version": 1,
   "scope": {
     "kind": "frozen rank-coded span generator contract",
@@ -15,11 +15,11 @@
     "uses_external_corpus_payloads": false
   },
   "source_hashes": {
-    "next_mechanism_designs_sha256": "d6f3c577d0958a7a1cbeeec4294fe56427dbd96f258fa79451a6ea38e409bc5b",
-    "external_corpus_accession_sha256": "92e5eff760f08b642109bf0642dc2f0b3b2544da94f603733543e6b207d85262",
+    "next_mechanism_designs_sha256": "9220693948065164a9799490a485126d3de3a44d524cf3ab80e10ad919ced726",
+    "external_corpus_accession_sha256": "3358a6a94ed0980fc3cadbef00dd4fe02218ef60052b98e9f1f730e6e9a51eb0",
     "external_manifest_sha256": "322b45e65198225d2a6bd630ac54d1dbf7d7f12593241f9d16ddb54ab06623b8",
-    "public_preset_control_rerun_sha256": "430a379cbde2377a787ea5a54ac29277814ede5f6308a95e9084350f72db8da0",
-    "search_frontier_gate_sha256": "bd06b160c2dda144c49709449e1607d7332bf0d2b7873177e2e6c06ec3c9d114",
+    "public_preset_control_rerun_sha256": "71f0ecfb44cd711b320b2ac3119afe9f616b1c27004c6872cf0355d0bd9a41be",
+    "search_frontier_gate_sha256": "bf7d9f68fa90c09292bf3afcef10743749054955f54921a1c1dd4c7abe45322b",
     "frozen_rank_generator_sha256": "025f97d36739ac0d58008eb90974679f3daf88dbc549014e9ccb08bbf0c8548a"
   },
   "design": {

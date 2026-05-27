@@ -1,6 +1,6 @@
 {
   "generated_by": "scripts/generate_research_agent_prompts.py",
-  "generated_at": "2026-05-26T23:01:53.162162+00:00",
+  "generated_at": "2026-05-27T01:34:22.875023+00:00",
   "format_version": 1,
   "scope": {
     "kind": "research-agent prompt pack",
@@ -13,7 +13,7 @@
     "allows_compute": false
   },
   "source_hashes": {
-    "research_team_packet_sha256": "0932c2b3a1a7fc90af5f73485352635936e17f32226ba45a491950de271bd357"
+    "research_team_packet_sha256": "9c9e08c8c7514583efe19e11d95c3ff1e5e6643521c935b2b45296e6599ef481"
   },
   "summary": {
     "agent_prompt_count": 6,

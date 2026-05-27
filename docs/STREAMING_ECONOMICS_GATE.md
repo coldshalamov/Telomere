@@ -75,15 +75,15 @@ Streaming is the scalable CPU matcher path and planted-scale evidence, not natur
 
 - `results_sha256`: `225465824966499a8d15a5721e0698c30ae83053d072dbec6c6b21558523f9ba`
 - `results_doc_sha256`: `991eb6a9a04f751cc571a04157e3b0a71139d7af0b5539dc4e80ff0084f9eba0`
-- `scale_performance_report_sha256`: `9fdc2913d249bf9739c7ecd0ad6870cdbf203090fb4d60c07615b30cc09ea11f`
+- `scale_performance_report_sha256`: `70ee45802aadc966f432c539e7c205d4b3288754c050eca1606150faacea0bc7`
 - `scale_performance_doc_sha256`: `f0beb0d6feed61f1ba80c181888333972c5f7b973dab419dda28fdcfb8add167`
-- `bounded_streaming_memory_gate_sha256`: `4dcb7a266810106ba5a4203cae76a88d1ae7996301ded31aca99f20081cdfa87`
-- `bounded_streaming_memory_gate_doc_sha256`: `f9eb1f88fd96ea3aaea5b7afd91543f38056c04a43d373e2e5c0aa6c794c40b9`
-- `search_frontier_gate_sha256`: `bd06b160c2dda144c49709449e1607d7332bf0d2b7873177e2e6c06ec3c9d114`
-- `search_frontier_gate_doc_sha256`: `5131027c3545d58a27b6aeb8dcd4b26c62a9eb7fdee2c5689ff19ce487aba89c`
+- `bounded_streaming_memory_gate_sha256`: `c93a4a58ed8bb6fb881dec892f3bd0f7d768c84831ef82b75a6307e260088dab`
+- `bounded_streaming_memory_gate_doc_sha256`: `ed00901fbe49dcc27ded3717faeeebe7eed477f2bac9a6e3d08192773fe853f4`
+- `search_frontier_gate_sha256`: `bf7d9f68fa90c09292bf3afcef10743749054955f54921a1c1dd4c7abe45322b`
+- `search_frontier_gate_doc_sha256`: `8465aef47d97fa13ed78dc5c34d4560fc2afd078d9b5e4fc673b84af807616c0`
 - `streaming_engine_sha256`: `929c939d95e9977e96d9ccae68c309a12f4f9a6628b4f062856d70e895fd4191`
 - `indexed_engine_sha256`: `58ff71e20cb980266b92f65588b01a81d7983c40df2ed0a349a43a93b606f6f7`
-- `streaming_tests_sha256`: `e3b438db54b50fc5d2c00ae53ca5a6a2ac0fd53c0e76c4931c463051362ae758`
+- `streaming_tests_sha256`: `20c83ff5be8b6f7277449d98c6dcf3a7352b137bcf367ff918721b5b7478bba2`
 - `indexed_v2_tests_sha256`: `f6196cde5ca4092391e83ff7693892aefc0e53ff4bb921a836077cea4e2c9dfa`
 - `results_generator_sha256`: `433470027e2b83a1b716d23de6a02c21c06c5dc69cb011aedb8bcf9d6f2af87d`
 - `scale_generator_sha256`: `3d2855b0db3d16affeb33ee7403f4d9e09b0b3eb17ec50c03ab85c4bb48461ff`

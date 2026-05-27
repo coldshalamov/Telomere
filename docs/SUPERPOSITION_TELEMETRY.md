@@ -50,7 +50,7 @@ Candidate-lattice telemetry satisfies the deterministic selector gate.
 ## Source Artifacts
 
 - `candidate_lattice_doc_sha256`: `cb0af2a7c7b1ce173e726588bc1ac197ace7432e1eae2cbfca77f96d398b3be3`
-- `mechanism_experiment_ranking_sha256`: `4d131f0947b07ff66a5f215e0acb5482bc5b9519600f2b02f13c0b3ef7b055fb`
+- `mechanism_experiment_ranking_sha256`: `2ae775a6e1c73086ef636f6a05c1d83f53e58acaf5ae0c5e3bfd7df34edbf946`
 - `indexed_engine_sha256`: `58ff71e20cb980266b92f65588b01a81d7983c40df2ed0a349a43a93b606f6f7`
 - `superposition_engine_sha256`: `57f415af9d1a88707168ebcfe09b61d76d3c4692e5d643b26349ac89d0ecf2d7`
 - `indexed_v2_tests_sha256`: `f6196cde5ca4092391e83ff7693892aefc0e53ff4bb921a836077cea4e2c9dfa`

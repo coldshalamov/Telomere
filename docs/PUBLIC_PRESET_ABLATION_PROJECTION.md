@@ -60,7 +60,7 @@ Existing rows suggest project/common-token removal may leave several ordinary wi
 ## Source Artifacts
 
 The JSON `source_hashes` map pins this projection to the exact upstream evidence files below.
-- `public_preset_control_ablation_sha256`: `bff49d75027b172ae3511d5c4b24e286a2f4f5940772b1176f791effc462bd4b`
-- `public_preset_control_audit_sha256`: `7358408659062b0aed1871a8ed6ee9fb1a97a5ecfc01c6ada9b33fd6cf955a99`
-- `public_preset_promotion_gate_sha256`: `94889bd4a0e3e56151559e01bac1e720acfb3a60ddeabef7af2921ad6ffa4da5`
-- `schema_native_public_dictionary_replication_sha256`: `fbfc1074f874380442b5fc9e8ce57cc952f764473c992837773369d0728beebe`
+- `public_preset_control_ablation_sha256`: `fba87872cfdaddf898208f89be40434a0d36418ffbeb227ecb8244cdea6794ba`
+- `public_preset_control_audit_sha256`: `820e852115de2f3e655f30388dd0c907782d154561554798cc62be1b71b24309`
+- `public_preset_promotion_gate_sha256`: `620bb8615c5962bf40f52f2690f58ab8f066725eae9f231adce1821332cb24f2`
+- `schema_native_public_dictionary_replication_sha256`: `3fad5da36bf3223ccdb98a4df6247285f21c2e6635487331cfad5c1c055d92ec`

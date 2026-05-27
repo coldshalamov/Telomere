@@ -6,7 +6,9 @@ from __future__ import annotations
 import hashlib
 import heapq
 import json
+import os
 import re
+import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -23,6 +25,7 @@ from generate_large_source_preset_probe import (
     rust_version,
     is_ascii_token,
     select_ranked_tokens,
+    sanitize_command,
     sha256,
     source_line_tokens,
 )
@@ -47,6 +50,7 @@ HELDOUT_RELS = (
 )
 TOKEN_POLICIES = ("leave-one-out", "frozen-all-heldouts-excluded")
 FROZEN_CANDIDATE_POOL = TOKEN_LIMIT * 64
+NATIVE_FRAME_MODE = "native-v2-public-preset"
 
 
 def slug(path: Path) -> str:
@@ -188,6 +192,9 @@ def learned_public_source_tokens_excluding(
 def source_hashes() -> dict[str, str]:
     hashes = {
         "generator": sha256(ROOT / GENERATED_BY),
+        "public_preset": sha256(ROOT / "src" / "public_preset.rs"),
+        "streaming_engine": sha256(ROOT / "src" / "streaming.rs"),
+        "v2_format": sha256(ROOT / "src" / "tlmr_v2.rs"),
         "large_source_helper": sha256(
             ROOT / "scripts" / "generate_large_source_preset_probe.py"
         ),
@@ -198,6 +205,84 @@ def source_hashes() -> dict[str, str]:
     for rel, path in zip(HELDOUT_RELS, require_heldouts()):
         hashes[f"heldout_{slug(rel)}"] = sha256(path)
     return hashes
+
+
+def run_native_public_preset_compress(
+    binary: Path,
+    input_path: Path,
+    output_path: Path,
+) -> dict[str, Any]:
+    command = [
+        str(binary),
+        "compress",
+        str(input_path),
+        str(output_path),
+        "--engine",
+        "streaming",
+        "--format",
+        "v2",
+        "--hasher",
+        "sha256",
+        "--seed-depth",
+        "1",
+        "--seed-bits",
+        "8",
+        "--max-span-len",
+        str(CODEWORD_LEN),
+        "--block-size",
+        str(CODEWORD_LEN),
+        "--span-step",
+        "1",
+        "--telemetry-limit",
+        "0",
+        "--memory-limit",
+        "100%",
+        "--json",
+        "--verify",
+        "--force",
+        "--transform",
+        "public-preset-selective",
+        "--public-preset-min-token-len",
+        "8",
+        "--public-preset-codeword-len",
+        str(CODEWORD_LEN),
+    ]
+    env = os.environ.copy()
+    env["RUST_LOG"] = "error"
+    result = subprocess.run(
+        command,
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        env=env,
+        check=False,
+    )
+    if result.returncode != 0:
+        raise RuntimeError(
+            "native public-preset compression failed\n"
+            f"command: {' '.join(command)}\n"
+            f"stdout: {result.stdout}\n"
+            f"stderr: {result.stderr}"
+        )
+    payload = json.loads(result.stdout)
+    telemetry = payload.get("engine_telemetry") or {}
+    transform = telemetry.get("transform") or {}
+    selected = telemetry.get("selected_spans_total", telemetry.get("selected_count", 0))
+    return {
+        "command": sanitize_command(" ".join(command)),
+        "tlmr_bytes": output_path.stat().st_size,
+        "json_final_bytes": payload["final_bytes"],
+        "selected_spans": selected,
+        "candidate_count": telemetry.get("candidate_count", 0),
+        "literal_bytes": telemetry.get("literal_bytes"),
+        "transform_literal_bytes": transform.get("literal_bytes"),
+        "framed_bytes": transform.get("transformed_bytes"),
+        "token_count": transform.get("token_count"),
+        "token_replacements": transform.get("token_replacements", 0),
+        "native_preset_version": transform.get("preset_version"),
+        "native_min_token_len": transform.get("min_token_len"),
+        "native_codeword_len": transform.get("codeword_len"),
+    }
 
 
 def build_rows() -> tuple[list[dict[str, Any]], dict[str, Any]]:
@@ -292,6 +377,34 @@ def build_rows() -> tuple[list[dict[str, Any]], dict[str, Any]]:
                                 **compression,
                             }
                         )
+                if token_policy == "frozen-all-heldouts-excluded":
+                    native_output = (
+                        RUN_DIR
+                        / f"{heldout_id}-{token_policy}-{corpus}-{NATIVE_FRAME_MODE}-seed.tlmr"
+                    )
+                    native = run_native_public_preset_compress(
+                        binary, input_path, native_output
+                    )
+                    rows.append(
+                        {
+                            "heldout": rel.as_posix(),
+                            "heldout_id": heldout_id,
+                            "token_policy": token_policy,
+                            "corpus": corpus,
+                            "frame_mode": NATIVE_FRAME_MODE,
+                            "variant": "seed",
+                            "codeword_len": CODEWORD_LEN,
+                            "token_count": native["token_count"],
+                            "token_replacements": native["token_replacements"],
+                            "original_bytes": original_len,
+                            "framed_bytes": native["framed_bytes"],
+                            "charged_bytes": native["tlmr_bytes"],
+                            "delta_bytes": native["tlmr_bytes"] - original_len,
+                            "public_preset_delta_bytes": native["tlmr_bytes"]
+                            - original_len,
+                            **native,
+                        }
+                    )
 
     return rows, token_metadata
 
@@ -313,6 +426,16 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
             and row["frame_mode"] == seed["frame_mode"]
             and row["variant"] != "seed"
         ]
+        if not controls:
+            controls = [
+                row
+                for row in seed_rows
+                if row["heldout_id"] == seed["heldout_id"]
+                and row["token_policy"] == seed["token_policy"]
+                and row["frame_mode"] == seed["frame_mode"]
+                and row["corpus"] in {"paired-shadow-source", "same-size-random"}
+                and row["corpus"] != seed["corpus"]
+            ]
         best_control = min(controls, key=lambda row: row["delta_bytes"])
         paired_shadow = seed_lookup.get(
             (
@@ -368,6 +491,13 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
     random_rows = [row for row in comparisons if row["corpus"] == "same-size-random"]
     shadow_rows = [row for row in comparisons if row["corpus"] == "paired-shadow-source"]
     clean_source = [row for row in source if row["clean_seed_specific_win"]]
+    native_source = [row for row in source if row["frame_mode"] == NATIVE_FRAME_MODE]
+    native_source_rows = [
+        row
+        for row in seed_rows
+        if row["frame_mode"] == NATIVE_FRAME_MODE and row["corpus"] == "heldout-source"
+    ]
+    native_clean = [row for row in native_source if row["clean_seed_specific_win"]]
     best_source = min(source, key=lambda row: row["seed_delta_bytes"])
     policy_clean_heldouts = {
         policy: sum(
@@ -419,6 +549,21 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "frozen_clean_win_heldouts": policy_clean_heldouts[
             "frozen-all-heldouts-excluded"
         ],
+        "native_public_preset_clean_win_heldouts": sum(
+            1 for row in native_clean if row["corpus"] == "heldout-source"
+        ),
+        "native_public_preset_total_input_bytes": sum(
+            row["original_bytes"] for row in native_source_rows
+        ),
+        "native_public_preset_total_tlmr_bytes": sum(
+            row["charged_bytes"] for row in native_source_rows
+        ),
+        "native_public_preset_total_delta_bytes": sum(
+            row["delta_bytes"] for row in native_source_rows
+        ),
+        "native_public_preset_selected_spans": sum(
+            row["selected_spans"] for row in native_source_rows
+        ),
         "same_size_random_selected_spans": sum(
             row["seed_selected_spans"] for row in random_rows
         ),
@@ -441,7 +586,9 @@ def summarize(rows: list[dict[str, Any]]) -> dict[str, Any]:
             "source-family exact seed-span compression generalizes across "
             "held-out Rust files and now tests both leave-one-out and frozen "
             "all-heldouts-excluded source presets against paired vocabulary-shadow "
-            "and random controls, but coverage remains preset dependent"
+            "and random controls; the frozen source-family preset also survives "
+            "as native `.tlmr` v2 public-preset files, but coverage remains preset "
+            "dependent"
         ),
     }
 
@@ -468,6 +615,7 @@ def build_report() -> dict[str, Any]:
             "max_span_len": CODEWORD_LEN,
             "block_size": CODEWORD_LEN,
             "span_step": 1,
+            "native_frame_mode": NATIVE_FRAME_MODE,
         },
         "token_metadata": token_metadata,
         "summary": summarize(rows),
@@ -482,7 +630,7 @@ def write_markdown(payload: dict[str, Any]) -> None:
         "",
         f"Generated by `{GENERATED_BY}`.",
         "",
-        "This experiment holds out multiple Rust source files, learns source-family tokens from the remaining Rust library files, transforms each held-out file into deterministic codewords, and compresses those codewords with fixed-span `.tlmr` v2 accounting.",
+        "This experiment holds out multiple Rust source files, learns source-family tokens from the remaining Rust library files, transforms each held-out file into deterministic codewords, compresses those codewords with fixed-span `.tlmr` v2 accounting, and now also runs the frozen preset through the native v2 public-preset transform so `telomere decompress` returns the original source bytes without the Python harness.",
         "",
         "## Summary",
         "",
@@ -493,6 +641,9 @@ def write_markdown(payload: dict[str, Any]) -> None:
         f"- Source clean win held-outs: `{summary['source_clean_win_heldouts']}`",
         f"- Policy clean held-outs: `{summary['policy_clean_heldouts']}`",
         f"- Frozen preset clean win held-outs: `{summary['frozen_clean_win_heldouts']}`",
+        f"- Native public-preset clean win held-outs: `{summary['native_public_preset_clean_win_heldouts']}`",
+        f"- Native public-preset total: `{summary['native_public_preset_total_input_bytes']} -> {summary['native_public_preset_total_tlmr_bytes']}` bytes (`{summary['native_public_preset_total_delta_bytes']}` delta)",
+        f"- Native public-preset selected spans: `{summary['native_public_preset_selected_spans']}`",
         f"- Same-size random selected spans: `{summary['same_size_random_selected_spans']}`",
         f"- Paired shadow selected spans: `{summary['paired_shadow_selected_spans']}`",
         f"- Paired shadow token replacements: `{summary['paired_shadow_token_replacements']}`",
@@ -576,6 +727,7 @@ def write_markdown(payload: dict[str, Any]) -> None:
             "- The frozen preset policy trains one token table with all held-out files excluded and reuses it across every target.",
             "- Paired shadow rows preserve byte length, whitespace, punctuation, comments, and source delimiters while replacing source vocabulary; clean wins require these rows to keep zero token replacements and zero selected spans.",
             "- Same-size random rows test whether the source-family token transform creates accidental seed-span matches on non-source bytes.",
+            "- `native-v2-public-preset` rows are full native `.tlmr` files using the Rust public-preset transform layer; no external inverse transform is needed to decode them.",
             "- The research question is no longer whether source-family codeword transforms can work at all; it is which public preset families provide enough coverage reliably.",
             "",
         ]
@@ -604,6 +756,10 @@ def check_report() -> None:
         raise SystemExit("expected every held-out source to produce a clean win")
     if summary.get("frozen_clean_win_heldouts", 0) == 0:
         raise SystemExit("expected frozen public source preset to produce a clean win")
+    if summary.get("native_public_preset_clean_win_heldouts", 0) != len(HELDOUT_RELS):
+        raise SystemExit("expected native public source preset to cleanly win every heldout")
+    if summary.get("native_public_preset_total_delta_bytes", 0) >= 0:
+        raise SystemExit("expected native public source preset to be negative in aggregate")
     if summary.get("best_source_seed_delta_bytes", 0) >= 0:
         raise SystemExit("expected best held-out source row to be negative")
     text = OUT_MD.read_text(encoding="utf-8")
@@ -614,6 +770,8 @@ def check_report() -> None:
         "Same-size random",
         "Paired shadow",
         "frozen preset",
+        "native `.tlmr`",
+        NATIVE_FRAME_MODE,
         "public preset families",
     ):
         if phrase not in text:

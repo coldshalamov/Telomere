@@ -8,7 +8,7 @@ Physical payloads: `15`.
 Target spans scanned: `736265`.
 Deduplicated spans scanned: `188879`.
 Enumerated seeds: `16843008`.
-Enumeration time: `109056.395` ms.
+Enumeration time: `79685.366` ms.
 Rows with depth-3 prefix >=5: `2`.
 Rows with prefix >=5 uplift: `2`.
 Rows with exact hits: `0`.

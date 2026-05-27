@@ -81,11 +81,11 @@ Frozen schema-native public dictionaries meet the research gate for schema-shape
 
 ## Source Artifacts
 
-- `mechanism_experiment_ranking_sha256`: `4d131f0947b07ff66a5f215e0acb5482bc5b9519600f2b02f13c0b3ef7b055fb`
+- `mechanism_experiment_ranking_sha256`: `2ae775a6e1c73086ef636f6a05c1d83f53e58acaf5ae0c5e3bfd7df34edbf946`
 - `grammar_channel_match_discovery_sha256`: `0356e6bc36339e3b2bfb6f753fef167c4aeb0915fd6eb6ecaeff946f7f5a2f54`
 - `token_dictionary_transform_search_sha256`: `ea97c7205e447c99bbef2f26062120ca8644eb1c89a9b1030f245fdc771f0eba`
 - `record_context_transform_search_sha256`: `19111c0b3c7cdb3afe1e66344c119dff187d5915c3ac559d3ee6cb0c6815ccc9`
 - `transform_validation_sha256`: `8d974a69b45738de48a401fb584340cb263fccb6148d96e63a8328799425792b`
-- `format_doc_sha256`: `4207afbe822f13f9a1968cfbc99954b19ce47480d199998dcbb6a69c891bd67d`
+- `format_doc_sha256`: `9a4fe661e1f7e03e8cb58f1561385b7d04ca7472ffafe1d16d6cc997258a967f`
 - `preset_manifest_sha256`: `dd1045411fee6698ffa9c13201459ec76e9a94a2c1e6b8f350f5b52040b287f8`
 - `corpus_manifest_sha256`: `893762e0a61eccf2a339b65ed9211bcecd0ff7b6c3526b3ab3640f73f730ef42`

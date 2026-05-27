@@ -35,19 +35,19 @@ All current bounded mechanism lanes are closed, blocked, or maintenance-only; th
 ## Source Artifacts
 
 The JSON `source_hashes` map pins this closure audit to exact upstream evidence and generator files below.
-- `mechanism_experiment_ranking_sha256`: `4d131f0947b07ff66a5f215e0acb5482bc5b9519600f2b02f13c0b3ef7b055fb`
-- `search_frontier_gate_sha256`: `bd06b160c2dda144c49709449e1607d7332bf0d2b7873177e2e6c06ec3c9d114`
-- `seed_table_preset_probe_sha256`: `66b7b3e2615b64fe1a2e05fbadc53e21ddb2ba73a47a91b4d4b9ab68f6afe9ac`
-- `seed_table_preset_replay_sha256`: `5e715e666ba4968a4fe025a1e7e98f0351b24c7b0959812bf63b13cbf90f9a8c`
-- `seed_table_fasta_ablation_sha256`: `f971b9e3debba75c0707d87665d2f90f13991d9a127757343af085b8824f5e5b`
-- `exact_short_hit_bundle_economics_sha256`: `c36ec5eca6f1d3c638aaa7b21848fedeba7c26a08fba657506428e0c5fce0d96`
-- `whole_stream_residual_vector_probe_sha256`: `95e4cb5512dd5dc4c89317c50e6065a8c5132e0c58ece0a6989f56c3150b80c7`
-- `expander_salt_ensemble_sha256`: `b1964816f8ade396c3f82e9b1c1d7db222506446c3ea8b18b0bd5f47dc0b9887`
-- `schema_native_public_dictionary_replication_sha256`: `fbfc1074f874380442b5fc9e8ce57cc952f764473c992837773369d0728beebe`
-- `public_preset_promotion_gate_sha256`: `94889bd4a0e3e56151559e01bac1e720acfb3a60ddeabef7af2921ad6ffa4da5`
-- `public_preset_control_rerun_sha256`: `430a379cbde2377a787ea5a54ac29277814ede5f6308a95e9084350f72db8da0`
-- `superposition_telemetry_sha256`: `06c1e38a8a4f74650e4a7de135c44ee575c3a71925cb850e1989b4239ccc8ebc`
-- `lattice_selection_heldout_probe_sha256`: `da93bc2b691a55089d752d6655b291c9b00df11cc0200302983b87767cdc5f52`
-- `recursive_structured_fixtures_sha256`: `e18c5d2597e07491e7ab4031086c59ee1d8cd6a38b4ee1a47d46ab1361038f3d`
-- `long_span_bundle_gate_sha256`: `c8c48d55dd0ac688459acbf3e83d30c5fa99e3c959d49b57ddc6350217543f67`
+- `mechanism_experiment_ranking_sha256`: `2ae775a6e1c73086ef636f6a05c1d83f53e58acaf5ae0c5e3bfd7df34edbf946`
+- `search_frontier_gate_sha256`: `bf7d9f68fa90c09292bf3afcef10743749054955f54921a1c1dd4c7abe45322b`
+- `seed_table_preset_probe_sha256`: `22b09bbea0ccafe4e2d026d77a6e929639e81c76a97092b5b91b0ffc7446847a`
+- `seed_table_preset_replay_sha256`: `822c62a2d1c23a8c709f24497c9577d1eb3e8c4fa753ad5162ed1fbc60386a1a`
+- `seed_table_fasta_ablation_sha256`: `1b93c81f74896c18244af63a83fde5cdb2b894b33f89cd939a75867c2580749d`
+- `exact_short_hit_bundle_economics_sha256`: `90924867bbc794040455a90d71009469df2a711899f836b5bb6cfb4255cbb0dc`
+- `whole_stream_residual_vector_probe_sha256`: `065455076651faaeb12fd7214dfc46606d0204c7cb6e4a819bd5df9ac7646709`
+- `expander_salt_ensemble_sha256`: `aa87c528883b5559a8819b41e124aaf33394c735e1e4474edde9be9b48f2eae7`
+- `schema_native_public_dictionary_replication_sha256`: `3fad5da36bf3223ccdb98a4df6247285f21c2e6635487331cfad5c1c055d92ec`
+- `public_preset_promotion_gate_sha256`: `620bb8615c5962bf40f52f2690f58ab8f066725eae9f231adce1821332cb24f2`
+- `public_preset_control_rerun_sha256`: `71f0ecfb44cd711b320b2ac3119afe9f616b1c27004c6872cf0355d0bd9a41be`
+- `superposition_telemetry_sha256`: `42f527269c52a33a2d203b30aa9a448b0bbc4b6a8923f0ef2cf74c17ef4948f3`
+- `lattice_selection_heldout_probe_sha256`: `27bf3ea37d54611d26dcebe4f0bf3df70452f874695c4cdfbc200b80403a15dd`
+- `recursive_structured_fixtures_sha256`: `53e45273638861faddfafcdc46bf60e2ca15bf4935d42733b7702669a90d6822`
+- `long_span_bundle_gate_sha256`: `983b9eb2ee2127d8ef88384c30a57a19dc2a9314e6af7a0d70ad0920619a9348`
 - `mechanism_closure_generator_sha256`: `199655a45117d168ca57ec8ec8b99690a3122c90398121e2926062ad67233d16`

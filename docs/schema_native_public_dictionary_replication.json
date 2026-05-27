@@ -1,13 +1,13 @@
 {
   "generated_by": "scripts/generate_schema_native_public_dictionary_replication.py",
-  "generated_at": "2026-05-26T17:22:58.345949+00:00",
+  "generated_at": "2026-05-27T01:32:53.838031+00:00",
   "format_version": 1,
   "source_artifact_hashes": {
-    "schema_native_public_dictionaries_sha256": "7736c18343de946d3853eee253c83a9497e2f9f5fd209aaf9e20bd443f9fa478",
-    "heldout_corpus_expansion_sha256": "01a2ab439e60ff6f0cdb4f116ce893282a576cca51527c0a8abb93259a60425f",
-    "packed_sidecar_replication_sha256": "d87bc291881cc900a30e68552986e20ef71c037746d89c3b19c94e3bc1da1f5f",
+    "schema_native_public_dictionaries_sha256": "c1dd47c4aaa499b1e64451af57e5c707a5a99722aa028894afe1756bcb60addf",
+    "heldout_corpus_expansion_sha256": "bee160993c0be076cb393cf598ca6b46156eda718dcfeb82f0d92336c1918181",
+    "packed_sidecar_replication_sha256": "1ff2392582205ac897d540cd779147aa886aab82af8af520039ba01ea57f2562",
     "packed_sidecar_replication_generator_sha256": "3052483077e7bc62dc35ff460c90e5d41cde3c5d85476ef5b5aaca3b56f886d9",
-    "format_doc_sha256": "4207afbe822f13f9a1968cfbc99954b19ce47480d199998dcbb6a69c891bd67d"
+    "format_doc_sha256": "9a4fe661e1f7e03e8cb58f1561385b7d04ca7472ffafe1d16d6cc997258a967f"
   },
   "preset_manifest_sha256": "7765fb7129325087dcc8d796aec4d55f7228a60ad6b4f19f44a8ed34898d9017",
   "preset_manifest": {
@@ -349,7 +349,7 @@
       "replication_source": "generate_packed_sidecar_replication.REPLICATION_CORPORA"
     }
   ],
-  "replication_manifest_sha256": "9f832e6e39daa5c08863a225b84326fdae1197695e077c8e1b38c4cd53a82fc4",
+  "replication_manifest_sha256": "7744bd0d1658a5b62f67b5e47a4d584946995a73cebd655d91a4e1b4532fe513",
   "metadata_policy": "public preset bytes are versioned and not stored per file; selector and version bytes are charged",
   "summary": {
     "corpus_count": 20,

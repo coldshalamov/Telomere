@@ -1,6 +1,6 @@
 {
   "generated_by": "scripts/generate_natural_corpus_reopen_manifest.py",
-  "generated_at": "2026-05-26T23:01:52.092670+00:00",
+  "generated_at": "2026-05-27T01:34:21.738207+00:00",
   "format_version": 1,
   "scope": {
     "kind": "natural corpus reopen manifest",
@@ -12,13 +12,13 @@
     "allows_broad_compute": false
   },
   "source_hashes": {
-    "natural_corpus_proof_matrix_sha256": "411d4653b4e9b227c9f5695d596a919abe21fdb3e0c5cb0fa3e2e691e3026e3e",
-    "blocked_requirement_dispatch_sha256": "6dec9d03d118ff14893ee76686fb0a7b92fcc9dce6efe95c2280c31f5b52d002",
-    "research_frontier_sha256": "bdde4b3b106f811ca48447ce6130fa793ba59d50aa5a06a53c3cec0dd545978d",
-    "search_frontier_gate_sha256": "bd06b160c2dda144c49709449e1607d7332bf0d2b7873177e2e6c06ec3c9d114",
-    "long_span_bundle_gate_sha256": "c8c48d55dd0ac688459acbf3e83d30c5fa99e3c959d49b57ddc6350217543f67",
-    "heldout_corpus_expansion_sha256": "01a2ab439e60ff6f0cdb4f116ce893282a576cca51527c0a8abb93259a60425f",
-    "match_discovery_sha256": "dbbacb8490741545d80b9332931202f7fd3a2ef98c718af5f266c88226343dff",
+    "natural_corpus_proof_matrix_sha256": "8c6c63e0e6e98c5fcd9c0fb0cb5a4b4126ca790511838b1d5f372a9c1589dd8f",
+    "blocked_requirement_dispatch_sha256": "a9f09a4a3f256b6ede981de65742dbfade48a6a0eebc5b8cb6e07f155ce4ee47",
+    "research_frontier_sha256": "290d4c8d6facfb234df09008b31a8d3bb7c28272fb6836cb0cb2f8ddad351067",
+    "search_frontier_gate_sha256": "bf7d9f68fa90c09292bf3afcef10743749054955f54921a1c1dd4c7abe45322b",
+    "long_span_bundle_gate_sha256": "983b9eb2ee2127d8ef88384c30a57a19dc2a9314e6af7a0d70ad0920619a9348",
+    "heldout_corpus_expansion_sha256": "bee160993c0be076cb393cf598ca6b46156eda718dcfeb82f0d92336c1918181",
+    "match_discovery_sha256": "41c34f806959f7da25469977ebaf3bb1cf1bb3ea93b0e4f1bb3c1956aec8a617",
     "transform_validation_sha256": "8d974a69b45738de48a401fb584340cb263fccb6148d96e63a8328799425792b"
   },
   "summary": {

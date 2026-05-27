@@ -2,6 +2,7 @@ use telomere::hasher::{SeedExpander, Sha256Expander};
 use telomere::{
     compress_multi_pass_with_config, compress_streaming_v2_with_chunked_span_step_and_telemetry,
     compress_streaming_v2_with_public_preset_selective_and_telemetry,
+    compress_streaming_v2_with_public_preset_selective_config_and_telemetry,
     compress_streaming_v2_with_span_step_and_telemetry, compress_streaming_v2_with_telemetry,
     decode_tlmr_v2_layer_descriptors, decompress_with_limit,
     estimate_streaming_target_chunk_upper_bound, estimate_streaming_target_table_upper_bound,
@@ -207,6 +208,40 @@ fn public_preset_selective_log_tokens_win_under_full_accounting() {
     assert!(
         encoded.len() < data.len(),
         "dense public log preset fixture should beat full v2 accounting"
+    );
+}
+
+#[test]
+fn public_preset_selective_rust_source_tokens_win_natively() {
+    let row = br#"#[stable(feature = "rust1", since = "1.0.0")] pub const fn example(self) -> fmt::Result { // SAFETY: the caller guarantees the value is initialized }
+"#;
+    let data = row.repeat(96);
+
+    let (encoded, telemetry) =
+        compress_streaming_v2_with_public_preset_selective_config_and_telemetry(
+            &data,
+            HasherKind::Sha256,
+            1,
+            16,
+            16,
+            1,
+            5,
+            1,
+            13,
+            None,
+            None,
+            8,
+            16,
+        )
+        .unwrap();
+    let decoded = decompress_with_limit(&encoded, &Config::default(), usize::MAX).unwrap();
+    assert_eq!(decoded, data);
+    assert!(telemetry.transform.token_count >= 183);
+    assert!(telemetry.transform.token_replacements >= 4 * 96);
+    assert!(telemetry.streaming.selected_count >= 4 * 96);
+    assert!(
+        encoded.len() < data.len(),
+        "dense Rust source-family preset fixture should beat full v2 accounting"
     );
 }
 

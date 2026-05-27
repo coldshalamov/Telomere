@@ -89,17 +89,17 @@ Canonical seed-table v0 does not meet the promotion gate; treat this as evidence
 
 ## Source Artifacts
 
-- `search_frontier_gate_sha256`: `bd06b160c2dda144c49709449e1607d7332bf0d2b7873177e2e6c06ec3c9d114`
-- `mechanism_experiment_ranking_sha256`: `4d131f0947b07ff66a5f215e0acb5482bc5b9519600f2b02f13c0b3ef7b055fb`
-- `match_discovery_sha256`: `dbbacb8490741545d80b9332931202f7fd3a2ef98c718af5f266c88226343dff`
-- `alignment_arity_discovery_sha256`: `a99701608fb38b3d476a332772b4c4eb69fcfda52ddccf1d32de6cd7bfa0cb8f`
-- `transformed_match_discovery_sha256`: `bba81480bb2b2ae5c6a35d5f289724b33522d2f24e7aff806676b6a8cf8268ec`
-- `lead_exact_discovery_sha256`: `7826d7439905a6765c1bf0fbfeb87b65c8a4cb78d28a8c37455bd54199301f6d`
-- `heldout_corpus_expansion_sha256`: `01a2ab439e60ff6f0cdb4f116ce893282a576cca51527c0a8abb93259a60425f`
+- `search_frontier_gate_sha256`: `bf7d9f68fa90c09292bf3afcef10743749054955f54921a1c1dd4c7abe45322b`
+- `mechanism_experiment_ranking_sha256`: `2ae775a6e1c73086ef636f6a05c1d83f53e58acaf5ae0c5e3bfd7df34edbf946`
+- `match_discovery_sha256`: `41c34f806959f7da25469977ebaf3bb1cf1bb3ea93b0e4f1bb3c1956aec8a617`
+- `alignment_arity_discovery_sha256`: `ed9b79eaa95f79a5bfbf92d5d2711b9c60c3234687163a351f5067c22eeac1e2`
+- `transformed_match_discovery_sha256`: `86919a25a4e379f452236f62fd71ba5db17e39e79fe30af1303d69d090c7459e`
+- `lead_exact_discovery_sha256`: `200b7c54e84ef138f7cfa9caa3a93ab41d5dc24ebff066e5bf68f32163397a5a`
+- `heldout_corpus_expansion_sha256`: `bee160993c0be076cb393cf598ca6b46156eda718dcfeb82f0d92336c1918181`
 - `corpus_generalization_probe_sha256`: `dea34274c490f6bc1d5c10b4e9393f8a53d02e44740fe8defaa72e3113e0b5cd`
 - `corpus_matrix_sha256`: `2a9f8506a3c9e6aa47c0e91c1e15bf1951f9af0d0b3cb64129982e06a27e7bd2`
 - `transform_validation_sha256`: `8d974a69b45738de48a401fb584340cb263fccb6148d96e63a8328799425792b`
-- `packed_sidecar_replication_sha256`: `d87bc291881cc900a30e68552986e20ef71c037746d89c3b19c94e3bc1da1f5f`
+- `packed_sidecar_replication_sha256`: `1ff2392582205ac897d540cd779147aa886aab82af8af520039ba01ea57f2562`
 - `probe_manifest_sha256`: `07010e77aade0c7c3612f7a470e014ecfa91f6cd9b72a50df8485379fe91433f`
 - `corpus_manifest_sha256`: `a61d6b6258b796c13ad7d77caf3f9c35d610d4a19dc0adc25c8e417cdbf41819`
 - `sha256-baseline_table_sha256`: `2531640423f27e4b0f0bcfddd3fd70c7f8a38698068879726cc7b113af6501a5`

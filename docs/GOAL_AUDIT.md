@@ -42,7 +42,7 @@ Viability verdict: **research-viable, not production-proven**.
 | near-miss-theory | Model whether deeper search is compute-justified. | qualified | `docs/THEORY.md`, `docs/NEARMISS_FORECAST.md`, `docs/PREFIX_LADDER.md`, `docs/DEPTH3_PREFIX_PROBE.md`, `docs/DEPTH3_COMPRESSION_FOLLOWUP.md`, `docs/LEAD_DEPTH3_PREFIX_PROBE.md`, `docs/LEAD_DEPTH3_COMPRESSION_FOLLOWUP.md`, `docs/DEPTH3_FRONTIER_EXACT_DISCOVERY.md` | Best non-planted case http-headers-heldout::sub-lag-2 needs about 8.280e+02 GiB for one expected exact hit; held-out prefix>=5 rows remain 0 at depth 2. The depth-3 prefix probe found 3 held-out prefix>=5 uplift rows and 0 exact hits; the bounded compression follow-up found 0 selected spans. The selected-lead follow-up found 0 selected spans, and frontier exact discovery found 0 exact hits. | Do not spend on depth-3+ broad sweeps until a narrow follow-up turns prefix movement into exact hits or compression. |
 | depth3-prefix-frontier | Test whether searching farther moves held-out near misses beyond the fifth-byte gate. | qualified | `docs/DEPTH3_PREFIX_PROBE.md`, `docs/depth3_prefix_probe.json`, `docs/DEPTH3_COMPRESSION_FOLLOWUP.md`, `docs/depth3_compression_followup.json` | 16843008 depth-3 seeds were enumerated; 3 held-out rows gained prefix>=5 movement, but exact 8-byte hits remain 0. The compression follow-up deduped this to 2 physical input and found 0 selected spans. | Keep broad depth-3 sweeps gated until a new lead produces exact hits or selected spans. |
 | depth3-frontier-exact-discovery | Enumerate the full depth-3 frontier on frozen depth-2 null/frontier rows before considering depth 4. | blocked-by-evidence | `docs/LEAD_DEPTH3_PREFIX_PROBE.md`, `docs/LEAD_DEPTH3_COMPRESSION_FOLLOWUP.md`, `docs/DEPTH3_FRONTIER_EXACT_DISCOVERY.md`, `docs/depth3_frontier_exact_discovery.json` | Lead depth-3 prefix probe found 2 prefix>=5 uplift rows; the lead compression follow-up selected 0 spans. Frontier exact discovery enumerated 16843008 seeds over 26 rows and found 0 exact hits, 0 selected spans, and 0 metadata-profitable rows. | Keep depth 4 opt-in and sharded until this gate finds prefix>=6 movement, exact hits, or selected spans. |
-| depth4-shard-plan | Plan depth-4 as explicit deterministic shards with expected-hit math and stop rules. | qualified | `docs/DEPTH4_SHARD_PLAN.md`, `docs/depth4_shard_plan.json` | Depth-4 shard status is gated; estimated full incremental depth-4 time is 7.7248 hours; exact-8 probability on the current frontier is 0.00017141. | Run only pilot shards until the promotion gate is met by stronger depth-3, transform, or corpus evidence. |
+| depth4-shard-plan | Plan depth-4 as explicit deterministic shards with expected-hit math and stop rules. | qualified | `docs/DEPTH4_SHARD_PLAN.md`, `docs/depth4_shard_plan.json` | Depth-4 shard status is gated; estimated full incremental depth-4 time is 5.6444 hours; exact-8 probability on the current frontier is 0.00017141. | Run only pilot shards until the promotion gate is met by stronger depth-3, transform, or corpus evidence. |
 | depth4-pilot-shard | Run bounded depth-4 pilot shards as generated evidence before considering full depth-4 execution. | blocked-by-evidence | `docs/DEPTH4_PILOT_SHARD.md`, `docs/depth4_pilot_shard.json` | 1 pilot shard enumerated 16777216 four-byte seeds; prefix>=5 rows 0; prefix>=6 rows 0; exact hits 0; selected spans 0. | Keep remaining depth-4 shards gated unless a pilot or upstream lead produces prefix>=6, exact hits, or selected spans. |
 | search-frontier-gate | Create a generated go/no-go gate before broad raw depth search or full depth-4 execution. | qualified | `docs/SEARCH_FRONTIER_GATE.md`, `docs/search_frontier_gate.json`, `scripts/generate_search_frontier_gate.py` | Search gate status is hold-broad-depth-search; best non-planted forecast is 828.0 GiB per expected exact hit; depth-4 exact-8 probability is 0.00017141; selected span total is 0; 7 of 7 gates remain blocking. | Change this gate only when a generated artifact produces prefix>=6, exact hits, selected spans, or a materially better forecast. |
 | mechanism-experiment-ranking | Rank the next non-depth mechanism experiments from generated evidence. | qualified | `docs/MECHANISM_EXPERIMENT_RANKING.md`, `docs/mechanism_experiment_ranking.json`, `scripts/generate_mechanism_experiment_ranking.py` | Mechanism experiment ranking top lane is seed-table-preset-probe; next artifact docs/SEED_TABLE_PRESET_PROBE.md; ready lanes 7; selected spans 0; natural-corpus compression proven False. | Generate the seed-table preset probe before raw-depth escalation, format promotion, descriptor packing, or hardware acceleration. |
@@ -137,7 +137,7 @@ This section lists unresolved `open` and `blocked-by-evidence` requirements.
 - Depth-3 frontier exact hits: `0`
 - Depth-3 frontier selected spans: `0`
 - Depth-4 shard status: `gated`
-- Depth-4 estimated full hours: `7.7248`
+- Depth-4 estimated full hours: `5.6444`
 - Depth-4 exact-8 probability: `0.00017141036141488097`
 - Depth-4 pilot shards: `1`
 - Depth-4 pilot seeds: `16777216`
@@ -361,17 +361,17 @@ This section lists unresolved `open` and `blocked-by-evidence` requirements.
 - `ui_readme_sha256`: `172056d040ea6105da9522fcb228dae9ee3a97de0d9c8cb4c8d0f593f81304b0`
 - `cli_tests_sha256`: `9753c22a831a8e27ab58b672b7e8b0c19eb7baff30dc7e640c1e2ed2cb27efcf`
 - `indexed_v2_tests_sha256`: `f6196cde5ca4092391e83ff7693892aefc0e53ff4bb921a836077cea4e2c9dfa`
-- `streaming_tests_sha256`: `e3b438db54b50fc5d2c00ae53ca5a6a2ac0fd53c0e76c4931c463051362ae758`
+- `streaming_tests_sha256`: `20c83ff5be8b6f7277449d98c6dcf3a7352b137bcf367ff918721b5b7478bba2`
 
 ## Artifact Hashes
 
 - `results_sha256`: `225465824966499a8d15a5721e0698c30ae83053d072dbec6c6b21558523f9ba`
 - `sweeps_sha256`: `803c32715becd4eca7f52b5282fceaab539b953365ef223b477f3d5a6355dce7`
-- `viability_sha256`: `07b7b70c0f418862ad4257020811ac37156e84bb774fb0a8da787e2f98f5cf9c`
-- `research_scorecard_sha256`: `a81844ff43c56ef822730e70880dcac846cc51f18b94b90729407acb670b70dc`
+- `viability_sha256`: `ef145df495f76722a21d2ac81fe927a737e75169174d6b7f34f0fcb9f5a87233`
+- `research_scorecard_sha256`: `e20ce15244bf1ea9f6c00e5341dab2c97933359a4411747c5e96c920cb956c9f`
 - `corpus_matrix_sha256`: `2a9f8506a3c9e6aa47c0e91c1e15bf1951f9af0d0b3cb64129982e06a27e7bd2`
 - `corpus_generalization_probe_sha256`: `dea34274c490f6bc1d5c10b4e9393f8a53d02e44740fe8defaa72e3113e0b5cd`
-- `heldout_corpus_expansion_sha256`: `01a2ab439e60ff6f0cdb4f116ce893282a576cca51527c0a8abb93259a60425f`
+- `heldout_corpus_expansion_sha256`: `bee160993c0be076cb393cf598ca6b46156eda718dcfeb82f0d92336c1918181`
 - `transform_validation_sha256`: `8d974a69b45738de48a401fb584340cb263fccb6148d96e63a8328799425792b`
 - `periodic_transform_probe_sha256`: `6164cb60ab30824a396569dbc1bcfb60fe319c8da07e64c14ff672e471d1c7fc`
 - `composed_transform_probe_sha256`: `0e48c39736c06d7f50985bf1dbc44b23a09e9bf15694b156c8c0cad38ec82b34`
@@ -379,24 +379,24 @@ This section lists unresolved `open` and `blocked-by-evidence` requirements.
 - `prefix_ladder_sha256`: `bfdcd900fb57e838ebf43ecaaf679b1e20ac56ebf3508cbf8ddf56c4e09dc22a`
 - `depth3_prefix_probe_sha256`: `655684cd381cb79f89d856f260358a6598c6e901b9fd4b3bf69ab85e7df27c90`
 - `depth3_compression_followup_sha256`: `46f46838e7e217902f66f9586c8f25bc2eee7c3d92db00d8fca10b523f5a3d22`
-- `lead_depth3_prefix_probe_sha256`: `dab9ecc7d9c20577a6d21a9c83df7a13bb22f9acf5ef4300aaaf432ae2f7c8c9`
-- `lead_depth3_compression_followup_sha256`: `5b2bb5a3fde82a3188578913a017cbbb7f69ed0b835a39abe554e5b895b3f810`
-- `depth3_frontier_exact_discovery_sha256`: `0176021a2c0ff7145c771a2d390efe706fdf303556fb87a6e6c460fcef1a3f15`
-- `depth4_shard_plan_sha256`: `d0a617ef5a8dad4e289771f53a44ba8e3756df2df5bfb496e85e5c5095b546a6`
-- `depth4_pilot_shard_sha256`: `3384890446236a646675ec25daa50ff7ded4e8876335fb36c27c36a001a6a555`
-- `search_frontier_gate_sha256`: `bd06b160c2dda144c49709449e1607d7332bf0d2b7873177e2e6c06ec3c9d114`
-- `mechanism_experiment_ranking_sha256`: `4d131f0947b07ff66a5f215e0acb5482bc5b9519600f2b02f13c0b3ef7b055fb`
-- `seed_table_preset_probe_sha256`: `66b7b3e2615b64fe1a2e05fbadc53e21ddb2ba73a47a91b4d4b9ab68f6afe9ac`
-- `exact_short_hit_bundle_economics_sha256`: `c36ec5eca6f1d3c638aaa7b21848fedeba7c26a08fba657506428e0c5fce0d96`
-- `whole_stream_residual_vector_probe_sha256`: `95e4cb5512dd5dc4c89317c50e6065a8c5132e0c58ece0a6989f56c3150b80c7`
-- `expander_salt_ensemble_sha256`: `b1964816f8ade396c3f82e9b1c1d7db222506446c3ea8b18b0bd5f47dc0b9887`
-- `schema_native_public_dictionaries_sha256`: `7736c18343de946d3853eee253c83a9497e2f9f5fd209aaf9e20bd443f9fa478`
-- `schema_native_public_dictionary_replication_sha256`: `fbfc1074f874380442b5fc9e8ce57cc952f764473c992837773369d0728beebe`
-- `superposition_telemetry_sha256`: `06c1e38a8a4f74650e4a7de135c44ee575c3a71925cb850e1989b4239ccc8ebc`
-- `long_span_bundle_gate_sha256`: `c8c48d55dd0ac688459acbf3e83d30c5fa99e3c959d49b57ddc6350217543f67`
-- `recursive_structured_fixtures_sha256`: `e18c5d2597e07491e7ab4031086c59ee1d8cd6a38b4ee1a47d46ab1361038f3d`
-- `scale_performance_report_sha256`: `9fdc2913d249bf9739c7ecd0ad6870cdbf203090fb4d60c07615b30cc09ea11f`
-- `ui_workflow_smoke_sha256`: `6713e90e003d4c112142b0d658a667d3bd83cd36e93c86b0707ecb60e361108a`
+- `lead_depth3_prefix_probe_sha256`: `d2d1c82847176fea6e920c98f5136514097dd9787875044297bca405dbd37e8a`
+- `lead_depth3_compression_followup_sha256`: `84948aa2fb60120970ee2988a8fcb88bf0dc6969982588189c9c4f3ad8783cd9`
+- `depth3_frontier_exact_discovery_sha256`: `87da3b3aa76551bbbb22cd49a0bc5126698f8b1bbd2bc15d219b263dba117fa1`
+- `depth4_shard_plan_sha256`: `d422f680dcf797d4e0a17494aa165c2090b28a05af04329b21de26863687298c`
+- `depth4_pilot_shard_sha256`: `f62ef43c61c766fc5a8079018698f81dec619268991ebafe0a329ab27cff5185`
+- `search_frontier_gate_sha256`: `bf7d9f68fa90c09292bf3afcef10743749054955f54921a1c1dd4c7abe45322b`
+- `mechanism_experiment_ranking_sha256`: `2ae775a6e1c73086ef636f6a05c1d83f53e58acaf5ae0c5e3bfd7df34edbf946`
+- `seed_table_preset_probe_sha256`: `22b09bbea0ccafe4e2d026d77a6e929639e81c76a97092b5b91b0ffc7446847a`
+- `exact_short_hit_bundle_economics_sha256`: `90924867bbc794040455a90d71009469df2a711899f836b5bb6cfb4255cbb0dc`
+- `whole_stream_residual_vector_probe_sha256`: `065455076651faaeb12fd7214dfc46606d0204c7cb6e4a819bd5df9ac7646709`
+- `expander_salt_ensemble_sha256`: `aa87c528883b5559a8819b41e124aaf33394c735e1e4474edde9be9b48f2eae7`
+- `schema_native_public_dictionaries_sha256`: `c1dd47c4aaa499b1e64451af57e5c707a5a99722aa028894afe1756bcb60addf`
+- `schema_native_public_dictionary_replication_sha256`: `3fad5da36bf3223ccdb98a4df6247285f21c2e6635487331cfad5c1c055d92ec`
+- `superposition_telemetry_sha256`: `42f527269c52a33a2d203b30aa9a448b0bbc4b6a8923f0ef2cf74c17ef4948f3`
+- `long_span_bundle_gate_sha256`: `983b9eb2ee2127d8ef88384c30a57a19dc2a9314e6af7a0d70ad0920619a9348`
+- `recursive_structured_fixtures_sha256`: `53e45273638861faddfafcdc46bf60e2ca15bf4935d42733b7702669a90d6822`
+- `scale_performance_report_sha256`: `70ee45802aadc966f432c539e7c205d4b3288754c050eca1606150faacea0bc7`
+- `ui_workflow_smoke_sha256`: `c7972b35e522ef867c599559ff681af266efc8f502bfba9ac757f9c2fe9d3ec6`
 - `fifth_byte_steering_sha256`: `0912df3b99a4de7bad4cbe7730f67456766bda6098b6b58be5cb273b4fa5a4e9`
 - `contextual_fifth_byte_steering_sha256`: `9af6f8167f51596840783bf31a7cf6a15e37e15c7f308a941de0982cf4502c4b`
 - `structural_transform_search_sha256`: `293e4ad4e8e67b2c5f88159fa2f76df93d018d8bdf1615bba34f6ac40ce42809`
@@ -408,19 +408,19 @@ This section lists unresolved `open` and `blocked-by-evidence` requirements.
 - `token_dictionary_transform_search_sha256`: `ea97c7205e447c99bbef2f26062120ca8644eb1c89a9b1030f245fdc771f0eba`
 - `affine_transform_search_sha256`: `b0a13f597e786ed2839200438cd6ac416cc83f9d25e0122f8069332013deca15`
 - `seed_manifold_residual_steering_sha256`: `1cc8feabbb15479f96606e9ef2db1e7a18b9164f8ee1400f5f0411500445cb57`
-- `sidecar_break_even_sha256`: `e2498c85a3780baea9ad3d4eea37c9c430d8c97e4cac4a1d80bec11cb333b173`
-- `residual_payload_compressibility_sha256`: `f30f6f2fd5eba6e1310e90d0b554ed78fc9617b8e50f9daa4dc5e754b7cd7358`
-- `experimental_sidecar_descriptor_sha256`: `d5ec0c7c7a37673fbe83863b40603fb58affa6b4aefb3c45545fc77c648089fe`
-- `sidecar_record_overhead_sha256`: `d719f3a2b7d9466290224a87aa5aff5d427ef6b893d7a0655211cbfa27d98c50`
-- `packed_sidecar_descriptor_sha256`: `eec4477c3fbfcacdac17b1fb48b4b9a11c717d6da1aa37fd3ae9c0e02a5d67f2`
-- `packed_sidecar_controls_sha256`: `4476107c66574323fcc740a98da67174651c368fef4ab97174eeea94b65198e4`
-- `generalized_packed_sidecar_sha256`: `a330750dc5aad2212c5f97c1c3bef307c454596d6bda4a8837d17387333f9ce8`
-- `packed_sidecar_replication_sha256`: `d87bc291881cc900a30e68552986e20ef71c037746d89c3b19c94e3bc1da1f5f`
-- `match_discovery_sha256`: `dbbacb8490741545d80b9332931202f7fd3a2ef98c718af5f266c88226343dff`
-- `alignment_arity_discovery_sha256`: `a99701608fb38b3d476a332772b4c4eb69fcfda52ddccf1d32de6cd7bfa0cb8f`
-- `transformed_match_discovery_sha256`: `bba81480bb2b2ae5c6a35d5f289724b33522d2f24e7aff806676b6a8cf8268ec`
-- `lead_exact_discovery_sha256`: `7826d7439905a6765c1bf0fbfeb87b65c8a4cb78d28a8c37455bd54199301f6d`
-- `acceleration_report_sha256`: `6b2aef961578f0e312395d006be014ac47c081f221f675f479304045979f3cce`
+- `sidecar_break_even_sha256`: `b3dbc8859b2d1286ee4b7c2e475539b99d94976b9389fd96823fcd7186ce9bc0`
+- `residual_payload_compressibility_sha256`: `bfca4132d60aba3ba3a42db5f92f6ea17d282bc8f5a7d91b794ca6e50591df12`
+- `experimental_sidecar_descriptor_sha256`: `e15db43e560906b299e6153a1f782207066dd89357e83647d7429ad0c581ab0b`
+- `sidecar_record_overhead_sha256`: `f28c41cf7315b82ababb89539ce5b1286c437e474e660d46b715276f76fbc0f5`
+- `packed_sidecar_descriptor_sha256`: `c06e80680bcb3f2d70fef58df5b4f23a0a73b0158f00d7d5dffde472c8a88a67`
+- `packed_sidecar_controls_sha256`: `f9a63c2a254d3a2096df7ed983811f930e2f3ba171354111d3ad307e35754c75`
+- `generalized_packed_sidecar_sha256`: `e21afe0073c0407c48b576f13e7745c1d2b444e4acffb6681ca9a1d96e288ad1`
+- `packed_sidecar_replication_sha256`: `1ff2392582205ac897d540cd779147aa886aab82af8af520039ba01ea57f2562`
+- `match_discovery_sha256`: `41c34f806959f7da25469977ebaf3bb1cf1bb3ea93b0e4f1bb3c1956aec8a617`
+- `alignment_arity_discovery_sha256`: `ed9b79eaa95f79a5bfbf92d5d2711b9c60c3234687163a351f5067c22eeac1e2`
+- `transformed_match_discovery_sha256`: `86919a25a4e379f452236f62fd71ba5db17e39e79fe30af1303d69d090c7459e`
+- `lead_exact_discovery_sha256`: `200b7c54e84ef138f7cfa9caa3a93ab41d5dc24ebff066e5bf68f32163397a5a`
+- `acceleration_report_sha256`: `7da365662792e4a81be907c0111701dc05c3911407c51656cfd2e70d8104aac4`
 
 ## Evidence Hashes
 
@@ -440,25 +440,25 @@ This section lists unresolved `open` and `blocked-by-evidence` requirements.
 - `docs/CORPUS_GENERALIZATION_PROBE.md_sha256`: `d8e1ee2cfb617afcdc07ce05b65070ed2b1c0d97b14a38ac6e0416d01e83ecbe`
 - `docs/CORPUS_MATRIX.md_sha256`: `a1a457d4bcbd1c09d3a4c257b09e14d9b3d801d120c553aa2f9fd030c64134c6`
 - `docs/DEPTH3_COMPRESSION_FOLLOWUP.md_sha256`: `e057b6105728abe130677ecb23ef71352868f25bffe27ab7519a0592dae01d43`
-- `docs/DEPTH3_FRONTIER_EXACT_DISCOVERY.md_sha256`: `f4f1de2f704458f7d8bfe1231e2cf0f4b4660622e7c0a828757f0233308d79b6`
+- `docs/DEPTH3_FRONTIER_EXACT_DISCOVERY.md_sha256`: `3027e5559b1e76277a1eaef840a1724e0c877d4513aa468ef7d09636c39458a0`
 - `docs/DEPTH3_PREFIX_PROBE.md_sha256`: `dec5c9b8e9f141a6aa1a6f8fbe873276f5b7fed0d6e86d376c38b8f707159784`
-- `docs/DEPTH4_PILOT_SHARD.md_sha256`: `5188b9171823a18b76c058a85e47d48787534e16b6a0339e514f0e086c4ba980`
-- `docs/DEPTH4_SHARD_PLAN.md_sha256`: `713f4db5ee8da8358f56ea94ab68d8c93e9a616d9df5d11be0aa6a1fd2174560`
-- `docs/EXACT_SHORT_HIT_BUNDLE_ECONOMICS.md_sha256`: `011451a029d610946a170896f3fc0af682ef0f3ce072b2245e30f17f8044c865`
-- `docs/EXPANDER_SALT_ENSEMBLE.md_sha256`: `4ac7987792d9369ae5897a6d8593c0035e94d67ec7d76a63bafbb9b830481820`
+- `docs/DEPTH4_PILOT_SHARD.md_sha256`: `3662be76d4eb412898f65d885042181c1d11f5745408dc5395ad4b0a4927a1b2`
+- `docs/DEPTH4_SHARD_PLAN.md_sha256`: `2fbaf75bb9a8d3d1366ccc1109d762cb2dd957199bd2b8b03c33304aeef06cbf`
+- `docs/EXACT_SHORT_HIT_BUNDLE_ECONOMICS.md_sha256`: `b2950171607ceaa4f3f774fb282ef18dbdec5e96161d2994246385db3f5e8e6c`
+- `docs/EXPANDER_SALT_ENSEMBLE.md_sha256`: `12d38ebe769dca082f603e91bb3b84adb32e8c61634c7ba599bcfe787f1a28c2`
 - `docs/EXPERIMENTAL_SIDECAR_DESCRIPTOR.md_sha256`: `d2dcd436029d70d83348a6ba6d1639cdfc16199a459c5e1b19c41f0852dc5e63`
 - `docs/FIFTH_BYTE_RESIDUAL.md_sha256`: `9b156b6979098b906456fab776d6f6c348f458adbb2042d8d81477d27a44c4b4`
 - `docs/FIFTH_BYTE_STEERING.md_sha256`: `5ea576e216a0b68dc51ada654eb4c68eff2dcb3e3fddd66a43a791dc48e832c8`
-- `docs/FORMAT.md_sha256`: `4207afbe822f13f9a1968cfbc99954b19ce47480d199998dcbb6a69c891bd67d`
+- `docs/FORMAT.md_sha256`: `9a4fe661e1f7e03e8cb58f1561385b7d04ca7472ffafe1d16d6cc997258a967f`
 - `docs/GENERALIZED_PACKED_SIDECAR.md_sha256`: `8b99605dbd559cb4176b858fcb84ebc5c5b1f86e316f0cffdf7c9c3115116d59`
 - `docs/GRAMMAR_CHANNEL_MATCH_DISCOVERY.md_sha256`: `777992219d6909cec6c24b86e975ff89fdcd086547c5aaf606e31d7ef42c8fc9`
 - `docs/HELDOUT_CORPUS_EXPANSION.md_sha256`: `9cadca95eb3aa0855eb0a9dcefd5a1c0a3643c44dc2f678a2b5c83cc90fee595`
-- `docs/LEAD_DEPTH3_COMPRESSION_FOLLOWUP.md_sha256`: `0af90823615c9dca8fc7924ca175aa4f5618850233202963cef380cb63e7c98c`
-- `docs/LEAD_DEPTH3_PREFIX_PROBE.md_sha256`: `71a220d0937da46d994f273d132a1c89b2e9b22617c9467e7178ebac6628515b`
+- `docs/LEAD_DEPTH3_COMPRESSION_FOLLOWUP.md_sha256`: `b0e08f90b8ff2d415b801fdcc14f9e378b15114cf51db663a28f0e74ce058508`
+- `docs/LEAD_DEPTH3_PREFIX_PROBE.md_sha256`: `e4e49b1a88df19d66e1877521d0a7470953112222fed0eca862ed8d14a1eba18`
 - `docs/LEAD_EXACT_DISCOVERY.md_sha256`: `295ced6e0d8d357380893831fb8db5329c480d50ac42e07941e3d9547e003be5`
-- `docs/LONG_SPAN_BUNDLE_GATE.md_sha256`: `e2585744ab56fa07c0a63e2cd6af2f386d1554cf8787cfd9258f3f89bd0e0233`
+- `docs/LONG_SPAN_BUNDLE_GATE.md_sha256`: `0ae88255b59e04870bff7d73c2c8679f78882dc17186d901ca8d6f964f46b97f`
 - `docs/MATCH_DISCOVERY.md_sha256`: `c61c420f25d68c37fdbf672e92c2b72f1980ee64b8b727f7170d4c8f6ad1ff81`
-- `docs/MECHANISM_EXPERIMENT_RANKING.md_sha256`: `0e3d51d4ca11ad58fdb82ba04e43ef17a93471b209a38d19aa0fa568c93d454f`
+- `docs/MECHANISM_EXPERIMENT_RANKING.md_sha256`: `a8c04256192723148ffef3fab620542a34947146db1385d930b222c8da3434be`
 - `docs/NEARMISS_FORECAST.md_sha256`: `b62de03a3e09f26dca48be34ba142fd4c54c8f3c76480f19db365a4cd01014a7`
 - `docs/NUMERIC_VALUE_CHANNEL_MATCH_DISCOVERY.md_sha256`: `35a3e8fd69faa836de4f396966f83baf5f58d3dd03a3187b87358bfde6b0b61d`
 - `docs/PACKED_SIDECAR_CONTROLS.md_sha256`: `83228698b118ea9777355d431b42916a90eeee7b1d70e05f8d28ee6090d68d87`
@@ -466,22 +466,22 @@ This section lists unresolved `open` and `blocked-by-evidence` requirements.
 - `docs/PACKED_SIDECAR_REPLICATION.md_sha256`: `b113091df710924d8308bc2e7a664f050ae43ea20e6df6d9ae94ec39a8407211`
 - `docs/PREFIX_LADDER.md_sha256`: `fb0766683dd562ad383b400b261059f309a0751142a1fdc062c131989389d1b6`
 - `docs/RECORD_CONTEXT_TRANSFORM_SEARCH.md_sha256`: `4ea580a6293bfda34b1680ff6ca8b38637c5c773d3a628f3b9f2844a8c75b3ff`
-- `docs/RECURSIVE_STRUCTURED_FIXTURES.md_sha256`: `66fa30816c789411aa662edb44f3a19dd83798a46702ba52ba3d26853211dbe2`
+- `docs/RECURSIVE_STRUCTURED_FIXTURES.md_sha256`: `3119a9c79d6c13d4d34c69c5ddedcdb93002e4833ef9f758bfb9c82aa7e6214c`
 - `docs/RELEASE_CHECKLIST.md_sha256`: `42ac71c4640fba2acaa3d5b18cdf5fe2f5d841b5fb55abff76afe1c7854dbdb8`
 - `docs/RESEARCH_PROGRAM.md_sha256`: `cbe3599df6bf657c69dae9ea5754efba891c1d7cd66731b73aad8132955c70d9`
-- `docs/RESEARCH_SCORECARD.md_sha256`: `ee61fa0feec00ef7a57e9070eccae64eae213316eccd80b6d5afe7a7b54c07e2`
+- `docs/RESEARCH_SCORECARD.md_sha256`: `771c7cb96e60829634644e2c7c128619b671467188eb17273d9a7d5c447a05fc`
 - `docs/RESIDUAL_PAYLOAD_COMPRESSIBILITY.md_sha256`: `f72c533b5e1fd03d9db69dc8595154b9fde3d44045591900ad6698d9d2ad082c`
 - `docs/RESULTS.md_sha256`: `991eb6a9a04f751cc571a04157e3b0a71139d7af0b5539dc4e80ff0084f9eba0`
 - `docs/SCALE_PERFORMANCE.md_sha256`: `f0beb0d6feed61f1ba80c181888333972c5f7b973dab419dda28fdcfb8add167`
-- `docs/SCHEMA_NATIVE_PUBLIC_DICTIONARIES.md_sha256`: `69bd2695b34555dfff84ea993ee6c05387c5f039d976f9a97c6dbad21a509f62`
-- `docs/SCHEMA_NATIVE_PUBLIC_DICTIONARY_REPLICATION.md_sha256`: `fb3ffed32e195522569aa0a376fdd26fd21751ceb0de04850b10da51a31eb0a1`
-- `docs/SEARCH_FRONTIER_GATE.md_sha256`: `5131027c3545d58a27b6aeb8dcd4b26c62a9eb7fdee2c5689ff19ce487aba89c`
+- `docs/SCHEMA_NATIVE_PUBLIC_DICTIONARIES.md_sha256`: `ce0148f1afff89659e985229d7a112e128fd61ab2e5951733d1b9488b2cb698c`
+- `docs/SCHEMA_NATIVE_PUBLIC_DICTIONARY_REPLICATION.md_sha256`: `d489b10a13c96feead6ec1496301915319576a5382b90cc5e779eceb6a56e670`
+- `docs/SEARCH_FRONTIER_GATE.md_sha256`: `8465aef47d97fa13ed78dc5c34d4560fc2afd078d9b5e4fc673b84af807616c0`
 - `docs/SEED_MANIFOLD_RESIDUAL_STEERING.md_sha256`: `dce18f3952b50e97f38b320b0bbc0bb0db3a5475e0340f03450d786afe3fe909`
-- `docs/SEED_TABLE_PRESET_PROBE.md_sha256`: `aaf6c5fbccd68932d12aa4f8e4aa01db270c0b4ad46b7d2c6bb4b26bb45e44bd`
+- `docs/SEED_TABLE_PRESET_PROBE.md_sha256`: `c6cd7d942596fa987be2a80c88c24634f3cfae070e6706bb8c191526d7cccce9`
 - `docs/SIDECAR_BREAK_EVEN.md_sha256`: `07156ba36795add1d1f3a1cef107087e20445339b58807185e36f454c167971d`
 - `docs/SIDECAR_RECORD_OVERHEAD.md_sha256`: `202e89f9cbe5e4241dbb0958e4f71755818f4f6a5c895c93e9bdacc098b79bb3`
 - `docs/STRUCTURAL_TRANSFORM_SEARCH.md_sha256`: `d4b99bde3ce2d25dd41b398dfeb337aae896921cba8327d8e0abc7659f2e713e`
-- `docs/SUPERPOSITION_TELEMETRY.md_sha256`: `f6d00827170a4acd41087bb7e0e2a54bc9efd3ee785df5557504b312dc98d1b9`
+- `docs/SUPERPOSITION_TELEMETRY.md_sha256`: `a4bece3228368406ea598eb6f5d4ddf035cba1d819270426d765fff206ca27d0`
 - `docs/SWEEPS.md_sha256`: `c8329a1e20118975ead3439ee99901cbfcc90f92311a0ff88b61af46b721d27a`
 - `docs/THEORY.md_sha256`: `371c1760e4aa87d03ecc0806c3ac3d8c63f01f48f78dd6a9ccc8f0aad25e73c3`
 - `docs/TOKEN_DICTIONARY_TRANSFORM_SEARCH.md_sha256`: `ef333bc868e076a20c90cabc87f6a16a119a8566ac801ea0aa1d5065826aad1f`
@@ -490,52 +490,52 @@ This section lists unresolved `open` and `blocked-by-evidence` requirements.
 - `docs/TRANSFORM_VALIDATION.md_sha256`: `7697ab557b21bc6641cedcc3d8b9d8804c8abd91214ffaf8050eeac3e9d2430c`
 - `docs/Telomere Whitepaper V2.md_sha256`: `ff3bfa05be1789537ed7e922452c372b50a548c7119e4230940b63c0a4ed0131`
 - `docs/UI_WORKFLOW_SMOKE.md_sha256`: `080c036e335451a2a3e5d3b1e37e46bfd061721374783d4fcf3be26d9755c2dc`
-- `docs/VIABILITY.md_sha256`: `9d81b7f6003c561b1dcb75056cf61b92c32589f2da0309a394b4608002fe26a2`
-- `docs/WHOLE_STREAM_RESIDUAL_VECTOR_PROBE.md_sha256`: `dcc9f799527cc3396c1f0b1e0e247dff389501bcea926d8e3574f045af55482c`
+- `docs/VIABILITY.md_sha256`: `4b1c496b0b271fba6652496d294443b21862f21d69e569ea18b85a7542c5ea0a`
+- `docs/WHOLE_STREAM_RESIDUAL_VECTOR_PROBE.md_sha256`: `42f597cadfa94326d601aaa94530988133651a49af9ba52032d7abd54095ac19`
 - `docs/adr/0002-gpu-acceleration-status.md_sha256`: `356bfef901f79b955f3771cc6b4637261f193d081855a6aec18392d72a00214c`
 - `docs/affine_transform_search.json_sha256`: `b0a13f597e786ed2839200438cd6ac416cc83f9d25e0122f8069332013deca15`
-- `docs/alignment_arity_discovery.json_sha256`: `a99701608fb38b3d476a332772b4c4eb69fcfda52ddccf1d32de6cd7bfa0cb8f`
+- `docs/alignment_arity_discovery.json_sha256`: `ed9b79eaa95f79a5bfbf92d5d2711b9c60c3234687163a351f5067c22eeac1e2`
 - `docs/bwt_mtf_transform_probe.json_sha256`: `495e9027bc354b0d5b15ab351c65e57a44718fd93ab032a8db66b82b562c583d`
 - `docs/byte_permutation_transform_search.json_sha256`: `a50b2639b1f3d8696cb299120148f1ab8f086074372a65101253fce85e88cd8f`
 - `docs/composed_transform_probe.json_sha256`: `0e48c39736c06d7f50985bf1dbc44b23a09e9bf15694b156c8c0cad38ec82b34`
 - `docs/contextual_fifth_byte_steering.json_sha256`: `9af6f8167f51596840783bf31a7cf6a15e37e15c7f308a941de0982cf4502c4b`
 - `docs/depth3_compression_followup.json_sha256`: `46f46838e7e217902f66f9586c8f25bc2eee7c3d92db00d8fca10b523f5a3d22`
-- `docs/depth3_frontier_exact_discovery.json_sha256`: `0176021a2c0ff7145c771a2d390efe706fdf303556fb87a6e6c460fcef1a3f15`
+- `docs/depth3_frontier_exact_discovery.json_sha256`: `87da3b3aa76551bbbb22cd49a0bc5126698f8b1bbd2bc15d219b263dba117fa1`
 - `docs/depth3_prefix_probe.json_sha256`: `655684cd381cb79f89d856f260358a6598c6e901b9fd4b3bf69ab85e7df27c90`
-- `docs/depth4_pilot_shard.json_sha256`: `3384890446236a646675ec25daa50ff7ded4e8876335fb36c27c36a001a6a555`
-- `docs/depth4_shard_plan.json_sha256`: `d0a617ef5a8dad4e289771f53a44ba8e3756df2df5bfb496e85e5c5095b546a6`
-- `docs/exact_short_hit_bundle_economics.json_sha256`: `c36ec5eca6f1d3c638aaa7b21848fedeba7c26a08fba657506428e0c5fce0d96`
-- `docs/expander_salt_ensemble.json_sha256`: `b1964816f8ade396c3f82e9b1c1d7db222506446c3ea8b18b0bd5f47dc0b9887`
-- `docs/experimental_sidecar_descriptor.json_sha256`: `d5ec0c7c7a37673fbe83863b40603fb58affa6b4aefb3c45545fc77c648089fe`
-- `docs/generalized_packed_sidecar.json_sha256`: `a330750dc5aad2212c5f97c1c3bef307c454596d6bda4a8837d17387333f9ce8`
+- `docs/depth4_pilot_shard.json_sha256`: `f62ef43c61c766fc5a8079018698f81dec619268991ebafe0a329ab27cff5185`
+- `docs/depth4_shard_plan.json_sha256`: `d422f680dcf797d4e0a17494aa165c2090b28a05af04329b21de26863687298c`
+- `docs/exact_short_hit_bundle_economics.json_sha256`: `90924867bbc794040455a90d71009469df2a711899f836b5bb6cfb4255cbb0dc`
+- `docs/expander_salt_ensemble.json_sha256`: `aa87c528883b5559a8819b41e124aaf33394c735e1e4474edde9be9b48f2eae7`
+- `docs/experimental_sidecar_descriptor.json_sha256`: `e15db43e560906b299e6153a1f782207066dd89357e83647d7429ad0c581ab0b`
+- `docs/generalized_packed_sidecar.json_sha256`: `e21afe0073c0407c48b576f13e7745c1d2b444e4acffb6681ca9a1d96e288ad1`
 - `docs/grammar_channel_match_discovery.json_sha256`: `0356e6bc36339e3b2bfb6f753fef167c4aeb0915fd6eb6ecaeff946f7f5a2f54`
-- `docs/heldout_corpus_expansion.json_sha256`: `01a2ab439e60ff6f0cdb4f116ce893282a576cca51527c0a8abb93259a60425f`
-- `docs/lead_exact_discovery.json_sha256`: `7826d7439905a6765c1bf0fbfeb87b65c8a4cb78d28a8c37455bd54199301f6d`
-- `docs/long_span_bundle_gate.json_sha256`: `c8c48d55dd0ac688459acbf3e83d30c5fa99e3c959d49b57ddc6350217543f67`
-- `docs/match_discovery.json_sha256`: `dbbacb8490741545d80b9332931202f7fd3a2ef98c718af5f266c88226343dff`
-- `docs/mechanism_experiment_ranking.json_sha256`: `4d131f0947b07ff66a5f215e0acb5482bc5b9519600f2b02f13c0b3ef7b055fb`
+- `docs/heldout_corpus_expansion.json_sha256`: `bee160993c0be076cb393cf598ca6b46156eda718dcfeb82f0d92336c1918181`
+- `docs/lead_exact_discovery.json_sha256`: `200b7c54e84ef138f7cfa9caa3a93ab41d5dc24ebff066e5bf68f32163397a5a`
+- `docs/long_span_bundle_gate.json_sha256`: `983b9eb2ee2127d8ef88384c30a57a19dc2a9314e6af7a0d70ad0920619a9348`
+- `docs/match_discovery.json_sha256`: `41c34f806959f7da25469977ebaf3bb1cf1bb3ea93b0e4f1bb3c1956aec8a617`
+- `docs/mechanism_experiment_ranking.json_sha256`: `2ae775a6e1c73086ef636f6a05c1d83f53e58acaf5ae0c5e3bfd7df34edbf946`
 - `docs/numeric_value_channel_match_discovery.json_sha256`: `8fa4caa2b5dea6b2b7bbbc24b8f08064511ccde238aaa19316aa389407fc511c`
-- `docs/packed_sidecar_controls.json_sha256`: `4476107c66574323fcc740a98da67174651c368fef4ab97174eeea94b65198e4`
-- `docs/packed_sidecar_descriptor.json_sha256`: `eec4477c3fbfcacdac17b1fb48b4b9a11c717d6da1aa37fd3ae9c0e02a5d67f2`
-- `docs/packed_sidecar_replication.json_sha256`: `d87bc291881cc900a30e68552986e20ef71c037746d89c3b19c94e3bc1da1f5f`
+- `docs/packed_sidecar_controls.json_sha256`: `f9a63c2a254d3a2096df7ed983811f930e2f3ba171354111d3ad307e35754c75`
+- `docs/packed_sidecar_descriptor.json_sha256`: `c06e80680bcb3f2d70fef58df5b4f23a0a73b0158f00d7d5dffde472c8a88a67`
+- `docs/packed_sidecar_replication.json_sha256`: `1ff2392582205ac897d540cd779147aa886aab82af8af520039ba01ea57f2562`
 - `docs/record_context_transform_search.json_sha256`: `19111c0b3c7cdb3afe1e66344c119dff187d5915c3ac559d3ee6cb0c6815ccc9`
-- `docs/recursive_structured_fixtures.json_sha256`: `e18c5d2597e07491e7ab4031086c59ee1d8cd6a38b4ee1a47d46ab1361038f3d`
-- `docs/residual_payload_compressibility.json_sha256`: `f30f6f2fd5eba6e1310e90d0b554ed78fc9617b8e50f9daa4dc5e754b7cd7358`
+- `docs/recursive_structured_fixtures.json_sha256`: `53e45273638861faddfafcdc46bf60e2ca15bf4935d42733b7702669a90d6822`
+- `docs/residual_payload_compressibility.json_sha256`: `bfca4132d60aba3ba3a42db5f92f6ea17d282bc8f5a7d91b794ca6e50591df12`
 - `docs/results.json_sha256`: `225465824966499a8d15a5721e0698c30ae83053d072dbec6c6b21558523f9ba`
-- `docs/scale_performance_report.json_sha256`: `9fdc2913d249bf9739c7ecd0ad6870cdbf203090fb4d60c07615b30cc09ea11f`
-- `docs/schema_native_public_dictionaries.json_sha256`: `7736c18343de946d3853eee253c83a9497e2f9f5fd209aaf9e20bd443f9fa478`
-- `docs/schema_native_public_dictionary_replication.json_sha256`: `fbfc1074f874380442b5fc9e8ce57cc952f764473c992837773369d0728beebe`
-- `docs/search_frontier_gate.json_sha256`: `bd06b160c2dda144c49709449e1607d7332bf0d2b7873177e2e6c06ec3c9d114`
+- `docs/scale_performance_report.json_sha256`: `70ee45802aadc966f432c539e7c205d4b3288754c050eca1606150faacea0bc7`
+- `docs/schema_native_public_dictionaries.json_sha256`: `c1dd47c4aaa499b1e64451af57e5c707a5a99722aa028894afe1756bcb60addf`
+- `docs/schema_native_public_dictionary_replication.json_sha256`: `3fad5da36bf3223ccdb98a4df6247285f21c2e6635487331cfad5c1c055d92ec`
+- `docs/search_frontier_gate.json_sha256`: `bf7d9f68fa90c09292bf3afcef10743749054955f54921a1c1dd4c7abe45322b`
 - `docs/seed_manifold_residual_steering.json_sha256`: `1cc8feabbb15479f96606e9ef2db1e7a18b9164f8ee1400f5f0411500445cb57`
-- `docs/seed_table_preset_probe.json_sha256`: `66b7b3e2615b64fe1a2e05fbadc53e21ddb2ba73a47a91b4d4b9ab68f6afe9ac`
-- `docs/sidecar_break_even.json_sha256`: `e2498c85a3780baea9ad3d4eea37c9c430d8c97e4cac4a1d80bec11cb333b173`
-- `docs/sidecar_record_overhead.json_sha256`: `d719f3a2b7d9466290224a87aa5aff5d427ef6b893d7a0655211cbfa27d98c50`
+- `docs/seed_table_preset_probe.json_sha256`: `22b09bbea0ccafe4e2d026d77a6e929639e81c76a97092b5b91b0ffc7446847a`
+- `docs/sidecar_break_even.json_sha256`: `b3dbc8859b2d1286ee4b7c2e475539b99d94976b9389fd96823fcd7186ce9bc0`
+- `docs/sidecar_record_overhead.json_sha256`: `f28c41cf7315b82ababb89539ce5b1286c437e474e660d46b715276f76fbc0f5`
 - `docs/structural_transform_search.json_sha256`: `293e4ad4e8e67b2c5f88159fa2f76df93d018d8bdf1615bba34f6ac40ce42809`
-- `docs/superposition_telemetry.json_sha256`: `06c1e38a8a4f74650e4a7de135c44ee575c3a71925cb850e1989b4239ccc8ebc`
+- `docs/superposition_telemetry.json_sha256`: `42f527269c52a33a2d203b30aa9a448b0bbc4b6a8923f0ef2cf74c17ef4948f3`
 - `docs/token_dictionary_transform_search.json_sha256`: `ea97c7205e447c99bbef2f26062120ca8644eb1c89a9b1030f245fdc771f0eba`
-- `docs/transformed_match_discovery.json_sha256`: `bba81480bb2b2ae5c6a35d5f289724b33522d2f24e7aff806676b6a8cf8268ec`
-- `docs/ui_workflow_smoke.json_sha256`: `6713e90e003d4c112142b0d658a667d3bd83cd36e93c86b0707ecb60e361108a`
-- `docs/whole_stream_residual_vector_probe.json_sha256`: `95e4cb5512dd5dc4c89317c50e6065a8c5132e0c58ece0a6989f56c3150b80c7`
+- `docs/transformed_match_discovery.json_sha256`: `86919a25a4e379f452236f62fd71ba5db17e39e79fe30af1303d69d090c7459e`
+- `docs/ui_workflow_smoke.json_sha256`: `c7972b35e522ef867c599559ff681af266efc8f502bfba9ac757f9c2fe9d3ec6`
+- `docs/whole_stream_residual_vector_probe.json_sha256`: `065455076651faaeb12fd7214dfc46606d0204c7cb6e4a819bd5df9ac7646709`
 - `scripts/doc_lint.py_sha256`: `b073b4311068e3dfc746496c832447fe7c89b67503d7e59bf1c5ad96f28d3357`
 - `scripts/generate_exact_short_hit_bundle_economics.py_sha256`: `4e34d469847d8e990b94bcf4f9ba64bcaa97079b76035462b1b4fbd5b07d438a`
 - `scripts/generate_expander_salt_ensemble.py_sha256`: `58c0ebe97fed3d0a16ce2988b682ce4432bb38a1a0ba1a7f074c146142763f78`
@@ -566,7 +566,7 @@ This section lists unresolved `open` and `blocked-by-evidence` requirements.
 - `tests/decompress.rs_sha256`: `95b3238060bdb36eebfb5a6e368e7047e654cc242d1f20ddaaf32a3d7401693b`
 - `tests/gpu_determinism.rs_sha256`: `669b4e4b275bd4eb59fee192f29526b77514688baee10c1d5603f85133ae23a6`
 - `tests/indexed_v2.rs_sha256`: `f6196cde5ca4092391e83ff7693892aefc0e53ff4bb921a836077cea4e2c9dfa`
-- `tests/streaming.rs_sha256`: `e3b438db54b50fc5d2c00ae53ca5a6a2ac0fd53c0e76c4931c463051362ae758`
+- `tests/streaming.rs_sha256`: `20c83ff5be8b6f7277449d98c6dcf3a7352b137bcf367ff918721b5b7478bba2`
 - `tests/tlmr_header.rs_sha256`: `8f32f50f4e1127803f2247c2e29d8a870661e133e6aba99f2dd43d3ae81d8c81`
 - `ui/README.md_sha256`: `172056d040ea6105da9522fcb228dae9ee3a97de0d9c8cb4c8d0f593f81304b0`
 - `ui/index.html_sha256`: `d3f95b6095c5ac07cee28092bd88ec296955b26558cc47ab0287753a994c0e19`

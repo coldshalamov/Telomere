@@ -75,8 +75,8 @@ Public preset controls need paired-shadow expansion, dictionary-size equalizatio
 ## Source Artifacts
 
 The JSON `source_hashes` map pins this manifest to the exact upstream evidence files below.
-- `public_preset_control_audit_sha256`: `7358408659062b0aed1871a8ed6ee9fb1a97a5ecfc01c6ada9b33fd6cf955a99`
-- `public_preset_promotion_gate_sha256`: `94889bd4a0e3e56151559e01bac1e720acfb3a60ddeabef7af2921ad6ffa4da5`
-- `schema_native_public_dictionary_replication_sha256`: `fbfc1074f874380442b5fc9e8ce57cc952f764473c992837773369d0728beebe`
-- `schema_native_public_dictionaries_sha256`: `7736c18343de946d3853eee253c83a9497e2f9f5fd209aaf9e20bd443f9fa478`
-- `seed_table_preset_probe_sha256`: `66b7b3e2615b64fe1a2e05fbadc53e21ddb2ba73a47a91b4d4b9ab68f6afe9ac`
+- `public_preset_control_audit_sha256`: `820e852115de2f3e655f30388dd0c907782d154561554798cc62be1b71b24309`
+- `public_preset_promotion_gate_sha256`: `620bb8615c5962bf40f52f2690f58ab8f066725eae9f231adce1821332cb24f2`
+- `schema_native_public_dictionary_replication_sha256`: `3fad5da36bf3223ccdb98a4df6247285f21c2e6635487331cfad5c1c055d92ec`
+- `schema_native_public_dictionaries_sha256`: `c1dd47c4aaa499b1e64451af57e5c707a5a99722aa028894afe1756bcb60addf`
+- `seed_table_preset_probe_sha256`: `22b09bbea0ccafe4e2d026d77a6e929639e81c76a97092b5b91b0ffc7446847a`

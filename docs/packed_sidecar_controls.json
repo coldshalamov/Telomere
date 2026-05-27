@@ -1,10 +1,10 @@
 {
   "generated_by": "scripts/generate_packed_sidecar_controls.py",
-  "generated_at": "2026-05-26T15:06:01.952806+00:00",
+  "generated_at": "2026-05-27T00:45:20.903523+00:00",
   "format_version": 1,
   "artifact_hashes": {
-    "packed_sidecar_descriptor_sha256": "eec4477c3fbfcacdac17b1fb48b4b9a11c717d6da1aa37fd3ae9c0e02a5d67f2",
-    "residual_payload_compressibility_sha256": "f30f6f2fd5eba6e1310e90d0b554ed78fc9617b8e50f9daa4dc5e754b7cd7358"
+    "packed_sidecar_descriptor_sha256": "c06e80680bcb3f2d70fef58df5b4f23a0a73b0158f00d7d5dffde472c8a88a67",
+    "residual_payload_compressibility_sha256": "bfca4132d60aba3ba3a42db5f92f6ea17d282bc8f5a7d91b794ca6e50591df12"
   },
   "control_manifest_sha256": "2df144513c7ade66b058bcf3aa83cc017c3ef41300ef6bf109cb3406f84bb388",
   "rows": [

@@ -1,6 +1,6 @@
 {
   "generated_by": "scripts/generate_public_preset_control_rerun.py",
-  "generated_at": "2026-05-26T17:24:03.360170+00:00",
+  "generated_at": "2026-05-27T01:33:53.644068+00:00",
   "format_version": 1,
   "scope": {
     "kind": "exact bounded public preset control rerun",
@@ -13,11 +13,11 @@
     "overrides_public_preset_gate": false
   },
   "source_hashes": {
-    "public_preset_ablation_projection_sha256": "d0eb6b93d67a1a05779e52e985bb981871c26a91e0515557cfea6df0699aa229",
-    "public_preset_control_ablation_sha256": "bff49d75027b172ae3511d5c4b24e286a2f4f5940772b1176f791effc462bd4b",
-    "public_preset_control_audit_sha256": "7358408659062b0aed1871a8ed6ee9fb1a97a5ecfc01c6ada9b33fd6cf955a99",
-    "public_preset_promotion_gate_sha256": "94889bd4a0e3e56151559e01bac1e720acfb3a60ddeabef7af2921ad6ffa4da5",
-    "schema_native_public_dictionary_replication_sha256": "fbfc1074f874380442b5fc9e8ce57cc952f764473c992837773369d0728beebe",
+    "public_preset_ablation_projection_sha256": "9a103943ccd76fdc2df2408e72c7f6507d805e8b918c0a4d26670a0410fe82ef",
+    "public_preset_control_ablation_sha256": "fba87872cfdaddf898208f89be40434a0d36418ffbeb227ecb8244cdea6794ba",
+    "public_preset_control_audit_sha256": "820e852115de2f3e655f30388dd0c907782d154561554798cc62be1b71b24309",
+    "public_preset_promotion_gate_sha256": "620bb8615c5962bf40f52f2690f58ab8f066725eae9f231adce1821332cb24f2",
+    "schema_native_public_dictionary_replication_sha256": "3fad5da36bf3223ccdb98a4df6247285f21c2e6635487331cfad5c1c055d92ec",
     "schema_native_replication_generator_sha256": "95a66e921cb98a06059b831b5e847d9c7a4525c79812ca72877c2275595c45c6",
     "schema_native_dictionary_generator_sha256": "df5dab9e19f887b98cf1d1666111f2688ec30e03f63f5ee5b945f04caaf67d09"
   },

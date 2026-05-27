@@ -1,9 +1,9 @@
 {
   "generated_by": "scripts/generate_depth4_shard_plan.py",
-  "generated_at": "2026-05-26T17:02:16.434928+00:00",
+  "generated_at": "2026-05-27T01:06:31.264494+00:00",
   "format_version": 1,
   "artifact_hashes": {
-    "depth3_frontier_exact_discovery_sha256": "0176021a2c0ff7145c771a2d390efe706fdf303556fb87a6e6c460fcef1a3f15",
+    "depth3_frontier_exact_discovery_sha256": "87da3b3aa76551bbbb22cd49a0bc5126698f8b1bbd2bc15d219b263dba117fa1",
     "nearmiss_forecast_sha256": "9fcbbbbd262c63812e06eced771d35a5a237995dce0ab3f311c09a8400376edb",
     "theory_sha256": "ac78d2a17e3c54d91e394110ee8eb8e657ffa69f3fcf6fcb085af768339e6bcb"
   },
@@ -24,7 +24,7 @@
     "physical_payload_count": 15,
     "target_span_count": 736265,
     "enumerated_seed_count": 16843008,
-    "enumeration_ms": 109056.395,
+    "enumeration_ms": 79685.366,
     "rows_with_depth3_prefix5_uplift": 2,
     "rows_with_depth3_prefix6": 0,
     "total_exact_hits": 0,
@@ -38,11 +38,11 @@
   "depth4_estimates": {
     "seed_len_4_bucket_seeds": 4294967296,
     "seed_len_1_through_4_total_seeds": 4311810304,
-    "ms_per_seed_from_depth3_frontier": 0.006474876399749974,
-    "estimated_incremental_depth4_ms": 27809382.383,
-    "estimated_incremental_depth4_hours": 7.7248,
-    "estimated_total_depth1_to_4_ms": 27918438.778,
-    "estimated_total_depth1_to_4_hours": 7.7551,
+    "ms_per_seed_from_depth3_frontier": 0.0047310650211648654,
+    "estimated_incremental_depth4_ms": 20319769.541,
+    "estimated_incremental_depth4_hours": 5.6444,
+    "estimated_total_depth1_to_4_ms": 20399454.907,
+    "estimated_total_depth1_to_4_hours": 5.6665,
     "frontier_candidate_spans": 736265,
     "prefix_expectations": [
       {
@@ -88,7 +88,7 @@
   "shard_summary": {
     "shard_count": 256,
     "seed_count_per_shard": 16777216,
-    "estimated_ms_per_shard": 108630.4
+    "estimated_ms_per_shard": 79374.1
   },
   "shards": [
     {
@@ -100,7 +100,7 @@
       "seed_index_start_inclusive": 16843008,
       "seed_index_end_exclusive": 33620224,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-01",
@@ -111,7 +111,7 @@
       "seed_index_start_inclusive": 33620224,
       "seed_index_end_exclusive": 50397440,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-02",
@@ -122,7 +122,7 @@
       "seed_index_start_inclusive": 50397440,
       "seed_index_end_exclusive": 67174656,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-03",
@@ -133,7 +133,7 @@
       "seed_index_start_inclusive": 67174656,
       "seed_index_end_exclusive": 83951872,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-04",
@@ -144,7 +144,7 @@
       "seed_index_start_inclusive": 83951872,
       "seed_index_end_exclusive": 100729088,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-05",
@@ -155,7 +155,7 @@
       "seed_index_start_inclusive": 100729088,
       "seed_index_end_exclusive": 117506304,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-06",
@@ -166,7 +166,7 @@
       "seed_index_start_inclusive": 117506304,
       "seed_index_end_exclusive": 134283520,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-07",
@@ -177,7 +177,7 @@
       "seed_index_start_inclusive": 134283520,
       "seed_index_end_exclusive": 151060736,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-08",
@@ -188,7 +188,7 @@
       "seed_index_start_inclusive": 151060736,
       "seed_index_end_exclusive": 167837952,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-09",
@@ -199,7 +199,7 @@
       "seed_index_start_inclusive": 167837952,
       "seed_index_end_exclusive": 184615168,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-0a",
@@ -210,7 +210,7 @@
       "seed_index_start_inclusive": 184615168,
       "seed_index_end_exclusive": 201392384,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-0b",
@@ -221,7 +221,7 @@
       "seed_index_start_inclusive": 201392384,
       "seed_index_end_exclusive": 218169600,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-0c",
@@ -232,7 +232,7 @@
       "seed_index_start_inclusive": 218169600,
       "seed_index_end_exclusive": 234946816,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-0d",
@@ -243,7 +243,7 @@
       "seed_index_start_inclusive": 234946816,
       "seed_index_end_exclusive": 251724032,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-0e",
@@ -254,7 +254,7 @@
       "seed_index_start_inclusive": 251724032,
       "seed_index_end_exclusive": 268501248,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-0f",
@@ -265,7 +265,7 @@
       "seed_index_start_inclusive": 268501248,
       "seed_index_end_exclusive": 285278464,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-10",
@@ -276,7 +276,7 @@
       "seed_index_start_inclusive": 285278464,
       "seed_index_end_exclusive": 302055680,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-11",
@@ -287,7 +287,7 @@
       "seed_index_start_inclusive": 302055680,
       "seed_index_end_exclusive": 318832896,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-12",
@@ -298,7 +298,7 @@
       "seed_index_start_inclusive": 318832896,
       "seed_index_end_exclusive": 335610112,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-13",
@@ -309,7 +309,7 @@
       "seed_index_start_inclusive": 335610112,
       "seed_index_end_exclusive": 352387328,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-14",
@@ -320,7 +320,7 @@
       "seed_index_start_inclusive": 352387328,
       "seed_index_end_exclusive": 369164544,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-15",
@@ -331,7 +331,7 @@
       "seed_index_start_inclusive": 369164544,
       "seed_index_end_exclusive": 385941760,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-16",
@@ -342,7 +342,7 @@
       "seed_index_start_inclusive": 385941760,
       "seed_index_end_exclusive": 402718976,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-17",
@@ -353,7 +353,7 @@
       "seed_index_start_inclusive": 402718976,
       "seed_index_end_exclusive": 419496192,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-18",
@@ -364,7 +364,7 @@
       "seed_index_start_inclusive": 419496192,
       "seed_index_end_exclusive": 436273408,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-19",
@@ -375,7 +375,7 @@
       "seed_index_start_inclusive": 436273408,
       "seed_index_end_exclusive": 453050624,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-1a",
@@ -386,7 +386,7 @@
       "seed_index_start_inclusive": 453050624,
       "seed_index_end_exclusive": 469827840,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-1b",
@@ -397,7 +397,7 @@
       "seed_index_start_inclusive": 469827840,
       "seed_index_end_exclusive": 486605056,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-1c",
@@ -408,7 +408,7 @@
       "seed_index_start_inclusive": 486605056,
       "seed_index_end_exclusive": 503382272,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-1d",
@@ -419,7 +419,7 @@
       "seed_index_start_inclusive": 503382272,
       "seed_index_end_exclusive": 520159488,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-1e",
@@ -430,7 +430,7 @@
       "seed_index_start_inclusive": 520159488,
       "seed_index_end_exclusive": 536936704,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-1f",
@@ -441,7 +441,7 @@
       "seed_index_start_inclusive": 536936704,
       "seed_index_end_exclusive": 553713920,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-20",
@@ -452,7 +452,7 @@
       "seed_index_start_inclusive": 553713920,
       "seed_index_end_exclusive": 570491136,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-21",
@@ -463,7 +463,7 @@
       "seed_index_start_inclusive": 570491136,
       "seed_index_end_exclusive": 587268352,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-22",
@@ -474,7 +474,7 @@
       "seed_index_start_inclusive": 587268352,
       "seed_index_end_exclusive": 604045568,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-23",
@@ -485,7 +485,7 @@
       "seed_index_start_inclusive": 604045568,
       "seed_index_end_exclusive": 620822784,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-24",
@@ -496,7 +496,7 @@
       "seed_index_start_inclusive": 620822784,
       "seed_index_end_exclusive": 637600000,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-25",
@@ -507,7 +507,7 @@
       "seed_index_start_inclusive": 637600000,
       "seed_index_end_exclusive": 654377216,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-26",
@@ -518,7 +518,7 @@
       "seed_index_start_inclusive": 654377216,
       "seed_index_end_exclusive": 671154432,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-27",
@@ -529,7 +529,7 @@
       "seed_index_start_inclusive": 671154432,
       "seed_index_end_exclusive": 687931648,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-28",
@@ -540,7 +540,7 @@
       "seed_index_start_inclusive": 687931648,
       "seed_index_end_exclusive": 704708864,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-29",
@@ -551,7 +551,7 @@
       "seed_index_start_inclusive": 704708864,
       "seed_index_end_exclusive": 721486080,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-2a",
@@ -562,7 +562,7 @@
       "seed_index_start_inclusive": 721486080,
       "seed_index_end_exclusive": 738263296,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-2b",
@@ -573,7 +573,7 @@
       "seed_index_start_inclusive": 738263296,
       "seed_index_end_exclusive": 755040512,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-2c",
@@ -584,7 +584,7 @@
       "seed_index_start_inclusive": 755040512,
       "seed_index_end_exclusive": 771817728,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-2d",
@@ -595,7 +595,7 @@
       "seed_index_start_inclusive": 771817728,
       "seed_index_end_exclusive": 788594944,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-2e",
@@ -606,7 +606,7 @@
       "seed_index_start_inclusive": 788594944,
       "seed_index_end_exclusive": 805372160,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-2f",
@@ -617,7 +617,7 @@
       "seed_index_start_inclusive": 805372160,
       "seed_index_end_exclusive": 822149376,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-30",
@@ -628,7 +628,7 @@
       "seed_index_start_inclusive": 822149376,
       "seed_index_end_exclusive": 838926592,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-31",
@@ -639,7 +639,7 @@
       "seed_index_start_inclusive": 838926592,
       "seed_index_end_exclusive": 855703808,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-32",
@@ -650,7 +650,7 @@
       "seed_index_start_inclusive": 855703808,
       "seed_index_end_exclusive": 872481024,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-33",
@@ -661,7 +661,7 @@
       "seed_index_start_inclusive": 872481024,
       "seed_index_end_exclusive": 889258240,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-34",
@@ -672,7 +672,7 @@
       "seed_index_start_inclusive": 889258240,
       "seed_index_end_exclusive": 906035456,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-35",
@@ -683,7 +683,7 @@
       "seed_index_start_inclusive": 906035456,
       "seed_index_end_exclusive": 922812672,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-36",
@@ -694,7 +694,7 @@
       "seed_index_start_inclusive": 922812672,
       "seed_index_end_exclusive": 939589888,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-37",
@@ -705,7 +705,7 @@
       "seed_index_start_inclusive": 939589888,
       "seed_index_end_exclusive": 956367104,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-38",
@@ -716,7 +716,7 @@
       "seed_index_start_inclusive": 956367104,
       "seed_index_end_exclusive": 973144320,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-39",
@@ -727,7 +727,7 @@
       "seed_index_start_inclusive": 973144320,
       "seed_index_end_exclusive": 989921536,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-3a",
@@ -738,7 +738,7 @@
       "seed_index_start_inclusive": 989921536,
       "seed_index_end_exclusive": 1006698752,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-3b",
@@ -749,7 +749,7 @@
       "seed_index_start_inclusive": 1006698752,
       "seed_index_end_exclusive": 1023475968,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-3c",
@@ -760,7 +760,7 @@
       "seed_index_start_inclusive": 1023475968,
       "seed_index_end_exclusive": 1040253184,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-3d",
@@ -771,7 +771,7 @@
       "seed_index_start_inclusive": 1040253184,
       "seed_index_end_exclusive": 1057030400,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-3e",
@@ -782,7 +782,7 @@
       "seed_index_start_inclusive": 1057030400,
       "seed_index_end_exclusive": 1073807616,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-3f",
@@ -793,7 +793,7 @@
       "seed_index_start_inclusive": 1073807616,
       "seed_index_end_exclusive": 1090584832,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-40",
@@ -804,7 +804,7 @@
       "seed_index_start_inclusive": 1090584832,
       "seed_index_end_exclusive": 1107362048,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-41",
@@ -815,7 +815,7 @@
       "seed_index_start_inclusive": 1107362048,
       "seed_index_end_exclusive": 1124139264,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-42",
@@ -826,7 +826,7 @@
       "seed_index_start_inclusive": 1124139264,
       "seed_index_end_exclusive": 1140916480,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-43",
@@ -837,7 +837,7 @@
       "seed_index_start_inclusive": 1140916480,
       "seed_index_end_exclusive": 1157693696,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-44",
@@ -848,7 +848,7 @@
       "seed_index_start_inclusive": 1157693696,
       "seed_index_end_exclusive": 1174470912,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-45",
@@ -859,7 +859,7 @@
       "seed_index_start_inclusive": 1174470912,
       "seed_index_end_exclusive": 1191248128,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-46",
@@ -870,7 +870,7 @@
       "seed_index_start_inclusive": 1191248128,
       "seed_index_end_exclusive": 1208025344,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-47",
@@ -881,7 +881,7 @@
       "seed_index_start_inclusive": 1208025344,
       "seed_index_end_exclusive": 1224802560,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-48",
@@ -892,7 +892,7 @@
       "seed_index_start_inclusive": 1224802560,
       "seed_index_end_exclusive": 1241579776,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-49",
@@ -903,7 +903,7 @@
       "seed_index_start_inclusive": 1241579776,
       "seed_index_end_exclusive": 1258356992,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-4a",
@@ -914,7 +914,7 @@
       "seed_index_start_inclusive": 1258356992,
       "seed_index_end_exclusive": 1275134208,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-4b",
@@ -925,7 +925,7 @@
       "seed_index_start_inclusive": 1275134208,
       "seed_index_end_exclusive": 1291911424,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-4c",
@@ -936,7 +936,7 @@
       "seed_index_start_inclusive": 1291911424,
       "seed_index_end_exclusive": 1308688640,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-4d",
@@ -947,7 +947,7 @@
       "seed_index_start_inclusive": 1308688640,
       "seed_index_end_exclusive": 1325465856,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-4e",
@@ -958,7 +958,7 @@
       "seed_index_start_inclusive": 1325465856,
       "seed_index_end_exclusive": 1342243072,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-4f",
@@ -969,7 +969,7 @@
       "seed_index_start_inclusive": 1342243072,
       "seed_index_end_exclusive": 1359020288,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-50",
@@ -980,7 +980,7 @@
       "seed_index_start_inclusive": 1359020288,
       "seed_index_end_exclusive": 1375797504,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-51",
@@ -991,7 +991,7 @@
       "seed_index_start_inclusive": 1375797504,
       "seed_index_end_exclusive": 1392574720,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-52",
@@ -1002,7 +1002,7 @@
       "seed_index_start_inclusive": 1392574720,
       "seed_index_end_exclusive": 1409351936,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-53",
@@ -1013,7 +1013,7 @@
       "seed_index_start_inclusive": 1409351936,
       "seed_index_end_exclusive": 1426129152,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-54",
@@ -1024,7 +1024,7 @@
       "seed_index_start_inclusive": 1426129152,
       "seed_index_end_exclusive": 1442906368,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-55",
@@ -1035,7 +1035,7 @@
       "seed_index_start_inclusive": 1442906368,
       "seed_index_end_exclusive": 1459683584,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-56",
@@ -1046,7 +1046,7 @@
       "seed_index_start_inclusive": 1459683584,
       "seed_index_end_exclusive": 1476460800,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-57",
@@ -1057,7 +1057,7 @@
       "seed_index_start_inclusive": 1476460800,
       "seed_index_end_exclusive": 1493238016,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-58",
@@ -1068,7 +1068,7 @@
       "seed_index_start_inclusive": 1493238016,
       "seed_index_end_exclusive": 1510015232,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-59",
@@ -1079,7 +1079,7 @@
       "seed_index_start_inclusive": 1510015232,
       "seed_index_end_exclusive": 1526792448,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-5a",
@@ -1090,7 +1090,7 @@
       "seed_index_start_inclusive": 1526792448,
       "seed_index_end_exclusive": 1543569664,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-5b",
@@ -1101,7 +1101,7 @@
       "seed_index_start_inclusive": 1543569664,
       "seed_index_end_exclusive": 1560346880,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-5c",
@@ -1112,7 +1112,7 @@
       "seed_index_start_inclusive": 1560346880,
       "seed_index_end_exclusive": 1577124096,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-5d",
@@ -1123,7 +1123,7 @@
       "seed_index_start_inclusive": 1577124096,
       "seed_index_end_exclusive": 1593901312,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-5e",
@@ -1134,7 +1134,7 @@
       "seed_index_start_inclusive": 1593901312,
       "seed_index_end_exclusive": 1610678528,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-5f",
@@ -1145,7 +1145,7 @@
       "seed_index_start_inclusive": 1610678528,
       "seed_index_end_exclusive": 1627455744,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-60",
@@ -1156,7 +1156,7 @@
       "seed_index_start_inclusive": 1627455744,
       "seed_index_end_exclusive": 1644232960,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-61",
@@ -1167,7 +1167,7 @@
       "seed_index_start_inclusive": 1644232960,
       "seed_index_end_exclusive": 1661010176,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-62",
@@ -1178,7 +1178,7 @@
       "seed_index_start_inclusive": 1661010176,
       "seed_index_end_exclusive": 1677787392,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-63",
@@ -1189,7 +1189,7 @@
       "seed_index_start_inclusive": 1677787392,
       "seed_index_end_exclusive": 1694564608,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-64",
@@ -1200,7 +1200,7 @@
       "seed_index_start_inclusive": 1694564608,
       "seed_index_end_exclusive": 1711341824,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-65",
@@ -1211,7 +1211,7 @@
       "seed_index_start_inclusive": 1711341824,
       "seed_index_end_exclusive": 1728119040,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-66",
@@ -1222,7 +1222,7 @@
       "seed_index_start_inclusive": 1728119040,
       "seed_index_end_exclusive": 1744896256,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-67",
@@ -1233,7 +1233,7 @@
       "seed_index_start_inclusive": 1744896256,
       "seed_index_end_exclusive": 1761673472,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-68",
@@ -1244,7 +1244,7 @@
       "seed_index_start_inclusive": 1761673472,
       "seed_index_end_exclusive": 1778450688,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-69",
@@ -1255,7 +1255,7 @@
       "seed_index_start_inclusive": 1778450688,
       "seed_index_end_exclusive": 1795227904,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-6a",
@@ -1266,7 +1266,7 @@
       "seed_index_start_inclusive": 1795227904,
       "seed_index_end_exclusive": 1812005120,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-6b",
@@ -1277,7 +1277,7 @@
       "seed_index_start_inclusive": 1812005120,
       "seed_index_end_exclusive": 1828782336,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-6c",
@@ -1288,7 +1288,7 @@
       "seed_index_start_inclusive": 1828782336,
       "seed_index_end_exclusive": 1845559552,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-6d",
@@ -1299,7 +1299,7 @@
       "seed_index_start_inclusive": 1845559552,
       "seed_index_end_exclusive": 1862336768,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-6e",
@@ -1310,7 +1310,7 @@
       "seed_index_start_inclusive": 1862336768,
       "seed_index_end_exclusive": 1879113984,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-6f",
@@ -1321,7 +1321,7 @@
       "seed_index_start_inclusive": 1879113984,
       "seed_index_end_exclusive": 1895891200,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-70",
@@ -1332,7 +1332,7 @@
       "seed_index_start_inclusive": 1895891200,
       "seed_index_end_exclusive": 1912668416,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-71",
@@ -1343,7 +1343,7 @@
       "seed_index_start_inclusive": 1912668416,
       "seed_index_end_exclusive": 1929445632,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-72",
@@ -1354,7 +1354,7 @@
       "seed_index_start_inclusive": 1929445632,
       "seed_index_end_exclusive": 1946222848,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-73",
@@ -1365,7 +1365,7 @@
       "seed_index_start_inclusive": 1946222848,
       "seed_index_end_exclusive": 1963000064,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-74",
@@ -1376,7 +1376,7 @@
       "seed_index_start_inclusive": 1963000064,
       "seed_index_end_exclusive": 1979777280,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-75",
@@ -1387,7 +1387,7 @@
       "seed_index_start_inclusive": 1979777280,
       "seed_index_end_exclusive": 1996554496,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-76",
@@ -1398,7 +1398,7 @@
       "seed_index_start_inclusive": 1996554496,
       "seed_index_end_exclusive": 2013331712,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-77",
@@ -1409,7 +1409,7 @@
       "seed_index_start_inclusive": 2013331712,
       "seed_index_end_exclusive": 2030108928,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-78",
@@ -1420,7 +1420,7 @@
       "seed_index_start_inclusive": 2030108928,
       "seed_index_end_exclusive": 2046886144,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-79",
@@ -1431,7 +1431,7 @@
       "seed_index_start_inclusive": 2046886144,
       "seed_index_end_exclusive": 2063663360,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-7a",
@@ -1442,7 +1442,7 @@
       "seed_index_start_inclusive": 2063663360,
       "seed_index_end_exclusive": 2080440576,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-7b",
@@ -1453,7 +1453,7 @@
       "seed_index_start_inclusive": 2080440576,
       "seed_index_end_exclusive": 2097217792,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-7c",
@@ -1464,7 +1464,7 @@
       "seed_index_start_inclusive": 2097217792,
       "seed_index_end_exclusive": 2113995008,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-7d",
@@ -1475,7 +1475,7 @@
       "seed_index_start_inclusive": 2113995008,
       "seed_index_end_exclusive": 2130772224,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-7e",
@@ -1486,7 +1486,7 @@
       "seed_index_start_inclusive": 2130772224,
       "seed_index_end_exclusive": 2147549440,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-7f",
@@ -1497,7 +1497,7 @@
       "seed_index_start_inclusive": 2147549440,
       "seed_index_end_exclusive": 2164326656,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-80",
@@ -1508,7 +1508,7 @@
       "seed_index_start_inclusive": 2164326656,
       "seed_index_end_exclusive": 2181103872,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-81",
@@ -1519,7 +1519,7 @@
       "seed_index_start_inclusive": 2181103872,
       "seed_index_end_exclusive": 2197881088,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-82",
@@ -1530,7 +1530,7 @@
       "seed_index_start_inclusive": 2197881088,
       "seed_index_end_exclusive": 2214658304,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-83",
@@ -1541,7 +1541,7 @@
       "seed_index_start_inclusive": 2214658304,
       "seed_index_end_exclusive": 2231435520,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-84",
@@ -1552,7 +1552,7 @@
       "seed_index_start_inclusive": 2231435520,
       "seed_index_end_exclusive": 2248212736,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-85",
@@ -1563,7 +1563,7 @@
       "seed_index_start_inclusive": 2248212736,
       "seed_index_end_exclusive": 2264989952,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-86",
@@ -1574,7 +1574,7 @@
       "seed_index_start_inclusive": 2264989952,
       "seed_index_end_exclusive": 2281767168,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-87",
@@ -1585,7 +1585,7 @@
       "seed_index_start_inclusive": 2281767168,
       "seed_index_end_exclusive": 2298544384,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-88",
@@ -1596,7 +1596,7 @@
       "seed_index_start_inclusive": 2298544384,
       "seed_index_end_exclusive": 2315321600,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-89",
@@ -1607,7 +1607,7 @@
       "seed_index_start_inclusive": 2315321600,
       "seed_index_end_exclusive": 2332098816,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-8a",
@@ -1618,7 +1618,7 @@
       "seed_index_start_inclusive": 2332098816,
       "seed_index_end_exclusive": 2348876032,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-8b",
@@ -1629,7 +1629,7 @@
       "seed_index_start_inclusive": 2348876032,
       "seed_index_end_exclusive": 2365653248,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-8c",
@@ -1640,7 +1640,7 @@
       "seed_index_start_inclusive": 2365653248,
       "seed_index_end_exclusive": 2382430464,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-8d",
@@ -1651,7 +1651,7 @@
       "seed_index_start_inclusive": 2382430464,
       "seed_index_end_exclusive": 2399207680,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-8e",
@@ -1662,7 +1662,7 @@
       "seed_index_start_inclusive": 2399207680,
       "seed_index_end_exclusive": 2415984896,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-8f",
@@ -1673,7 +1673,7 @@
       "seed_index_start_inclusive": 2415984896,
       "seed_index_end_exclusive": 2432762112,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-90",
@@ -1684,7 +1684,7 @@
       "seed_index_start_inclusive": 2432762112,
       "seed_index_end_exclusive": 2449539328,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-91",
@@ -1695,7 +1695,7 @@
       "seed_index_start_inclusive": 2449539328,
       "seed_index_end_exclusive": 2466316544,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-92",
@@ -1706,7 +1706,7 @@
       "seed_index_start_inclusive": 2466316544,
       "seed_index_end_exclusive": 2483093760,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-93",
@@ -1717,7 +1717,7 @@
       "seed_index_start_inclusive": 2483093760,
       "seed_index_end_exclusive": 2499870976,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-94",
@@ -1728,7 +1728,7 @@
       "seed_index_start_inclusive": 2499870976,
       "seed_index_end_exclusive": 2516648192,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-95",
@@ -1739,7 +1739,7 @@
       "seed_index_start_inclusive": 2516648192,
       "seed_index_end_exclusive": 2533425408,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-96",
@@ -1750,7 +1750,7 @@
       "seed_index_start_inclusive": 2533425408,
       "seed_index_end_exclusive": 2550202624,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-97",
@@ -1761,7 +1761,7 @@
       "seed_index_start_inclusive": 2550202624,
       "seed_index_end_exclusive": 2566979840,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-98",
@@ -1772,7 +1772,7 @@
       "seed_index_start_inclusive": 2566979840,
       "seed_index_end_exclusive": 2583757056,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-99",
@@ -1783,7 +1783,7 @@
       "seed_index_start_inclusive": 2583757056,
       "seed_index_end_exclusive": 2600534272,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-9a",
@@ -1794,7 +1794,7 @@
       "seed_index_start_inclusive": 2600534272,
       "seed_index_end_exclusive": 2617311488,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-9b",
@@ -1805,7 +1805,7 @@
       "seed_index_start_inclusive": 2617311488,
       "seed_index_end_exclusive": 2634088704,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-9c",
@@ -1816,7 +1816,7 @@
       "seed_index_start_inclusive": 2634088704,
       "seed_index_end_exclusive": 2650865920,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-9d",
@@ -1827,7 +1827,7 @@
       "seed_index_start_inclusive": 2650865920,
       "seed_index_end_exclusive": 2667643136,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-9e",
@@ -1838,7 +1838,7 @@
       "seed_index_start_inclusive": 2667643136,
       "seed_index_end_exclusive": 2684420352,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-9f",
@@ -1849,7 +1849,7 @@
       "seed_index_start_inclusive": 2684420352,
       "seed_index_end_exclusive": 2701197568,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-a0",
@@ -1860,7 +1860,7 @@
       "seed_index_start_inclusive": 2701197568,
       "seed_index_end_exclusive": 2717974784,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-a1",
@@ -1871,7 +1871,7 @@
       "seed_index_start_inclusive": 2717974784,
       "seed_index_end_exclusive": 2734752000,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-a2",
@@ -1882,7 +1882,7 @@
       "seed_index_start_inclusive": 2734752000,
       "seed_index_end_exclusive": 2751529216,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-a3",
@@ -1893,7 +1893,7 @@
       "seed_index_start_inclusive": 2751529216,
       "seed_index_end_exclusive": 2768306432,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-a4",
@@ -1904,7 +1904,7 @@
       "seed_index_start_inclusive": 2768306432,
       "seed_index_end_exclusive": 2785083648,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-a5",
@@ -1915,7 +1915,7 @@
       "seed_index_start_inclusive": 2785083648,
       "seed_index_end_exclusive": 2801860864,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-a6",
@@ -1926,7 +1926,7 @@
       "seed_index_start_inclusive": 2801860864,
       "seed_index_end_exclusive": 2818638080,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-a7",
@@ -1937,7 +1937,7 @@
       "seed_index_start_inclusive": 2818638080,
       "seed_index_end_exclusive": 2835415296,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-a8",
@@ -1948,7 +1948,7 @@
       "seed_index_start_inclusive": 2835415296,
       "seed_index_end_exclusive": 2852192512,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-a9",
@@ -1959,7 +1959,7 @@
       "seed_index_start_inclusive": 2852192512,
       "seed_index_end_exclusive": 2868969728,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-aa",
@@ -1970,7 +1970,7 @@
       "seed_index_start_inclusive": 2868969728,
       "seed_index_end_exclusive": 2885746944,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-ab",
@@ -1981,7 +1981,7 @@
       "seed_index_start_inclusive": 2885746944,
       "seed_index_end_exclusive": 2902524160,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-ac",
@@ -1992,7 +1992,7 @@
       "seed_index_start_inclusive": 2902524160,
       "seed_index_end_exclusive": 2919301376,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-ad",
@@ -2003,7 +2003,7 @@
       "seed_index_start_inclusive": 2919301376,
       "seed_index_end_exclusive": 2936078592,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-ae",
@@ -2014,7 +2014,7 @@
       "seed_index_start_inclusive": 2936078592,
       "seed_index_end_exclusive": 2952855808,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-af",
@@ -2025,7 +2025,7 @@
       "seed_index_start_inclusive": 2952855808,
       "seed_index_end_exclusive": 2969633024,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-b0",
@@ -2036,7 +2036,7 @@
       "seed_index_start_inclusive": 2969633024,
       "seed_index_end_exclusive": 2986410240,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-b1",
@@ -2047,7 +2047,7 @@
       "seed_index_start_inclusive": 2986410240,
       "seed_index_end_exclusive": 3003187456,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-b2",
@@ -2058,7 +2058,7 @@
       "seed_index_start_inclusive": 3003187456,
       "seed_index_end_exclusive": 3019964672,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-b3",
@@ -2069,7 +2069,7 @@
       "seed_index_start_inclusive": 3019964672,
       "seed_index_end_exclusive": 3036741888,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-b4",
@@ -2080,7 +2080,7 @@
       "seed_index_start_inclusive": 3036741888,
       "seed_index_end_exclusive": 3053519104,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-b5",
@@ -2091,7 +2091,7 @@
       "seed_index_start_inclusive": 3053519104,
       "seed_index_end_exclusive": 3070296320,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-b6",
@@ -2102,7 +2102,7 @@
       "seed_index_start_inclusive": 3070296320,
       "seed_index_end_exclusive": 3087073536,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-b7",
@@ -2113,7 +2113,7 @@
       "seed_index_start_inclusive": 3087073536,
       "seed_index_end_exclusive": 3103850752,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-b8",
@@ -2124,7 +2124,7 @@
       "seed_index_start_inclusive": 3103850752,
       "seed_index_end_exclusive": 3120627968,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-b9",
@@ -2135,7 +2135,7 @@
       "seed_index_start_inclusive": 3120627968,
       "seed_index_end_exclusive": 3137405184,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-ba",
@@ -2146,7 +2146,7 @@
       "seed_index_start_inclusive": 3137405184,
       "seed_index_end_exclusive": 3154182400,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-bb",
@@ -2157,7 +2157,7 @@
       "seed_index_start_inclusive": 3154182400,
       "seed_index_end_exclusive": 3170959616,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-bc",
@@ -2168,7 +2168,7 @@
       "seed_index_start_inclusive": 3170959616,
       "seed_index_end_exclusive": 3187736832,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-bd",
@@ -2179,7 +2179,7 @@
       "seed_index_start_inclusive": 3187736832,
       "seed_index_end_exclusive": 3204514048,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-be",
@@ -2190,7 +2190,7 @@
       "seed_index_start_inclusive": 3204514048,
       "seed_index_end_exclusive": 3221291264,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-bf",
@@ -2201,7 +2201,7 @@
       "seed_index_start_inclusive": 3221291264,
       "seed_index_end_exclusive": 3238068480,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-c0",
@@ -2212,7 +2212,7 @@
       "seed_index_start_inclusive": 3238068480,
       "seed_index_end_exclusive": 3254845696,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-c1",
@@ -2223,7 +2223,7 @@
       "seed_index_start_inclusive": 3254845696,
       "seed_index_end_exclusive": 3271622912,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-c2",
@@ -2234,7 +2234,7 @@
       "seed_index_start_inclusive": 3271622912,
       "seed_index_end_exclusive": 3288400128,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-c3",
@@ -2245,7 +2245,7 @@
       "seed_index_start_inclusive": 3288400128,
       "seed_index_end_exclusive": 3305177344,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-c4",
@@ -2256,7 +2256,7 @@
       "seed_index_start_inclusive": 3305177344,
       "seed_index_end_exclusive": 3321954560,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-c5",
@@ -2267,7 +2267,7 @@
       "seed_index_start_inclusive": 3321954560,
       "seed_index_end_exclusive": 3338731776,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-c6",
@@ -2278,7 +2278,7 @@
       "seed_index_start_inclusive": 3338731776,
       "seed_index_end_exclusive": 3355508992,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-c7",
@@ -2289,7 +2289,7 @@
       "seed_index_start_inclusive": 3355508992,
       "seed_index_end_exclusive": 3372286208,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-c8",
@@ -2300,7 +2300,7 @@
       "seed_index_start_inclusive": 3372286208,
       "seed_index_end_exclusive": 3389063424,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-c9",
@@ -2311,7 +2311,7 @@
       "seed_index_start_inclusive": 3389063424,
       "seed_index_end_exclusive": 3405840640,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-ca",
@@ -2322,7 +2322,7 @@
       "seed_index_start_inclusive": 3405840640,
       "seed_index_end_exclusive": 3422617856,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-cb",
@@ -2333,7 +2333,7 @@
       "seed_index_start_inclusive": 3422617856,
       "seed_index_end_exclusive": 3439395072,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-cc",
@@ -2344,7 +2344,7 @@
       "seed_index_start_inclusive": 3439395072,
       "seed_index_end_exclusive": 3456172288,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-cd",
@@ -2355,7 +2355,7 @@
       "seed_index_start_inclusive": 3456172288,
       "seed_index_end_exclusive": 3472949504,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-ce",
@@ -2366,7 +2366,7 @@
       "seed_index_start_inclusive": 3472949504,
       "seed_index_end_exclusive": 3489726720,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-cf",
@@ -2377,7 +2377,7 @@
       "seed_index_start_inclusive": 3489726720,
       "seed_index_end_exclusive": 3506503936,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-d0",
@@ -2388,7 +2388,7 @@
       "seed_index_start_inclusive": 3506503936,
       "seed_index_end_exclusive": 3523281152,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-d1",
@@ -2399,7 +2399,7 @@
       "seed_index_start_inclusive": 3523281152,
       "seed_index_end_exclusive": 3540058368,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-d2",
@@ -2410,7 +2410,7 @@
       "seed_index_start_inclusive": 3540058368,
       "seed_index_end_exclusive": 3556835584,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-d3",
@@ -2421,7 +2421,7 @@
       "seed_index_start_inclusive": 3556835584,
       "seed_index_end_exclusive": 3573612800,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-d4",
@@ -2432,7 +2432,7 @@
       "seed_index_start_inclusive": 3573612800,
       "seed_index_end_exclusive": 3590390016,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-d5",
@@ -2443,7 +2443,7 @@
       "seed_index_start_inclusive": 3590390016,
       "seed_index_end_exclusive": 3607167232,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-d6",
@@ -2454,7 +2454,7 @@
       "seed_index_start_inclusive": 3607167232,
       "seed_index_end_exclusive": 3623944448,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-d7",
@@ -2465,7 +2465,7 @@
       "seed_index_start_inclusive": 3623944448,
       "seed_index_end_exclusive": 3640721664,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-d8",
@@ -2476,7 +2476,7 @@
       "seed_index_start_inclusive": 3640721664,
       "seed_index_end_exclusive": 3657498880,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-d9",
@@ -2487,7 +2487,7 @@
       "seed_index_start_inclusive": 3657498880,
       "seed_index_end_exclusive": 3674276096,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-da",
@@ -2498,7 +2498,7 @@
       "seed_index_start_inclusive": 3674276096,
       "seed_index_end_exclusive": 3691053312,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-db",
@@ -2509,7 +2509,7 @@
       "seed_index_start_inclusive": 3691053312,
       "seed_index_end_exclusive": 3707830528,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-dc",
@@ -2520,7 +2520,7 @@
       "seed_index_start_inclusive": 3707830528,
       "seed_index_end_exclusive": 3724607744,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-dd",
@@ -2531,7 +2531,7 @@
       "seed_index_start_inclusive": 3724607744,
       "seed_index_end_exclusive": 3741384960,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-de",
@@ -2542,7 +2542,7 @@
       "seed_index_start_inclusive": 3741384960,
       "seed_index_end_exclusive": 3758162176,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-df",
@@ -2553,7 +2553,7 @@
       "seed_index_start_inclusive": 3758162176,
       "seed_index_end_exclusive": 3774939392,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-e0",
@@ -2564,7 +2564,7 @@
       "seed_index_start_inclusive": 3774939392,
       "seed_index_end_exclusive": 3791716608,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-e1",
@@ -2575,7 +2575,7 @@
       "seed_index_start_inclusive": 3791716608,
       "seed_index_end_exclusive": 3808493824,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-e2",
@@ -2586,7 +2586,7 @@
       "seed_index_start_inclusive": 3808493824,
       "seed_index_end_exclusive": 3825271040,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-e3",
@@ -2597,7 +2597,7 @@
       "seed_index_start_inclusive": 3825271040,
       "seed_index_end_exclusive": 3842048256,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-e4",
@@ -2608,7 +2608,7 @@
       "seed_index_start_inclusive": 3842048256,
       "seed_index_end_exclusive": 3858825472,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-e5",
@@ -2619,7 +2619,7 @@
       "seed_index_start_inclusive": 3858825472,
       "seed_index_end_exclusive": 3875602688,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-e6",
@@ -2630,7 +2630,7 @@
       "seed_index_start_inclusive": 3875602688,
       "seed_index_end_exclusive": 3892379904,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-e7",
@@ -2641,7 +2641,7 @@
       "seed_index_start_inclusive": 3892379904,
       "seed_index_end_exclusive": 3909157120,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-e8",
@@ -2652,7 +2652,7 @@
       "seed_index_start_inclusive": 3909157120,
       "seed_index_end_exclusive": 3925934336,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-e9",
@@ -2663,7 +2663,7 @@
       "seed_index_start_inclusive": 3925934336,
       "seed_index_end_exclusive": 3942711552,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-ea",
@@ -2674,7 +2674,7 @@
       "seed_index_start_inclusive": 3942711552,
       "seed_index_end_exclusive": 3959488768,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-eb",
@@ -2685,7 +2685,7 @@
       "seed_index_start_inclusive": 3959488768,
       "seed_index_end_exclusive": 3976265984,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-ec",
@@ -2696,7 +2696,7 @@
       "seed_index_start_inclusive": 3976265984,
       "seed_index_end_exclusive": 3993043200,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-ed",
@@ -2707,7 +2707,7 @@
       "seed_index_start_inclusive": 3993043200,
       "seed_index_end_exclusive": 4009820416,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-ee",
@@ -2718,7 +2718,7 @@
       "seed_index_start_inclusive": 4009820416,
       "seed_index_end_exclusive": 4026597632,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-ef",
@@ -2729,7 +2729,7 @@
       "seed_index_start_inclusive": 4026597632,
       "seed_index_end_exclusive": 4043374848,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-f0",
@@ -2740,7 +2740,7 @@
       "seed_index_start_inclusive": 4043374848,
       "seed_index_end_exclusive": 4060152064,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-f1",
@@ -2751,7 +2751,7 @@
       "seed_index_start_inclusive": 4060152064,
       "seed_index_end_exclusive": 4076929280,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-f2",
@@ -2762,7 +2762,7 @@
       "seed_index_start_inclusive": 4076929280,
       "seed_index_end_exclusive": 4093706496,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-f3",
@@ -2773,7 +2773,7 @@
       "seed_index_start_inclusive": 4093706496,
       "seed_index_end_exclusive": 4110483712,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-f4",
@@ -2784,7 +2784,7 @@
       "seed_index_start_inclusive": 4110483712,
       "seed_index_end_exclusive": 4127260928,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-f5",
@@ -2795,7 +2795,7 @@
       "seed_index_start_inclusive": 4127260928,
       "seed_index_end_exclusive": 4144038144,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-f6",
@@ -2806,7 +2806,7 @@
       "seed_index_start_inclusive": 4144038144,
       "seed_index_end_exclusive": 4160815360,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-f7",
@@ -2817,7 +2817,7 @@
       "seed_index_start_inclusive": 4160815360,
       "seed_index_end_exclusive": 4177592576,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-f8",
@@ -2828,7 +2828,7 @@
       "seed_index_start_inclusive": 4177592576,
       "seed_index_end_exclusive": 4194369792,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-f9",
@@ -2839,7 +2839,7 @@
       "seed_index_start_inclusive": 4194369792,
       "seed_index_end_exclusive": 4211147008,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-fa",
@@ -2850,7 +2850,7 @@
       "seed_index_start_inclusive": 4211147008,
       "seed_index_end_exclusive": 4227924224,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-fb",
@@ -2861,7 +2861,7 @@
       "seed_index_start_inclusive": 4227924224,
       "seed_index_end_exclusive": 4244701440,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-fc",
@@ -2872,7 +2872,7 @@
       "seed_index_start_inclusive": 4244701440,
       "seed_index_end_exclusive": 4261478656,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-fd",
@@ -2883,7 +2883,7 @@
       "seed_index_start_inclusive": 4261478656,
       "seed_index_end_exclusive": 4278255872,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-fe",
@@ -2894,7 +2894,7 @@
       "seed_index_start_inclusive": 4278255872,
       "seed_index_end_exclusive": 4295033088,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     },
     {
       "shard_id": "seed4-prefix-ff",
@@ -2905,7 +2905,7 @@
       "seed_index_start_inclusive": 4295033088,
       "seed_index_end_exclusive": 4311810304,
       "seed_count": 16777216,
-      "estimated_ms_from_depth3_frontier_rate": 108630.4
+      "estimated_ms_from_depth3_frontier_rate": 79374.1
     }
   ]
 }

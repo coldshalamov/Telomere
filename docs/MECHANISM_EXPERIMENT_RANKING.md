@@ -179,7 +179,7 @@ Source artifacts: `search_frontier_gate`, `match_discovery`
 
 ## Source Artifacts
 
-- `search_frontier_gate_sha256`: `bd06b160c2dda144c49709449e1607d7332bf0d2b7873177e2e6c06ec3c9d114`
+- `search_frontier_gate_sha256`: `bf7d9f68fa90c09292bf3afcef10743749054955f54921a1c1dd4c7abe45322b`
 - `structural_transform_search_sha256`: `293e4ad4e8e67b2c5f88159fa2f76df93d018d8bdf1615bba34f6ac40ce42809`
 - `byte_permutation_transform_search_sha256`: `a50b2639b1f3d8696cb299120148f1ab8f086074372a65101253fce85e88cd8f`
 - `bwt_mtf_transform_probe_sha256`: `495e9027bc354b0d5b15ab351c65e57a44718fd93ab032a8db66b82b562c583d`
@@ -189,20 +189,20 @@ Source artifacts: `search_frontier_gate`, `match_discovery`
 - `token_dictionary_transform_search_sha256`: `ea97c7205e447c99bbef2f26062120ca8644eb1c89a9b1030f245fdc771f0eba`
 - `affine_transform_search_sha256`: `b0a13f597e786ed2839200438cd6ac416cc83f9d25e0122f8069332013deca15`
 - `seed_manifold_residual_steering_sha256`: `1cc8feabbb15479f96606e9ef2db1e7a18b9164f8ee1400f5f0411500445cb57`
-- `sidecar_break_even_sha256`: `e2498c85a3780baea9ad3d4eea37c9c430d8c97e4cac4a1d80bec11cb333b173`
-- `residual_payload_compressibility_sha256`: `f30f6f2fd5eba6e1310e90d0b554ed78fc9617b8e50f9daa4dc5e754b7cd7358`
-- `experimental_sidecar_descriptor_sha256`: `d5ec0c7c7a37673fbe83863b40603fb58affa6b4aefb3c45545fc77c648089fe`
-- `sidecar_record_overhead_sha256`: `d719f3a2b7d9466290224a87aa5aff5d427ef6b893d7a0655211cbfa27d98c50`
-- `packed_sidecar_descriptor_sha256`: `eec4477c3fbfcacdac17b1fb48b4b9a11c717d6da1aa37fd3ae9c0e02a5d67f2`
-- `packed_sidecar_controls_sha256`: `4476107c66574323fcc740a98da67174651c368fef4ab97174eeea94b65198e4`
-- `generalized_packed_sidecar_sha256`: `a330750dc5aad2212c5f97c1c3bef307c454596d6bda4a8837d17387333f9ce8`
-- `packed_sidecar_replication_sha256`: `d87bc291881cc900a30e68552986e20ef71c037746d89c3b19c94e3bc1da1f5f`
-- `match_discovery_sha256`: `dbbacb8490741545d80b9332931202f7fd3a2ef98c718af5f266c88226343dff`
-- `alignment_arity_discovery_sha256`: `a99701608fb38b3d476a332772b4c4eb69fcfda52ddccf1d32de6cd7bfa0cb8f`
-- `transformed_match_discovery_sha256`: `bba81480bb2b2ae5c6a35d5f289724b33522d2f24e7aff806676b6a8cf8268ec`
-- `lead_exact_discovery_sha256`: `7826d7439905a6765c1bf0fbfeb87b65c8a4cb78d28a8c37455bd54199301f6d`
+- `sidecar_break_even_sha256`: `b3dbc8859b2d1286ee4b7c2e475539b99d94976b9389fd96823fcd7186ce9bc0`
+- `residual_payload_compressibility_sha256`: `bfca4132d60aba3ba3a42db5f92f6ea17d282bc8f5a7d91b794ca6e50591df12`
+- `experimental_sidecar_descriptor_sha256`: `e15db43e560906b299e6153a1f782207066dd89357e83647d7429ad0c581ab0b`
+- `sidecar_record_overhead_sha256`: `f28c41cf7315b82ababb89539ce5b1286c437e474e660d46b715276f76fbc0f5`
+- `packed_sidecar_descriptor_sha256`: `c06e80680bcb3f2d70fef58df5b4f23a0a73b0158f00d7d5dffde472c8a88a67`
+- `packed_sidecar_controls_sha256`: `f9a63c2a254d3a2096df7ed983811f930e2f3ba171354111d3ad307e35754c75`
+- `generalized_packed_sidecar_sha256`: `e21afe0073c0407c48b576f13e7745c1d2b444e4acffb6681ca9a1d96e288ad1`
+- `packed_sidecar_replication_sha256`: `1ff2392582205ac897d540cd779147aa886aab82af8af520039ba01ea57f2562`
+- `match_discovery_sha256`: `41c34f806959f7da25469977ebaf3bb1cf1bb3ea93b0e4f1bb3c1956aec8a617`
+- `alignment_arity_discovery_sha256`: `ed9b79eaa95f79a5bfbf92d5d2711b9c60c3234687163a351f5067c22eeac1e2`
+- `transformed_match_discovery_sha256`: `86919a25a4e379f452236f62fd71ba5db17e39e79fe30af1303d69d090c7459e`
+- `lead_exact_discovery_sha256`: `200b7c54e84ef138f7cfa9caa3a93ab41d5dc24ebff066e5bf68f32163397a5a`
 - `corpus_generalization_probe_sha256`: `dea34274c490f6bc1d5c10b4e9393f8a53d02e44740fe8defaa72e3113e0b5cd`
-- `heldout_corpus_expansion_sha256`: `01a2ab439e60ff6f0cdb4f116ce893282a576cca51527c0a8abb93259a60425f`
+- `heldout_corpus_expansion_sha256`: `bee160993c0be076cb393cf598ca6b46156eda718dcfeb82f0d92336c1918181`
 - `transform_validation_sha256`: `8d974a69b45738de48a401fb584340cb263fccb6148d96e63a8328799425792b`
 - `periodic_transform_probe_sha256`: `6164cb60ab30824a396569dbc1bcfb60fe319c8da07e64c14ff672e471d1c7fc`
 - `composed_transform_probe_sha256`: `0e48c39736c06d7f50985bf1dbc44b23a09e9bf15694b156c8c0cad38ec82b34`

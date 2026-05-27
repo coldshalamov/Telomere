@@ -43,7 +43,7 @@ Verdict: **research-viable, not production-proven**.
 | 33 | qualified | The Tauri evidence ledger panel has static UI/bridge workflow coverage. | UI evidence keys 87; Tauri evidence fields 115; required cards 22; missing Tauri fields 0; missing mock fields 0; claim level ui_workflow_static_smoke_passed. | This is static schema and artifact wiring coverage; it is not a full desktop browser smoke run. |
 | 34 | open | Selected-lead depth-3 compression follow-up stayed null after prefix movement. | Lead depth-3 prefix probe enumerated 16843008 seeds; 2 rows gained prefix>=5 movement, exact hits 0. The follow-up ran 1 physical input / 2 aliases with 0 selected spans. | Selected-lead prefix movement is still not a compression win without exact records selected by the compressor. |
 | 35 | open | Depth-3 frontier exact discovery found prefix movement only, not exact seed-span records. | 26 frontier rows over 15 physical payloads enumerated 16843008 seeds; prefix>=5 uplift rows 2, exact hits 0, selected spans 0. | This is the current gate against broad depth-3/depth-4 work; it can be reopened only by stronger exact-hit evidence. |
-| 36 | open | Depth-4 search is sharded and explicitly gated rather than a default next step. | Depth-4 plan status gated; estimated incremental full depth-4 time 7.7248 hours; exact-8 probability on the current frontier 0.00017141. | The plan makes depth-4 reproducible and sharded, but current evidence does not justify running all shards. |
+| 36 | open | Depth-4 search is sharded and explicitly gated rather than a default next step. | Depth-4 plan status gated; estimated incremental full depth-4 time 5.6444 hours; exact-8 probability on the current frontier 0.00017141. | The plan makes depth-4 reproducible and sharded, but current evidence does not justify running all shards. |
 | 37 | open | Depth-4 pilot shards are bounded evidence gates, not production compression claims. | 1 pilot shard enumerated 16777216 four-byte seeds over 736265 frontier target spans; prefix>=5 rows 0; prefix>=6 rows 0; exact hits 0; selected spans 0. | One shard is useful null evidence only; the remaining shards stay gated until stronger frontier evidence appears. |
 | 38 | open | The generated search-frontier gate blocks broad raw depth search from the current prefix-only frontier. | Gate status hold-broad-depth-search; best non-planted forecast 828.0 GiB per expected exact hit; depth-4 exact-8 probability 0.00017141; selected span total 0; blocking gates 7 of 7. | This is a decision artifact assembled from current evidence, not a mathematical impossibility proof or a compression result. |
 | 39 | open | The generated mechanism-experiment ranking makes seed-table preset probing the next non-depth experiment. | Top lane seed-table-preset-probe; top next artifact docs/SEED_TABLE_PRESET_PROBE.md; ready lanes 7; gated lanes 1; blocked lanes 2; selected spans 0. | This is generated evidence triage, not natural-corpus compression proof or format support. |
@@ -109,44 +109,44 @@ Verdict: **research-viable, not production-proven**.
 - `docs/composed_transform_probe.json` SHA-256: `0e48c39736c06d7f50985bf1dbc44b23a09e9bf15694b156c8c0cad38ec82b34`
 - `docs/depth3_prefix_probe.json` SHA-256: `655684cd381cb79f89d856f260358a6598c6e901b9fd4b3bf69ab85e7df27c90`
 - `docs/depth3_compression_followup.json` SHA-256: `46f46838e7e217902f66f9586c8f25bc2eee7c3d92db00d8fca10b523f5a3d22`
-- `docs/lead_depth3_prefix_probe.json` SHA-256: `dab9ecc7d9c20577a6d21a9c83df7a13bb22f9acf5ef4300aaaf432ae2f7c8c9`
-- `docs/lead_depth3_compression_followup.json` SHA-256: `5b2bb5a3fde82a3188578913a017cbbb7f69ed0b835a39abe554e5b895b3f810`
-- `docs/depth3_frontier_exact_discovery.json` SHA-256: `0176021a2c0ff7145c771a2d390efe706fdf303556fb87a6e6c460fcef1a3f15`
-- `docs/depth4_shard_plan.json` SHA-256: `d0a617ef5a8dad4e289771f53a44ba8e3756df2df5bfb496e85e5c5095b546a6`
-- `docs/depth4_pilot_shard.json` SHA-256: `3384890446236a646675ec25daa50ff7ded4e8876335fb36c27c36a001a6a555`
-- `docs/search_frontier_gate.json` SHA-256: `bd06b160c2dda144c49709449e1607d7332bf0d2b7873177e2e6c06ec3c9d114`
-- `docs/mechanism_experiment_ranking.json` SHA-256: `4d131f0947b07ff66a5f215e0acb5482bc5b9519600f2b02f13c0b3ef7b055fb`
-- `docs/seed_table_preset_probe.json` SHA-256: `66b7b3e2615b64fe1a2e05fbadc53e21ddb2ba73a47a91b4d4b9ab68f6afe9ac`
-- `docs/exact_short_hit_bundle_economics.json` SHA-256: `c36ec5eca6f1d3c638aaa7b21848fedeba7c26a08fba657506428e0c5fce0d96`
-- `docs/whole_stream_residual_vector_probe.json` SHA-256: `95e4cb5512dd5dc4c89317c50e6065a8c5132e0c58ece0a6989f56c3150b80c7`
-- `docs/expander_salt_ensemble.json` SHA-256: `b1964816f8ade396c3f82e9b1c1d7db222506446c3ea8b18b0bd5f47dc0b9887`
-- `docs/schema_native_public_dictionaries.json` SHA-256: `7736c18343de946d3853eee253c83a9497e2f9f5fd209aaf9e20bd443f9fa478`
-- `docs/schema_native_public_dictionary_replication.json` SHA-256: `fbfc1074f874380442b5fc9e8ce57cc952f764473c992837773369d0728beebe`
-- `docs/superposition_telemetry.json` SHA-256: `06c1e38a8a4f74650e4a7de135c44ee575c3a71925cb850e1989b4239ccc8ebc`
-- `docs/long_span_bundle_gate.json` SHA-256: `c8c48d55dd0ac688459acbf3e83d30c5fa99e3c959d49b57ddc6350217543f67`
-- `docs/recursive_structured_fixtures.json` SHA-256: `e18c5d2597e07491e7ab4031086c59ee1d8cd6a38b4ee1a47d46ab1361038f3d`
-- `docs/scale_performance_report.json` SHA-256: `9fdc2913d249bf9739c7ecd0ad6870cdbf203090fb4d60c07615b30cc09ea11f`
-- `docs/ui_workflow_smoke.json` SHA-256: `6713e90e003d4c112142b0d658a667d3bd83cd36e93c86b0707ecb60e361108a`
+- `docs/lead_depth3_prefix_probe.json` SHA-256: `d2d1c82847176fea6e920c98f5136514097dd9787875044297bca405dbd37e8a`
+- `docs/lead_depth3_compression_followup.json` SHA-256: `84948aa2fb60120970ee2988a8fcb88bf0dc6969982588189c9c4f3ad8783cd9`
+- `docs/depth3_frontier_exact_discovery.json` SHA-256: `87da3b3aa76551bbbb22cd49a0bc5126698f8b1bbd2bc15d219b263dba117fa1`
+- `docs/depth4_shard_plan.json` SHA-256: `d422f680dcf797d4e0a17494aa165c2090b28a05af04329b21de26863687298c`
+- `docs/depth4_pilot_shard.json` SHA-256: `f62ef43c61c766fc5a8079018698f81dec619268991ebafe0a329ab27cff5185`
+- `docs/search_frontier_gate.json` SHA-256: `bf7d9f68fa90c09292bf3afcef10743749054955f54921a1c1dd4c7abe45322b`
+- `docs/mechanism_experiment_ranking.json` SHA-256: `2ae775a6e1c73086ef636f6a05c1d83f53e58acaf5ae0c5e3bfd7df34edbf946`
+- `docs/seed_table_preset_probe.json` SHA-256: `22b09bbea0ccafe4e2d026d77a6e929639e81c76a97092b5b91b0ffc7446847a`
+- `docs/exact_short_hit_bundle_economics.json` SHA-256: `90924867bbc794040455a90d71009469df2a711899f836b5bb6cfb4255cbb0dc`
+- `docs/whole_stream_residual_vector_probe.json` SHA-256: `065455076651faaeb12fd7214dfc46606d0204c7cb6e4a819bd5df9ac7646709`
+- `docs/expander_salt_ensemble.json` SHA-256: `aa87c528883b5559a8819b41e124aaf33394c735e1e4474edde9be9b48f2eae7`
+- `docs/schema_native_public_dictionaries.json` SHA-256: `c1dd47c4aaa499b1e64451af57e5c707a5a99722aa028894afe1756bcb60addf`
+- `docs/schema_native_public_dictionary_replication.json` SHA-256: `3fad5da36bf3223ccdb98a4df6247285f21c2e6635487331cfad5c1c055d92ec`
+- `docs/superposition_telemetry.json` SHA-256: `42f527269c52a33a2d203b30aa9a448b0bbc4b6a8923f0ef2cf74c17ef4948f3`
+- `docs/long_span_bundle_gate.json` SHA-256: `983b9eb2ee2127d8ef88384c30a57a19dc2a9314e6af7a0d70ad0920619a9348`
+- `docs/recursive_structured_fixtures.json` SHA-256: `53e45273638861faddfafcdc46bf60e2ca15bf4935d42733b7702669a90d6822`
+- `docs/scale_performance_report.json` SHA-256: `70ee45802aadc966f432c539e7c205d4b3288754c050eca1606150faacea0bc7`
+- `docs/ui_workflow_smoke.json` SHA-256: `c7972b35e522ef867c599559ff681af266efc8f502bfba9ac757f9c2fe9d3ec6`
 - `docs/contextual_fifth_byte_steering.json` SHA-256: `9af6f8167f51596840783bf31a7cf6a15e37e15c7f308a941de0982cf4502c4b`
 - `docs/structural_transform_search.json` SHA-256: `293e4ad4e8e67b2c5f88159fa2f76df93d018d8bdf1615bba34f6ac40ce42809`
 - `docs/byte_permutation_transform_search.json` SHA-256: `a50b2639b1f3d8696cb299120148f1ab8f086074372a65101253fce85e88cd8f`
 - `docs/bwt_mtf_transform_probe.json` SHA-256: `495e9027bc354b0d5b15ab351c65e57a44718fd93ab032a8db66b82b562c583d`
 - `docs/grammar_channel_match_discovery.json` SHA-256: `0356e6bc36339e3b2bfb6f753fef167c4aeb0915fd6eb6ecaeff946f7f5a2f54`
 - `docs/numeric_value_channel_match_discovery.json` SHA-256: `8fa4caa2b5dea6b2b7bbbc24b8f08064511ccde238aaa19316aa389407fc511c`
-- `docs/heldout_corpus_expansion.json` SHA-256: `01a2ab439e60ff6f0cdb4f116ce893282a576cca51527c0a8abb93259a60425f`
+- `docs/heldout_corpus_expansion.json` SHA-256: `bee160993c0be076cb393cf598ca6b46156eda718dcfeb82f0d92336c1918181`
 - `docs/record_context_transform_search.json` SHA-256: `19111c0b3c7cdb3afe1e66344c119dff187d5915c3ac559d3ee6cb0c6815ccc9`
 - `docs/token_dictionary_transform_search.json` SHA-256: `ea97c7205e447c99bbef2f26062120ca8644eb1c89a9b1030f245fdc771f0eba`
 - `docs/affine_transform_search.json` SHA-256: `b0a13f597e786ed2839200438cd6ac416cc83f9d25e0122f8069332013deca15`
 - `docs/seed_manifold_residual_steering.json` SHA-256: `1cc8feabbb15479f96606e9ef2db1e7a18b9164f8ee1400f5f0411500445cb57`
-- `docs/sidecar_break_even.json` SHA-256: `e2498c85a3780baea9ad3d4eea37c9c430d8c97e4cac4a1d80bec11cb333b173`
-- `docs/residual_payload_compressibility.json` SHA-256: `f30f6f2fd5eba6e1310e90d0b554ed78fc9617b8e50f9daa4dc5e754b7cd7358`
-- `docs/experimental_sidecar_descriptor.json` SHA-256: `d5ec0c7c7a37673fbe83863b40603fb58affa6b4aefb3c45545fc77c648089fe`
-- `docs/sidecar_record_overhead.json` SHA-256: `d719f3a2b7d9466290224a87aa5aff5d427ef6b893d7a0655211cbfa27d98c50`
-- `docs/packed_sidecar_descriptor.json` SHA-256: `eec4477c3fbfcacdac17b1fb48b4b9a11c717d6da1aa37fd3ae9c0e02a5d67f2`
-- `docs/packed_sidecar_controls.json` SHA-256: `4476107c66574323fcc740a98da67174651c368fef4ab97174eeea94b65198e4`
-- `docs/generalized_packed_sidecar.json` SHA-256: `a330750dc5aad2212c5f97c1c3bef307c454596d6bda4a8837d17387333f9ce8`
-- `docs/packed_sidecar_replication.json` SHA-256: `d87bc291881cc900a30e68552986e20ef71c037746d89c3b19c94e3bc1da1f5f`
-- `docs/match_discovery.json` SHA-256: `dbbacb8490741545d80b9332931202f7fd3a2ef98c718af5f266c88226343dff`
-- `docs/alignment_arity_discovery.json` SHA-256: `a99701608fb38b3d476a332772b4c4eb69fcfda52ddccf1d32de6cd7bfa0cb8f`
-- `docs/transformed_match_discovery.json` SHA-256: `bba81480bb2b2ae5c6a35d5f289724b33522d2f24e7aff806676b6a8cf8268ec`
-- `docs/lead_exact_discovery.json` SHA-256: `7826d7439905a6765c1bf0fbfeb87b65c8a4cb78d28a8c37455bd54199301f6d`
+- `docs/sidecar_break_even.json` SHA-256: `b3dbc8859b2d1286ee4b7c2e475539b99d94976b9389fd96823fcd7186ce9bc0`
+- `docs/residual_payload_compressibility.json` SHA-256: `bfca4132d60aba3ba3a42db5f92f6ea17d282bc8f5a7d91b794ca6e50591df12`
+- `docs/experimental_sidecar_descriptor.json` SHA-256: `e15db43e560906b299e6153a1f782207066dd89357e83647d7429ad0c581ab0b`
+- `docs/sidecar_record_overhead.json` SHA-256: `f28c41cf7315b82ababb89539ce5b1286c437e474e660d46b715276f76fbc0f5`
+- `docs/packed_sidecar_descriptor.json` SHA-256: `c06e80680bcb3f2d70fef58df5b4f23a0a73b0158f00d7d5dffde472c8a88a67`
+- `docs/packed_sidecar_controls.json` SHA-256: `f9a63c2a254d3a2096df7ed983811f930e2f3ba171354111d3ad307e35754c75`
+- `docs/generalized_packed_sidecar.json` SHA-256: `e21afe0073c0407c48b576f13e7745c1d2b444e4acffb6681ca9a1d96e288ad1`
+- `docs/packed_sidecar_replication.json` SHA-256: `1ff2392582205ac897d540cd779147aa886aab82af8af520039ba01ea57f2562`
+- `docs/match_discovery.json` SHA-256: `41c34f806959f7da25469977ebaf3bb1cf1bb3ea93b0e4f1bb3c1956aec8a617`
+- `docs/alignment_arity_discovery.json` SHA-256: `ed9b79eaa95f79a5bfbf92d5d2711b9c60c3234687163a351f5067c22eeac1e2`
+- `docs/transformed_match_discovery.json` SHA-256: `86919a25a4e379f452236f62fd71ba5db17e39e79fe30af1303d69d090c7459e`
+- `docs/lead_exact_discovery.json` SHA-256: `200b7c54e84ef138f7cfa9caa3a93ab41d5dc24ebff066e5bf68f32163397a5a`

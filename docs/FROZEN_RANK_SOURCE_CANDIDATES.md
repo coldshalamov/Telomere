@@ -93,8 +93,8 @@ The frozen-rank lane now has an acquisition matrix, but no source candidate is r
 ## Source Artifacts
 
 The JSON `source_hashes` map pins this candidate matrix to exact upstream evidence and generator files below.
-- `next_mechanism_designs_sha256`: `d6f3c577d0958a7a1cbeeec4294fe56427dbd96f258fa79451a6ea38e409bc5b`
-- `natural_corpus_reopen_manifest_sha256`: `be6b5179ca83a76c3cede39d5b0a514658048286854c03ac813f047bc10efe6a`
-- `public_preset_control_rerun_sha256`: `430a379cbde2377a787ea5a54ac29277814ede5f6308a95e9084350f72db8da0`
-- `search_frontier_gate_sha256`: `bd06b160c2dda144c49709449e1607d7332bf0d2b7873177e2e6c06ec3c9d114`
+- `next_mechanism_designs_sha256`: `9220693948065164a9799490a485126d3de3a44d524cf3ab80e10ad919ced726`
+- `natural_corpus_reopen_manifest_sha256`: `ffafdea75176379f01f112bec5924d0061125a65a60cdac40510fb8e1746ca7f`
+- `public_preset_control_rerun_sha256`: `71f0ecfb44cd711b320b2ac3119afe9f616b1c27004c6872cf0355d0bd9a41be`
+- `search_frontier_gate_sha256`: `bf7d9f68fa90c09292bf3afcef10743749054955f54921a1c1dd4c7abe45322b`
 - `frozen_rank_source_candidates_generator_sha256`: `06fa9d336f93ac4a0dbd1d5e50ad182fa50dc6616461d3f088b618f90d4f65f5`

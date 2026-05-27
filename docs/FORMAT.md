@@ -131,7 +131,7 @@ File layout:
       Lotus J3D2(max_seed_len)
       Lotus J3D2(max_span_len)
       Lotus J3D2(block_size)
-      Lotus J3D2(tier_policy)        # 1 = seed-span, 2 = public-preset-selective
+      Lotus J3D2(tier_policy)        # 1 = seed-span, 2 = public-preset-selective, 3 = fixed seed-span
       Lotus J3D2(span_step)
     [zero pad to byte boundary]
   outer_payload_bit_len bits of outermost layer payload
@@ -155,8 +155,8 @@ Field ranges:
 | `max_seed_len` (per layer) | `1..=u8::MAX`; `1` when `tier_policy = 2` |
 | `max_span_len` (per layer) | `1..=u16::MAX` |
 | `block_size` (per layer) | `1..=u16::MAX` |
-| `tier_policy` (per layer) | `1 = seed-span records`, `2 = public-preset-selective transform` |
-| `span_step` (per layer) | `1..=u16::MAX` (search step for tier 1; public preset version for tier 2) |
+| `tier_policy` (per layer) | `1 = seed-span records`, `2 = public-preset-selective transform`, `3 = fixed seed-span records` |
+| `span_step` (per layer) | `1..=u16::MAX` (search step for tier 1/3; public preset version for tier 2) |
 
 Layer descriptors are stored outermost to innermost. The payload that follows
 them is the outermost encoded layer. Decoding applies each descriptor in
@@ -180,6 +180,27 @@ headline, the smallest seed-span record (`span_len = 8`, `seed_index = 0`,
 `max_seed_len = 1`) is 22 bits — about 45% smaller than the pre-Wave-B byte-
 tagged framing.
 
+For `tier_policy = 3` the layer is a fixed-span seed-span stream. The descriptor
+sets one span length for every seed-span record, so records omit the per-record
+`span_len - 1` field:
+
+| Field | Meaning |
+| --- | --- |
+| `max_span_len` | fixed span length recovered by the decoder for every seed-span record |
+| `block_size` | same fixed span length for the current experimental encoder |
+| `span_step` | search start step used when collecting candidate spans |
+
+The record layouts are:
+
+| Record | Bit layout | Meaning |
+| --- | --- | --- |
+| fixed seed span | `Lotus J3D2(tag=0) Lotus J3D2(seed_index)` | recover the seed via `index_to_seed`, expand it, and append descriptor `max_span_len` bytes |
+| literal | `Lotus J3D2(tag=1) Lotus J3D2(len - 1) [zero pad to byte boundary] [len raw bytes]` | same literal record as tier policy 1 |
+
+This policy is experimental v2 only. It is emitted by the streaming path when a
+layer has exactly one active span tier and exists to avoid charging the same span
+length in every selected record.
+
 For `tier_policy = 2` the layer payload is a public-preset framed stream that
 decodes directly to the layer's decoded bytes. Descriptor fields are
 reinterpreted:
@@ -189,7 +210,7 @@ reinterpreted:
 | `max_seed_len` | must be `1`; preset seeds are one byte |
 | `max_span_len` | public codeword length; currently `16` bytes |
 | `block_size` | minimum token length selected by the preset; currently `13` |
-| `span_step` | public preset version; currently `4` |
+| `span_step` | public preset version; currently `5` |
 
 The public-preset frame format is a Lotus J3D2 bit-stream. Frame tags are
 encoded as Lotus integers (not raw bytes), matching the unified preset used
@@ -386,6 +407,10 @@ format-native transform currently defined is experimental
 transform to production requires a release checklist update that freezes the
 preset token table, compatibility guarantees, migration rules, and dictionary
 identity.
+
+Public-preset-selective version `5` keeps the earlier schema/log/source-shaped
+tokens append-only and adds a frozen Rust source-family token set trained from
+public rust-src files with the source-family held-outs excluded.
 
 ## Indexed Search Semantics
 

@@ -1,11 +1,11 @@
 {
   "generated_by": "scripts/generate_sidecar_break_even.py",
-  "generated_at": "2026-05-26T15:04:52.915739+00:00",
+  "generated_at": "2026-05-27T00:41:44.097854+00:00",
   "format_version": 1,
   "artifact_hashes": {
     "seed_manifold_residual_steering_sha256": "1cc8feabbb15479f96606e9ef2db1e7a18b9164f8ee1400f5f0411500445cb57",
     "affine_transform_search_sha256": "b0a13f597e786ed2839200438cd6ac416cc83f9d25e0122f8069332013deca15",
-    "format_doc_sha256": "4207afbe822f13f9a1968cfbc99954b19ce47480d199998dcbb6a69c891bd67d"
+    "format_doc_sha256": "9a4fe661e1f7e03e8cb58f1561385b7d04ca7472ffafe1d16d6cc997258a967f"
   },
   "case_manifest_sha256": "017c1ae12de9f358e064c5e2cd3bdc4be62aab4e54b7a01f13397cb6c454489c",
   "formula": {

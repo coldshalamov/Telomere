@@ -1,11 +1,11 @@
 {
   "generated_by": "scripts/generate_heldout_corpus_expansion.py",
-  "generated_at": "2026-05-26T15:10:16.938281+00:00",
+  "generated_at": "2026-05-27T00:51:08.701188+00:00",
   "format_version": 1,
   "artifact_hashes": {
     "corpus_matrix_sha256": "2a9f8506a3c9e6aa47c0e91c1e15bf1951f9af0d0b3cb64129982e06a27e7bd2",
     "transform_validation_sha256": "8d974a69b45738de48a401fb584340cb263fccb6148d96e63a8328799425792b",
-    "packed_sidecar_replication_sha256": "d87bc291881cc900a30e68552986e20ef71c037746d89c3b19c94e3bc1da1f5f"
+    "packed_sidecar_replication_sha256": "1ff2392582205ac897d540cd779147aa886aab82af8af520039ba01ea57f2562"
   },
   "corpus_manifest_sha256": "389f5486e3a299815c168e1692b287e19ee3e6008d8b4ff93e680d57109cabb6",
   "search_manifest_sha256": "2098271fb8cfe8c8645fab12ecaf67bd383c1173428f9c8631aa2db56e51e810",

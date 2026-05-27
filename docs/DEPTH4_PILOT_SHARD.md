@@ -5,7 +5,7 @@ This is one deterministic depth-4 pilot shard, not full depth-4 execution and no
 
 Pilot shards: `1`.
 Enumerated seeds: `16777216`.
-Enumeration time: `97378.276` ms.
+Enumeration time: `73323.708` ms.
 Frontier rows: `26`.
 Target spans: `736265`.
 Rows with depth-4 prefix >=5: `0`.
@@ -53,4 +53,4 @@ Depth-4 pilot shard stayed null at prefix>=6 and exact levels.
 
 | shard | seeds | ms | p5 | p6 | p7 | p8 | exact span keys |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| seed4-prefix-00 | 16777216 | 97378.202 | 0 | 0 | 0 | 0 | 0 |
+| seed4-prefix-00 | 16777216 | 73323.65 | 0 | 0 | 0 | 0 | 0 |

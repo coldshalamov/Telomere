@@ -1,11 +1,11 @@
 {
   "generated_by": "scripts/generate_generalized_packed_sidecar.py",
-  "generated_at": "2026-05-26T15:07:20.455639+00:00",
+  "generated_at": "2026-05-27T00:47:15.039905+00:00",
   "format_version": 1,
   "artifact_hashes": {
-    "packed_sidecar_controls_sha256": "4476107c66574323fcc740a98da67174651c368fef4ab97174eeea94b65198e4",
-    "packed_sidecar_descriptor_sha256": "eec4477c3fbfcacdac17b1fb48b4b9a11c717d6da1aa37fd3ae9c0e02a5d67f2",
-    "residual_payload_compressibility_sha256": "f30f6f2fd5eba6e1310e90d0b554ed78fc9617b8e50f9daa4dc5e754b7cd7358"
+    "packed_sidecar_controls_sha256": "f9a63c2a254d3a2096df7ed983811f930e2f3ba171354111d3ad307e35754c75",
+    "packed_sidecar_descriptor_sha256": "c06e80680bcb3f2d70fef58df5b4f23a0a73b0158f00d7d5dffde472c8a88a67",
+    "residual_payload_compressibility_sha256": "bfca4132d60aba3ba3a42db5f92f6ea17d282bc8f5a7d91b794ca6e50591df12"
   },
   "manifest_sha256": "5d8b61a9882007b30e5e881510931f56b8bdb0ae2514e3f343d800ba79f49123",
   "rows": [

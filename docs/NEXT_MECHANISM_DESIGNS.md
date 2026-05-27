@@ -143,10 +143,10 @@ The next viable research move is not compute; it is to choose and specify one ma
 
 The JSON `source_hashes` map pins this design registry to exact upstream evidence and generator files below.
 - `whitepaper_sha256`: `ff3bfa05be1789537ed7e922452c372b50a548c7119e4230940b63c0a4ed0131`
-- `mechanism_closure_audit_sha256`: `d77bb27c2e0bf2d3eb24faa586e47eaedab722939f5ce2d50fe81fe0aa6e8925`
-- `search_frontier_gate_sha256`: `bd06b160c2dda144c49709449e1607d7332bf0d2b7873177e2e6c06ec3c9d114`
-- `mechanism_experiment_ranking_sha256`: `4d131f0947b07ff66a5f215e0acb5482bc5b9519600f2b02f13c0b3ef7b055fb`
-- `public_preset_control_rerun_sha256`: `430a379cbde2377a787ea5a54ac29277814ede5f6308a95e9084350f72db8da0`
-- `seed_table_fasta_ablation_sha256`: `f971b9e3debba75c0707d87665d2f90f13991d9a127757343af085b8824f5e5b`
+- `mechanism_closure_audit_sha256`: `57f10f74364b136db17e6061f05d3deeba0157cbc5fff7b3b9d8a53f05a1ca90`
+- `search_frontier_gate_sha256`: `bf7d9f68fa90c09292bf3afcef10743749054955f54921a1c1dd4c7abe45322b`
+- `mechanism_experiment_ranking_sha256`: `2ae775a6e1c73086ef636f6a05c1d83f53e58acaf5ae0c5e3bfd7df34edbf946`
+- `public_preset_control_rerun_sha256`: `71f0ecfb44cd711b320b2ac3119afe9f616b1c27004c6872cf0355d0bd9a41be`
+- `seed_table_fasta_ablation_sha256`: `1b93c81f74896c18244af63a83fde5cdb2b894b33f89cd939a75867c2580749d`
 - `next_mechanism_designs_generator_sha256`: `d07b96e11410d217ec52078f894dc2944247d0a5a622f712bc12037121ae8a86`
 - `design_manifest_sha256`: `250b10a9c5f129610e44f51677917b7a400d6ecff5ee796f6a8a5b1f1c6375e4`
