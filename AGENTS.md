@@ -193,6 +193,11 @@ stale generated hashes or run a cascade of Python generators during conceptual
 research unless the user explicitly asked for artifact regeneration or release
 verification.
 
+Do not check in massive low-level generated JSON row matrices as if they were
+source. Keep code, canonical docs, compact evidence summaries, and runtime UI
+inputs in git; treat bulky experiment matrices as reproducible build artifacts
+unless the user explicitly asks to preserve one for audit.
+
 ## Architecture Map
 
 | Module | Purpose |

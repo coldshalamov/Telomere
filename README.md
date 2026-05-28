@@ -406,23 +406,9 @@ cargo fmt --all -- --check
 cargo clippy --all-targets -- -D warnings
 cargo test --all-targets
 cargo check --features gpu --all-targets
-python scripts/generate_evidence_regimen.py --check
-python scripts/generate_research_ledgers.py --check
-python scripts/generate_public_preset_promotion_gate.py --check
-python scripts/generate_public_preset_control_audit.py --check
-python scripts/generate_public_preset_control_ablation.py --check
-python scripts/generate_public_preset_ablation_projection.py --check
-python scripts/generate_public_preset_control_rerun.py --check
-python scripts/generate_lattice_selection_heldout_probe.py --check
-python scripts/generate_natural_corpus_reopen_manifest.py --check
-python scripts/generate_external_corpus_accession.py --check
-python scripts/generate_research_hypotheses.py --check
-python scripts/generate_research_team_packet.py --check
-python scripts/generate_research_agent_prompts.py --check
-python scripts/generate_research_agent_result_intake.py --check
-python scripts/generate_claim_boundary_audit.py --check
 python scripts/doc_lint.py
 ```
 
-The full release gate, including generated artifact `--check` commands and
-Tauri checks, is [docs/RELEASE_CHECKLIST.md](docs/RELEASE_CHECKLIST.md).
+Generated evidence checks are targeted audit tools, not default smoke gates.
+The full release policy, including Tauri checks and on-demand evidence
+regeneration, is [docs/RELEASE_CHECKLIST.md](docs/RELEASE_CHECKLIST.md).

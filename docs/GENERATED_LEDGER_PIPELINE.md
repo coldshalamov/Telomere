@@ -1,5 +1,12 @@
 # Telomere Generated Evidence Pipelines
 
+Large low-level JSON row matrices are build artifacts, not the source of truth
+for the repo. Keep generator scripts, canonical Markdown summaries, and compact
+evidence snapshots in git. The current UI reads
+`docs/research_artifacts_snapshot.json`, not the raw generated ledgers.
+Regenerate bulky matrices on demand when auditing a lane instead of checking
+them in and forcing every future agent to maintain stale hashes.
+
 Telomere now has two generated-artifact pipelines:
 
 - `scripts/generate_evidence_regimen.py` is the full experiment/evidence

@@ -7,6 +7,9 @@ docs/results.generated.*
 docs/benchmarks/*.json
 docs/benchmarks/*.csv
 docs/benchmarks/*.md
+docs/*.json
+!docs/research_artifacts_snapshot.json
+!docs/source_family_cross_validation.json
 benchmark-output/
 bench-output/
 criterion/
