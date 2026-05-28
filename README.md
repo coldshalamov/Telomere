@@ -90,6 +90,9 @@ trusting the index.
 The canonical format reference is [docs/FORMAT.md](docs/FORMAT.md).
 The research operating plan is
 [docs/RESEARCH_PROGRAM.md](docs/RESEARCH_PROGRAM.md).
+The math-first scaling model is [docs/POWER_MODEL.md](docs/POWER_MODEL.md);
+use it before interpreting raw-search nulls, hardware scaling, recursive
+passes, or domain-shaped mechanism claims.
 
 `.tlmr` v1 files begin with the four magic bytes `TLMR` and a single version
 byte. Everything after that is a Lotus bit stream — there is no fixed-width
@@ -249,8 +252,10 @@ memory-heavy, not production-scale proof.
 [docs/UI_WORKFLOW_SMOKE.md](docs/UI_WORKFLOW_SMOKE.md) statically checks that
 the Tauri research-artifact bridge and the UI evidence ledger panel stay aligned.
 Acceleration status is tracked in [docs/ACCELERATION.md](docs/ACCELERATION.md).
-Hit-rate economics are generated in [docs/THEORY.md](docs/THEORY.md), and
-seed-output manifold proximity is tracked in [docs/MANIFOLD.md](docs/MANIFOLD.md).
+Hit-rate economics and scaling direction are generated in
+[docs/POWER_MODEL.md](docs/POWER_MODEL.md); [docs/THEORY.md](docs/THEORY.md)
+is supporting theory context, and seed-output manifold proximity is tracked in
+[docs/MANIFOLD.md](docs/MANIFOLD.md).
 Near-miss exact-hit forecasts are generated in
 [docs/NEARMISS_FORECAST.md](docs/NEARMISS_FORECAST.md). The next-action
 research queue is generated in [docs/EXPERIMENT_QUEUE.md](docs/EXPERIMENT_QUEUE.md).
@@ -379,6 +384,16 @@ Supported:
 - BLAKE3 and SHA-256 seed expansion
 - Lotus arity `1..=5`, including arity `2`
 - literal fallback records
+
+Research proof discipline:
+
+- [docs/POWER_MODEL.md](docs/POWER_MODEL.md) is the math-first power model for
+  raw exact-hit searches, v2 record-cost frontiers, match-table costs, hardware
+  profiles, and multi-pass recurrence. Use it before interpreting any null
+  result or proposing expensive search.
+- `python scripts/telomere_power_model.py --check` verifies the laptop-null
+  expectation, v2 record-cost fixtures, report freshness, compact JSON output,
+  and the powered toy-universe phase transition.
 
 Research-only:
 

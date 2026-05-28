@@ -24,6 +24,7 @@ REQUIRED_FILES = [
     "docs/FORMAT.md",
     "docs/RESEARCH_PROGRAM.md",
     "docs/THEORY.md",
+    "docs/POWER_MODEL.md",
     "docs/RESULTS.md",
     "docs/RELEASE_CHECKLIST.md",
     "docs/PRODUCTION_READINESS_PLAN.md",
@@ -68,6 +69,19 @@ REQUIRED_SNIPPETS = {
         "expected_hits",
         "Minimum Profitable Frontier",
     ],
+    "docs/POWER_MODEL.md": [
+        "expected_hits = seed_count * target_span_count / 2^(8 * span_len)",
+        "Counting Boundary",
+        "Native V2 Record Cost Frontier",
+        "Laptop Null Versus Powered Regime",
+        "Match Table Costs",
+        "Selection, Overlap, Bundling, And Superposition",
+        "Hardware Scaling Model",
+        "Multi-Pass Recurrence",
+        "Public Preset / Transform Separation",
+        "Powered Toy Regime",
+        "Scaling Direction",
+    ],
     "docs/PRODUCTION_READINESS_PLAN.md": [
         "Not Production-Ready Yet",
         "Publishable Research Claim",
@@ -91,6 +105,10 @@ FORBIDDEN_SNIPPETS = {
     "docs/PRODUCTION_READINESS_PLAN.md": [
         "production-ready today",
         "universal compressor",
+    ],
+    "docs/POWER_MODEL.md": [
+        "structured data helps raw hash expansion",
+        "depth/laptop null shows",
     ],
 }
 
@@ -184,11 +202,47 @@ def check_no_ignored_tests() -> None:
             fail(f"{test_file.relative_to(ROOT)} contains #[ignore]")
 
 
+def check_power_model() -> None:
+    try:
+        subprocess.check_output(
+            [sys.executable, "scripts/telomere_power_model.py", "--check"],
+            cwd=ROOT,
+            text=True,
+            stderr=subprocess.STDOUT,
+        )
+    except subprocess.CalledProcessError as exc:
+        fail(f"power model check failed: {exc.output.strip()}")
+
+    try:
+        output = subprocess.check_output(
+            [sys.executable, "scripts/telomere_power_model.py", "--json"],
+            cwd=ROOT,
+            text=True,
+            stderr=subprocess.STDOUT,
+        )
+    except subprocess.CalledProcessError as exc:
+        fail(f"power model JSON failed: {exc.output.strip()}")
+
+    if len(output) > 200_000:
+        fail("power model JSON is too large for a compact source artifact")
+    payload = json.loads(output)
+    for key in [
+        "config",
+        "minimum_profitable_frontier",
+        "span_tiers_at_max_depth",
+        "hardware_rows",
+        "pass_rows",
+    ]:
+        if key not in payload:
+            fail(f"power model JSON missing {key}")
+
+
 def main() -> None:
     texts = check_required_files()
     check_snippets(texts)
     check_direct_docs_json_allowlist()
     check_source_family_artifact()
+    check_power_model()
     check_no_ignored_tests()
 
     if (ROOT / "error.log").exists():

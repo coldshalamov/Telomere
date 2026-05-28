@@ -41,7 +41,7 @@ Rebuttal: small laptop searches found no natural matches.
 
 Answer: expected nulls do not falsify the thesis. A null result is meaningful
 only when the expected profitable-hit model said hits should appear with high
-probability.
+probability. The canonical scaling calculator is `docs/POWER_MODEL.md`.
 
 Rebuttal: metadata overhead will eat the win.
 
@@ -75,20 +75,22 @@ distribution is not research progress.
    snapshots rather than raw ledgers.
 4. Keep generated experiment matrices out of git by default. Store compact
    summaries and exact generator commands instead.
-5. Build a small benchmark suite that reports throughput, memory, metadata
-   cost, expected hits, observed hits, and evidence class for each run.
+5. Build a small benchmark suite that reports the `docs/POWER_MODEL.md` model
+   row/config, throughput, memory, metadata cost, expected hits, observed hits,
+   and evidence class for each run.
 6. Promote any new domain lane only after native `.tlmr` decode, full byte
    accounting, held-out data, same-size random controls, paired shadow controls,
    and an explicit falsifiable hypothesis.
 
 ## Next Proof Obligations
 
+- Keep the layered power model first-class: every future raw-search experiment
+  should include the exact model config, expected-hit math, metadata cost,
+  hardware profile, and allowed conclusion before compute starts.
 - Replicate the native public-preset result outside Rust source, preferably on
   TypeScript, JSON Schema, protocol buffers, or structured logs.
 - Replace the Tauri evidence panel's direct dependency on large generated JSON
   files with a compact research snapshot.
-- Make the expected-hit and byte-accounting model a first-class artifact that
-  every experiment consumes.
 - Define a compatibility line: which `.tlmr` v1/v2 files are promised to decode
   across releases, and what remains experimental.
 - Produce a short paper-style evidence pack: mechanism, math, format,
