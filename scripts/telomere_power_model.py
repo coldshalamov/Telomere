@@ -27,24 +27,39 @@ LOTUS_J_BITS = 3
 LOTUS_TIERS = 2
 V2_RECORD_TAG_SEED_SPAN = 0
 DEFAULT_INPUT_BYTES = 1_000_000
-DEFAULT_SPAN_LENS = (6, 7, 8, 9, 10, 12, 16, 24, 32)
+DEFAULT_BLOCK_SIZE = 8
+DEFAULT_BUNDLE_ORDERS = (1, 2, 3, 4, 5)
+DEFAULT_BLOCK_SIZE_SWEEP = (4, 6, 8, 10, 12, 16, 24, 32)
+DEFAULT_SPAN_LENS = tuple(DEFAULT_BLOCK_SIZE * order for order in DEFAULT_BUNDLE_ORDERS)
 DEFAULT_SEED_DEPTHS = (1, 2, 3, 4, 5, 6)
+DEFAULT_HASH_BITS = 13
+DEFAULT_NEAR_MISS_MARGIN_BITS = 32
+ACTIVE_V2_MAX_SEED_BYTES = 6
+V2_MAX_LITERAL_LEN = 65_535
 
 
 @dataclass(frozen=True)
 class ModelConfig:
     input_bytes: int
+    block_size: int
     span_lens: tuple[int, ...]
+    bundle_orders: tuple[int, ...]
+    block_size_sweep: tuple[int, ...]
     seed_depths: tuple[int, ...]
     seed_limit: int | None
+    tier_policy: str
     span_step: int
     passes: int
     profile: str
+    hash_bits: int
     preset_hit_multiplier: float
     bundle_multiplier: float
     superposition_retention: float
     pass_multiplier_growth: float
     duplicate_factor: float
+    near_miss_margin_bits: int
+    target_delta_bytes: int
+    target_ratio: float
 
 
 @dataclass(frozen=True)
@@ -55,6 +70,7 @@ class HardwareProfile:
     lookup_key_bytes_per_sec: float
     io_bytes_per_sec: float
     target_table_memory_budget_bytes: int
+    hourly_cost_usd: float
     note: str
 
 
@@ -113,6 +129,8 @@ class HardwareRow:
     table_build_seconds: float
     io_seconds: float
     total_seconds: float
+    estimated_cost_usd: float
+    bottleneck: str
 
 
 @dataclass(frozen=True)
@@ -126,10 +144,118 @@ class PassRow:
     saved_bytes: float
     literal_runs_estimate: int
     literal_overhead_bytes: float
+    container_overhead_bytes: float
     payload_bytes: int
+    estimated_file_bytes: int
     rate_of_change: float
     active_multiplier: float
     stop_reason: str
+
+
+@dataclass(frozen=True)
+class BreakEvenRow:
+    span_len: int
+    record_bits: int
+    gain_per_hit: float
+    expected_saved_bytes: float
+    multiplier_for_one_selected_hit: float
+    multiplier_for_target_delta: float
+    multiplier_for_target_ratio: float
+
+
+@dataclass(frozen=True)
+class EconomicsRow:
+    max_seed_len: int
+    total_seconds: float
+    estimated_cost_usd: float
+    expected_saved_bytes_variable: float
+    cost_per_expected_saved_byte: float
+    bytes_per_dollar: float
+
+
+@dataclass(frozen=True)
+class SeedTableRow:
+    max_seed_len: int
+    seed_count: int
+    max_span_len: int
+    raw_prefix_table_bytes: int
+    tiered_index_bytes: int
+    table_read_seconds: float
+    tiered_index_read_seconds: float
+    live_expansion_seconds: float
+
+
+@dataclass(frozen=True)
+class BundleRow:
+    bundle_order: int
+    span_len: int
+    direct_windows: int
+    direct_record_bits: int
+    direct_gain_per_hit: float
+    direct_expected_hits: float
+    direct_expected_saved_bytes: float
+    direct_p_any: float
+    adjacent_group_windows: int
+    adjacent_record_bits: int
+    adjacent_gain_per_group: float
+    adjacent_expected_groups: float
+    adjacent_expected_saved_bytes: float
+
+
+@dataclass(frozen=True)
+class NearMissRow:
+    span_len: int
+    variable_record_bits: int
+    fixed_record_bits: int
+    deficit_bits: int
+    expected_latent_hits: float
+    fixed_span_rescues: bool
+    literal_wrapped_span_len: int
+    expected_wrapped_hits: float
+    wrapped_gain_per_hit: float
+
+
+@dataclass(frozen=True)
+class BlockSizeSweepRow:
+    block_size: int
+    best_bundle_order: int
+    best_span_len: int
+    best_record_bits: int
+    best_gain_per_hit: float
+    best_expected_hits: float
+    best_expected_saved_bytes: float
+    target_table_bytes: int
+    conclusion: str
+
+
+@dataclass(frozen=True)
+class ProfileComparisonRow:
+    profile: str
+    max_seed_len: int
+    total_seconds: float
+    estimated_cost_usd: float
+    table_bytes: int
+    chunks: int
+    seed_expansions: int
+
+
+@dataclass(frozen=True)
+class MultiplierCurveRow:
+    multiplier: float
+    expected_profitable_hits: float
+    selected_hits: float
+    saved_bytes: float
+    payload_bytes: int
+    rate_of_change: float
+    stop_reason: str
+
+
+@dataclass(frozen=True)
+class CoverageItem:
+    mechanism: str
+    modeled_as: str
+    status: str
+    remaining_risk: str
 
 
 @dataclass(frozen=True)
@@ -155,6 +281,7 @@ HARDWARE_PROFILES = {
         lookup_key_bytes_per_sec=2_000_000_000,
         io_bytes_per_sec=500_000_000,
         target_table_memory_budget_bytes=2 * 1024**3,
+        hourly_cost_usd=0.0,
         note="Assumed desktop/laptop CPU profile; use as scale intuition only.",
     ),
     "high-cpu": HardwareProfile(
@@ -164,6 +291,7 @@ HARDWARE_PROFILES = {
         lookup_key_bytes_per_sec=12_000_000_000,
         io_bytes_per_sec=3_000_000_000,
         target_table_memory_budget_bytes=64 * 1024**3,
+        hourly_cost_usd=3.0,
         note="Assumed high-core CPU server profile.",
     ),
     "gpu-io-bound": HardwareProfile(
@@ -173,6 +301,7 @@ HARDWARE_PROFILES = {
         lookup_key_bytes_per_sec=24_000_000_000,
         io_bytes_per_sec=12_000_000_000,
         target_table_memory_budget_bytes=80 * 1024**3,
+        hourly_cost_usd=10.0,
         note="Assumed accelerator profile; modeled as I/O and table-bandwidth sensitive.",
     ),
     "datacenter": HardwareProfile(
@@ -182,6 +311,7 @@ HARDWARE_PROFILES = {
         lookup_key_bytes_per_sec=500_000_000_000,
         io_bytes_per_sec=100_000_000_000,
         target_table_memory_budget_bytes=10 * 1024**4,
+        hourly_cost_usd=1_000.0,
         note="Assumed aggregate fleet profile for scale direction, not a lab measurement.",
     ),
 }
@@ -213,6 +343,18 @@ def fmt_seconds(seconds: float) -> str:
     if seconds < 172_800:
         return f"{seconds / 3600:.2f}h"
     return f"{seconds / 86_400:.2f}d"
+
+
+def fmt_usd(value: float) -> str:
+    if math.isinf(value):
+        return "inf"
+    if value == 0:
+        return "$0"
+    if value < 0.01:
+        return f"${value:.3e}"
+    if value < 10_000:
+        return f"${value:.2f}"
+    return f"${value:.3e}"
 
 
 def parse_int_list(raw: str) -> tuple[int, ...]:
@@ -282,7 +424,18 @@ def target_span_count(input_bytes: int, span_len_bytes: int, span_step: int = 1)
 
 
 def expected_hits(seed_count_value: int, target_span_count_value: int, span_len_bytes: int) -> float:
-    return seed_count_value * target_span_count_value / float(2 ** (8 * span_len_bytes))
+    if seed_count_value <= 0 or target_span_count_value <= 0:
+        return 0.0
+    log2_expected = (
+        math.log2(seed_count_value)
+        + math.log2(target_span_count_value)
+        - 8 * span_len_bytes
+    )
+    if log2_expected < -1074:
+        return 0.0
+    if log2_expected > 1023:
+        return math.inf
+    return 2.0**log2_expected
 
 
 def probability_zero(expected_hit_count: float) -> float:
@@ -339,6 +492,86 @@ def v2_literal_overhead_bits(literal_len: int) -> int:
     bits_before_raw = lotus_encoded_bit_len(1) + lotus_encoded_bit_len(literal_len - 1)
     pad = (8 - (bits_before_raw % 8)) % 8
     return bits_before_raw + pad
+
+
+def v2_literal_run_overhead_bits(literal_len: int) -> int:
+    """Overhead bits for one literal run, including v2's 65,535-byte chunks."""
+
+    if literal_len <= 0:
+        return 0
+    total = 0
+    remaining = literal_len
+    while remaining > 0:
+        take = min(remaining, V2_MAX_LITERAL_LEN)
+        total += v2_literal_overhead_bits(take)
+        remaining -= take
+    return total
+
+
+def v2_header_section_bits(
+    *,
+    layer_count: int,
+    hash_bits: int,
+    original_len: int,
+    outer_payload_bit_len: int,
+    decoded_len: int,
+    max_seed_len: int,
+    max_span_len: int,
+    block_size: int,
+    tier_policy: int,
+    span_step: int,
+) -> int:
+    """Approximate v2 header+descriptor bits using the actual Lotus fields.
+
+    The only value-dependent hashes here are raw `hash_bits` chunks. We assume a
+    small hasher id and seed-order version, matching the current v2 header
+    shape. The 5-byte magic/version prefix is added by
+    `v2_container_overhead_bytes`.
+    """
+
+    header_bits = (
+        lotus_encoded_bit_len(2)  # lotus_preset
+        + lotus_encoded_bit_len(0)  # hasher_id, pessimism here is not useful
+        + lotus_encoded_bit_len(1)  # seed_order_version
+        + lotus_encoded_bit_len(layer_count)
+        + lotus_encoded_bit_len(hash_bits)
+        + lotus_encoded_bit_len(original_len)
+        + lotus_encoded_bit_len(outer_payload_bit_len)
+        + hash_bits
+    )
+    descriptor_bits = layer_count * (
+        lotus_encoded_bit_len(decoded_len)
+        + hash_bits
+        + lotus_encoded_bit_len(max_seed_len)
+        + lotus_encoded_bit_len(max_span_len)
+        + lotus_encoded_bit_len(block_size)
+        + lotus_encoded_bit_len(tier_policy)
+        + lotus_encoded_bit_len(span_step)
+    )
+    return header_bits + descriptor_bits
+
+
+def v2_container_overhead_bytes(
+    config: ModelConfig,
+    *,
+    layer_count: int,
+    payload_bytes: int,
+    decoded_len: int,
+    max_seed_len: int,
+) -> int:
+    header_bits = v2_header_section_bits(
+        layer_count=layer_count,
+        hash_bits=config.hash_bits,
+        original_len=config.input_bytes,
+        outer_payload_bit_len=payload_bytes * 8,
+        decoded_len=decoded_len,
+        max_seed_len=max_seed_len,
+        max_span_len=max(config.span_lens),
+        block_size=config.block_size,
+        tier_policy=1 if config.tier_policy == "variable" else 3,
+        span_step=config.span_step,
+    )
+    return 5 + ceil_div(header_bits, 8)
 
 
 def minimum_profitable_span(max_seed_len: int, fixed_span: bool) -> int:
@@ -532,6 +765,14 @@ def hardware_rows(config: ModelConfig, max_seed_len: int) -> list[HardwareRow]:
         table_build_seconds = table_bytes * chunks / profile.target_table_build_bytes_per_sec
         io_seconds = (config.input_bytes * 2) / profile.io_bytes_per_sec
         total_seconds = expansion_seconds + lookup_seconds + table_build_seconds + io_seconds
+        estimated_cost = total_seconds / 3600 * profile.hourly_cost_usd
+        stages = {
+            "seed expansion": expansion_seconds,
+            "lookup bandwidth": lookup_seconds,
+            "target-table build": table_build_seconds,
+            "raw file I/O": io_seconds,
+        }
+        bottleneck = max(stages, key=stages.get)
         rows.append(
             HardwareRow(
                 max_seed_len=depth,
@@ -546,6 +787,8 @@ def hardware_rows(config: ModelConfig, max_seed_len: int) -> list[HardwareRow]:
                 table_build_seconds=table_build_seconds,
                 io_seconds=io_seconds,
                 total_seconds=total_seconds,
+                estimated_cost_usd=estimated_cost,
+                bottleneck=bottleneck,
             )
         )
     return rows
@@ -561,18 +804,34 @@ def pass_rows(config: ModelConfig, max_seed_len: int) -> list[PassRow]:
             break
         tiers = span_tier_rows(config, max_seed_len, input_bytes=current_bytes, multiplier=active_multiplier)
         expected_raw = sum(row.expected_raw_hits for row in tiers)
-        expected_profitable = sum(row.expected_profitable_hits_variable for row in tiers)
-        selected_hits = sum(row.selected_hits_variable for row in tiers)
-        selected_bytes = sum(row.selected_hits_variable * row.span_len for row in tiers)
-        saved_bytes = sum(row.expected_saved_bytes_variable for row in tiers)
+        if config.tier_policy == "fixed":
+            expected_profitable = sum(row.expected_profitable_hits_fixed for row in tiers)
+            selected_hits = sum(row.selected_hits_fixed for row in tiers)
+            selected_bytes = sum(row.selected_hits_fixed * row.span_len for row in tiers)
+            saved_bytes = sum(row.expected_saved_bytes_fixed for row in tiers)
+        else:
+            expected_profitable = sum(row.expected_profitable_hits_variable for row in tiers)
+            selected_hits = sum(row.selected_hits_variable for row in tiers)
+            selected_bytes = sum(row.selected_hits_variable * row.span_len for row in tiers)
+            saved_bytes = sum(row.expected_saved_bytes_variable for row in tiers)
         literal_bytes = max(current_bytes - selected_bytes, 0.0)
         literal_runs = max(1, math.ceil(selected_hits) + 1)
         mean_literal_run = max(1, math.ceil(literal_bytes / literal_runs))
-        literal_overhead = literal_runs * v2_literal_overhead_bits(mean_literal_run) / 8.0
+        literal_overhead = literal_runs * v2_literal_run_overhead_bits(mean_literal_run) / 8.0
         payload_bytes = max(0, math.ceil(current_bytes - saved_bytes + literal_overhead))
+        container_overhead = v2_container_overhead_bytes(
+            config,
+            layer_count=pass_index,
+            payload_bytes=payload_bytes,
+            decoded_len=current_bytes,
+            max_seed_len=max_seed_len,
+        )
+        estimated_file_bytes = payload_bytes + container_overhead
         rate = (payload_bytes - current_bytes) / current_bytes if current_bytes else 0.0
         if selected_hits <= 0:
             stop_reason = "expected_null"
+        elif payload_bytes >= current_bytes and pass_index == 1:
+            stop_reason = "first_layer_bloat"
         elif payload_bytes >= current_bytes:
             stop_reason = "non_compressive_layer"
         elif pass_index == config.passes:
@@ -590,17 +849,423 @@ def pass_rows(config: ModelConfig, max_seed_len: int) -> list[PassRow]:
                 saved_bytes=saved_bytes,
                 literal_runs_estimate=literal_runs,
                 literal_overhead_bytes=literal_overhead,
+                container_overhead_bytes=container_overhead,
                 payload_bytes=payload_bytes,
+                estimated_file_bytes=estimated_file_bytes,
                 rate_of_change=rate,
                 active_multiplier=active_multiplier,
                 stop_reason=stop_reason,
             )
         )
-        if stop_reason in {"expected_null", "non_compressive_layer"}:
+        if stop_reason in {"expected_null", "first_layer_bloat", "non_compressive_layer"}:
             stopped = True
         current_bytes = payload_bytes
         active_multiplier *= config.pass_multiplier_growth
     return rows
+
+
+def safe_multiplier(target: float, baseline: float) -> float:
+    if target <= 0:
+        return 0.0
+    if baseline <= 0:
+        return math.inf
+    return target / baseline
+
+
+def break_even_rows(config: ModelConfig, max_seed_len: int) -> list[BreakEvenRow]:
+    target_ratio_delta = config.input_bytes * config.target_ratio
+    rows: list[BreakEvenRow] = []
+    for row in span_tier_rows(config, max_seed_len):
+        if config.tier_policy == "fixed":
+            record_bits = row.record_bits_fixed
+            saved = row.expected_saved_bytes_fixed
+            baseline_selected = row.selected_hits_fixed
+        else:
+            record_bits = row.record_bits_variable
+            saved = row.expected_saved_bytes_variable
+            baseline_selected = row.selected_hits_variable
+        gain_per_hit = max((row.span_len * 8 - record_bits) / 8.0, 0.0)
+        rows.append(
+            BreakEvenRow(
+                span_len=row.span_len,
+                record_bits=record_bits,
+                gain_per_hit=gain_per_hit,
+                expected_saved_bytes=saved,
+                multiplier_for_one_selected_hit=safe_multiplier(1.0, baseline_selected),
+                multiplier_for_target_delta=safe_multiplier(
+                    config.target_delta_bytes,
+                    saved,
+                ),
+                multiplier_for_target_ratio=safe_multiplier(
+                    target_ratio_delta,
+                    saved,
+                ),
+            )
+        )
+    return rows
+
+
+def bundle_rows(config: ModelConfig, max_seed_len: int) -> list[BundleRow]:
+    """Model direct k-block spans and adjacent k single-block hits separately."""
+
+    seeds = seed_count(max_seed_len, config.seed_limit)
+    base_span = config.block_size
+    base_windows = target_span_count(config.input_bytes, base_span, config.span_step)
+    base_expected = expected_hits(seeds, base_windows, base_span) * config.preset_hit_multiplier
+    base_p_per_window = 0.0 if base_windows == 0 else min(base_expected / base_windows, 1.0)
+    base_record_bits = (
+        v2_fixed_seed_span_record_bits(max_seed_len, config.seed_limit)
+        if config.tier_policy == "fixed"
+        else v2_seed_span_record_bits(base_span, max_seed_len, config.seed_limit)
+    )
+
+    rows: list[BundleRow] = []
+    for order in config.bundle_orders:
+        span_len = config.block_size * order
+        windows = target_span_count(config.input_bytes, span_len, config.span_step)
+        group_windows = target_span_count(config.input_bytes, span_len, config.block_size)
+        direct_record_bits = (
+            v2_fixed_seed_span_record_bits(max_seed_len, config.seed_limit)
+            if config.tier_policy == "fixed"
+            else v2_seed_span_record_bits(span_len, max_seed_len, config.seed_limit)
+        )
+        direct_hits = (
+            expected_hits(seeds, windows, span_len)
+            * config.preset_hit_multiplier
+            * config.bundle_multiplier
+        )
+        direct_gain = (span_len * 8 - direct_record_bits) / 8.0
+        direct_saved = direct_hits * max(direct_gain, 0.0)
+
+        adjacent_record_bits = base_record_bits * order
+        adjacent_gain = (span_len * 8 - adjacent_record_bits) / 8.0
+        adjacent_groups = group_windows * (base_p_per_window**order)
+        adjacent_saved = adjacent_groups * max(adjacent_gain, 0.0)
+        rows.append(
+            BundleRow(
+                bundle_order=order,
+                span_len=span_len,
+                direct_windows=windows,
+                direct_record_bits=direct_record_bits,
+                direct_gain_per_hit=direct_gain,
+                direct_expected_hits=direct_hits,
+                direct_expected_saved_bytes=direct_saved,
+                direct_p_any=probability_at_least_one(direct_hits),
+                adjacent_group_windows=group_windows,
+                adjacent_record_bits=adjacent_record_bits,
+                adjacent_gain_per_group=adjacent_gain,
+                adjacent_expected_groups=adjacent_groups,
+                adjacent_expected_saved_bytes=adjacent_saved,
+            )
+        )
+    return rows
+
+
+def near_miss_rows(config: ModelConfig, max_seed_len: int) -> list[NearMissRow]:
+    seeds = seed_count(max_seed_len, config.seed_limit)
+    rows: list[NearMissRow] = []
+    for span_len in config.span_lens:
+        variable_bits = v2_seed_span_record_bits(span_len, max_seed_len, config.seed_limit)
+        fixed_bits = v2_fixed_seed_span_record_bits(max_seed_len, config.seed_limit)
+        deficit = variable_bits - span_len * 8
+        if deficit < 0 or deficit > config.near_miss_margin_bits:
+            continue
+
+        windows = target_span_count(config.input_bytes, span_len, config.span_step)
+        latent_hits = expected_hits(seeds, windows, span_len) * config.preset_hit_multiplier
+        literal_bits = span_len * 8 + v2_literal_overhead_bits(span_len)
+        wrapped_span_len = ceil_div(literal_bits, 8)
+        wrapped_windows = target_span_count(config.input_bytes, wrapped_span_len, config.span_step)
+        wrapped_hits = (
+            expected_hits(seeds, wrapped_windows, wrapped_span_len)
+            * config.preset_hit_multiplier
+            * config.pass_multiplier_growth
+        )
+        wrapped_record_bits = v2_seed_span_record_bits(
+            wrapped_span_len,
+            max_seed_len,
+            config.seed_limit,
+        )
+        wrapped_gain = (wrapped_span_len * 8 - wrapped_record_bits) / 8.0
+        rows.append(
+            NearMissRow(
+                span_len=span_len,
+                variable_record_bits=variable_bits,
+                fixed_record_bits=fixed_bits,
+                deficit_bits=deficit,
+                expected_latent_hits=latent_hits,
+                fixed_span_rescues=fixed_bits < span_len * 8,
+                literal_wrapped_span_len=wrapped_span_len,
+                expected_wrapped_hits=wrapped_hits,
+                wrapped_gain_per_hit=wrapped_gain,
+            )
+        )
+    return rows
+
+
+def block_size_sweep_rows(config: ModelConfig, max_seed_len: int) -> list[BlockSizeSweepRow]:
+    rows: list[BlockSizeSweepRow] = []
+    seeds = seed_count(max_seed_len, config.seed_limit)
+    for block_size in config.block_size_sweep:
+        best: BlockSizeSweepRow | None = None
+        for order in config.bundle_orders:
+            span_len = block_size * order
+            windows = target_span_count(config.input_bytes, span_len, config.span_step)
+            _, table_bytes = target_table_bytes(windows, span_len, config.duplicate_factor)
+            record_bits = (
+                v2_fixed_seed_span_record_bits(max_seed_len, config.seed_limit)
+                if config.tier_policy == "fixed"
+                else v2_seed_span_record_bits(span_len, max_seed_len, config.seed_limit)
+            )
+            expected = (
+                expected_hits(seeds, windows, span_len)
+                * config.preset_hit_multiplier
+                * config.bundle_multiplier
+            )
+            gain = (span_len * 8 - record_bits) / 8.0
+            saved = expected * max(gain, 0.0)
+            if gain <= 0:
+                conclusion = "too much metadata"
+            elif expected < 0.1:
+                conclusion = "profitable but too rare at this scale"
+            elif saved <= 0:
+                conclusion = "no expected payload gain"
+            else:
+                conclusion = "raw-positive before fragmentation"
+            candidate = BlockSizeSweepRow(
+                block_size=block_size,
+                best_bundle_order=order,
+                best_span_len=span_len,
+                best_record_bits=record_bits,
+                best_gain_per_hit=gain,
+                best_expected_hits=expected,
+                best_expected_saved_bytes=saved,
+                target_table_bytes=table_bytes,
+                conclusion=conclusion,
+            )
+            if best is None or candidate.best_expected_saved_bytes > best.best_expected_saved_bytes:
+                best = candidate
+            elif best is not None and best.best_expected_saved_bytes == 0:
+                # If no row saves bytes, prefer the row closest to profitability.
+                if candidate.best_gain_per_hit > best.best_gain_per_hit:
+                    best = candidate
+        if best is not None:
+            rows.append(best)
+    return rows
+
+
+def economics_rows(config: ModelConfig, max_seed_len: int) -> list[EconomicsRow]:
+    rows: list[EconomicsRow] = []
+    for hardware in hardware_rows(config, max_seed_len):
+        tiers = span_tier_rows(config, hardware.max_seed_len)
+        if config.tier_policy == "fixed":
+            saved = sum(row.expected_saved_bytes_fixed for row in tiers)
+        else:
+            saved = sum(row.expected_saved_bytes_variable for row in tiers)
+        cost_per_byte = math.inf if saved <= 0 else hardware.estimated_cost_usd / saved
+        bytes_per_dollar = math.inf if hardware.estimated_cost_usd <= 0 else saved / hardware.estimated_cost_usd
+        rows.append(
+            EconomicsRow(
+                max_seed_len=hardware.max_seed_len,
+                total_seconds=hardware.total_seconds,
+                estimated_cost_usd=hardware.estimated_cost_usd,
+                expected_saved_bytes_variable=saved,
+                cost_per_expected_saved_byte=cost_per_byte,
+                bytes_per_dollar=bytes_per_dollar,
+            )
+        )
+    return rows
+
+
+def seed_table_rows(config: ModelConfig, max_seed_len: int) -> list[SeedTableRow]:
+    profile = HARDWARE_PROFILES[config.profile]
+    max_span_len = max(config.span_lens)
+    rows: list[SeedTableRow] = []
+    for depth in config.seed_depths:
+        if depth > max_seed_len:
+            continue
+        seeds = seed_count(depth, config.seed_limit)
+        table_bytes = seeds * max_span_len
+        tiered_index_bytes = sum(
+            min(seeds, 2 ** (8 * span_len)) * (span_len + 1 + depth)
+            for span_len in config.span_lens
+        )
+        rows.append(
+            SeedTableRow(
+                max_seed_len=depth,
+                seed_count=seeds,
+                max_span_len=max_span_len,
+                raw_prefix_table_bytes=table_bytes,
+                tiered_index_bytes=tiered_index_bytes,
+                table_read_seconds=table_bytes / profile.io_bytes_per_sec,
+                tiered_index_read_seconds=tiered_index_bytes / profile.io_bytes_per_sec,
+                live_expansion_seconds=seeds / profile.seed_expansions_per_sec,
+            )
+        )
+    return rows
+
+
+def profile_comparison_rows(config: ModelConfig, max_seed_len: int) -> list[ProfileComparisonRow]:
+    rows: list[ProfileComparisonRow] = []
+    for profile_name in HARDWARE_PROFILES:
+        profile_config = ModelConfig(
+            input_bytes=config.input_bytes,
+            block_size=config.block_size,
+            span_lens=config.span_lens,
+            bundle_orders=config.bundle_orders,
+            block_size_sweep=config.block_size_sweep,
+            seed_depths=(max_seed_len,),
+            seed_limit=config.seed_limit,
+            tier_policy=config.tier_policy,
+            span_step=config.span_step,
+            passes=config.passes,
+            profile=profile_name,
+            hash_bits=config.hash_bits,
+            preset_hit_multiplier=config.preset_hit_multiplier,
+            bundle_multiplier=config.bundle_multiplier,
+            superposition_retention=config.superposition_retention,
+            pass_multiplier_growth=config.pass_multiplier_growth,
+            duplicate_factor=config.duplicate_factor,
+            near_miss_margin_bits=config.near_miss_margin_bits,
+            target_delta_bytes=config.target_delta_bytes,
+            target_ratio=config.target_ratio,
+        )
+        hardware = hardware_rows(profile_config, max_seed_len)[0]
+        rows.append(
+            ProfileComparisonRow(
+                profile=profile_name,
+                max_seed_len=max_seed_len,
+                total_seconds=hardware.total_seconds,
+                estimated_cost_usd=hardware.estimated_cost_usd,
+                table_bytes=hardware.table_bytes,
+                chunks=hardware.chunks,
+                seed_expansions=hardware.seed_expansions,
+            )
+        )
+    return rows
+
+
+def multiplier_curve_rows(config: ModelConfig, max_seed_len: int) -> list[MultiplierCurveRow]:
+    rows: list[MultiplierCurveRow] = []
+    for multiplier in (1.0, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9):
+        curve_config = ModelConfig(
+            input_bytes=config.input_bytes,
+            block_size=config.block_size,
+            span_lens=config.span_lens,
+            bundle_orders=config.bundle_orders,
+            block_size_sweep=config.block_size_sweep,
+            seed_depths=config.seed_depths,
+            seed_limit=config.seed_limit,
+            tier_policy=config.tier_policy,
+            span_step=config.span_step,
+            passes=1,
+            profile=config.profile,
+            hash_bits=config.hash_bits,
+            preset_hit_multiplier=multiplier,
+            bundle_multiplier=config.bundle_multiplier,
+            superposition_retention=config.superposition_retention,
+            pass_multiplier_growth=config.pass_multiplier_growth,
+            duplicate_factor=config.duplicate_factor,
+            near_miss_margin_bits=config.near_miss_margin_bits,
+            target_delta_bytes=config.target_delta_bytes,
+            target_ratio=config.target_ratio,
+        )
+        first_pass = pass_rows(curve_config, max_seed_len)[0]
+        rows.append(
+            MultiplierCurveRow(
+                multiplier=multiplier,
+                expected_profitable_hits=first_pass.expected_profitable_hits,
+                selected_hits=first_pass.selected_hits,
+                saved_bytes=first_pass.saved_bytes,
+                payload_bytes=first_pass.payload_bytes,
+                rate_of_change=first_pass.rate_of_change,
+                stop_reason=first_pass.stop_reason,
+            )
+        )
+    return rows
+
+
+def algorithm_coverage_items() -> list[CoverageItem]:
+    return [
+        CoverageItem(
+            "seed space",
+            "canonical cumulative seed count, optional seed limit, max-depth frontier",
+            "modeled",
+            "does not yet split expected hits by seed length within a partial bucket",
+        ),
+        CoverageItem(
+            "exact-match predicate",
+            "seed_count * target_windows / 2^(8 * span_len)",
+            "modeled",
+            "assumes structure-blind expansion unless a multiplier is explicit",
+        ),
+        CoverageItem(
+            "v2 record cost",
+            "Lotus(tag) + Lotus(span_len - 1) + Lotus(seed_index), plus fixed-span variant",
+            "modeled with golden checks",
+            "header/container descriptor overhead is still approximate in pass recurrence",
+        ),
+        CoverageItem(
+            "match table",
+            "target_windows, unique_spans, key bytes, start-position bytes, chunk count",
+            "modeled",
+            "hash-map node overhead and cache locality need measured calibration",
+        ),
+        CoverageItem(
+            "block size and bundles",
+            "block_size, k-block direct seed spans, adjacent one-block hit groups",
+            "modeled as probability events",
+            "adjacent-hit independence is an approximation until fitted against telemetry",
+        ),
+        CoverageItem(
+            "selection and overlap",
+            "sparse/dense interval-overlap approximation",
+            "approximate",
+            "weighted interval scheduling should be fitted against telemetry",
+        ),
+        CoverageItem(
+            "near-profitable carryover",
+            "latent raw hits, fixed-span rescue, wrapped-literal next-pass hit probability",
+            "modeled as bounded hypothesis",
+            "does not assume later passes get free credit for an earlier unselected match",
+        ),
+        CoverageItem(
+            "literal fallback",
+            "literal overhead estimate and payload recurrence",
+            "approximate",
+            "fragmentation/padding depends on exact selected-span layout",
+        ),
+        CoverageItem(
+            "v2 container overhead",
+            "magic/version plus Lotus header and layer descriptors",
+            "modeled approximately",
+            "exact output still comes from the Rust encoder for publication claims",
+        ),
+        CoverageItem(
+            "recursive passes",
+            "payload recurrence plus explicit pass-to-pass multiplier",
+            "modeled as hypothesis",
+            "the actual reason hit density changes between passes is still the main research unknown",
+        ),
+        CoverageItem(
+            "public presets and transforms",
+            "explicit hit-density multipliers separated from raw search",
+            "modeled as hypothesis",
+            "multipliers must be earned by held-out native .tlmr controls",
+        ),
+        CoverageItem(
+            "decode economics",
+            "decode expands selected seeds only; search cost is compression-side",
+            "modeled in prose",
+            "needs a measured decode-throughput fixture for publication economics",
+        ),
+        CoverageItem(
+            "precomputed seed tables",
+            "table bytes and table-read time versus live expansion time",
+            "modeled",
+            "real design may store compressed/sorted prefixes rather than raw prefixes",
+        ),
+    ]
 
 
 def toy_probability_rows() -> list[dict[str, float | int]]:
@@ -642,13 +1307,13 @@ def toy_empirical_success(seed_count_value: int, target_span_count_value: int, u
 
 def proof_scenarios() -> list[Scenario]:
     laptop_depth3 = scenario(
-        name="laptop-depth3-one-million-span8",
+        name="laptop-max-seed-bytes3-one-million-span8",
         seed_count_value=seed_count(3),
         target_span_count_value=1_000_000,
         span_len_bytes=8,
     )
     depth6_one_million = scenario(
-        name="depth6-one-million-span8",
+        name="max-seed-bytes6-one-million-span8",
         seed_count_value=seed_count(6),
         target_span_count_value=1_000_000,
         span_len_bytes=8,
@@ -659,17 +1324,25 @@ def proof_scenarios() -> list[Scenario]:
 def default_config() -> ModelConfig:
     return ModelConfig(
         input_bytes=DEFAULT_INPUT_BYTES,
+        block_size=DEFAULT_BLOCK_SIZE,
         span_lens=DEFAULT_SPAN_LENS,
+        bundle_orders=DEFAULT_BUNDLE_ORDERS,
+        block_size_sweep=DEFAULT_BLOCK_SIZE_SWEEP,
         seed_depths=DEFAULT_SEED_DEPTHS,
         seed_limit=None,
+        tier_policy="variable",
         span_step=1,
         passes=4,
         profile="laptop-cpu",
+        hash_bits=DEFAULT_HASH_BITS,
         preset_hit_multiplier=1.0,
         bundle_multiplier=1.0,
         superposition_retention=1.0,
         pass_multiplier_growth=1.0,
         duplicate_factor=1.0,
+        near_miss_margin_bits=DEFAULT_NEAR_MISS_MARGIN_BITS,
+        target_delta_bytes=1024,
+        target_ratio=0.01,
     )
 
 
@@ -681,8 +1354,21 @@ def model_payload(config: ModelConfig) -> dict[str, Any]:
         "proof_scenarios": [asdict(item) for item in proof_scenarios()],
         "minimum_profitable_frontier": [asdict(row) for row in minimum_profitable_frontier()],
         "span_tiers_at_max_depth": [asdict(row) for row in span_tier_rows(config, max_depth)],
+        "block_size_sweep_rows": [asdict(row) for row in block_size_sweep_rows(config, max_depth)],
+        "bundle_rows": [asdict(row) for row in bundle_rows(config, max_depth)],
+        "near_miss_rows": [asdict(row) for row in near_miss_rows(config, max_depth)],
         "hardware_rows": [asdict(row) for row in hardware_rows(config, max_depth)],
         "pass_rows": [asdict(row) for row in pass_rows(config, max_depth)],
+        "break_even_rows": [asdict(row) for row in break_even_rows(config, max_depth)],
+        "economics_rows": [asdict(row) for row in economics_rows(config, max_depth)],
+        "seed_table_rows": [asdict(row) for row in seed_table_rows(config, max_depth)],
+        "profile_comparison_rows": [
+            asdict(row) for row in profile_comparison_rows(config, max_depth)
+        ],
+        "multiplier_curve_rows": [
+            asdict(row) for row in multiplier_curve_rows(config, max_depth)
+        ],
+        "algorithm_coverage": [asdict(item) for item in algorithm_coverage_items()],
         "toy_probability_rows": toy_probability_rows(),
     }
 
@@ -733,12 +1419,12 @@ def render_span_tier_table(rows: list[SpanTierRow]) -> list[str]:
 
 def render_hardware_table(rows: list[HardwareRow]) -> list[str]:
     lines = [
-        "| seed depth | seeds | table MiB | chunks | seed expansions | lookups | expansion | lookup | total |",
-        "| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+        "| max seed bytes | seeds | table MiB | chunks | seed expansions | lookups | expansion | lookup | build | raw I/O | total | bottleneck | est. cost |",
+        "| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: |",
     ]
     for row in rows:
         lines.append(
-            "| {depth} | {seeds} | {table:.2f} | {chunks} | {expansions} | {lookups} | {exp_time} | {lookup_time} | {total} |".format(
+            "| {depth} | {seeds} | {table:.2f} | {chunks} | {expansions} | {lookups} | {exp_time} | {lookup_time} | {build_time} | {io_time} | {total} | {bottleneck} | {cost} |".format(
                 depth=row.max_seed_len,
                 seeds=fmt_int(row.seed_count),
                 table=row.table_bytes / 1024**2,
@@ -747,7 +1433,11 @@ def render_hardware_table(rows: list[HardwareRow]) -> list[str]:
                 lookups=fmt_int(row.lookup_count),
                 exp_time=fmt_seconds(row.expansion_seconds),
                 lookup_time=fmt_seconds(row.lookup_seconds),
+                build_time=fmt_seconds(row.table_build_seconds),
+                io_time=fmt_seconds(row.io_seconds),
                 total=fmt_seconds(row.total_seconds),
+                bottleneck=row.bottleneck,
+                cost=fmt_usd(row.estimated_cost_usd),
             )
         )
     return lines
@@ -755,12 +1445,12 @@ def render_hardware_table(rows: list[HardwareRow]) -> list[str]:
 
 def render_pass_table(rows: list[PassRow]) -> list[str]:
     lines = [
-        "| pass | input bytes | E raw | E profitable | E selected | saved bytes | literal overhead | payload bytes | rate | stop reason |",
-        "| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |",
+        "| pass | input bytes | E raw | E profitable | E selected | saved bytes | literal overhead | payload bytes | container overhead | est. file bytes | rate | stop reason |",
+        "| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |",
     ]
     for row in rows:
         lines.append(
-            "| {pass_index} | {input_bytes} | {raw} | {profitable} | {selected} | {saved} | {overhead} | {payload} | {rate:.5f} | {stop} |".format(
+            "| {pass_index} | {input_bytes} | {raw} | {profitable} | {selected} | {saved} | {overhead} | {payload} | {container} | {file_bytes} | {rate:.5f} | {stop} |".format(
                 pass_index=row.pass_index,
                 input_bytes=fmt_int(row.input_bytes),
                 raw=fmt_float(row.expected_raw_hits),
@@ -769,9 +1459,191 @@ def render_pass_table(rows: list[PassRow]) -> list[str]:
                 saved=fmt_float(row.saved_bytes),
                 overhead=fmt_float(row.literal_overhead_bytes),
                 payload=fmt_int(row.payload_bytes),
+                container=fmt_float(row.container_overhead_bytes),
+                file_bytes=fmt_int(row.estimated_file_bytes),
                 rate=row.rate_of_change,
                 stop=row.stop_reason,
             )
+        )
+    return lines
+
+
+def render_break_even_table(rows: list[BreakEvenRow]) -> list[str]:
+    lines = [
+        "| span bytes | record bits | gain / hit | raw expected saved bytes | multiplier for 1 selected hit | multiplier for target delta | multiplier for target ratio |",
+        "| ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+    ]
+    for row in rows:
+        lines.append(
+            "| {span} | {bits} | {gain} | {saved} | {one_hit} | {delta} | {ratio} |".format(
+                span=row.span_len,
+                bits=row.record_bits,
+                gain=fmt_float(row.gain_per_hit),
+                saved=fmt_float(row.expected_saved_bytes),
+                one_hit=fmt_float(row.multiplier_for_one_selected_hit),
+                delta=fmt_float(row.multiplier_for_target_delta),
+                ratio=fmt_float(row.multiplier_for_target_ratio),
+            )
+        )
+    return lines
+
+
+def render_bundle_table(rows: list[BundleRow]) -> list[str]:
+    lines = [
+        "| blocks | span bytes | direct record bits | direct gain/hit | E direct hits | E direct saved | p(any direct) | E adjacent one-block groups | adjacent gain/group | E adjacent saved |",
+        "| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+    ]
+    for row in rows:
+        lines.append(
+            "| {order} | {span} | {bits} | {gain} | {hits} | {saved} | {pany} | {groups} | {adj_gain} | {adj_saved} |".format(
+                order=row.bundle_order,
+                span=row.span_len,
+                bits=row.direct_record_bits,
+                gain=fmt_float(row.direct_gain_per_hit),
+                hits=fmt_float(row.direct_expected_hits),
+                saved=fmt_float(row.direct_expected_saved_bytes),
+                pany=fmt_float(row.direct_p_any),
+                groups=fmt_float(row.adjacent_expected_groups),
+                adj_gain=fmt_float(row.adjacent_gain_per_group),
+                adj_saved=fmt_float(row.adjacent_expected_saved_bytes),
+            )
+        )
+    return lines
+
+
+def render_block_size_sweep(rows: list[BlockSizeSweepRow]) -> list[str]:
+    lines = [
+        "| block bytes | best bundle | span bytes | record bits | gain/hit | E hits | E saved bytes | table MiB | conclusion |",
+        "| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- |",
+    ]
+    for row in rows:
+        lines.append(
+            "| {block} | {order} | {span} | {bits} | {gain} | {hits} | {saved} | {table:.2f} | {conclusion} |".format(
+                block=row.block_size,
+                order=row.best_bundle_order,
+                span=row.best_span_len,
+                bits=row.best_record_bits,
+                gain=fmt_float(row.best_gain_per_hit),
+                hits=fmt_float(row.best_expected_hits),
+                saved=fmt_float(row.best_expected_saved_bytes),
+                table=row.target_table_bytes / 1024**2,
+                conclusion=row.conclusion,
+            )
+        )
+    return lines
+
+
+def render_near_miss_table(rows: list[NearMissRow]) -> list[str]:
+    lines = [
+        "| span bytes | variable bits | deficit bits | E latent raw hits | fixed-span rescues? | literal-wrapped span | E wrapped hits next pass | wrapped gain/hit |",
+        "| ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: |",
+    ]
+    if not rows:
+        lines.append("| _none within margin_ |  |  |  |  |  |  |  |")
+        return lines
+    for row in rows:
+        lines.append(
+            "| {span} | {vbits} | {deficit} | {latent} | {fixed} | {wrapped_span} | {wrapped_hits} | {wrapped_gain} |".format(
+                span=row.span_len,
+                vbits=row.variable_record_bits,
+                deficit=row.deficit_bits,
+                latent=fmt_float(row.expected_latent_hits),
+                fixed="yes" if row.fixed_span_rescues else "no",
+                wrapped_span=row.literal_wrapped_span_len,
+                wrapped_hits=fmt_float(row.expected_wrapped_hits),
+                wrapped_gain=fmt_float(row.wrapped_gain_per_hit),
+            )
+        )
+    return lines
+
+
+def render_economics_table(rows: list[EconomicsRow]) -> list[str]:
+    lines = [
+        "| max seed bytes | total time | est. cost | raw expected saved bytes | cost / expected saved byte | bytes / dollar |",
+        "| ---: | ---: | ---: | ---: | ---: | ---: |",
+    ]
+    for row in rows:
+        lines.append(
+            "| {depth} | {time} | {cost} | {saved} | {cpb} | {bpd} |".format(
+                depth=row.max_seed_len,
+                time=fmt_seconds(row.total_seconds),
+                cost=fmt_usd(row.estimated_cost_usd),
+                saved=fmt_float(row.expected_saved_bytes_variable),
+                cpb=fmt_usd(row.cost_per_expected_saved_byte),
+                bpd=fmt_float(row.bytes_per_dollar),
+            )
+        )
+    return lines
+
+
+def render_seed_table_strategy(rows: list[SeedTableRow]) -> list[str]:
+    lines = [
+        "| max seed bytes | seeds | raw max-prefix table | current tiered index estimate | raw table read | tiered index read | live expansion |",
+        "| ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
+    ]
+    for row in rows:
+        lines.append(
+            "| {depth} | {seeds} | {tb:.3f} TiB | {tiered:.3f} TiB | {read} | {tiered_read} | {live} |".format(
+                depth=row.max_seed_len,
+                seeds=fmt_int(row.seed_count),
+                tb=row.raw_prefix_table_bytes / 1024**4,
+                tiered=row.tiered_index_bytes / 1024**4,
+                read=fmt_seconds(row.table_read_seconds),
+                tiered_read=fmt_seconds(row.tiered_index_read_seconds),
+                live=fmt_seconds(row.live_expansion_seconds),
+            )
+        )
+    return lines
+
+
+def render_profile_comparison(rows: list[ProfileComparisonRow]) -> list[str]:
+    lines = [
+        "| profile | max seed bytes | table MiB | chunks | seed expansions | total time | est. cost |",
+        "| --- | ---: | ---: | ---: | ---: | ---: | ---: |",
+    ]
+    for row in rows:
+        lines.append(
+            "| {profile} | {depth} | {table:.2f} | {chunks} | {expansions} | {time} | {cost} |".format(
+                profile=row.profile,
+                depth=row.max_seed_len,
+                table=row.table_bytes / 1024**2,
+                chunks=row.chunks,
+                expansions=fmt_int(row.seed_expansions),
+                time=fmt_seconds(row.total_seconds),
+                cost=fmt_usd(row.estimated_cost_usd),
+            )
+        )
+    return lines
+
+
+def render_multiplier_curve(rows: list[MultiplierCurveRow]) -> list[str]:
+    lines = [
+        "| multiplier | E profitable | E selected | saved bytes | payload bytes | rate | stop reason |",
+        "| ---: | ---: | ---: | ---: | ---: | ---: | --- |",
+    ]
+    for row in rows:
+        lines.append(
+            "| {multiplier} | {profitable} | {selected} | {saved} | {payload} | {rate:.5f} | {stop} |".format(
+                multiplier=fmt_float(row.multiplier),
+                profitable=fmt_float(row.expected_profitable_hits),
+                selected=fmt_float(row.selected_hits),
+                saved=fmt_float(row.saved_bytes),
+                payload=fmt_int(row.payload_bytes),
+                rate=row.rate_of_change,
+                stop=row.stop_reason,
+            )
+        )
+    return lines
+
+
+def render_coverage_table(rows: list[CoverageItem]) -> list[str]:
+    lines = [
+        "| mechanism | modeled as | status | remaining risk |",
+        "| --- | --- | --- | --- |",
+    ]
+    for row in rows:
+        lines.append(
+            f"| {row.mechanism} | {row.modeled_as} | {row.status} | {row.remaining_risk} |"
         )
     return lines
 
@@ -783,17 +1655,42 @@ def render_markdown(config: ModelConfig | None = None) -> str:
     high_success_seeds = seed_count_for_success_probability(0.95, 1_000_000, 8)
     frontier = minimum_profitable_frontier()
     tiers = span_tier_rows(config, max_depth)
+    block_sweep = block_size_sweep_rows(config, max_depth)
+    bundles = bundle_rows(config, max_depth)
+    near_misses = near_miss_rows(config, max_depth)
     hardware = hardware_rows(config, max_depth)
     passes = pass_rows(config, max_depth)
+    break_even = break_even_rows(config, max_depth)
+    economics = economics_rows(config, max_depth)
+    seed_tables = seed_table_rows(config, max_depth)
+    profile_curve = profile_comparison_rows(config, max_depth)
+    multiplier_curve = multiplier_curve_rows(config, max_depth)
+    coverage = algorithm_coverage_items()
     profile = HARDWARE_PROFILES[config.profile]
+    seed8_record_bits_at_8 = v2_seed_span_record_bits(8, 8)
+    seed8_expected_span12 = expected_hits(
+        seed_count(8),
+        target_span_count(config.input_bytes, 12, config.span_step),
+        12,
+    )
+    seed8_expected_span16 = expected_hits(
+        seed_count(8),
+        target_span_count(config.input_bytes, 16, config.span_step),
+        16,
+    )
+    seed8_tiered_index_bytes = sum(
+        min(seed_count(8), 2 ** (8 * span_len)) * (span_len + 1 + 8)
+        for span_len in config.span_lens
+    )
 
     lines = [
         "# Telomere Power Model",
         "",
-        "This is the first-principles notebook-style model agents must use before",
-        "interpreting a raw search. It is a deterministic calculator for whether a",
-        "search was powered, what a null result means, what the metadata frontier is,",
-        "and which scaling direction is worth paying for.",
+            "This is the first-principles notebook-style model agents must use before",
+            "interpreting a raw search. It is a deterministic calculator for whether a",
+            "search was powered, what a null result means, what the metadata frontier is,",
+            "which scaling direction is worth paying for, and what a mechanism must",
+            "improve before the thesis becomes investable.",
         "",
         "It performs no broad seed search over real corpora. Small empirical checks in",
         "`--check` are toy powered universes whose probability law is known before",
@@ -826,8 +1723,40 @@ def render_markdown(config: ModelConfig | None = None) -> str:
         "",
         "The claim is conditional: when a target span is in the image of the public",
         "deterministic seed universe and the record cost is below the span cost,",
-        "Telomere can store the shorter seed record and decode exactly. Literal",
-        "fallback handles everything else.",
+            "Telomere can store the shorter seed record and decode exactly. Literal",
+            "fallback handles everything else.",
+            "",
+        "This proves the shape of the problem rather than the market claim: raw",
+        "random-like search alone only buys expected savings when exact hits are both",
+        "dense enough and metadata-profitable. A world-changing result requires a",
+        "mechanism that raises profitable exact-hit density while keeping decode cheap.",
+        "",
+        "## Seed Bytes, Not Magic Depth",
+        "",
+        "`max seed bytes = 6` means searching every seed address that is 1, 2, 3,",
+        "4, 5, or 6 bytes long. It is not a magic research conclusion; it is just",
+        "the current active v2 implementation limit.",
+        "",
+        f"The Rust v2 format currently accepts `max_seed_len` in `1..={ACTIVE_V2_MAX_SEED_BYTES}`.",
+        "The model can do conceptual math beyond that, but 7- or 8-byte full-seed",
+        "searches require implementation changes because the active v2 code and seed",
+        "indexing are not built to commit those searches as native `.tlmr` files.",
+        "",
+        "For the default 1 MB file, configured span tiers, and laptop profile, the search",
+        "time curve is:",
+        "",
+        *render_hardware_table(hardware),
+        "",
+        "So no: this laptop is not realistically going to search every seed through",
+        "6 bytes for a serious run. The model uses 6 bytes because that is the",
+        "current implementation ceiling, not because 6 is the expected winning",
+        "crossover point.",
+        "",
+        "Eight-byte seeds are exactly the kind of axis the model should expose. In",
+        "the conceptual frontier table below, 8-byte seeds require a larger record",
+        "and push the minimum variable-span frontier to 12 bytes. Whether that is",
+        "the right crossover depends on hardware, table strategy, payload-aware",
+        "selection, and the mechanism that raises exact-hit density.",
         "",
         "## Native V2 Record Cost Frontier",
         "",
@@ -864,7 +1793,7 @@ def render_markdown(config: ModelConfig | None = None) -> str:
     lines.extend(
         [
             "",
-            "For one million 8-byte target spans, depth 3 gives about `9.13e-7`",
+            "For one million 8-byte target spans, max seed bytes 3 gives about `9.13e-7`",
             "expected hits and `0.999999087` probability of zero. A null result there",
             "is exactly what the math predicts.",
             "",
@@ -872,15 +1801,23 @@ def render_markdown(config: ModelConfig | None = None) -> str:
             "",
             f"- 50% chance of at least one raw hit needs about `{half_success_seeds}` seeds.",
             f"- 95% chance of at least one raw hit needs about `{high_success_seeds}` seeds.",
-            "- Those are partial depth-6-scale searches, not laptop depth-3 searches.",
+            "- Those are partial max-seed-bytes-6-scale searches, not laptop max-seed-bytes-3 searches.",
             "",
             "## Span, Match-Table, And Replacement Sweep",
             "",
+            "The model treats the block size as a tunable search grid, not as gospel.",
+            f"Here `block_size = {config.block_size}` bytes and bundle orders are",
+            f"`{','.join(str(order) for order in config.bundle_orders)}`. A 3-block",
+            f"bundle therefore means one direct `{config.block_size * 3}`-byte seed-span",
+            "candidate, not a vague claim about ordinary file structure.",
+            "",
             "### Match Table Costs",
             "",
-            f"Default report config: input bytes `{config.input_bytes}`, span step",
-            f"`{config.span_step}`, seed depths `{','.join(str(v) for v in config.seed_depths)}`,",
+            f"Default report config: input bytes `{config.input_bytes}`, block size",
+            f"`{config.block_size}`, span step",
+            f"`{config.span_step}`, max seed byte settings `{','.join(str(v) for v in config.seed_depths)}`,",
             f"seed limit `{config.seed_limit if config.seed_limit is not None else 'full depth'}`,",
+            f"tier policy `{config.tier_policy}`,",
             f"max modeled depth `{max_depth}`, multiplier",
             f"`{config.preset_hit_multiplier * config.bundle_multiplier:g}`.",
             "",
@@ -890,6 +1827,15 @@ def render_markdown(config: ModelConfig | None = None) -> str:
             "`p(any distinct hit)` uses deduplicated target strings, because repeated",
             "copies do not make the first exact byte string easier to find. Repetition",
             "matters after a hit because it can multiply replacement opportunities.",
+            "",
+            "### Block-Size Sweep",
+            "",
+            "This sweep asks: if the base block size changed, and we still allowed",
+            "`k`-block direct spans, which row has the best raw expected saved bytes",
+            "before literal fragmentation? It is a tuning map, not proof that the row",
+            "will win in the actual encoder.",
+            "",
+            *render_block_size_sweep(block_sweep),
             "",
             "### Selection, Overlap, Bundling, And Superposition",
             "",
@@ -903,7 +1849,50 @@ def render_markdown(config: ModelConfig | None = None) -> str:
             "parameter that matters: sparse hits survive almost unchanged; dense hits",
             "start competing for the same bytes and need weighted selection.",
             "",
-            "## Hardware Scaling Model",
+            "A direct bundle and a run of adjacent one-block hits are different events.",
+            "A direct bundle asks one seed to reproduce all `k * block_size` bytes.",
+            "Adjacent one-block hits ask for `k` separate seed records next to each",
+            "other. The first amortizes metadata better but is exponentially rarer; the",
+            "second can be more common but pays metadata repeatedly.",
+            "",
+            *render_bundle_table(bundles),
+            "",
+            "### Near-Profitable Carryover",
+            "",
+            "A raw match that loses by a few Lotus bits is not automatically useful on a",
+            "later pass. If it is left literal, the next pass sees the encoded literal",
+            "record bytes, not a free pointer to the earlier raw match. The useful cases",
+            "are explicit: fixed-span metadata can rescue a variable-span near miss, or",
+            "a later pass must find a new exact match against the wrapped bytes.",
+            "",
+            *render_near_miss_table(near_misses),
+            "",
+            "### Break-Even Multipliers",
+            "",
+            f"Target delta `{config.target_delta_bytes}` bytes; target ratio",
+            f"`{config.target_ratio:g}` of input (`{fmt_float(config.input_bytes * config.target_ratio)}` bytes).",
+            "These multipliers are not evidence. They are the required lift over the raw",
+            "baseline for a mechanism lane to become worth testing at this scale.",
+            "",
+            *render_break_even_table(break_even),
+            "",
+            "If a row needs an enormous multiplier, the useful research question is not",
+            "\"can a laptop get lucky?\" It is whether a public preset, transform, seed",
+            "table, grammar channel, or other deterministic mechanism can honestly create",
+            "that much more profitable exact-hit density under held-out controls.",
+            "This table is pre-fragmentation; the next curve includes literal-record",
+            "overhead and is the harder payload test.",
+            "",
+            "### Mechanism Density Curve",
+            "",
+            "This curve asks the implementation question directly: if some explicit",
+            "mechanism raises profitable exact-hit density by `M`, what happens to the",
+            "first payload? The curve does not prove the mechanism exists. It tells us",
+            "how strong the mechanism must be before the rest of the system matters.",
+            "",
+            *render_multiplier_curve(multiplier_curve),
+            "",
+        "## Hardware Scaling Model",
             "",
             f"Profile `{profile.name}` is an explicit assumption: {profile.note}",
             "The streaming path expands each seed once per target chunk and checks the",
@@ -916,6 +1905,37 @@ def render_markdown(config: ModelConfig | None = None) -> str:
             "construction, lookup bandwidth, chunk count, and I/O decide whether faster",
             "expansion actually helps.",
             "",
+            "### Hardware Investment Curve",
+            "",
+            "For the same modeled search, hardware changes elapsed time and dollars but",
+            "not the probability law. A datacenter can make a powered run feasible; it",
+            "does not make an unprofitable distribution profitable.",
+            "",
+            *render_profile_comparison(profile_curve),
+            "",
+            "### Compute Economics",
+            "",
+            "The raw baseline economics are intentionally harsh. If expected saved bytes",
+            "are near zero, cheaper hardware does not fix the research problem; it only",
+            "reduces the cost of measuring a null. Use this table to decide when a",
+            "mechanism has enough density to deserve acceleration work.",
+            "",
+            *render_economics_table(economics),
+            "",
+            "### Precomputed Seed Table Strategy",
+            "",
+            "A huge seed table trades live expansion for I/O. That can be good only when",
+            "the table layout, prefix tiering, and storage bandwidth beat recomputing",
+            "seed expansions. The table below shows both a naive max-prefix table and",
+            "the current tiered index shape (`span bytes + seed length + padded seed`",
+            "per tier record). Both get large fast:",
+            "",
+            *render_seed_table_strategy(seed_tables),
+            "",
+            "This is why the current live-search path is not irrational: reading a giant",
+            "table can be slower than regenerating compact deterministic prefixes unless",
+            "the table is carefully tiered, cached, and queried with high locality.",
+            "",
             "## Multi-Pass Recurrence",
             "",
             "Recursive passes are modeled as a recurrence over the previous layer payload:",
@@ -924,12 +1944,26 @@ def render_markdown(config: ModelConfig | None = None) -> str:
             "next_payload ~= input_bytes - selected_savings + literal_record_overhead",
             "```",
             "",
+            "The recurrence intentionally separates layer payload bytes from final file",
+            "bytes. The next compression pass sees the previous layer payload, while the",
+            "published `.tlmr` file also pays the v2 magic/header/layer descriptor bytes",
+            "shown as container overhead in the table.",
+            "",
             "A later pass only matters if an earlier pass changes the byte landscape",
             "enough to create more profitable exact spans. The model exposes that as",
             "`--pass-multiplier-growth`; the default is `1.0`, meaning no magic extra",
             "density appears just because another pass exists.",
             "",
+            "The current v2 encoder accepts the first layer as the file payload even",
+            "when it bloats; the research question is whether any later layer should be",
+            "allowed because the first layer created a denser exact-hit landscape.",
+            "",
             *render_pass_table(passes),
+            "",
+            "Decode is fundamentally different from compression. Decode does not search",
+            "seed space; it reads selected records, expands those selected seeds once,",
+            "copies literals, and verifies lengths/hashes. That asymmetry is the core",
+            "compute-compression bargain: expensive encode can buy cheap exact decode.",
             "",
             "## Public Preset / Transform Separation",
             "",
@@ -951,6 +1985,14 @@ def render_markdown(config: ModelConfig | None = None) -> str:
             "- claiming ordinary structure helps raw cryptographic expansion",
             "- treating a multiplier sweep as empirical evidence",
             "- treating transform-only byte reduction as Telomere seed-span compression",
+            "",
+            "## Algorithm Coverage Audit",
+            "",
+            "The model is now expected to cover every major moving part at least as an",
+            "explicit approximation. Anything marked approximate is a future calibration",
+            "or proof obligation, not a place for hand-waving.",
+            "",
+            *render_coverage_table(coverage),
             "",
             "## Powered Toy Regime",
             "",
@@ -976,11 +2018,57 @@ def render_markdown(config: ModelConfig | None = None) -> str:
             "then the toy experiment checks the law in a regime where the experiment is",
             "actually powered.",
             "",
+            "## Current Model Answers",
+            "",
+            "Under the current v2 raw-search assumptions, the answer is not \"just run",
+            "the same naive search deeper\". Deeper search increases exact hits, but it",
+            "also increases the seed-index record cost. That creates the crossover:",
+            "short spans are more likely but can be too expensive to encode; longer",
+            "spans can save bytes but become exponentially rarer.",
+            "",
+            f"With max seed bytes 8, an 8-byte variable seed-span record costs `{seed8_record_bits_at_8}` bits,",
+            "so abundant 8-byte exact hits are still not useful by themselves because",
+            "they cost more than the 64 raw bits they replace.",
+            f"A 12-byte span becomes locally profitable, but the raw expectation for a 1 MB file is only `{fmt_float(seed8_expected_span12)}` hits.",
+            f"A 16-byte span has more gain per hit, but the raw expectation drops to `{fmt_float(seed8_expected_span16)}` hits.",
+            "",
+            f"The current tiered precomputed-index shape for max seed bytes 8 and these tiers is about `{seed8_tiered_index_bytes / 1024**4:.3e}` TiB.",
+            "That is why the model treats custom hardware and seed tables as design",
+            "questions, not as automatic answers. A table has to beat live expansion and",
+            "lookup bandwidth, not merely exist.",
+            "",
+            "The current viability read is therefore conditional:",
+            "",
+            "- naive raw search alone is not yet a commercial compression plan",
+            "- payload-aware selection is required before isolated short wins are useful",
+            "- fixed-span or descriptor-amortized records are important because metadata is the frontier",
+            "- any multi-pass claim needs a real reason hit density changes between passes",
+            "- the strongest path is a mechanism that raises exact-hit density while preserving cheap decode",
+            "",
+            "## Implementation Direction",
+            "",
+            "The current model says the winning implementation is not merely \"search",
+            "more seeds.\" It has to make selected replacements payload-profitable after",
+            "literal fragmentation, descriptor cost, and container accounting.",
+            "",
+            "Therefore the strongest implementation directions are:",
+            "",
+            "- literal-fragmentation-aware selection, not just per-record bit profitability",
+            "- bundled or contiguous replacements that amortize literal run overhead",
+            "- fixed-span or descriptor-amortized modes that move the record-cost frontier",
+            "- public deterministic mechanisms that raise exact-hit density under controls",
+            "- precomputed seed tables only when layout and bandwidth beat live expansion",
+            "- hardware acceleration only after the mechanism curve is in a profitable region",
+            "",
+            "The weakest direction is isolated short-span hits that save a few bits each.",
+            "They can be individually profitable and still lose after they split literals.",
+            "",
             "## Scaling Direction",
             "",
             "Scale toward:",
             "",
             "- reducing record bits, especially fixed-span and descriptor-amortized modes",
+            "- mechanisms that raise exact-hit density by the break-even multipliers above",
             "- increasing target windows only when match-table memory and chunk rescans are affordable",
             "- measuring CPU/GPU semantic parity on small powered controls before acceleration work",
             "- domain-shaped public mechanisms only when they are frozen, versioned, held-out, and decode-accounted",
@@ -1019,14 +2107,25 @@ def check() -> None:
     required = [
         "expected_hits = seed_count * target_span_count / 2^(8 * span_len)",
         "Counting Boundary",
+        "Seed Bytes, Not Magic Depth",
         "Native V2 Record Cost Frontier",
         "Span, Match-Table, And Replacement Sweep",
         "Match Table Costs",
+        "Block-Size Sweep",
         "Selection, Overlap, Bundling, And Superposition",
+        "Near-Profitable Carryover",
+        "Break-Even Multipliers",
+        "Mechanism Density Curve",
         "Hardware Scaling Model",
+        "Hardware Investment Curve",
+        "Compute Economics",
+        "Precomputed Seed Table Strategy",
         "Multi-Pass Recurrence",
         "Public Preset / Transform Separation",
+        "Algorithm Coverage Audit",
         "Powered Toy Regime",
+        "Current Model Answers",
+        "Implementation Direction",
         "Scaling Direction",
     ]
     missing = [snippet for snippet in required if snippet not in doc]
@@ -1049,6 +2148,19 @@ def check() -> None:
         raise SystemExit("v2 fixed-span savings fixture changed")
     if v2_fixed_seed_span_record_bits_for_seed_index(0) != 12:
         raise SystemExit("v2 fixed seed0 record bits changed")
+    if v2_literal_run_overhead_bits(1_000_000) != 632:
+        raise SystemExit("v2 large literal chunk overhead changed")
+
+    if not break_even_rows(default_config(), 6):
+        raise SystemExit("break-even rows missing")
+    if not block_size_sweep_rows(default_config(), 6):
+        raise SystemExit("block-size sweep rows missing")
+    if not bundle_rows(default_config(), 6):
+        raise SystemExit("bundle rows missing")
+    if not near_miss_rows(default_config(), 6):
+        raise SystemExit("near-miss rows missing")
+    if "precomputed seed tables" not in {item.mechanism for item in algorithm_coverage_items()}:
+        raise SystemExit("algorithm coverage is missing seed-table strategy")
 
     laptop = proof_scenarios()[0]
     assert_close("laptop null expected hits", laptop.expected_hits, 9.130612932395366e-7, 1e-12)
@@ -1076,17 +2188,25 @@ def check() -> None:
 
     powered_config = ModelConfig(
         input_bytes=1_000_000,
+        block_size=8,
         span_lens=(8,),
+        bundle_orders=(1,),
+        block_size_sweep=DEFAULT_BLOCK_SIZE_SWEEP,
         seed_depths=(6,),
         seed_limit=None,
+        tier_policy="variable",
         span_step=1,
         passes=2,
         profile="laptop-cpu",
+        hash_bits=DEFAULT_HASH_BITS,
         preset_hit_multiplier=1.0,
         bundle_multiplier=1.0,
         superposition_retention=1.0,
         pass_multiplier_growth=1.0,
         duplicate_factor=1.0,
+        near_miss_margin_bits=DEFAULT_NEAR_MISS_MARGIN_BITS,
+        target_delta_bytes=1024,
+        target_ratio=0.01,
     )
     powered = pass_rows(powered_config, 6)[0]
     if powered.expected_raw_hits < 15:
@@ -1094,19 +2214,35 @@ def check() -> None:
 
 
 def build_config(args: argparse.Namespace) -> ModelConfig:
+    seed_limit = args.seed_limit
+    if args.seed_bits is not None:
+        seed_limit = 1 << args.seed_bits
+    span_lens = (
+        args.span_lens
+        if args.span_lens is not None
+        else tuple(args.block_size * order for order in args.bundle_orders)
+    )
     return ModelConfig(
         input_bytes=args.input_bytes,
-        span_lens=args.span_lens,
+        block_size=args.block_size,
+        span_lens=span_lens,
+        bundle_orders=args.bundle_orders,
+        block_size_sweep=args.block_size_sweep,
         seed_depths=args.seed_depths,
-        seed_limit=args.seed_limit,
+        seed_limit=seed_limit,
+        tier_policy=args.tier_policy,
         span_step=args.span_step,
         passes=args.passes,
         profile=args.profile,
+        hash_bits=args.hash_bits,
         preset_hit_multiplier=args.preset_hit_multiplier,
         bundle_multiplier=args.bundle_multiplier,
         superposition_retention=args.superposition_retention,
         pass_multiplier_growth=args.pass_multiplier_growth,
         duplicate_factor=args.duplicate_factor,
+        near_miss_margin_bits=args.near_miss_margin_bits,
+        target_delta_bytes=args.target_delta_bytes,
+        target_ratio=args.target_ratio,
     )
 
 
@@ -1116,21 +2252,45 @@ def main() -> None:
     parser.add_argument("--check", action="store_true", help="check the model and docs")
     parser.add_argument("--json", action="store_true", help="print compact model data as JSON")
     parser.add_argument("--input-bytes", type=int, default=DEFAULT_INPUT_BYTES)
-    parser.add_argument("--span-lens", type=parse_int_list, default=DEFAULT_SPAN_LENS)
-    parser.add_argument("--seed-depths", type=parse_int_list, default=DEFAULT_SEED_DEPTHS)
+    parser.add_argument("--block-size", type=int, default=DEFAULT_BLOCK_SIZE)
+    parser.add_argument("--span-lens", type=parse_int_list, default=None)
+    parser.add_argument("--bundle-orders", type=parse_int_list, default=DEFAULT_BUNDLE_ORDERS)
+    parser.add_argument("--block-size-sweep", type=parse_int_list, default=DEFAULT_BLOCK_SIZE_SWEEP)
+    parser.add_argument(
+        "--seed-depths",
+        "--max-seed-bytes",
+        dest="seed_depths",
+        type=parse_int_list,
+        default=DEFAULT_SEED_DEPTHS,
+        help="comma-separated max seed byte settings; N means all seeds of length 1..N",
+    )
     parser.add_argument("--seed-limit", type=int, default=None)
+    parser.add_argument("--seed-bits", type=int, default=None)
+    parser.add_argument("--tier-policy", choices=("variable", "fixed"), default="variable")
     parser.add_argument("--span-step", type=int, default=1)
     parser.add_argument("--passes", type=int, default=4)
     parser.add_argument("--profile", choices=sorted(HARDWARE_PROFILES), default="laptop-cpu")
+    parser.add_argument("--hash-bits", type=int, default=DEFAULT_HASH_BITS)
     parser.add_argument("--preset-hit-multiplier", type=float, default=1.0)
     parser.add_argument("--bundle-multiplier", type=float, default=1.0)
     parser.add_argument("--superposition-retention", type=float, default=1.0)
     parser.add_argument("--pass-multiplier-growth", type=float, default=1.0)
     parser.add_argument("--duplicate-factor", type=float, default=1.0)
+    parser.add_argument("--near-miss-margin-bits", type=int, default=DEFAULT_NEAR_MISS_MARGIN_BITS)
+    parser.add_argument("--target-delta-bytes", type=int, default=1024)
+    parser.add_argument("--target-ratio", type=float, default=0.01)
     args = parser.parse_args()
 
     if args.input_bytes <= 0:
         raise SystemExit("--input-bytes must be positive")
+    if args.block_size <= 0:
+        raise SystemExit("--block-size must be positive")
+    if args.span_lens is not None and any(span <= 0 for span in args.span_lens):
+        raise SystemExit("--span-lens must contain positive integers")
+    if any(order <= 0 for order in args.bundle_orders):
+        raise SystemExit("--bundle-orders must contain positive integers")
+    if any(block <= 0 for block in args.block_size_sweep):
+        raise SystemExit("--block-size-sweep must contain positive integers")
     if args.span_step <= 0:
         raise SystemExit("--span-step must be positive")
     if args.passes <= 0:
@@ -1139,6 +2299,12 @@ def main() -> None:
         raise SystemExit("--seed-depths must be positive")
     if args.seed_limit is not None and args.seed_limit <= 0:
         raise SystemExit("--seed-limit must be positive when provided")
+    if args.seed_bits is not None and args.seed_bits <= 0:
+        raise SystemExit("--seed-bits must be positive when provided")
+    if args.seed_bits is not None and args.seed_limit is not None:
+        raise SystemExit("--seed-bits and --seed-limit are alternate ways to set the same budget")
+    if not 1 <= args.hash_bits <= 64:
+        raise SystemExit("--hash-bits must be in 1..=64")
     if args.preset_hit_multiplier <= 0 or args.bundle_multiplier <= 0:
         raise SystemExit("multipliers must be positive")
     if args.superposition_retention <= 0 or args.superposition_retention > 1:
@@ -1147,6 +2313,12 @@ def main() -> None:
         raise SystemExit("--pass-multiplier-growth must be positive")
     if args.duplicate_factor < 1:
         raise SystemExit("--duplicate-factor must be >= 1")
+    if args.near_miss_margin_bits < 0:
+        raise SystemExit("--near-miss-margin-bits must be >= 0")
+    if args.target_delta_bytes <= 0:
+        raise SystemExit("--target-delta-bytes must be positive")
+    if args.target_ratio <= 0:
+        raise SystemExit("--target-ratio must be positive")
 
     config = build_config(args)
     if args.write_doc:

@@ -81,12 +81,19 @@ distribution is not research progress.
 6. Promote any new domain lane only after native `.tlmr` decode, full byte
    accounting, held-out data, same-size random controls, paired shadow controls,
    and an explicit falsifiable hypothesis.
+7. Replace per-record-only profitability decisions with payload-aware selection
+   that accounts for literal fragmentation, descriptor cost, and container delta.
 
 ## Next Proof Obligations
 
 - Keep the layered power model first-class: every future raw-search experiment
   should include the exact model config, expected-hit math, metadata cost,
   hardware profile, and allowed conclusion before compute starts.
+- Prove a payload-aware selector: selected spans must improve full layer payload
+  accounting, not only beat their replaced spans in isolation.
+- Fit block-size, direct-bundle, adjacent-hit, and near-profitable-carryover
+  model rows against controlled telemetry before treating multi-pass gains as
+  evidence rather than a hypothesis.
 - Replicate the native public-preset result outside Rust source, preferably on
   TypeScript, JSON Schema, protocol buffers, or structured logs.
 - Replace the Tauri evidence panel's direct dependency on large generated JSON
