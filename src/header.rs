@@ -129,7 +129,7 @@ fn encode_arity_codeword(
             "invalid v1 arity (must be 1-5 or 0xFF)".into(),
         ))?,
     }
-    Ok(arity_codeword_bit_len(arity)?)
+    arity_codeword_bit_len(arity)
 }
 
 fn decode_arity_codeword(reader: &mut LotusBitReader<'_>) -> Result<usize, TelomereError> {

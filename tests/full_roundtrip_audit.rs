@@ -33,7 +33,7 @@ fn assert_canonical_v1_roundtrip(name: &str, data: &[u8], cfg: &Config) {
         "{name}: file length must match header + payload_bit_len"
     );
 
-    if payload_bit_len % 8 != 0 && !payload.is_empty() {
+    if !payload_bit_len.is_multiple_of(8) && !payload.is_empty() {
         let unused = 8 - (payload_bit_len % 8);
         let mask = (1u8 << unused) - 1;
         assert_eq!(
