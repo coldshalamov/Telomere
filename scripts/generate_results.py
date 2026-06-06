@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate docs/results.json and docs/RESULTS.md from real CLI runs."""
+"""Generate target/generated-docs/results.json and docs/RESULTS.md from real CLI runs."""
 
 from __future__ import annotations
 
@@ -19,6 +19,7 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 DOCS = ROOT / "docs"
+RESULTS_JSON = ROOT / "target" / "generated-docs" / "results.json"
 
 
 CASE_MATRIX: list[dict[str, Any]] = [
@@ -61,8 +62,8 @@ CASE_MATRIX: list[dict[str, Any]] = [
         "seed_depth": 1,
         "passes": 1,
         "max_span_len": 4,
-        "expected": "bloat",
-        "note": "`streaming-planted-span4-control` plants arity-1 generated 4-byte spans; v2 seed-span records are 5 bytes, so these hits are intentionally not emitted.",
+        "expected": "negative",
+        "note": "`streaming-planted-span4-control` plants arity-1 generated 4-byte spans; corrected v2 fixed-span records are emitted when their compact encoding beats literals.",
     },
     {
         "name": "indexed-planted-span8",
@@ -173,8 +174,8 @@ CASE_MATRIX: list[dict[str, Any]] = [
         "seed_depth": 1,
         "passes": 2,
         "max_span_len": 8,
-        "expected": "negative",
-        "note": "`streaming-recursive-offset-pass2` uses the same off-grid planted corpus as the alignment control; pass 1 emits a literal layer, then pass 2 compresses the shifted literal payload.",
+        "expected": "bloat",
+        "note": "`streaming-recursive-offset-pass2` uses the same off-grid planted corpus as the alignment control; the current streaming path stops after a non-compressive first layer.",
     },
     {
         "name": "streaming-structured-json-control",
@@ -474,7 +475,8 @@ def write_results(
         "environment": environment,
         "results": results,
     }
-    (DOCS / "results.json").write_text(json.dumps(payload, indent=2) + "\n")
+    RESULTS_JSON.parent.mkdir(parents=True, exist_ok=True)
+    RESULTS_JSON.write_text(json.dumps(payload, indent=2) + "\n")
 
     lines = [
         "# Telomere Results",
@@ -512,7 +514,7 @@ def write_results(
 
 
 def check_results() -> None:
-    results_path = DOCS / "results.json"
+    results_path = RESULTS_JSON
     results_md = DOCS / "RESULTS.md"
     if not results_path.exists() or not results_md.exists():
         raise SystemExit("generated result files are missing")
