@@ -43,9 +43,9 @@ fn hex_table(bytes: &[u8]) -> String {
 
 #[test]
 fn v1_record_arity1_seed0_golden() {
-    // Smallest possible compressed v1 record: arity=1 (J1D1 value=0, 3 bits)
-    // + seed_index=0 (J3D2 value=0, 6 bits) = 9 bits. Packed MSB-first to
-    // a byte boundary by `pack_bits`, the trailing 7 bits are zero pad.
+    // Smallest possible compressed v1 record: arity=1 ("00", 2 bits)
+    // + seed_index=0 (J3D1 value=0, 5 bits) = 7 bits. Packed MSB-first to
+    // a byte boundary by `pack_bits`, the trailing bit is zero pad.
     let bits = encode_lotus_header(1, 0).unwrap();
     let bytes = pack_bits(&bits);
     println!(
@@ -53,19 +53,19 @@ fn v1_record_arity1_seed0_golden() {
         bits.len(),
         hex_table(&bytes)
     );
-    assert_eq!(bits.len(), 9, "arity=1 seed_index=0 should be 9 bits total");
-    assert_eq!(bytes.len(), 2, "9 bits pack into 2 bytes");
+    assert_eq!(bits.len(), 7, "arity=1 seed_index=0 should be 7 bits total");
+    assert_eq!(bytes.len(), 1, "7 bits pack into 1 byte");
     assert_eq!(
         bytes,
-        vec![0x63, 0x80],
+        vec![0x06],
         "pinned wire bytes for arity=1 seed_index=0"
     );
 }
 
 #[test]
 fn v1_record_literal_marker_golden() {
-    // Literal escape: arity=0xFF maps to Lotus value=5 (J1D1's largest code
-    // point, 6 bits). The packed byte has two trailing zero pad bits.
+    // Literal escape: arity=0xFF maps to the canonical 111 codeword. The
+    // packed byte has five trailing zero pad bits.
     let bits = encode_lotus_header(0xFF, 0).unwrap();
     let bytes = pack_bits(&bits);
     println!(
@@ -73,9 +73,9 @@ fn v1_record_literal_marker_golden() {
         bits.len(),
         hex_table(&bytes)
     );
-    assert_eq!(bits.len(), 6, "literal marker is 6 bits in J1D1");
+    assert_eq!(bits.len(), 3, "literal marker is 3 bits");
     assert_eq!(bytes.len(), 1);
-    assert_eq!(bytes, vec![0xa0], "pinned wire bytes for literal marker");
+    assert_eq!(bytes, vec![0xe0], "pinned wire bytes for literal marker");
 }
 
 // ---------------------------------------------------------------------------

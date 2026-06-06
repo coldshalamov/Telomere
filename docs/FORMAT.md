@@ -1,6 +1,8 @@
 # Telomere `.tlmr` Format
 
-This file is the source of truth for `.tlmr` versions 1 and 2.
+`docs/FORMAT_CANONICAL.md` is the source of truth for `.tlmr` v1. This file is
+an implementation reference for `.tlmr` versions 1 and 2 and must agree with
+the canonical spec where v1 is described.
 
 ## Status
 
@@ -35,8 +37,8 @@ File layout:
     [hash_bits raw bits of output_hash]
     [zero pad to byte boundary]
   payload_bit_len bits of records, each:
-    Lotus J1D1(arity_value)         # 0..=4 = arities 1..=5, value 5 = literal
-    if not literal: Lotus J3D2(seed_index)
+    canonical arity codeword       # 00,01,100,101,110,111
+    if not literal: Lotus J3D1(seed_index)
     if literal: [zero pad to byte boundary] [block_size raw bytes]
   [<=7 trailing zero pad bits to byte-align EOF]
 ```
@@ -68,30 +70,27 @@ in `src/tlmr.rs` carries the current value.) `lotus_preset` is `2`.
 
 ## V1 record encoding
 
-Every record begins with a Lotus J1D1 arity value. J1D1 admits exactly six
-codepoints (`0..=5`), so the arity discriminator and the literal escape share
-the same field rather than being two separate flags:
+Every record begins with the canonical prefix-free arity codeword:
 
-| Arity value | Encoded value | Meaning |
-| ---: | ---: | --- |
-| arity 1 | `0` | one block |
-| arity 2 | `1` | two blocks |
-| arity 3 | `2` | three blocks |
-| arity 4 | `3` | four blocks |
-| arity 5 | `4` | five blocks |
-| literal | `5` | literal marker |
+| Meaning | Codeword | Bits |
+| --- | :---: | ---: |
+| arity 1 | `00` | 2 |
+| arity 2 | `01` | 2 |
+| arity 3 | `100` | 3 |
+| arity 4 | `101` | 3 |
+| arity 5 | `110` | 3 |
+| literal | `111` | 3 |
 
-J1D1 (jumpstarter bits = 1, tiers = 1) is the smallest Lotus preset that
-admits six values. In J1D1 the first three codepoints take 3 bits and the last
-three take 5 bits; the literal marker (value `5`) takes 6 bits because it sits
-in the largest tier.
+The first bit selects the arity-field width. Selector `0` is followed by a
+1-bit field for arities 1 and 2; selector `1` is followed by a 2-bit field for
+arities 3, 4, 5, and the literal escape.
 
-Compressed records (arity 1..=5) follow the arity value with a Lotus
-J3D2-encoded seed index. The index identifies a canonical seed under the
+Compressed records (arity 1..=5) follow the arity codeword with a Lotus
+J3D1-encoded seed index. The index identifies a canonical seed under the
 file's `max_seed_len` enumeration order; `src/seed_index.rs` provides the
 `index_to_seed` bijection used by the decoder. Small indices encode in fewer
-bits — a record with arity 1 and seed index 0 is 9 bits total (3 arity bits +
-6 seed-index bits).
+bits — a record with arity 1 and seed index 0 is 7 bits total (2 arity bits +
+5 seed-index bits).
 
 Literal records carry no Lotus seed-index payload. After the literal marker
 the encoder zero-pads to the next byte boundary so the raw block bytes that
@@ -233,16 +232,17 @@ Decoders must reject unknown codewords and codeword collisions.
 
 ## Encoding presets
 
-Telomere uses two Lotus presets:
+Telomere uses these encoding presets:
 
 - **J3D2** (`LOTUS_J_BITS = 3`, `LOTUS_TIERS = 2`): jumpstarter bits = 3, two
-  tiers of variable-width framing. Used for seed indices, sizes, counts, and
-  every other Lotus integer in the format except the v1 arity field.
-- **J1D1** (`LOTUS_ARITY_J_BITS = 1`, `LOTUS_ARITY_TIERS = 1`): jumpstarter
-  bits = 1, one tier of framing. Used only for the v1 arity field, because
-  arity is a 6-value enum (1..=5 plus literal) and J1D1 is the smallest preset
-  that admits six codepoints. The preset is deliberately narrower than J3D2 so
-  we pay only the bits the arity alphabet requires.
+  tiers of variable-width framing. Used for file metadata, v2 records, and
+  public-preset frame integers.
+- **J3D1** (`LOTUS_SEED_INDEX_J_BITS = 3`, `LOTUS_SEED_INDEX_TIERS = 1`):
+  jumpstarter bits = 3, one tier of variable-width framing. Used for v1 seed
+  indices.
+- **Canonical v1 arity alphabet**: direct prefix-free codewords
+  `{00, 01, 100, 101, 110, 111}`. This is not routed through the generic Lotus
+  integer codec.
 
 The canonical Lotus codec implementation lives in the sibling crate at
 [`../../lotus/src/lib.rs`](../../lotus/src/lib.rs). Each variable-width Lotus
@@ -250,8 +250,6 @@ field uses sliding-window encoding with no aliases: width `n` covers values
 `2^n - 2` through `2^(n+1) - 3`, i.e. exactly `2^n` codepoints. Width 1 covers
 `{0, 1}`, width 2 covers `{2..5}`, width 3 covers `{6..13}`, and so on.
 
-J3D2 was chosen because it spans the `max_seed_len ∈ 1..=3` index range
-(`256 + 65 536 + 16 777 216` seeds) while keeping small-index records short.
 `encode_v1_record_into_writer` / `decode_v1_record_from_reader` in
 `src/header.rs` and `v2_seed_span_record_into_writer` /
 `v2_literal_record_into_writer` in `src/tlmr_v2.rs` are the canonical
@@ -282,10 +280,11 @@ V1 decoders dispatch by reading the magic and version byte, then reading the
 Lotus header bit stream, then reading records from the payload bit stream
 until `bytes_out == original_len`. Each record is one of:
 
-- **Literal**: arity value = `5`. Skip 0..7 zero pad bits to the next byte
+- **Literal**: arity codeword = `111`. Skip 0..7 zero pad bits to the next byte
   boundary, then copy `block_size` (or `last_block_size`, if this is the
   final block) raw bytes into the output.
-- **Compressed**: arity value `0..=4` (arity 1..=5). Decode a Lotus J3D2 seed
+- **Compressed**: arity codeword `00`, `01`, `100`, `101`, or `110`
+  (arity 1..=5). Decode a Lotus J3D1 seed
   index, recover the seed via `index_to_seed`, expand the seed with the
   header-selected hasher, and append `arity * block_size` bytes.
 
@@ -337,7 +336,7 @@ For the current release candidate, `.tlmr` v1 is the only
 production-supported file format. The supported v1 contract is:
 
 - writers emit the current `format_version` (`2`), `lotus_preset = 2`,
-  `layer_count = 1`, Lotus J1D1/J3D2 records, and authoritative hasher
+  `layer_count = 1`, canonical arity/J3D1 seed records, and authoritative hasher
   metadata
 - readers must honor `hasher_id`, `lotus_preset`, `layer_count`,
   `payload_bit_len`, and output-hash validation

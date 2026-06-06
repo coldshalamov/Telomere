@@ -3,29 +3,30 @@
 //! Bit layout for a compressed (non-literal) v1 record:
 //!
 //! ```text
-//! [Lotus(arity_value, J1D1)][Lotus(seed_index, J3D2)]
+//! [canonical arity codeword][Lotus(seed_index, J3D1)]
 //! ```
 //!
 //! For literals:
 //!
 //! ```text
-//! [Lotus(arity_value=5, J1D1)]
+//! [canonical literal codeword]
 //! ```
 //!
-//! Both the arity discriminator and the seed index payload are now routed
-//! through the real `lotus` crate. Arity uses the smallest preset that admits
-//! all six code points (J1D1, with values 0..=5):
+//! The arity discriminator is the canonical prefix-free alphabet from
+//! `docs/FORMAT_CANONICAL.md`. Seed indices are routed through the real
+//! `lotus` crate using the confirmed J3D1 preset:
 //!
-//! | arity | lotus value | J1D1 bits |
-//! |------:|------------:|----------:|
-//! |     1 |           0 |         3 |
-//! |     2 |           1 |         5 |
-//! |     3 |           2 |         5 |
-//! |     4 |           3 |         5 |
-//! |     5 |           4 |         5 |
-//! |  0xFF |           5 |         6 |
+//! | arity | codeword | bits |
+//! |------:|---------:|-----:|
+//! |     1 |       00 |    2 |
+//! |     2 |       01 |    2 |
+//! |     3 |      100 |    3 |
+//! |     4 |      101 |    3 |
+//! |     5 |      110 |    3 |
+//! |  0xFF |      111 |    3 |
 //!
-//! Seed indices use the unified J3D2 preset shared with v2 records.
+//! Other Lotus integers keep the shared J3D2 preset unless their format section
+//! says otherwise.
 
 use crate::TelomereError;
 use lotus::{
@@ -33,21 +34,13 @@ use lotus::{
     BitReader as LotusBitReader, BitWriter as LotusBitWriter, LotusError,
 };
 
-/// Lotus tiered codec preset used for seed indices (shared with v2).
+/// Shared Lotus tiered codec preset used for v1/v2 file metadata and v2 records.
 pub const LOTUS_J_BITS: usize = 3;
 pub const LOTUS_TIERS: usize = 2;
 
-/// Lotus tiered codec preset used for the arity field. J1D1 is the smallest
-/// preset that admits the six code points (arities 1..=5 plus the literal
-/// marker). It is deliberately distinct from the J3D2 preset used everywhere
-/// else: arity is a 6-value enum, not a general integer, so we pay only the
-/// bits the alphabet actually requires.
-pub const LOTUS_ARITY_J_BITS: usize = 1;
-pub const LOTUS_ARITY_TIERS: usize = 1;
-
-/// Lotus value used to mark a literal record. Arities 1..=5 map to Lotus
-/// values 0..=4 in order; the literal escape is value 5.
-pub const LOTUS_ARITY_LITERAL_VALUE: u64 = 5;
+/// Canonical Lotus tiered codec preset used for v1 seed indices.
+pub const LOTUS_SEED_INDEX_J_BITS: usize = 3;
+pub const LOTUS_SEED_INDEX_TIERS: usize = 1;
 
 /// High level header type used by the compressor.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -121,33 +114,46 @@ fn lotus_err(e: LotusError) -> TelomereError {
     TelomereError::Header(format!("lotus codec error: {e}"))
 }
 
-/// Map a Telomere arity value (1..=5 or 0xFF literal) to its Lotus
-/// representation.
-fn arity_to_lotus_value(arity: usize) -> Result<u64, TelomereError> {
+fn encode_arity_codeword(
+    arity: usize,
+    writer: &mut LotusBitWriter,
+) -> Result<usize, TelomereError> {
     match arity {
-        1 => Ok(0),
-        2 => Ok(1),
-        3 => Ok(2),
-        4 => Ok(3),
-        5 => Ok(4),
-        0xFF => Ok(LOTUS_ARITY_LITERAL_VALUE),
+        1 => writer.write_bits(0b00, 2).map_err(lotus_err)?,
+        2 => writer.write_bits(0b01, 2).map_err(lotus_err)?,
+        3 => writer.write_bits(0b100, 3).map_err(lotus_err)?,
+        4 => writer.write_bits(0b101, 3).map_err(lotus_err)?,
+        5 => writer.write_bits(0b110, 3).map_err(lotus_err)?,
+        0xFF => writer.write_bits(0b111, 3).map_err(lotus_err)?,
         _ => Err(TelomereError::Header(
-            "invalid Lotus arity (must be 1-5 or 0xFF)".into(),
-        )),
+            "invalid v1 arity (must be 1-5 or 0xFF)".into(),
+        ))?,
+    }
+    Ok(arity_codeword_bit_len(arity)?)
+}
+
+fn decode_arity_codeword(reader: &mut LotusBitReader<'_>) -> Result<usize, TelomereError> {
+    let selector = reader.read_bits(1).map_err(lotus_err)?;
+    if selector == 0 {
+        let field = reader.read_bits(1).map_err(lotus_err)?;
+        return Ok((field as usize) + 1);
+    }
+
+    match reader.read_bits(2).map_err(lotus_err)? {
+        0b00 => Ok(3),
+        0b01 => Ok(4),
+        0b10 => Ok(5),
+        0b11 => Ok(0xFF),
+        _ => unreachable!("read_bits(2) returns 0..=3"),
     }
 }
 
-/// Inverse of [`arity_to_lotus_value`].
-fn lotus_value_to_arity(value: u64) -> Result<usize, TelomereError> {
-    match value {
-        0 => Ok(1),
-        1 => Ok(2),
-        2 => Ok(3),
-        3 => Ok(4),
-        4 => Ok(5),
-        v if v == LOTUS_ARITY_LITERAL_VALUE => Ok(0xFF),
+fn arity_codeword_bit_len(arity: usize) -> Result<usize, TelomereError> {
+    match arity {
+        1 | 2 => Ok(2),
+        3..=5 | 0xFF => Ok(3),
         _ => Err(TelomereError::Header(
-            "invalid Lotus arity value (out of range for J1D1 arity preset)".into(),
+            "invalid v1 arity (must be 1-5 or 0xFF)".into(),
         )),
     }
 }
@@ -166,8 +172,8 @@ pub struct DecodedHeader {
 /// Streaming encoder for a v1 record. Writes
 ///
 /// ```text
-/// [Lotus arity (J1D1)][Lotus seed_index (J3D2)]    // compressed
-/// [Lotus arity=5 marker (J1D1)]                    // literal
+/// [canonical arity codeword][Lotus seed_index (J3D1)]    // compressed
+/// [canonical literal codeword]                            // literal
 /// ```
 ///
 /// into the shared writer. Returns the number of bits written.
@@ -176,13 +182,16 @@ pub fn encode_v1_record_into_writer(
     seed_index: u64,
     writer: &mut LotusBitWriter,
 ) -> Result<usize, TelomereError> {
-    let lotus_arity = arity_to_lotus_value(arity)?;
     let start = writer.bits_written();
-    lotus_encode_into_writer(lotus_arity, LOTUS_ARITY_J_BITS, LOTUS_ARITY_TIERS, writer)
+    encode_arity_codeword(arity, writer)?;
+    if arity != 0xFF {
+        lotus_encode_into_writer(
+            seed_index,
+            LOTUS_SEED_INDEX_J_BITS,
+            LOTUS_SEED_INDEX_TIERS,
+            writer,
+        )
         .map_err(lotus_err)?;
-    if lotus_arity != LOTUS_ARITY_LITERAL_VALUE {
-        lotus_encode_into_writer(seed_index, LOTUS_J_BITS, LOTUS_TIERS, writer)
-            .map_err(lotus_err)?;
     }
     Ok(writer.bits_written() - start)
 }
@@ -192,9 +201,7 @@ pub fn decode_v1_record_from_reader(
     reader: &mut LotusBitReader<'_>,
 ) -> Result<(DecodedHeader, usize), TelomereError> {
     let start = reader.bits_consumed();
-    let (lotus_arity, _) = lotus_decode_from_reader(reader, LOTUS_ARITY_J_BITS, LOTUS_ARITY_TIERS)
-        .map_err(lotus_err)?;
-    let arity = lotus_value_to_arity(lotus_arity)?;
+    let arity = decode_arity_codeword(reader)?;
     if arity == 0xFF {
         return Ok((
             DecodedHeader {
@@ -206,7 +213,8 @@ pub fn decode_v1_record_from_reader(
         ));
     }
     let (seed_index, _) =
-        lotus_decode_from_reader(reader, LOTUS_J_BITS, LOTUS_TIERS).map_err(lotus_err)?;
+        lotus_decode_from_reader(reader, LOTUS_SEED_INDEX_J_BITS, LOTUS_SEED_INDEX_TIERS)
+            .map_err(lotus_err)?;
     Ok((
         DecodedHeader {
             arity: arity as u8,
@@ -220,14 +228,13 @@ pub fn decode_v1_record_from_reader(
 /// Returns the exact number of bits a v1 record will consume on the wire,
 /// without performing the encoding.
 pub fn v1_record_bit_len(arity: usize, seed_index: u64) -> Result<usize, TelomereError> {
-    let lotus_arity = arity_to_lotus_value(arity)?;
-    let arity_bits = lotus_encoded_bit_len(lotus_arity, LOTUS_ARITY_J_BITS, LOTUS_ARITY_TIERS)
-        .map_err(lotus_err)?;
-    if lotus_arity == LOTUS_ARITY_LITERAL_VALUE {
+    let arity_bits = arity_codeword_bit_len(arity)?;
+    if arity == 0xFF {
         return Ok(arity_bits);
     }
     let seed_bits =
-        lotus_encoded_bit_len(seed_index, LOTUS_J_BITS, LOTUS_TIERS).map_err(lotus_err)?;
+        lotus_encoded_bit_len(seed_index, LOTUS_SEED_INDEX_J_BITS, LOTUS_SEED_INDEX_TIERS)
+            .map_err(lotus_err)?;
     Ok(arity_bits + seed_bits)
 }
 
@@ -317,20 +324,20 @@ mod tests {
 
     #[test]
     fn small_indices_are_compact() {
-        // arity=1 (J1D1 value=0, 3 bits) + seed_index=0 (J3D2, 6 bits) = 9 bits.
+        // arity=1 ("00", 2 bits) + seed_index=0 (J3D1, 5 bits) = 7 bits.
         let bits = encode_lotus_header(1, 0).unwrap();
         assert_eq!(
             bits.len(),
-            9,
-            "arity=1 seed_index=0 should be J1D1 arity(3) + J3D2 seed(6)"
+            7,
+            "arity=1 seed_index=0 should be canonical arity(2) + J3D1 seed(5)"
         );
     }
 
     #[test]
     fn literal_marker_bit_len() {
-        // Literal escapes are the largest J1D1 value (=5), encoded in 6 bits.
+        // Literal escapes are the canonical 111 codeword.
         let bits = encode_lotus_header(0xFF, 0).unwrap();
-        assert_eq!(bits.len(), 6, "literal marker is 6 bits in J1D1");
+        assert_eq!(bits.len(), 3, "literal marker is 3 bits");
     }
 
     #[test]

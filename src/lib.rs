@@ -80,8 +80,8 @@ pub use hash_reader::lookup_seed;
 pub use header::{
     decode_header, decode_lotus_header, decode_v1_record_from_reader, encode_header,
     encode_lotus_header, encode_v1_record_into_writer, pack_bits, v1_record_bit_len, BitReader,
-    DecodedHeader, Header, LOTUS_ARITY_J_BITS, LOTUS_ARITY_LITERAL_VALUE, LOTUS_ARITY_TIERS,
-    LOTUS_J_BITS, LOTUS_TIERS,
+    DecodedHeader, Header, LOTUS_J_BITS, LOTUS_SEED_INDEX_J_BITS, LOTUS_SEED_INDEX_TIERS,
+    LOTUS_TIERS,
 };
 pub use hybrid::{compress_hybrid, CpuMatchRecord, GpuMatchRecord};
 pub use indexed::{
@@ -158,9 +158,9 @@ pub fn print_compression_status(original: usize, compressed: usize) {
 /// Files begin with a variable-length `.tlmr` v1 header (Lotus-encoded after
 /// the raw 5-byte magic+version prefix) describing protocol version, Lotus
 /// preset, hasher, block shape, search limits, layer count, lengths, and a
-/// truncated output hash. Each subsequent record is prefixed with a Lotus
-/// record header (J1D1 arity + J3D2 seed index). Version 1 is intentionally
-/// one-layer-decodable.
+/// truncated output hash. Each subsequent record is prefixed with the
+/// canonical v1 arity codeword and, for seed records, a J3D1 seed index.
+/// Version 1 is intentionally one-layer-decodable.
 pub fn decompress_with_limit(
     input: &[u8],
     config: &Config,

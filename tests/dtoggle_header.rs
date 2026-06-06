@@ -1,9 +1,7 @@
 //! Header encode/decode roundtrip tests for Telomere arity plus Lotus seed indices.
 //!
-//! As of Wave D, the arity discriminator is routed through the real `lotus`
-//! crate using the J1D1 preset (six code points: arities 1..=5 plus the
-//! literal escape at value 5). The legacy hand-coded `encode_lotus_arity_bits`
-//! helper has been removed.
+//! V1 records use the canonical prefix-free arity alphabet plus a J3D1 Lotus
+//! seed index.
 use telomere::{
     decode_header, decode_lotus_header, encode_header, encode_lotus_header, pack_bits, Header,
 };
@@ -37,15 +35,15 @@ fn lotus_arity_headers_roundtrip() {
 
 #[test]
 fn literal_marker_is_0xff() {
-    // The Lotus literal marker uses arity=0xFF, encoded as J1D1 value=5
-    // (6 bits with no seed payload).
+    // The literal marker uses arity=0xFF, encoded as canonical 111
+    // (3 bits with no seed payload).
     let bits = encode_lotus_header(0xFF, 0).unwrap();
-    assert_eq!(bits.len(), 6, "literal marker is 6 bits in J1D1");
+    assert_eq!(bits.len(), 3, "literal marker is 3 bits");
     let packed = pack_bits(&bits);
     let (dec, used) = decode_lotus_header(&packed).unwrap();
     assert!(dec.is_literal);
     assert_eq!(dec.arity, 0xFF);
-    assert_eq!(used, 6);
+    assert_eq!(used, 3);
 }
 
 #[test]
@@ -61,24 +59,24 @@ fn arity_2_is_valid() {
 
 #[test]
 fn lotus_seed_index_golden_bit_lengths() {
-    // Golden bit lengths under the J1D1 arity preset + J3D2 seed preset.
+    // Golden bit lengths under the canonical arity alphabet + J3D1 seed preset.
     //
-    // J1D1 arity widths:
-    //   arity=1 -> value=0 -> 3 bits
-    //   arity=2 -> value=1 -> 5 bits
-    //   arity=3 -> value=2 -> 5 bits
-    //   arity=4 -> value=3 -> 5 bits
-    //   arity=5 -> value=4 -> 5 bits
-    //   literal -> value=5 -> 6 bits
+    // Arity widths:
+    //   arity=1 -> 00  -> 2 bits
+    //   arity=2 -> 01  -> 2 bits
+    //   arity=3 -> 100 -> 3 bits
+    //   arity=4 -> 101 -> 3 bits
+    //   arity=5 -> 110 -> 3 bits
+    //   literal -> 111 -> 3 bits
     //
-    // J3D2 seed widths follow the lotus crate's encoding for the chosen
+    // J3D1 seed widths follow the lotus crate's encoding for the chosen
     // payload widths.
     let cases = [
-        (1usize, 0u64, 3 + 6),       // arity=1 + tiny seed = 9 bits
-        (1usize, 255u64, 3 + 16),    // arity=1 + 1-byte seed value
-        (2usize, 255u64, 5 + 16),    // arity=2 + 1-byte seed value
-        (3usize, 0u64, 5 + 6),       // arity=3 + tiny seed = 11 bits
-        (5usize, 65_535u64, 5 + 25), // arity=5 + 2-byte seed value
+        (1usize, 0u64, 2 + 5),       // arity=1 + tiny seed = 7 bits
+        (1usize, 255u64, 2 + 14),    // arity=1 + 1-byte seed value
+        (2usize, 255u64, 2 + 14),    // arity=2 + 1-byte seed value
+        (3usize, 0u64, 3 + 5),       // arity=3 + tiny seed = 8 bits
+        (5usize, 65_535u64, 3 + 23), // arity=5 + 2-byte seed value
     ];
 
     for (arity, seed_index, expected_bits) in cases {
@@ -108,7 +106,7 @@ fn lotus_seed_index_tier_boundaries_roundtrip() {
         assert_eq!(decoded.arity, 1);
         assert_eq!(
             decoded.seed_index, seed_index,
-            "seed index roundtrip failed at J3D2 boundary {seed_index}"
+            "seed index roundtrip failed at J3D1 boundary {seed_index}"
         );
     }
 }
