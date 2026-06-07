@@ -72,6 +72,14 @@ At the minimum span that can beat the v2 seed-span record, deeper seed search an
 | seed3-planted-depth2 | 2 | +8.11% | 0 | planted/non-random control |
 | seed3-planted-depth3 | 3 | -4.69% | 128 | planted/non-random control |
 
+## Note on gap estimates
+
+The gap figures above use byte-level V2 record approximations (~40-bit gap).
+The exact Lotus bit-cost model in `model_analysis/FINDINGS.md` gives tighter
+numbers: V1 arity 1 gap of 10–13 bits (by block size), V2 effective gap of
+~32 bits at practical search depths (theoretical format gap ~23–26 bits).
+See `model_analysis/telomere_model.html` for the interactive version.
+
 ## Conclusion
 
 Current structured controls are consistent with near-zero random exact-prefix hit expectations; planted wins prove mechanism, not natural prevalence.

@@ -1,0 +1,21 @@
+Corpus: 60 train + 25 held-out files. Held-out raw bytes: 191609
+
+HELD-OUT TOTAL BYTES (lower = better). Public dict + zstd dict are shared, not charged per file:
+  raw (uncompressed)                           191609   1.000x
+  A. zstd -19, per file (no sharing)            29244   0.153x
+  B. zstd -19 + TRAINED shared dict             15645   0.082x   <- real incumbent for shared dicts
+  C. public dict, DIRECT 1-byte index          101843   0.532x
+  D. public dict, SEED record (~2B/ref)        132531   0.692x   <- Telomere's actual encoding
+  C+zstd (dict-substitute, then entropy)        22380   0.117x
+
+  seed-step overhead (D - C)                    30688 bytes  (30.1% worse than a direct index)
+
+SHADOW CONTROL (vocabulary swapped; dictionary should stop matching):
+  C on shadow corpus                           143033   0.746x   (want ~1.0 = null)
+
+READS:
+  - public dict beats per-file zstd?   C<A : False   (-72599 bytes)
+  - public dict beats zstd-trained?    C<B : False   (-86198 bytes)
+  - C+zstd beats zstd-trained?  C+zstd<B    : False   (-6735 bytes)
+  - seed record costs more than direct idx? D>C: True
+  - shadow stayed ~null (control clean)? False

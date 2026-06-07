@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Telomere — First-Principles Probability Model</title>
+<style>
+  :root { --bg: #0d1117; --fg: #c9d1d9; --accent: #58a6ff; --green: #3fb950;
+          --red: #f85149; --yellow: #d29922; --border: #30363d; --card: #161b22;
+          --muted: #8b949e; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg);
+         color: var(--fg); line-height: 1.6; padding: 20px; max-width: 1400px; margin: 0 auto; }
+  h1 { color: var(--accent); margin-bottom: 4px; font-size: 1.6em; }
+  h2 { color: var(--accent); margin: 24px 0 12px; font-size: 1.2em; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
+  .subtitle { color: var(--muted); margin-bottom: 20px; font-size: 0.9em; }
+  .grid { display: grid; grid-template-columns: 300px 1fr; gap: 20px; }
+  .controls { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+  .results { min-width: 0; }
+  label { display: block; color: var(--muted); font-size: 0.85em; margin-top: 10px; }
+  label:first-child { margin-top: 0; }
+  input[type=range] { width: 100%; margin: 4px 0; accent-color: var(--accent); }
+  .val { color: var(--accent); font-weight: 600; float: right; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.85em; margin: 8px 0; }
+  th, td { padding: 6px 10px; text-align: right; border: 1px solid var(--border); }
+  th { background: var(--card); color: var(--accent); font-weight: 600; position: sticky; top: 0; }
+  td:first-child, th:first-child { text-align: left; }
+  .positive { color: var(--green); font-weight: 600; }
+  .negative { color: var(--red); }
+  .neutral { color: var(--yellow); }
+  .highlight { background: rgba(88,166,255,0.08); }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin: 12px 0; }
+  .kv { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid var(--border); }
+  .kv:last-child { border-bottom: none; }
+  .kv .k { color: var(--muted); }
+  .kv .v { font-weight: 600; }
+  .section { margin-bottom: 24px; }
+  canvas { background: var(--card); border: 1px solid var(--border); border-radius: 8px; width: 100%; height: 300px; }
+  .note { font-size: 0.8em; color: var(--muted); margin-top: 6px; font-style: italic; }
+  .break-even { font-size: 1.1em; padding: 12px; text-align: center; border-radius: 8px;
+                 border: 2px solid; margin: 12px 0; }
+  .be-good { border-color: var(--green); color: var(--green); }
+  .be-bad { border-color: var(--red); color: var(--red); }
+  .be-mid { border-color: var(--yellow); color: var(--yellow); }
+</style>
+</head>
+<body>
+
+<h1>Telomere — First-Principles Probability Model</h1>
+<p class="subtitle">Interactive analysis of generative seed-search compression economics.
+  All math is exact — uses the real Lotus J3D2/J1D1 encoding, not approximations.
+  Verified against Wolfram Language.</p>
+
+<div class="grid">
+<div class="controls">
+  <h2 style="margin-top:0">Parameters</h2>
+
+  <label>Block size (bytes) <span class="val" id="bs_val">4</span></label>
+  <input type="range" id="block_size" min="1" max="32" value="4">
+
+  <label>Max arity <span class="val" id="ma_val">5</span></label>
+  <input type="range" id="max_arity" min="1" max="100" value="5">
+
+  <label>Max seed depth (bytes) <span class="val" id="sd_val">4</span></label>
+  <input type="range" id="seed_depth" min="1" max="8" value="4">
+
+  <label>Input size (bytes) <span class="val" id="is_val">1,000,000</span></label>
+  <input type="range" id="input_size" min="10" max="30" value="20" step="1">
+
+  <label>Hit-rate multiplier <span class="val" id="hm_val">1.0x</span></label>
+  <input type="range" id="hit_mult" min="0" max="40" value="0" step="1">
+
+  <h2>Format</h2>
+  <label><input type="radio" name="fmt" value="v1" checked> V1 (J1D1 arity + J3D2 seed)</label>
+  <label><input type="radio" name="fmt" value="v2"> V2 (3x J3D2 fields)</label>
+  <label><input type="radio" name="fmt" value="min"> Minimal (1-bit flag + J3D2)</label>
+
+  <div class="note" style="margin-top:16px">
+    The hit-rate multiplier models the density gain from transforms,
+    dictionaries, or presets vs raw random matching.
+    A dictionary targeting structured data could achieve 5-50x.
+  </div>
+</div>
+
+<div class="results" id="results"></div>
+</div>
+
+<script>
+// ── Lotus Encoding (exact port from telomere_power_model.py) ──
+function lotusWidthForValue(v) {
+  let w = 1;
+  while (true) {
+    if (v >= (1 << w) - 2 && v <= (1 << (w + 1)) - 3) return w;
+    w++;
+    if (w > 200) return 200;
+  }
+}
+
+function lotusEncodedBitLen(value, jBits, tiers) {
+  const pv = value + 1;
+  let pw = lotusWidthForValue(pv);
+  let totalTW = 0, cw = pw;
+  for (let t = 0; t < tiers; t++) {
+    const tw = lotusWidthForValue(cw);
+    totalTW += tw;
+    cw = tw;
+  }
+  return jBits + totalTW + pw;
+}
+
+const j3d2 = v => lotusEncodedBitLen(v, 3, 2);
+const j1d1 = v => lotusEncodedBitLen(v, 1, 1);
+
+function analyticalNComp(budget) {
+  if (budget <= 6) return 0;
+  let bestPW = 0;
+  for (let pw = 1; pw < 500; pw++) {
+    const tw1 = lotusWidthForValue(pw);
+    const tw2 = lotusWidthForValue(tw1);
+    if (3 + tw1 + tw2 + pw < budget) bestPW = pw;
+    else break;
+  }
+  return bestPW === 0 ? 0 : Math.pow(2, bestPW + 1) - 3;
+}
+
+function seedCount(depth) {
+  let t = 0; for (let k = 1; k <= depth; k++) t += Math.pow(256, k); return t;
+}
+
+function headerBits(arity, format, maxArity) {
+  if (format === 'v1') return arity <= 5 ? j1d1(arity - 1) : Math.ceil(Math.log2(arity + 2)) + 1;
+  if (format === 'v2') {
+    const bs = parseInt(document.getElementById('block_size').value);
+    return j3d2(0) + j3d2(arity * bs - 1);
+  }
+  return 1;
+}
+
+function compute() {
+  const bs = +document.getElementById('block_size').value;
+  const maxA = +document.getElementById('max_arity').value;
+  const depth = +document.getElementById('seed_depth').value;
+  const inputBytes = Math.pow(2, +document.getElementById('input_size').value);
+  const multIdx = +document.getElementById('hit_mult').value;
+  const mult = multIdx === 0 ? 1 : Math.pow(10, multIdx / 10);
+  const fmt = document.querySelector('input[name=fmt]:checked').value;
+
+  document.getElementById('bs_val').textContent = bs;
+  document.getElementById('ma_val').textContent = maxA;
+  document.getElementById('sd_val').textContent = depth;
+  document.getElementById('is_val').textContent = inputBytes.toLocaleString();
+  document.getElementById('hm_val').textContent = mult < 10 ? mult.toFixed(1)+'x' : mult.toFixed(0)+'x';
+
+  const seeds = seedCount(depth);
+  const arities = [];
+  let aggP = 0, aggSavBits = 0;
+
+  for (let a = 1; a <= maxA; a++) {
+    const spanBits = 8 * a * bs;
+    const h = headerBits(a, fmt, maxA);
+    const budget = spanBits - h;
+    const nc = analyticalNComp(budget);
+    const effNC = Math.min(nc, seeds);
+    const log2NC = nc > 0 ? Math.log2(nc) : -Infinity;
+    const gap = nc > 0 ? spanBits - log2NC : Infinity;
+    let pComp = effNC > 0 && spanBits < 1024 ? Math.pow(2, Math.log2(effNC) - spanBits) * mult : 0;
+    pComp = Math.min(pComp, 1);
+
+    let avgSav = 0, totalS = 0, totalC = 0;
+    if (nc > 0) {
+      for (let pw = 1; pw < 500; pw++) {
+        const tw1 = lotusWidthForValue(pw);
+        const tw2 = lotusWidthForValue(tw1);
+        const cost = 3 + tw1 + tw2 + pw;
+        if (cost >= budget) break;
+        const lo = pw === 1 ? 0 : Math.pow(2, pw) - 3;
+        const hi = Math.pow(2, pw + 1) - 4;
+        totalS += (hi - lo + 1) * (budget - cost);
+        totalC += hi - lo + 1;
+      }
+      avgSav = totalC > 0 ? totalS / totalC : 0;
+    }
+
+    const nSpans = Math.floor(inputBytes / (a * bs));
+    const expMatch = nSpans * pComp;
+    const expSav = expMatch * avgSav;
+    aggP += pComp; aggSavBits += expSav;
+    arities.push({a, spanBytes:a*bs, spanBits, h, budget, nc, log2NC, gap, pComp, avgSav, nSpans, expMatch, expSav});
+  }
+
+  // Per-span literal overhead: every non-matching span costs litMarkerBits extra
+  const litMarkerBits = fmt === 'v1' ? j1d1(5) : fmt === 'v2' ? j3d2(0) + j3d2(0) : 1;
+  const totalSpans = Math.floor(inputBytes / bs);  // arity-1 spans (dominant)
+  const expMatchA1 = arities.length > 0 ? arities[0].expMatch : 0;
+  const litSpans = totalSpans - expMatchA1;
+  const litOverheadBits = litSpans * litMarkerBits;
+  const fileHeaderBytes = 20 + Math.max(1, Math.ceil(inputBytes / 65535)) * (fmt === 'v2' ? 5 : 3);
+  const savBytes = aggSavBits / 8;
+  const overhead = litOverheadBits / 8 + fileHeaderBytes;
+  const net = savBytes - overhead;
+  // Break-even: P*(avgSav + litMarkerBits) > litMarkerBits
+  const a1 = arities.length > 0 ? arities[0] : null;
+  const a1AvgSav = a1 ? a1.avgSav : 0;
+  const pNeeded = litMarkerBits / (a1AvgSav + litMarkerBits);
+  const pBase = a1 ? a1.pComp / mult : 0;
+  const beMult = pBase > 0 ? pNeeded / pBase : Infinity;
+
+  let html = '';
+  const beC = net > 0 ? 'be-good' : beMult < 1000 ? 'be-mid' : 'be-bad';
+  const beT = net > 0 ? `Net compression: ${Math.abs(net).toFixed(1)} bytes saved` : `Break-even multiplier: ${beMult < 1e12 ? beMult.toFixed(1)+'x' : '∞'}`;
+  html += `<div class="break-even ${beC}">${beT}</div>`;
+
+  html += `<div class="card"><h2 style="margin-top:0">Key Metrics</h2>`;
+  html += kv('Format', fmt.toUpperCase());
+  html += kv('Seeds searched', sci(seeds)+` (log₂=${Math.log2(seeds).toFixed(1)})`);
+  html += kv('Aggregate P(compressive)', sci(Math.min(aggP,1)));
+  html += kv('Expected savings (from matches)', savBytes.toFixed(1)+' bytes');
+  html += kv('Literal overhead ('+litMarkerBits+'b × '+litSpans.toLocaleString()+' spans)', (litOverheadBits/8).toFixed(0)+' bytes');
+  html += kv('File header overhead', fileHeaderBytes.toFixed(0)+' bytes');
+  html += kv('Net delta', `<span class="${net>0?'positive':'negative'}">${net.toFixed(1)} bytes</span>`);
+  html += kv('P needed for break-even', (pNeeded*100).toFixed(1)+'%');
+  html += kv('Break-even multiplier', beMult<1e12?beMult.toFixed(1)+'x':'∞');
+  html += `</div>`;
+
+  html += `<div class="section"><h2>Per-Arity Detail</h2><div style="overflow-x:auto;max-height:400px"><table>`;
+  html += `<tr><th>Arity</th><th>Span</th><th>Hdr</th><th>Gap</th><th>P_comp</th><th>Avg Sav</th><th>E[match]</th></tr>`;
+  for (const r of arities.slice(0, 30)) {
+    html += `<tr class="${r.pComp>1e-3?'highlight':''}"><td>${r.a}</td><td>${r.spanBytes}B</td><td>${r.h}b</td>`;
+    html += `<td>${r.gap<1e6?r.gap.toFixed(1):'∞'}</td><td>${sci(r.pComp)}</td><td>${r.avgSav.toFixed(1)}b</td>`;
+    html += `<td>${r.expMatch<.001?sci(r.expMatch):r.expMatch.toFixed(2)}</td></tr>`;
+  }
+  if (arities.length > 30) {
+    const rP = arities.slice(30).reduce((s,r)=>s+r.pComp,0);
+    html += `<tr><td colspan="4">Arities 31–${maxA}</td><td>${sci(rP)}</td><td colspan="2">—</td></tr>`;
+  }
+  html += `</table></div></div>`;
+
+  html += `<div class="section"><h2>V2 Gap vs Seed Depth</h2><canvas id="gapChart"></canvas>`;
+  html += `<p class="note">Gap ≈ 32 bits from depth 2–8. Adding seed depth increases both seed count AND minimum profitable span by 8 bits each, keeping the gap constant.</p></div>`;
+
+  html += `<div class="section"><h2>Lotus Overhead Structure</h2><canvas id="ohChart"></canvas>`;
+  html += `<p class="note">Solid: absolute overhead (bits). Dashed: proportional overhead (%). Proportional shrinks, absolute grows O(log log v). The gap depends on absolute overhead.</p></div>`;
+
+  html += `<div class="card"><h2 style="margin-top:0">Interpretation</h2>`;
+  if (net > 0) html += `<p class="positive">At ${mult.toFixed(1)}x hit multiplier, this configuration achieves net compression.</p>`;
+  else if (beMult < 10) html += `<p class="neutral">Break-even at ${beMult.toFixed(1)}x — achievable with a well-designed dictionary or reversible transform on structured data. The schema-native dictionary approach (viability level 45) targets this regime.</p>`;
+  else if (beMult < 1000) html += `<p class="neutral">Break-even at ${beMult.toFixed(0)}x — requires domain-specific presets or source-family tables for narrow data classes.</p>`;
+  else html += `<p class="negative">Break-even at ${sci(beMult)} — not achievable with known mechanisms at these settings. Try smaller block size, leaner format, or higher arity.</p>`;
+  html += `</div>`;
+
+  document.getElementById('results').innerHTML = html;
+  setTimeout(() => { drawGap(); drawOH(); }, 50);
+}
+
+function kv(k,v){return `<div class="kv"><span class="k">${k}</span><span class="v">${v}</span></div>`}
+function sci(x){if(x===0)return'0';if(!isFinite(x))return'∞';if(Math.abs(x)>=.01&&Math.abs(x)<1e4)return x.toPrecision(4);return x.toExponential(2)}
+
+function drawGap() {
+  const c = document.getElementById('gapChart'); if(!c) return;
+  const ctx = c.getContext('2d');
+  const W=c.width=c.clientWidth*2, H=c.height=c.clientHeight*2; ctx.scale(2,2);
+  const w=W/2, h=H/2; ctx.fillStyle='#161b22'; ctx.fillRect(0,0,w,h);
+  const m={t:30,r:30,b:40,l:50}, pw=w-m.l-m.r, ph=h-m.t-m.b;
+
+  const gaps = [];
+  for (let d=1;d<=8;d++) {
+    const s=seedCount(d), ls=Math.log2(s);
+    for (let sp=1;sp<=100;sp++) {
+      const mi=s-1, rec=j3d2(0)+j3d2(sp-1)+j3d2(Math.min(mi,1e15));
+      if (rec<sp*8) { gaps.push({d,g:sp*8-ls}); break; }
+    }
+  }
+
+  ctx.strokeStyle='#30363d'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(m.l,m.t); ctx.lineTo(m.l,h-m.b); ctx.lineTo(w-m.r,h-m.b); ctx.stroke();
+  ctx.fillStyle='#8b949e'; ctx.font='11px sans-serif'; ctx.textAlign='right';
+  for(let g=0;g<=40;g+=8){const y=m.t+ph*(1-g/40);ctx.fillText(g,m.l-6,y+4);ctx.beginPath();ctx.moveTo(m.l,y);ctx.lineTo(w-m.r,y);ctx.strokeStyle='#21262d';ctx.stroke()}
+  ctx.textAlign='center';
+  for(let d=1;d<=8;d++){ctx.fillText(d,m.l+(d-.5)*pw/8,h-m.b+16)}
+  ctx.fillText('Seed depth (bytes)',w/2,h-4);
+
+  ctx.strokeStyle='#58a6ff'; ctx.lineWidth=2; ctx.beginPath();
+  gaps.forEach((g,i)=>{const x=m.l+(g.d-.5)*pw/8,y=m.t+ph*(1-g.g/40);i===0?ctx.moveTo(x,y):ctx.lineTo(x,y)});
+  ctx.stroke();
+  gaps.forEach(g=>{const x=m.l+(g.d-.5)*pw/8,y=m.t+ph*(1-g.g/40);ctx.beginPath();ctx.arc(x,y,4,0,6.28);ctx.fillStyle='#58a6ff';ctx.fill();ctx.fillStyle='#c9d1d9';ctx.font='10px sans-serif';ctx.fillText(g.g.toFixed(1),x,y-8)});
+}
+
+function drawOH() {
+  const c = document.getElementById('ohChart'); if(!c) return;
+  const ctx = c.getContext('2d');
+  const W=c.width=c.clientWidth*2, H=c.height=c.clientHeight*2; ctx.scale(2,2);
+  const w=W/2, h=H/2; ctx.fillStyle='#161b22'; ctx.fillRect(0,0,w,h);
+  const m={t:30,r:60,b:40,l:50}, pw=w-m.l-m.r, ph=h-m.t-m.b;
+
+  const pts = [];
+  for(let e=1;e<=52;e++){const v=Math.pow(2,e)-1,b=j3d2(v),inf=Math.log2(v+1);pts.push({e,b,inf,abs:b-inf,pct:(b-inf)/b*100})}
+
+  ctx.strokeStyle='#30363d';ctx.beginPath();ctx.moveTo(m.l,m.t);ctx.lineTo(m.l,h-m.b);ctx.lineTo(w-m.r,h-m.b);ctx.stroke();
+  ctx.fillStyle='#8b949e';ctx.font='11px sans-serif';ctx.textAlign='right';
+  for(let g=0;g<=12;g+=2){const y=m.t+ph*(1-g/12);ctx.fillText(g,m.l-6,y+4)}
+  ctx.textAlign='left';for(let p=0;p<=100;p+=20){ctx.fillText(p+'%',w-m.r+6,m.t+ph*(1-p/100)+4)}
+  ctx.textAlign='center';for(let e=0;e<=52;e+=8){ctx.fillText('2¹'+e,m.l+e/52*pw,h-m.b+16)}
+
+  ctx.strokeStyle='#58a6ff';ctx.lineWidth=2;ctx.beginPath();
+  pts.forEach((p,i)=>{const x=m.l+p.e/52*pw,y=m.t+ph*(1-p.abs/12);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke();
+
+  ctx.strokeStyle='#3fb950';ctx.setLineDash([4,4]);ctx.beginPath();
+  pts.forEach((p,i)=>{const x=m.l+p.e/52*pw,y=m.t+ph*(1-p.pct/100);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke();ctx.setLineDash([]);
+
+  ctx.font='11px sans-serif';ctx.textAlign='left';
+  ctx.fillStyle='#58a6ff';ctx.fillRect(m.l+10,m.t+8,16,3);ctx.fillStyle='#c9d1d9';ctx.fillText('Absolute overhead (bits)',m.l+32,m.t+14);
+  ctx.fillStyle='#3fb950';ctx.fillRect(m.l+10,m.t+24,16,3);ctx.fillStyle='#c9d1d9';ctx.fillText('Proportional overhead (%)',m.l+32,m.t+30);
+}
+
+document.querySelectorAll('input').forEach(el=>el.addEventListener('input',compute));
+compute();
+</script>
+</body>
+</html>

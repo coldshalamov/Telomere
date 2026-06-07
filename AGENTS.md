@@ -26,6 +26,13 @@ Canonical docs:
 - `docs/RELEASE_CHECKLIST.md`
 - `docs/Telomere Whitepaper V2.md` (historical thesis and motivation; current
   architecture/format docs override it)
+- `CLAUDE.md` (fast-start framing for AI agents; read before reacting to the project)
+- `model_analysis/FINDINGS.md` and `model_analysis/telomere_model.html`
+  (first-principles probability model with exact Lotus bit costs: gap analysis by
+  format (V1 gap ~10–13, V2 gap ~32), aggregate arity (~1.12x improvement),
+  break-even multipliers (824x at bs=2, 3066x at bs=4), and the three levers
+  that determine break-even. Verified in Wolfram and cross-referenced to
+  `docs/POWER_MODEL.md`.)
 
 ## First-Principles Model
 
