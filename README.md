@@ -111,10 +111,14 @@ byte-tagged header any more. The header records:
 After the header, the payload is a single Lotus bit stream of records packed
 back-to-back. There is no per-record byte padding; the only intra-payload
 padding is the 0..7 zero pad bits inside each literal record so its raw
-bytes start at a byte boundary. Compressed records encode arity through a
-Lotus J1D1 value (`0..=4` = arities 1..=5, `5` = literal escape) followed by
-a Lotus J3D2 canonical seed index. A record with arity 1 and seed index 0 is
-9 bits total.
+bytes start at a byte boundary. Compressed records begin with the canonical
+direct prefix-free arity codeword — `00` = arity 1, `01` = arity 2,
+`100` = arity 3, `101` = arity 4, `110` = arity 5, `111` = literal — followed
+by the canonical seed index in Lotus **J3D1** (3-bit jumpstarter, one length
+field, payload). The literal marker is exactly 3 bits. The smallest compressed
+record (arity 1, seed index 0) is **7 bits** total. This alphabet is
+Kraft-complete (2·2⁻² + 4·2⁻³ = 1.0); see
+[docs/FORMAT_CANONICAL.md](docs/FORMAT_CANONICAL.md).
 
 `.tlmr` v2 follows the same strategy: a 5-byte raw magic+version prefix
 followed by a Lotus bit stream that carries the header, all layer
@@ -130,30 +134,30 @@ preset, or enough metadata to decode multi-pass output unambiguously.
 ## Lotus In This Repository
 
 Telomere uses the Lotus tiered integer codec from the sibling crate at
-`../lotus/src/lib.rs` for every header field, arity discriminator, and seed
-index — there is no local Lotus reimplementation and no byte-tagged framing.
-Two presets are used:
+`../lotus/src/lib.rs` for header fields and seed indices — there is no local
+Lotus reimplementation and no byte-tagged framing. The v1 record layout is:
 
-- **J3D2** (`LOTUS_J_BITS = 3`, `LOTUS_TIERS = 2`) — seed indices, sizes,
-  counts, and every other Lotus integer in both v1 and v2. Three-bit
-  jumpstarter, two levels of sliding-window tier framing, sliding-window
+- **Arity codeword** — a direct prefix-free alphabet, not a Lotus preset:
+  `00`/`01` (arities 1–2, 2 bits), `100`/`101`/`110` (arities 3–5, 3 bits),
+  `111` (literal, 3 bits). Kraft-complete; every codepoint is spent.
+- **Seed index** — Lotus **J3D1** (`LOTUS_SEED_INDEX_J_BITS = 3`,
+  `LOTUS_SEED_INDEX_TIERS = 1`): 3-bit jumpstarter, one payload-length field,
   payload.
-- **J1D1** (`LOTUS_ARITY_J_BITS = 1`, `LOTUS_ARITY_TIERS = 1`) — only for
-  the v1 arity discriminator. Six codepoints (`0..=5`) cover arities 1..=5
-  plus the literal escape. J1D1 is the smallest preset that admits six
-  values, so the arity field costs exactly the bits the alphabet requires.
+- Other header integers (sizes, counts, lengths) keep the shared **J3D2**
+  preset; that preset is header plumbing, not part of the record cost model.
 
 A compressed v1 record packs as
 
 ```text
-Lotus J1D1(arity_value)  Lotus J3D2(seed_index)
+[arity codeword]  Lotus J3D1(seed_index)
 ```
 
 back-to-back inside the layer's bit stream. Arity values `1..=5` are valid
 compressed spans (arity `2` is valid and is not reserved); the literal marker
-is the J1D1 value `5`. The decoder uses the lotus crate's streaming
-`BitReader` to recover both fields and `index_to_seed` to map the seed index
-back to its canonical seed bytes.
+is the 3-bit codeword `111`. The smallest record (arity 1, seed index 0) is
+7 bits. The decoder uses the lotus crate's streaming `BitReader` to recover
+the seed field and `index_to_seed` to map the seed index back to its
+canonical seed bytes.
 
 ## Multi-Pass Semantics
 
@@ -387,6 +391,13 @@ Supported:
 
 Research proof discipline:
 
+- Laptop-scale null results are **not thesis evidence** in either direction;
+  they are calibration and controls. The thesis-level question is decided
+  mathematically, not by underpowered search.
+- The active proof target is defined in
+  [docs/PROOF_TARGET.md](docs/PROOF_TARGET.md): a mathematical drift surface
+  `E[final_bits / raw_bits]` over Telomere profiles at large N, with
+  concentration bounds — computed by `model_analysis/proof_kernel/`.
 - [docs/POWER_MODEL.md](docs/POWER_MODEL.md) is the math-first power model for
   raw exact-hit searches, v2 record-cost frontiers, match-table costs, hardware
   profiles, and multi-pass recurrence. Use it before interpreting any null

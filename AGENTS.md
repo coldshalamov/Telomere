@@ -27,12 +27,17 @@ Canonical docs:
 - `docs/Telomere Whitepaper V2.md` (historical thesis and motivation; current
   architecture/format docs override it)
 - `CLAUDE.md` (fast-start framing for AI agents; read before reacting to the project)
-- `model_analysis/FINDINGS.md` and `model_analysis/telomere_model.html`
-  (first-principles probability model with exact Lotus bit costs: gap analysis by
-  format (V1 gap ~10–13, V2 gap ~32), aggregate arity (~1.12x improvement),
-  break-even multipliers (824x at bs=2, 3066x at bs=4), and the three levers
-  that determine break-even. Verified in Wolfram and cross-referenced to
-  `docs/POWER_MODEL.md`.)
+- `docs/FORMAT_CANONICAL.md` (single source of truth for the wire format)
+- `docs/PROOF_TARGET.md` (the active proof goal and evidence-level ladder)
+- `model_analysis/telomere_math_model.py`, `model_analysis/METHODS_APPENDIX.md`,
+  `model_analysis/telomere_math_report.md`, and `model_analysis/telomere_model.html`
+  (the active probability model on exact canonical costs, with its toy
+  validator and machine-readable sweep CSV)
+- `model_analysis/proof_kernel/` (canonical-cost proof-kernel skeleton; the
+  active path toward the drift surface defined in `docs/PROOF_TARGET.md`)
+- `model_analysis/_deprecated/` holds stale artifacts (including the old
+  `FINDINGS.md`, whose gap/break-even constants predate the canonical
+  alphabet) — provenance only, do not cite
 
 ## First-Principles Model
 
@@ -212,7 +217,7 @@ unless the user explicitly asks to preserve one for audit.
 | `src/hasher.rs` | `SeedExpander` trait plus BLAKE3/SHA-256 implementations |
 | `src/seed.rs` | rayon-parallel brute-force seed search |
 | `src/seed_index.rs` | canonical index-to-seed bijection |
-| `src/header.rs` | Lotus record codec, arity 1-5 plus literal (J1D1 value 5 on the wire) |
+| `src/header.rs` | v1 record codec: canonical prefix-free arity codewords (`00`,`01`,`100`,`101`,`110`; literal `111`, 3 bits) + J3D1 seed index |
 | `src/tlmr.rs` | `.tlmr` v1 header: 5-byte `TLMR` magic + version prefix followed by a Lotus bit stream that carries header fields and records |
 | `src/tlmr_v2.rs` | `.tlmr` v2 recursive header, descriptors, and records |
 | `src/seed_expansion_index.rs` | exact generated-prefix seed expansion index |
@@ -228,16 +233,22 @@ unless the user explicitly asks to preserve one for audit.
 - Seed enumeration order is consensus-critical: 1-byte seeds first, then 2-byte,
   then 3-byte, each bucket in big-endian order.
 - Lotus arity 2 is valid. It is not reserved.
-- The literal marker on the wire is Lotus J1D1 value `5` (6 bits in J1D1's
-  largest tier). `0xFF` is an internal in-memory `DecodedHeader.arity` sentinel
-  only; it never appears on the wire.
+- The v1 arity field is the canonical direct prefix-free alphabet:
+  `00` = arity 1, `01` = arity 2, `100` = arity 3, `101` = arity 4,
+  `110` = arity 5, `111` = literal. The literal marker on the wire is the
+  3-bit codeword `111`. `0xFF` is an internal in-memory `DecodedHeader.arity`
+  sentinel only; it never appears on the wire.
+- The smallest v1 compressed record (arity 1, seed index 0) is 7 bits:
+  2-bit arity codeword + 5-bit J3D1 seed field.
 - `.tlmr` v1 is a 5-byte raw `TLMR` magic + version prefix followed by a single
   Lotus bit stream. The bit stream carries hasher kind, Lotus preset, layer
   count, lengths, and output hash, then the records payload. The total
   on-disk size is variable, not a fixed 40-byte header.
-- `.tlmr` v1 compressed records encode the canonical seed index via the Lotus
-  J3D2 tiered integer codec (`LOTUS_J_BITS = 3`, `LOTUS_TIERS = 2`). The codec
-  is provided by the sibling crate at `../lotus/src/lib.rs`.
+- `.tlmr` v1 compressed records encode the canonical seed index via Lotus
+  **J3D1** (`LOTUS_SEED_INDEX_J_BITS = 3`, `LOTUS_SEED_INDEX_TIERS = 1`).
+  Non-record header integers keep the shared J3D2 preset. The codec is
+  provided by the sibling crate at `../lotus/src/lib.rs`. Any J1D1/J3D2
+  description of v1 *records* is stale drift — see `docs/FORMAT_CANONICAL.md`.
 - `.tlmr` v1 `layer_count` is always `1`; recursive output must use `.tlmr` v2.
 - Indexed lookup must compare `expand(seed)[0..span_len]` to target spans, never
   `hash(target_span)` to `hash(seed)`.
