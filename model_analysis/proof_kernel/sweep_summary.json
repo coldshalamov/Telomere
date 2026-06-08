@@ -1,0 +1,1155 @@
+{
+  "validations": {
+    "cost_validation": {
+      "payload_widths_checked": 256,
+      "rust_v1_record_bit_len_checked_widths": 64,
+      "literal_marker_bits": 3,
+      "max_payload_width_bits": 508
+    },
+    "toy_probability_rows": [
+      {
+        "span_bits": 4,
+        "arity": 1,
+        "seed_outputs": 2,
+        "probability": 0.12109375,
+        "abs_delta": 0.0
+      },
+      {
+        "span_bits": 4,
+        "arity": 2,
+        "seed_outputs": 3,
+        "probability": 0.176025390625,
+        "abs_delta": 0.0
+      },
+      {
+        "span_bits": 4,
+        "arity": 3,
+        "seed_outputs": 4,
+        "probability": 0.2275238037109375,
+        "abs_delta": 0.0
+      },
+      {
+        "span_bits": 4,
+        "arity": 4,
+        "seed_outputs": 5,
+        "probability": 0.2758035659790039,
+        "abs_delta": 0.0
+      },
+      {
+        "span_bits": 4,
+        "arity": 5,
+        "seed_outputs": 6,
+        "probability": 0.32106584310531616,
+        "abs_delta": 0.0
+      },
+      {
+        "span_bits": 6,
+        "arity": 1,
+        "seed_outputs": 2,
+        "probability": 0.031005859375,
+        "abs_delta": 0.0
+      },
+      {
+        "span_bits": 6,
+        "arity": 2,
+        "seed_outputs": 3,
+        "probability": 0.046146392822265625,
+        "abs_delta": 0.0
+      },
+      {
+        "span_bits": 6,
+        "arity": 3,
+        "seed_outputs": 4,
+        "probability": 0.061050355434417725,
+        "abs_delta": 0.0
+      },
+      {
+        "span_bits": 6,
+        "arity": 4,
+        "seed_outputs": 5,
+        "probability": 0.07572144363075495,
+        "abs_delta": 0.0
+      },
+      {
+        "span_bits": 6,
+        "arity": 5,
+        "seed_outputs": 6,
+        "probability": 0.0901632960740244,
+        "abs_delta": 0.0
+      },
+      {
+        "span_bits": 8,
+        "arity": 1,
+        "seed_outputs": 2,
+        "probability": 0.0077972412109375,
+        "abs_delta": 0.0
+      },
+      {
+        "span_bits": 8,
+        "arity": 2,
+        "seed_outputs": 3,
+        "probability": 0.011673033237457275,
+        "abs_delta": 0.0
+      },
+      {
+        "span_bits": 8,
+        "arity": 3,
+        "seed_outputs": 4,
+        "probability": 0.015533685451373458,
+        "abs_delta": 0.0
+      },
+      {
+        "span_bits": 8,
+        "arity": 4,
+        "seed_outputs": 5,
+        "probability": 0.01937925699257903,
+        "abs_delta": 0.0
+      },
+      {
+        "span_bits": 8,
+        "arity": 5,
+        "seed_outputs": 6,
+        "probability": 0.02320980676995177,
+        "abs_delta": 0.0
+      }
+    ],
+    "span_histogram_validation": {
+      "arity": 3,
+      "explicit_tuples": 64,
+      "span_buckets": 10
+    },
+    "state_validation": {
+      "passes": 2,
+      "entry_count_after": 9999.92368615639,
+      "bits_after": 259504.5615256188
+    },
+    "refresh_rules": [
+      {
+        "name": "no_refresh",
+        "decodable": true,
+        "metadata_bits_per_pass": 0,
+        "rho": 0.0,
+        "proof": "Decoder sees only the selected record stream; no extra state is needed."
+      },
+      {
+        "name": "self_refresh_changed_windows",
+        "decodable": true,
+        "metadata_bits_per_pass": 0,
+        "rho": 0.25,
+        "proof": "Any selected replacement creates new encoded bits at its stream position; later windows touching it are fresh by construction."
+      },
+      {
+        "name": "equal_size_neutral_refresh",
+        "decodable": true,
+        "metadata_bits_per_pass": 0,
+        "rho": 0.55,
+        "proof": "An equal-size seed record is a legal entry with the same output length, so selecting it changes current-layer bits without increasing output size."
+      },
+      {
+        "name": "superposition_derived_refresh",
+        "decodable": true,
+        "metadata_bits_per_pass": 0,
+        "rho": 0.7,
+        "proof": "Retained encoder-only variants are not serialized; when one is selected, the wire contains only the selected legal record."
+      },
+      {
+        "name": "deterministic_bitstream_rechunk",
+        "decodable": true,
+        "metadata_bits_per_pass": 0,
+        "rho": 0.4,
+        "proof": "After each layer, both encoder and decoder split the emitted bitstream into the next fixed entry schedule from the profile."
+      },
+      {
+        "name": "deterministic_entry_permutation",
+        "decodable": true,
+        "metadata_bits_per_pass": 3,
+        "rho": 0.35,
+        "proof": "A profile-selected layer permutation is inverted after decoding that layer; the 3-bit rule selector is charged per pass."
+      },
+      {
+        "name": "layer_delimited_descriptor_refresh",
+        "decodable": true,
+        "metadata_bits_per_pass": 24,
+        "rho": 0.5,
+        "proof": "A layer descriptor names the refresh profile and bit length; the descriptor cost is charged once per layer."
+      },
+      {
+        "name": "phase_rotated_rechunk",
+        "decodable": true,
+        "metadata_bits_per_pass": 3,
+        "rho": 0.45,
+        "proof": "The layer number selects a deterministic bit offset rotation; the decoder reverses it from the charged profile selector."
+      }
+    ],
+    "superposition_sweep": {
+      "prune_delta_bits": [
+        0,
+        1,
+        2,
+        4,
+        8,
+        16,
+        32,
+        64
+      ],
+      "max_variants_per_position": [
+        1,
+        2,
+        3,
+        4,
+        8,
+        16
+      ],
+      "equal_size_allowed": [
+        false,
+        true
+      ],
+      "bloat_tolerant_retained": [
+        false,
+        true
+      ]
+    },
+    "bundle_variant_validation": {
+      "avg_variants": 16.0,
+      "weighted_score": 1.0038739383378594,
+      "retained_by_excess": {
+        "0": 0.00024414062499988898,
+        "1": 0.00048828124999977796,
+        "2": 0.0009765625,
+        "3": 0.001953124999999667,
+        "4": 0.003906249999999667,
+        "5": 0.007812500000000222,
+        "6": 0.015625000000002442,
+        "7": 0.03125000000000089,
+        "8": 0.062500000000001,
+        "9": 0.12499999999999967,
+        "10": 0.25000000000000067,
+        "11": 0.4999999999999988,
+        "12": 0.9999999999999801,
+        "13": 1.9999999955858374,
+        "14": 3.999623685285174,
+        "15": 6.8833077443952195,
+        "16": 0.11731271535878562
+      },
+      "state_growth_factor": 16.0
+    },
+    "selection_bounds": "left_to_right <= greedy_largest_gain <= oracle_weighted_interval",
+    "selection_validation": "ok"
+  },
+  "sweep_summary": {
+    "bounded_profiles": 18547200,
+    "required_block_bits": [
+      16,
+      24,
+      32
+    ],
+    "block_bits": [
+      8,
+      16,
+      24,
+      32,
+      48,
+      64
+    ],
+    "block_bytes": [
+      1.0,
+      2.0,
+      3.0,
+      4.0,
+      6.0,
+      8.0
+    ],
+    "arity_caps": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "seed_depth_bits": [
+      16,
+      24,
+      32,
+      48,
+      64,
+      96,
+      121,
+      160
+    ],
+    "depth_schedules": [
+      [
+        16
+      ],
+      [
+        24
+      ],
+      [
+        32
+      ],
+      [
+        48
+      ],
+      [
+        64
+      ],
+      [
+        96
+      ],
+      [
+        121
+      ],
+      [
+        160
+      ],
+      [
+        32,
+        16
+      ],
+      [
+        32,
+        24
+      ],
+      [
+        32,
+        32
+      ],
+      [
+        32,
+        48
+      ],
+      [
+        32,
+        64
+      ],
+      [
+        32,
+        96
+      ],
+      [
+        32,
+        121
+      ],
+      [
+        32,
+        160
+      ]
+    ],
+    "initial_literal_overhead_bits": [
+      10,
+      8
+    ],
+    "rechunk_bits": [
+      null,
+      4,
+      8,
+      16,
+      24
+    ],
+    "superposition_configs": 161,
+    "prune_delta_bits": [
+      0,
+      1,
+      2,
+      4,
+      8,
+      16,
+      32,
+      64
+    ],
+    "max_variants_per_position": [
+      1,
+      2,
+      3,
+      4,
+      8,
+      16
+    ],
+    "equal_size_allowed": [
+      false,
+      true
+    ],
+    "bloat_tolerant_retained": [
+      false,
+      true
+    ],
+    "refresh_rules": [
+      "no_refresh",
+      "self_refresh_changed_windows",
+      "equal_size_neutral_refresh",
+      "superposition_derived_refresh",
+      "deterministic_bitstream_rechunk",
+      "deterministic_entry_permutation",
+      "layer_delimited_descriptor_refresh",
+      "phase_rotated_rechunk"
+    ],
+    "selection_policies": [
+      "left_to_right",
+      "greedy_largest_gain",
+      "oracle_weighted_interval"
+    ],
+    "top_k_recurrence_profiles": 147,
+    "recurrence_seed_profiles": 49,
+    "recurrence_profile_selection": "top bounded profiles plus best representatives for each required sweep axis"
+  },
+  "first_effective_dominance_ceiling": {
+    "net_delta_pct_current": 0.5096180564646654,
+    "block_bits": 64,
+    "first_pass_depth_bits": 32,
+    "depth_bits": 32,
+    "depth_schedule_bits": [
+      32
+    ],
+    "initial_literal_overhead_bits": 10,
+    "rechunk_bits": 4,
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 16,
+    "refresh_name": "superposition_derived_refresh",
+    "policy": "oracle_weighted_interval",
+    "dominance_basis": [
+      "pass 2 must reach target for any 10-effective-pass success",
+      "oracle_weighted_interval is the selection upper bound",
+      "arity cap 5 includes arities 1..5",
+      "the expanded one-byte lane dominates larger byte schedules for this ceiling in the tested profile space",
+      "byte-aligned literal initialization is charged explicitly and is no larger than the worst-case pad budget",
+      "fixed bitstream rechunking preserves charged bits while exposing smaller profile-known current entries",
+      "max retained variants 16 dominates smaller retained-state caps",
+      "equal-size and bloat-retained alternatives enabled dominate disabling either source of retained candidates",
+      "superposition_derived_refresh has the largest zero-metadata refresh coefficient in the modeled rule set"
+    ]
+  },
+  "top_profiles": [
+    {
+      "candidate": {
+        "upper_bound_pct_current": 1.5713326930608749,
+        "block_bits": 8,
+        "arity_cap": 5,
+        "depth_bits": 32,
+        "depth_schedule_bits": [
+          32
+        ],
+        "initial_literal_overhead_bits": 10,
+        "rechunk_bits": 4,
+        "policy": "oracle_weighted_interval",
+        "refresh_name": "superposition_derived_refresh",
+        "superposition": {
+          "prune_delta_bits": 16,
+          "max_variants_per_position": 16,
+          "equal_size_allowed": false,
+          "bloat_tolerant_retained": true
+        },
+        "avg_variants": 16.0,
+        "window_multiplier": 1.1733125888931413
+      },
+      "final_ratio_raw": 2.1042832312454207,
+      "effective_pass_min_pct": 0.508922373671519,
+      "effective_pass_avg_pct": 0.5089223803484557,
+      "concentration_eps_pct": 0.9944051783429716,
+      "concentration_entry_count": 4230094,
+      "concentration_entry_bits": 4
+    },
+    {
+      "candidate": {
+        "upper_bound_pct_current": 1.5713326930608749,
+        "block_bits": 8,
+        "arity_cap": 5,
+        "depth_bits": 32,
+        "depth_schedule_bits": [
+          32,
+          32
+        ],
+        "initial_literal_overhead_bits": 10,
+        "rechunk_bits": 4,
+        "policy": "oracle_weighted_interval",
+        "refresh_name": "superposition_derived_refresh",
+        "superposition": {
+          "prune_delta_bits": 16,
+          "max_variants_per_position": 16,
+          "equal_size_allowed": false,
+          "bloat_tolerant_retained": true
+        },
+        "avg_variants": 16.0,
+        "window_multiplier": 1.1733125888931413
+      },
+      "final_ratio_raw": 2.1042832312454207,
+      "effective_pass_min_pct": 0.508922373671519,
+      "effective_pass_avg_pct": 0.5089223803484557,
+      "concentration_eps_pct": 0.9944051783429716,
+      "concentration_entry_count": 4230094,
+      "concentration_entry_bits": 4
+    },
+    {
+      "candidate": {
+        "upper_bound_pct_current": 1.5713326930608749,
+        "block_bits": 8,
+        "arity_cap": 5,
+        "depth_bits": 48,
+        "depth_schedule_bits": [
+          32,
+          48
+        ],
+        "initial_literal_overhead_bits": 10,
+        "rechunk_bits": 4,
+        "policy": "oracle_weighted_interval",
+        "refresh_name": "superposition_derived_refresh",
+        "superposition": {
+          "prune_delta_bits": 16,
+          "max_variants_per_position": 16,
+          "equal_size_allowed": false,
+          "bloat_tolerant_retained": true
+        },
+        "avg_variants": 16.0,
+        "window_multiplier": 1.1733125888931413
+      },
+      "final_ratio_raw": 2.1042832312454207,
+      "effective_pass_min_pct": 0.508922373671519,
+      "effective_pass_avg_pct": 0.5089223803484557,
+      "concentration_eps_pct": 0.9944051783429716,
+      "concentration_entry_count": 4230094,
+      "concentration_entry_bits": 4
+    },
+    {
+      "candidate": {
+        "upper_bound_pct_current": 1.5713326930608749,
+        "block_bits": 8,
+        "arity_cap": 5,
+        "depth_bits": 64,
+        "depth_schedule_bits": [
+          32,
+          64
+        ],
+        "initial_literal_overhead_bits": 10,
+        "rechunk_bits": 4,
+        "policy": "oracle_weighted_interval",
+        "refresh_name": "superposition_derived_refresh",
+        "superposition": {
+          "prune_delta_bits": 16,
+          "max_variants_per_position": 16,
+          "equal_size_allowed": false,
+          "bloat_tolerant_retained": true
+        },
+        "avg_variants": 16.0,
+        "window_multiplier": 1.1733125888931413
+      },
+      "final_ratio_raw": 2.1042832312454207,
+      "effective_pass_min_pct": 0.508922373671519,
+      "effective_pass_avg_pct": 0.5089223803484557,
+      "concentration_eps_pct": 0.9944051783429716,
+      "concentration_entry_count": 4230094,
+      "concentration_entry_bits": 4
+    },
+    {
+      "candidate": {
+        "upper_bound_pct_current": 1.5713326930608749,
+        "block_bits": 8,
+        "arity_cap": 5,
+        "depth_bits": 96,
+        "depth_schedule_bits": [
+          32,
+          96
+        ],
+        "initial_literal_overhead_bits": 10,
+        "rechunk_bits": 4,
+        "policy": "oracle_weighted_interval",
+        "refresh_name": "superposition_derived_refresh",
+        "superposition": {
+          "prune_delta_bits": 16,
+          "max_variants_per_position": 16,
+          "equal_size_allowed": false,
+          "bloat_tolerant_retained": true
+        },
+        "avg_variants": 16.0,
+        "window_multiplier": 1.1733125888931413
+      },
+      "final_ratio_raw": 2.1042832312454207,
+      "effective_pass_min_pct": 0.508922373671519,
+      "effective_pass_avg_pct": 0.5089223803484557,
+      "concentration_eps_pct": 0.9944051783429716,
+      "concentration_entry_count": 4230094,
+      "concentration_entry_bits": 4
+    },
+    {
+      "candidate": {
+        "upper_bound_pct_current": 1.5713326930608749,
+        "block_bits": 8,
+        "arity_cap": 5,
+        "depth_bits": 121,
+        "depth_schedule_bits": [
+          32,
+          121
+        ],
+        "initial_literal_overhead_bits": 10,
+        "rechunk_bits": 4,
+        "policy": "oracle_weighted_interval",
+        "refresh_name": "superposition_derived_refresh",
+        "superposition": {
+          "prune_delta_bits": 16,
+          "max_variants_per_position": 16,
+          "equal_size_allowed": false,
+          "bloat_tolerant_retained": true
+        },
+        "avg_variants": 16.0,
+        "window_multiplier": 1.1733125888931413
+      },
+      "final_ratio_raw": 2.1042832312454207,
+      "effective_pass_min_pct": 0.508922373671519,
+      "effective_pass_avg_pct": 0.5089223803484557,
+      "concentration_eps_pct": 0.9944051783429716,
+      "concentration_entry_count": 4230094,
+      "concentration_entry_bits": 4
+    },
+    {
+      "candidate": {
+        "upper_bound_pct_current": 1.5713326930608749,
+        "block_bits": 8,
+        "arity_cap": 5,
+        "depth_bits": 160,
+        "depth_schedule_bits": [
+          32,
+          160
+        ],
+        "initial_literal_overhead_bits": 10,
+        "rechunk_bits": 4,
+        "policy": "oracle_weighted_interval",
+        "refresh_name": "superposition_derived_refresh",
+        "superposition": {
+          "prune_delta_bits": 16,
+          "max_variants_per_position": 16,
+          "equal_size_allowed": false,
+          "bloat_tolerant_retained": true
+        },
+        "avg_variants": 16.0,
+        "window_multiplier": 1.1733125888931413
+      },
+      "final_ratio_raw": 2.1042832312454207,
+      "effective_pass_min_pct": 0.508922373671519,
+      "effective_pass_avg_pct": 0.5089223803484557,
+      "concentration_eps_pct": 0.9944051783429716,
+      "concentration_entry_count": 4230094,
+      "concentration_entry_bits": 4
+    },
+    {
+      "candidate": {
+        "upper_bound_pct_current": 1.5713326930608749,
+        "block_bits": 8,
+        "arity_cap": 5,
+        "depth_bits": 48,
+        "depth_schedule_bits": [
+          48
+        ],
+        "initial_literal_overhead_bits": 10,
+        "rechunk_bits": 4,
+        "policy": "oracle_weighted_interval",
+        "refresh_name": "superposition_derived_refresh",
+        "superposition": {
+          "prune_delta_bits": 16,
+          "max_variants_per_position": 16,
+          "equal_size_allowed": false,
+          "bloat_tolerant_retained": true
+        },
+        "avg_variants": 16.0,
+        "window_multiplier": 1.1733125888931413
+      },
+      "final_ratio_raw": 2.1042523594218268,
+      "effective_pass_min_pct": 0.508922373667167,
+      "effective_pass_avg_pct": 0.5089223803442102,
+      "concentration_eps_pct": 0.9944124658640996,
+      "concentration_entry_count": 4230032,
+      "concentration_entry_bits": 4
+    },
+    {
+      "candidate": {
+        "upper_bound_pct_current": 1.5713326930608749,
+        "block_bits": 8,
+        "arity_cap": 5,
+        "depth_bits": 64,
+        "depth_schedule_bits": [
+          64
+        ],
+        "initial_literal_overhead_bits": 10,
+        "rechunk_bits": 4,
+        "policy": "oracle_weighted_interval",
+        "refresh_name": "superposition_derived_refresh",
+        "superposition": {
+          "prune_delta_bits": 16,
+          "max_variants_per_position": 16,
+          "equal_size_allowed": false,
+          "bloat_tolerant_retained": true
+        },
+        "avg_variants": 16.0,
+        "window_multiplier": 1.1733125888931413
+      },
+      "final_ratio_raw": 2.1042523594218268,
+      "effective_pass_min_pct": 0.508922373667167,
+      "effective_pass_avg_pct": 0.5089223803442102,
+      "concentration_eps_pct": 0.9944124658640996,
+      "concentration_entry_count": 4230032,
+      "concentration_entry_bits": 4
+    },
+    {
+      "candidate": {
+        "upper_bound_pct_current": 1.5713326930608749,
+        "block_bits": 8,
+        "arity_cap": 5,
+        "depth_bits": 96,
+        "depth_schedule_bits": [
+          96
+        ],
+        "initial_literal_overhead_bits": 10,
+        "rechunk_bits": 4,
+        "policy": "oracle_weighted_interval",
+        "refresh_name": "superposition_derived_refresh",
+        "superposition": {
+          "prune_delta_bits": 16,
+          "max_variants_per_position": 16,
+          "equal_size_allowed": false,
+          "bloat_tolerant_retained": true
+        },
+        "avg_variants": 16.0,
+        "window_multiplier": 1.1733125888931413
+      },
+      "final_ratio_raw": 2.1042523594218268,
+      "effective_pass_min_pct": 0.508922373667167,
+      "effective_pass_avg_pct": 0.5089223803442102,
+      "concentration_eps_pct": 0.9944124658640996,
+      "concentration_entry_count": 4230032,
+      "concentration_entry_bits": 4
+    },
+    {
+      "candidate": {
+        "upper_bound_pct_current": 1.5713326930608749,
+        "block_bits": 8,
+        "arity_cap": 5,
+        "depth_bits": 121,
+        "depth_schedule_bits": [
+          121
+        ],
+        "initial_literal_overhead_bits": 10,
+        "rechunk_bits": 4,
+        "policy": "oracle_weighted_interval",
+        "refresh_name": "superposition_derived_refresh",
+        "superposition": {
+          "prune_delta_bits": 16,
+          "max_variants_per_position": 16,
+          "equal_size_allowed": false,
+          "bloat_tolerant_retained": true
+        },
+        "avg_variants": 16.0,
+        "window_multiplier": 1.1733125888931413
+      },
+      "final_ratio_raw": 2.1042523594218268,
+      "effective_pass_min_pct": 0.508922373667167,
+      "effective_pass_avg_pct": 0.5089223803442102,
+      "concentration_eps_pct": 0.9944124658640996,
+      "concentration_entry_count": 4230032,
+      "concentration_entry_bits": 4
+    },
+    {
+      "candidate": {
+        "upper_bound_pct_current": 1.5713326930608749,
+        "block_bits": 8,
+        "arity_cap": 5,
+        "depth_bits": 160,
+        "depth_schedule_bits": [
+          160
+        ],
+        "initial_literal_overhead_bits": 10,
+        "rechunk_bits": 4,
+        "policy": "oracle_weighted_interval",
+        "refresh_name": "superposition_derived_refresh",
+        "superposition": {
+          "prune_delta_bits": 16,
+          "max_variants_per_position": 16,
+          "equal_size_allowed": false,
+          "bloat_tolerant_retained": true
+        },
+        "avg_variants": 16.0,
+        "window_multiplier": 1.1733125888931413
+      },
+      "final_ratio_raw": 2.1042523594218268,
+      "effective_pass_min_pct": 0.508922373667167,
+      "effective_pass_avg_pct": 0.5089223803442102,
+      "concentration_eps_pct": 0.9944124658640996,
+      "concentration_entry_count": 4230032,
+      "concentration_entry_bits": 4
+    },
+    {
+      "candidate": {
+        "upper_bound_pct_current": 1.5713326930608749,
+        "block_bits": 8,
+        "arity_cap": 5,
+        "depth_bits": 24,
+        "depth_schedule_bits": [
+          24
+        ],
+        "initial_literal_overhead_bits": 10,
+        "rechunk_bits": 4,
+        "policy": "oracle_weighted_interval",
+        "refresh_name": "superposition_derived_refresh",
+        "superposition": {
+          "prune_delta_bits": 16,
+          "max_variants_per_position": 16,
+          "equal_size_allowed": false,
+          "bloat_tolerant_retained": true
+        },
+        "avg_variants": 16.0,
+        "window_multiplier": 1.1733125888931413
+      },
+      "final_ratio_raw": 2.1114556396874535,
+      "effective_pass_min_pct": 0.5089218718420953,
+      "effective_pass_avg_pct": 0.5089218784963349,
+      "concentration_eps_pct": 0.9927148155813057,
+      "concentration_entry_count": 4244512,
+      "concentration_entry_bits": 4
+    },
+    {
+      "candidate": {
+        "upper_bound_pct_current": 1.5713326930608749,
+        "block_bits": 8,
+        "arity_cap": 5,
+        "depth_bits": 24,
+        "depth_schedule_bits": [
+          32,
+          24
+        ],
+        "initial_literal_overhead_bits": 10,
+        "rechunk_bits": 4,
+        "policy": "oracle_weighted_interval",
+        "refresh_name": "superposition_derived_refresh",
+        "superposition": {
+          "prune_delta_bits": 16,
+          "max_variants_per_position": 16,
+          "equal_size_allowed": false,
+          "bloat_tolerant_retained": true
+        },
+        "avg_variants": 16.0,
+        "window_multiplier": 1.1733125888931413
+      },
+      "final_ratio_raw": 2.1042833375970367,
+      "effective_pass_min_pct": 0.5089218708382413,
+      "effective_pass_avg_pct": 0.5089218775151645,
+      "concentration_eps_pct": 0.9944051783429716,
+      "concentration_entry_count": 4230094,
+      "concentration_entry_bits": 4
+    },
+    {
+      "candidate": {
+        "upper_bound_pct_current": 1.5713326930608749,
+        "block_bits": 8,
+        "arity_cap": 5,
+        "depth_bits": 16,
+        "depth_schedule_bits": [
+          16
+        ],
+        "initial_literal_overhead_bits": 10,
+        "rechunk_bits": 4,
+        "policy": "oracle_weighted_interval",
+        "refresh_name": "superposition_derived_refresh",
+        "superposition": {
+          "prune_delta_bits": 16,
+          "max_variants_per_position": 16,
+          "equal_size_allowed": true,
+          "bloat_tolerant_retained": true
+        },
+        "avg_variants": 16.0,
+        "window_multiplier": 1.1733125888931413
+      },
+      "final_ratio_raw": 2.1171957991775328,
+      "effective_pass_min_pct": 0.5088421739207025,
+      "effective_pass_avg_pct": 0.5088421805502578,
+      "concentration_eps_pct": 0.9913685280431693,
+      "concentration_entry_count": 4256048,
+      "concentration_entry_bits": 4
+    },
+    {
+      "candidate": {
+        "upper_bound_pct_current": 1.5713326930608749,
+        "block_bits": 8,
+        "arity_cap": 5,
+        "depth_bits": 16,
+        "depth_schedule_bits": [
+          16
+        ],
+        "initial_literal_overhead_bits": 10,
+        "rechunk_bits": 4,
+        "policy": "oracle_weighted_interval",
+        "refresh_name": "superposition_derived_refresh",
+        "superposition": {
+          "prune_delta_bits": 32,
+          "max_variants_per_position": 16,
+          "equal_size_allowed": true,
+          "bloat_tolerant_retained": true
+        },
+        "avg_variants": 16.0,
+        "window_multiplier": 1.1733125888931413
+      },
+      "final_ratio_raw": 2.1171957991775328,
+      "effective_pass_min_pct": 0.5088421739207025,
+      "effective_pass_avg_pct": 0.5088421805502578,
+      "concentration_eps_pct": 0.9913685280431693,
+      "concentration_entry_count": 4256048,
+      "concentration_entry_bits": 4
+    },
+    {
+      "candidate": {
+        "upper_bound_pct_current": 1.5713326930608749,
+        "block_bits": 64,
+        "arity_cap": 5,
+        "depth_bits": 16,
+        "depth_schedule_bits": [
+          16
+        ],
+        "initial_literal_overhead_bits": 10,
+        "rechunk_bits": 4,
+        "policy": "oracle_weighted_interval",
+        "refresh_name": "superposition_derived_refresh",
+        "superposition": {
+          "prune_delta_bits": 16,
+          "max_variants_per_position": 16,
+          "equal_size_allowed": false,
+          "bloat_tolerant_retained": true
+        },
+        "avg_variants": 16.0,
+        "window_multiplier": 1.1733125888931413
+      },
+      "final_ratio_raw": 1.0988209862177574,
+      "effective_pass_min_pct": 0.5081468973669186,
+      "effective_pass_avg_pct": 0.5081468989591971,
+      "concentration_eps_pct": 0.48652894533220925,
+      "concentration_entry_count": 17670930,
+      "concentration_entry_bits": 4
+    },
+    {
+      "candidate": {
+        "upper_bound_pct_current": 1.5713326930608749,
+        "block_bits": 48,
+        "arity_cap": 5,
+        "depth_bits": 16,
+        "depth_schedule_bits": [
+          16
+        ],
+        "initial_literal_overhead_bits": 10,
+        "rechunk_bits": 4,
+        "policy": "oracle_weighted_interval",
+        "refresh_name": "superposition_derived_refresh",
+        "superposition": {
+          "prune_delta_bits": 16,
+          "max_variants_per_position": 16,
+          "equal_size_allowed": false,
+          "bloat_tolerant_retained": true
+        },
+        "avg_variants": 16.0,
+        "window_multiplier": 1.1733125888931413
+      },
+      "final_ratio_raw": 1.148317429073642,
+      "effective_pass_min_pct": 0.5081468778959759,
+      "effective_pass_avg_pct": 0.5081468799275265,
+      "concentration_eps_pct": 0.5495542262841225,
+      "concentration_entry_count": 13850188,
+      "concentration_entry_bits": 4
+    },
+    {
+      "candidate": {
+        "upper_bound_pct_current": 1.5713326930608749,
+        "block_bits": 32,
+        "arity_cap": 5,
+        "depth_bits": 16,
+        "depth_schedule_bits": [
+          16
+        ],
+        "initial_literal_overhead_bits": 10,
+        "rechunk_bits": 4,
+        "policy": "oracle_weighted_interval",
+        "refresh_name": "superposition_derived_refresh",
+        "superposition": {
+          "prune_delta_bits": 16,
+          "max_variants_per_position": 16,
+          "equal_size_allowed": false,
+          "bloat_tolerant_retained": true
+        },
+        "avg_variants": 16.0,
+        "window_multiplier": 1.1733125888931413
+      },
+      "final_ratio_raw": 1.2473017054196192,
+      "effective_pass_min_pct": 0.5081468435892074,
+      "effective_pass_avg_pct": 0.5081468463946951,
+      "concentration_eps_pct": 0.6458050073509116,
+      "concentration_entry_count": 10029377,
+      "concentration_entry_bits": 4
+    },
+    {
+      "candidate": {
+        "upper_bound_pct_current": 1.5713326930608749,
+        "block_bits": 24,
+        "arity_cap": 5,
+        "depth_bits": 16,
+        "depth_schedule_bits": [
+          16
+        ],
+        "initial_literal_overhead_bits": 10,
+        "rechunk_bits": 4,
+        "policy": "oracle_weighted_interval",
+        "refresh_name": "superposition_derived_refresh",
+        "superposition": {
+          "prune_delta_bits": 16,
+          "max_variants_per_position": 16,
+          "equal_size_allowed": false,
+          "bloat_tolerant_retained": true
+        },
+        "avg_variants": 16.0,
+        "window_multiplier": 1.1733125888931413
+      },
+      "final_ratio_raw": 1.345298877376974,
+      "effective_pass_min_pct": 0.5081468142144504,
+      "effective_pass_avg_pct": 0.508146817682623,
+      "concentration_eps_pct": 0.7180375225771004,
+      "concentration_entry_count": 8113019,
+      "concentration_entry_bits": 4
+    },
+    {
+      "candidate": {
+        "upper_bound_pct_current": 1.5713326930608749,
+        "block_bits": 16,
+        "arity_cap": 5,
+        "depth_bits": 16,
+        "depth_schedule_bits": [
+          16
+        ],
+        "initial_literal_overhead_bits": 10,
+        "rechunk_bits": 4,
+        "policy": "oracle_weighted_interval",
+        "refresh_name": "superposition_derived_refresh",
+        "superposition": {
+          "prune_delta_bits": 16,
+          "max_variants_per_position": 16,
+          "equal_size_allowed": false,
+          "bloat_tolerant_retained": true
+        },
+        "avg_variants": 16.0,
+        "window_multiplier": 1.1733125888931413
+      },
+      "final_ratio_raw": 1.5414256450912487,
+      "effective_pass_min_pct": 0.5081467666883068,
+      "effective_pass_avg_pct": 0.5081467712286528,
+      "concentration_eps_pct": 0.821563006478647,
+      "concentration_entry_count": 6197193,
+      "concentration_entry_bits": 4
+    },
+    {
+      "candidate": {
+        "upper_bound_pct_current": 1.5713326930608749,
+        "block_bits": 8,
+        "arity_cap": 5,
+        "depth_bits": 16,
+        "depth_schedule_bits": [
+          16
+        ],
+        "initial_literal_overhead_bits": 10,
+        "rechunk_bits": 4,
+        "policy": "oracle_weighted_interval",
+        "refresh_name": "superposition_derived_refresh",
+        "superposition": {
+          "prune_delta_bits": 16,
+          "max_variants_per_position": 16,
+          "equal_size_allowed": false,
+          "bloat_tolerant_retained": true
+        },
+        "avg_variants": 16.0,
+        "window_multiplier": 1.1733125888931413
+      },
+      "final_ratio_raw": 2.1173738920484855,
+      "effective_pass_min_pct": 0.508146674917739,
+      "effective_pass_avg_pct": 0.5081466815283598,
+      "concentration_eps_pct": 0.9913303294509999,
+      "concentration_entry_count": 4256376,
+      "concentration_entry_bits": 4
+    },
+    {
+      "candidate": {
+        "upper_bound_pct_current": 1.5713326930608749,
+        "block_bits": 8,
+        "arity_cap": 5,
+        "depth_bits": 16,
+        "depth_schedule_bits": [
+          16
+        ],
+        "initial_literal_overhead_bits": 10,
+        "rechunk_bits": 4,
+        "policy": "oracle_weighted_interval",
+        "refresh_name": "superposition_derived_refresh",
+        "superposition": {
+          "prune_delta_bits": 32,
+          "max_variants_per_position": 16,
+          "equal_size_allowed": false,
+          "bloat_tolerant_retained": true
+        },
+        "avg_variants": 16.0,
+        "window_multiplier": 1.1733125888931413
+      },
+      "final_ratio_raw": 2.1173738920484855,
+      "effective_pass_min_pct": 0.508146674917739,
+      "effective_pass_avg_pct": 0.5081466815283598,
+      "concentration_eps_pct": 0.9913303294509999,
+      "concentration_entry_count": 4256376,
+      "concentration_entry_bits": 4
+    },
+    {
+      "candidate": {
+        "upper_bound_pct_current": 1.5713326930608749,
+        "block_bits": 8,
+        "arity_cap": 5,
+        "depth_bits": 16,
+        "depth_schedule_bits": [
+          16
+        ],
+        "initial_literal_overhead_bits": 10,
+        "rechunk_bits": 4,
+        "policy": "oracle_weighted_interval",
+        "refresh_name": "superposition_derived_refresh",
+        "superposition": {
+          "prune_delta_bits": 64,
+          "max_variants_per_position": 16,
+          "equal_size_allowed": false,
+          "bloat_tolerant_retained": true
+        },
+        "avg_variants": 16.0,
+        "window_multiplier": 1.1733125888931413
+      },
+      "final_ratio_raw": 2.1173738920484855,
+      "effective_pass_min_pct": 0.508146674917739,
+      "effective_pass_avg_pct": 0.5081466815283598,
+      "concentration_eps_pct": 0.9913303294509999,
+      "concentration_entry_count": 4256376,
+      "concentration_entry_bits": 4
+    },
+    {
+      "candidate": {
+        "upper_bound_pct_current": 1.5713326930608749,
+        "block_bits": 8,
+        "arity_cap": 5,
+        "depth_bits": 16,
+        "depth_schedule_bits": [
+          32,
+          16
+        ],
+        "initial_literal_overhead_bits": 10,
+        "rechunk_bits": 4,
+        "policy": "oracle_weighted_interval",
+        "refresh_name": "superposition_derived_refresh",
+        "superposition": {
+          "prune_delta_bits": 16,
+          "max_variants_per_position": 16,
+          "equal_size_allowed": false,
+          "bloat_tolerant_retained": true
+        },
+        "avg_variants": 16.0,
+        "window_multiplier": 1.1733125888931413
+      },
+      "final_ratio_raw": 2.1044473013340323,
+      "effective_pass_min_pct": 0.5081466731177914,
+      "effective_pass_avg_pct": 0.5081466797690262,
+      "concentration_eps_pct": 0.9943702709878594,
+      "concentration_entry_count": 4230391,
+      "concentration_entry_bits": 4
+    }
+  ]
+}

@@ -1,31 +1,79 @@
-"""proof_kernel.selection_bounds — provable brackets around replacement selection.
+"""Selection-policy brackets for non-overlapping Telomere replacements."""
 
-The recurrence never uses a heuristic selection estimate. Every pass's accepted
-mass is BRACKETED:
+from __future__ import annotations
 
-  LOWER (conservative disjoint windows): partition the n entries into
-  floor(n/a) disjoint arity-a windows. Each is an independent trial; accepting
-  every disjoint hit is always feasible (no overlaps by construction), so this
-  undercounts what any real selector can do. Provable lower bound.
-
-  UPPER (oracle interval scheduling): count every hit among all (n-a+1) sliding
-  windows and credit each its full gain, ignoring overlap conflicts entirely.
-  No selector can accept more than everything. Provable upper bound.
-
-The true machine (greedy / left-to-right / weighted lattice) lies between.
-"""
+from dataclasses import dataclass
 
 
-def disjoint_windows(n: float, a: int) -> float:
-    """Number of disjoint arity-a windows available (lower-bound trial count)."""
-    return max(0.0, n // a if isinstance(n, int) else n / a)
+POLICIES = ("left_to_right", "greedy_largest_gain", "oracle_weighted_interval")
 
 
-def sliding_windows(n: float, a: int) -> float:
-    """Number of sliding arity-a windows (upper-bound trial count)."""
-    return max(0.0, n - a + 1)
+@dataclass(frozen=True)
+class SelectionEstimate:
+    policy: str
+    candidate_windows: float
+    accepted_windows: float
+    conflict_loss: float
+    proof_role: str
 
 
-def accepted_bounds(n: float, a: int, p_hit: float):
-    """(lower, upper) expected accepted replacements for one arity tier."""
-    return disjoint_windows(n, a) * p_hit, sliding_windows(n, a) * p_hit
+def disjoint_windows(entry_count: float, arity: int) -> float:
+    return max(0.0, entry_count / arity)
+
+
+def sliding_windows(entry_count: float, arity: int) -> float:
+    return max(0.0, entry_count - arity + 1.0)
+
+
+def estimate_selection(entry_count: float, arity: int, hit_probability: float, policy: str) -> SelectionEstimate:
+    """Expected accepted windows for the requested selection policy.
+
+    The left-to-right policy is a conservative lower bound because it partitions
+    the stream into disjoint arity-a windows. The oracle policy is an upper
+    bound because it credits every positive window before overlap conflicts.
+    Greedy is the deterministic middle estimate used for candidate configs.
+    """
+
+    if policy not in POLICIES:
+        raise ValueError(f"unknown selection policy: {policy}")
+    hit_probability = max(0.0, min(1.0, hit_probability))
+    if entry_count <= 0 or arity <= 0:
+        return SelectionEstimate(policy, 0.0, 0.0, 0.0, "empty")
+
+    if policy == "left_to_right":
+        candidates = disjoint_windows(entry_count, arity)
+        accepted = candidates * hit_probability
+        return SelectionEstimate(policy, candidates, accepted, 0.0, "lower_bound")
+
+    candidates = sliding_windows(entry_count, arity)
+    raw_hits = candidates * hit_probability
+    if policy == "oracle_weighted_interval":
+        return SelectionEstimate(policy, candidates, raw_hits, 0.0, "upper_bound")
+
+    density = raw_hits / max(entry_count, 1.0)
+    conflict_factor = 1.0 / (1.0 + max(0, arity - 1) * density)
+    lower = disjoint_windows(entry_count, arity) * hit_probability
+    accepted = max(lower, min(disjoint_windows(entry_count, arity), raw_hits * conflict_factor))
+    return SelectionEstimate(
+        policy,
+        candidates,
+        accepted,
+        max(0.0, raw_hits - accepted),
+        "deterministic_estimate",
+    )
+
+
+def validate_selection_order() -> None:
+    for n in (10, 1000):
+        for arity in range(1, 6):
+            for p in (0.001, 0.1, 0.9):
+                lo = estimate_selection(n, arity, p, "left_to_right").accepted_windows
+                mid = estimate_selection(n, arity, p, "greedy_largest_gain").accepted_windows
+                up = estimate_selection(n, arity, p, "oracle_weighted_interval").accepted_windows
+                if not (lo <= mid + 1e-12 and mid <= up + 1e-12):
+                    raise AssertionError((n, arity, p, lo, mid, up))
+
+
+if __name__ == "__main__":
+    validate_selection_order()
+    print("selection bounds OK")

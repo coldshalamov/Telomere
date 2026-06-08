@@ -1,0 +1,148 @@
+rank,upper_bound_pct_current,effective_pass_min_pct,effective_pass_avg_pct,final_ratio_raw,block_bits,arity_cap,depth_bits,depth_schedule_bits,initial_literal_overhead_bits,rechunk_bits,policy,refresh,delta,max_variants,equal_size,bloat_retained
+1,1.571332693,0.508922374,0.508922380,2.104283231245,8,5,32,32,10,4,oracle_weighted_interval,superposition_derived_refresh,16,16,False,True
+2,1.571332693,0.508922374,0.508922380,2.104283231245,8,5,32,32 32,10,4,oracle_weighted_interval,superposition_derived_refresh,16,16,False,True
+3,1.571332693,0.508922374,0.508922380,2.104283231245,8,5,48,32 48,10,4,oracle_weighted_interval,superposition_derived_refresh,16,16,False,True
+4,1.571332693,0.508922374,0.508922380,2.104283231245,8,5,64,32 64,10,4,oracle_weighted_interval,superposition_derived_refresh,16,16,False,True
+5,1.571332693,0.508922374,0.508922380,2.104283231245,8,5,96,32 96,10,4,oracle_weighted_interval,superposition_derived_refresh,16,16,False,True
+6,1.571332693,0.508922374,0.508922380,2.104283231245,8,5,121,32 121,10,4,oracle_weighted_interval,superposition_derived_refresh,16,16,False,True
+7,1.571332693,0.508922374,0.508922380,2.104283231245,8,5,160,32 160,10,4,oracle_weighted_interval,superposition_derived_refresh,16,16,False,True
+8,1.571332693,0.508922374,0.508922380,2.104252359422,8,5,48,48,10,4,oracle_weighted_interval,superposition_derived_refresh,16,16,False,True
+9,1.571332693,0.508922374,0.508922380,2.104252359422,8,5,64,64,10,4,oracle_weighted_interval,superposition_derived_refresh,16,16,False,True
+10,1.571332693,0.508922374,0.508922380,2.104252359422,8,5,96,96,10,4,oracle_weighted_interval,superposition_derived_refresh,16,16,False,True
+11,1.571332693,0.508922374,0.508922380,2.104252359422,8,5,121,121,10,4,oracle_weighted_interval,superposition_derived_refresh,16,16,False,True
+12,1.571332693,0.508922374,0.508922380,2.104252359422,8,5,160,160,10,4,oracle_weighted_interval,superposition_derived_refresh,16,16,False,True
+13,1.571332693,0.508921872,0.508921878,2.111455639687,8,5,24,24,10,4,oracle_weighted_interval,superposition_derived_refresh,16,16,False,True
+14,1.571332693,0.508921871,0.508921878,2.104283337597,8,5,24,32 24,10,4,oracle_weighted_interval,superposition_derived_refresh,16,16,False,True
+15,1.571332693,0.508842174,0.508842181,2.117195799178,8,5,16,16,10,4,oracle_weighted_interval,superposition_derived_refresh,16,16,True,True
+16,1.571332693,0.508842174,0.508842181,2.117195799178,8,5,16,16,10,4,oracle_weighted_interval,superposition_derived_refresh,32,16,True,True
+17,1.571332693,0.508146897,0.508146899,1.098820986218,64,5,16,16,10,4,oracle_weighted_interval,superposition_derived_refresh,16,16,False,True
+18,1.571332693,0.508146878,0.508146880,1.148317429074,48,5,16,16,10,4,oracle_weighted_interval,superposition_derived_refresh,16,16,False,True
+19,1.571332693,0.508146844,0.508146846,1.247301705420,32,5,16,16,10,4,oracle_weighted_interval,superposition_derived_refresh,16,16,False,True
+20,1.571332693,0.508146814,0.508146818,1.345298877377,24,5,16,16,10,4,oracle_weighted_interval,superposition_derived_refresh,16,16,False,True
+21,1.571332693,0.508146767,0.508146771,1.541425645091,16,5,16,16,10,4,oracle_weighted_interval,superposition_derived_refresh,16,16,False,True
+22,1.571332693,0.508146675,0.508146682,2.117373892048,8,5,16,16,10,4,oracle_weighted_interval,superposition_derived_refresh,16,16,False,True
+23,1.571332693,0.508146675,0.508146682,2.117373892048,8,5,16,16,10,4,oracle_weighted_interval,superposition_derived_refresh,32,16,False,True
+24,1.571332693,0.508146675,0.508146682,2.117373892048,8,5,16,16,10,4,oracle_weighted_interval,superposition_derived_refresh,64,16,False,True
+25,1.571332693,0.508146673,0.508146680,2.104447301334,8,5,16,32 16,10,4,oracle_weighted_interval,superposition_derived_refresh,16,16,False,True
+26,1.571332693,0.508146639,0.508146646,1.883584412192,8,5,16,16,8,4,oracle_weighted_interval,superposition_derived_refresh,16,16,False,True
+27,1.571332693,0.505455240,0.505455247,2.105126141701,8,5,32,32,10,4,greedy_largest_gain,superposition_derived_refresh,16,16,False,True
+28,1.571332693,0.505455240,0.505455247,2.105126141701,8,5,32,32 32,10,4,greedy_largest_gain,superposition_derived_refresh,16,16,False,True
+29,1.571332693,0.505455240,0.505455247,2.105126141701,8,5,48,32 48,10,4,greedy_largest_gain,superposition_derived_refresh,16,16,False,True
+30,1.571332693,0.505455240,0.505455247,2.105126141701,8,5,64,32 64,10,4,greedy_largest_gain,superposition_derived_refresh,16,16,False,True
+31,1.571332693,0.505455240,0.505455247,2.105126141701,8,5,96,32 96,10,4,greedy_largest_gain,superposition_derived_refresh,16,16,False,True
+32,1.571332693,0.505455240,0.505455247,2.105126141701,8,5,121,32 121,10,4,greedy_largest_gain,superposition_derived_refresh,16,16,False,True
+33,1.571332693,0.505455240,0.505455247,2.105126141701,8,5,160,32 160,10,4,greedy_largest_gain,superposition_derived_refresh,16,16,False,True
+34,1.571332693,0.505455240,0.505455247,2.105095531683,8,5,48,48,10,4,greedy_largest_gain,superposition_derived_refresh,16,16,False,True
+35,1.571332693,0.505455240,0.505455247,2.105095531683,8,5,64,64,10,4,greedy_largest_gain,superposition_derived_refresh,16,16,False,True
+36,1.571332693,0.505455240,0.505455247,2.105095531683,8,5,96,96,10,4,greedy_largest_gain,superposition_derived_refresh,16,16,False,True
+37,1.571332693,0.505455240,0.505455247,2.105095531683,8,5,121,121,10,4,greedy_largest_gain,superposition_derived_refresh,16,16,False,True
+38,1.571332693,0.505455240,0.505455247,2.105095531683,8,5,160,160,10,4,greedy_largest_gain,superposition_derived_refresh,16,16,False,True
+39,1.571332693,0.505454748,0.505454754,2.112266818073,8,5,24,24,10,4,greedy_largest_gain,superposition_derived_refresh,16,16,False,True
+40,1.571332693,0.505454747,0.505454753,2.105126246158,8,5,24,32 24,10,4,greedy_largest_gain,superposition_derived_refresh,16,16,False,True
+41,1.571332693,0.505377659,0.505377665,2.117988957203,8,5,16,16,10,4,greedy_largest_gain,superposition_derived_refresh,16,16,True,True
+42,1.571332693,0.505377659,0.505377665,2.117988957203,8,5,16,16,10,4,greedy_largest_gain,superposition_derived_refresh,32,16,True,True
+43,1.571332693,0.504692532,0.504692534,1.099202557362,64,5,16,16,10,4,greedy_largest_gain,superposition_derived_refresh,16,16,False,True
+44,1.571332693,0.504692513,0.504692515,1.148716188075,48,5,16,16,10,4,greedy_largest_gain,superposition_derived_refresh,16,16,False,True
+45,1.571332693,0.504692479,0.504692482,1.247734837146,32,5,16,16,10,4,greedy_largest_gain,superposition_derived_refresh,16,16,False,True
+46,1.571332693,0.504692450,0.504692454,1.345766039051,24,5,16,16,10,4,greedy_largest_gain,superposition_derived_refresh,16,16,False,True
+47,1.571332693,0.504692404,0.504692408,1.541960913074,16,5,16,16,10,4,greedy_largest_gain,superposition_derived_refresh,16,16,False,True
+48,1.571332693,0.504692313,0.504692320,2.118164707444,8,5,16,16,10,4,greedy_largest_gain,superposition_derived_refresh,16,16,False,True
+49,1.571332693,0.504692313,0.504692320,2.118164707444,8,5,16,16,10,4,greedy_largest_gain,superposition_derived_refresh,32,16,False,True
+50,1.571332693,0.504692313,0.504692320,2.118164707444,8,5,16,16,10,4,greedy_largest_gain,superposition_derived_refresh,64,16,False,True
+51,1.571332693,0.504692311,0.504692318,2.105287569383,8,5,16,32 16,10,4,greedy_largest_gain,superposition_derived_refresh,16,16,False,True
+52,1.571332693,0.504692277,0.504692285,1.884283943558,8,5,16,16,8,4,greedy_largest_gain,superposition_derived_refresh,16,16,False,True
+53,1.552978246,0.502761567,0.502761573,2.118653675113,8,5,16,16,10,4,oracle_weighted_interval,superposition_derived_refresh,16,8,False,True
+54,1.552978246,0.499382706,0.499382712,2.119428148625,8,5,16,16,10,4,greedy_largest_gain,superposition_derived_refresh,16,8,False,True
+55,1.539706924,0.498120503,0.498120510,2.119850907495,8,5,16,16,10,4,oracle_weighted_interval,superposition_derived_refresh,8,16,False,True
+56,1.528620133,0.494996747,0.494996753,2.120564706235,8,5,16,16,10,4,oracle_weighted_interval,equal_size_neutral_refresh,16,16,False,True
+57,1.539706924,0.494804543,0.494804549,2.120611297875,8,5,16,16,10,4,greedy_largest_gain,superposition_derived_refresh,8,16,False,True
+58,1.525694886,0.494310151,0.494310158,2.120666215021,8,5,16,16,10,4,oracle_weighted_interval,superposition_derived_refresh,8,4,False,True
+59,1.528620133,0.491724744,0.491724750,2.121315601675,8,5,16,16,10,4,greedy_largest_gain,equal_size_neutral_refresh,16,16,False,True
+60,1.525694886,0.491047718,0.491047724,2.121415441650,8,5,16,16,10,4,greedy_largest_gain,superposition_derived_refresh,8,4,False,True
+61,1.513993114,0.490513861,0.490520095,2.121651385269,8,5,16,16,10,4,oracle_weighted_interval,layer_delimited_descriptor_refresh,16,16,False,True
+62,1.506906037,0.489162365,0.489162371,2.121778929236,8,5,16,16,10,4,oracle_weighted_interval,superposition_derived_refresh,8,3,False,True
+63,1.513993114,0.487300892,0.487307083,2.122389352551,8,5,16,16,10,4,greedy_largest_gain,layer_delimited_descriptor_refresh,16,16,False,True
+64,1.500595356,0.486331582,0.486332359,2.122671256491,8,5,16,16,10,4,oracle_weighted_interval,phase_rotated_rechunk,16,16,False,True
+65,1.506906037,0.485971341,0.485971347,2.122513201337,8,5,16,16,10,4,greedy_largest_gain,superposition_derived_refresh,8,3,False,True
+66,1.500595356,0.483176574,0.483177346,2.123396480933,8,5,16,16,10,4,greedy_largest_gain,phase_rotated_rechunk,16,16,False,True
+67,1.486851269,0.482062272,0.482062278,2.123710962912,8,5,16,16,10,4,oracle_weighted_interval,deterministic_bitstream_rechunk,16,16,False,True
+68,1.486851269,0.478964405,0.478964410,2.124423627517,8,5,16,16,10,4,greedy_largest_gain,deterministic_bitstream_rechunk,16,16,False,True
+69,1.473060265,0.477779715,0.477780478,2.124754022540,8,5,16,16,10,4,oracle_weighted_interval,deterministic_entry_permutation,16,16,False,True
+70,1.473060265,0.474738134,0.474738892,2.125454308018,8,5,16,16,10,4,greedy_largest_gain,deterministic_entry_permutation,16,16,False,True
+71,1.446010165,0.469340134,0.469340139,2.126813148401,8,5,16,16,10,4,oracle_weighted_interval,self_refresh_changed_windows,16,16,False,True
+72,1.446010165,0.466408511,0.466408516,2.127489208720,8,5,16,16,10,4,greedy_largest_gain,self_refresh_changed_windows,16,16,False,True
+73,1.379960643,0.448600064,0.448600069,2.131886840588,8,5,16,16,10,4,oracle_weighted_interval,no_refresh,0,1,False,False
+74,1.379960643,0.445928842,0.445928847,2.132505344991,8,5,16,16,10,4,greedy_largest_gain,no_refresh,0,1,False,False
+75,1.545756794,0.257357789,0.257357791,2.158099836060,8,5,32,32,10,8,oracle_weighted_interval,superposition_derived_refresh,16,16,False,True
+76,1.545756794,0.256586574,0.256586576,2.158378956944,8,5,32,32,10,8,greedy_largest_gain,superposition_derived_refresh,16,16,False,True
+77,1.486701701,0.248956618,0.248956620,2.161179410926,8,5,32,32,10,8,oracle_weighted_interval,superposition_derived_refresh,8,2,False,True
+78,1.486701701,0.248238939,0.248238941,2.161438538328,8,5,32,32,10,8,greedy_largest_gain,superposition_derived_refresh,8,2,False,True
+79,1.464971573,0.245518684,0.245518686,2.162429057923,8,5,32,32,10,8,oracle_weighted_interval,superposition_derived_refresh,4,16,False,True
+80,1.464971573,0.244822629,0.244822631,2.162680224694,8,5,32,32,10,8,greedy_largest_gain,superposition_derived_refresh,4,16,False,True
+81,1.411987788,0.237924798,0.237924800,2.165212611132,8,5,32,32,10,8,oracle_weighted_interval,superposition_derived_refresh,2,16,False,True
+82,1.411987788,0.237274448,0.237274450,2.165446747752,8,5,32,32,10,8,greedy_largest_gain,superposition_derived_refresh,2,16,False,True
+83,1.386112093,0.234174106,0.234174108,2.166587027566,8,5,32,32,10,8,oracle_weighted_interval,superposition_derived_refresh,1,16,False,True
+84,1.386112093,0.233545673,0.233545675,2.166813009634,8,5,32,32,10,8,greedy_largest_gain,superposition_derived_refresh,1,16,False,True
+85,1.075507462,0.227737198,0.227737199,2.172025175308,8,4,24,24,10,8,oracle_weighted_interval,superposition_derived_refresh,16,16,False,True
+86,1.075507462,0.227104915,0.227104916,2.172240198772,8,4,24,24,10,8,greedy_largest_gain,superposition_derived_refresh,16,16,False,True
+87,0.735699337,0.198694972,0.198694973,2.184265230506,8,3,16,16,10,8,oracle_weighted_interval,superposition_derived_refresh,16,16,False,True
+88,0.735699337,0.198163840,0.198163840,2.184438754684,8,3,16,16,10,8,greedy_largest_gain,superposition_derived_refresh,16,16,False,True
+89,1.571332693,0.163126408,0.163126408,2.200674163920,8,5,16,16,10,4,left_to_right,superposition_derived_refresh,16,16,True,True
+90,1.571332693,0.163126408,0.163126408,2.200674163920,8,5,16,16,10,4,left_to_right,superposition_derived_refresh,32,16,True,True
+91,1.571332693,0.163090984,0.163090984,2.197704513349,8,5,48,48,10,4,left_to_right,superposition_derived_refresh,16,16,False,True
+92,1.571332693,0.163090984,0.163090984,2.197704513349,8,5,64,64,10,4,left_to_right,superposition_derived_refresh,16,16,False,True
+93,1.571332693,0.163090984,0.163090984,2.197704513349,8,5,96,96,10,4,left_to_right,superposition_derived_refresh,16,16,False,True
+94,1.571332693,0.163090984,0.163090984,2.197704513349,8,5,121,121,10,4,left_to_right,superposition_derived_refresh,16,16,False,True
+95,1.571332693,0.163090984,0.163090984,2.197704513349,8,5,160,160,10,4,left_to_right,superposition_derived_refresh,16,16,False,True
+96,1.571332693,0.163090984,0.163090984,2.197711238770,8,5,32,32,10,4,left_to_right,superposition_derived_refresh,16,16,False,True
+97,1.571332693,0.163090984,0.163090984,2.197711238770,8,5,32,32 32,10,4,left_to_right,superposition_derived_refresh,16,16,False,True
+98,1.571332693,0.163090984,0.163090984,2.197711238770,8,5,48,32 48,10,4,left_to_right,superposition_derived_refresh,16,16,False,True
+99,1.571332693,0.163090984,0.163090984,2.197711238770,8,5,64,32 64,10,4,left_to_right,superposition_derived_refresh,16,16,False,True
+100,1.571332693,0.163090984,0.163090984,2.197711238770,8,5,96,32 96,10,4,left_to_right,superposition_derived_refresh,16,16,False,True
+101,1.571332693,0.163090984,0.163090984,2.197711238770,8,5,121,32 121,10,4,left_to_right,superposition_derived_refresh,16,16,False,True
+102,1.571332693,0.163090984,0.163090984,2.197711238770,8,5,160,32 160,10,4,left_to_right,superposition_derived_refresh,16,16,False,True
+103,1.571332693,0.163090883,0.163090883,2.199198977113,8,5,24,24,10,4,left_to_right,superposition_derived_refresh,16,16,False,True
+104,1.571332693,0.163090883,0.163090883,2.197711260907,8,5,24,32 24,10,4,left_to_right,superposition_derived_refresh,16,16,False,True
+105,1.571332693,0.162923152,0.162923152,1.595768056831,16,5,16,16,10,4,left_to_right,superposition_derived_refresh,16,16,False,True
+106,1.571332693,0.162923152,0.162923152,1.188790493115,48,5,16,16,10,4,left_to_right,superposition_derived_refresh,16,16,False,True
+107,1.571332693,0.162923152,0.162923152,1.957118089324,8,5,16,16,8,4,left_to_right,superposition_derived_refresh,16,16,False,True
+108,1.571332693,0.162923152,0.162923152,1.392714649776,24,5,16,16,10,4,left_to_right,superposition_derived_refresh,16,16,False,True
+109,1.571332693,0.162923152,0.162923152,1.291263519049,32,5,16,16,10,4,left_to_right,superposition_derived_refresh,16,16,False,True
+110,1.571332693,0.162923152,0.162923152,2.200734088932,8,5,16,16,10,4,left_to_right,superposition_derived_refresh,16,16,False,True
+111,1.571332693,0.162923152,0.162923152,2.200734088932,8,5,16,16,10,4,left_to_right,superposition_derived_refresh,32,16,False,True
+112,1.571332693,0.162923152,0.162923152,2.200734088932,8,5,16,16,10,4,left_to_right,superposition_derived_refresh,64,16,False,True
+113,1.571332693,0.162923152,0.162923152,1.137549523744,64,5,16,16,10,4,left_to_right,superposition_derived_refresh,16,16,False,True
+114,1.571332693,0.162923152,0.162923152,2.197748183981,8,5,16,32 16,10,4,left_to_right,superposition_derived_refresh,16,16,False,True
+115,1.552978246,0.161300459,0.161300459,2.201170126385,8,5,16,16,10,4,left_to_right,superposition_derived_refresh,16,8,False,True
+116,1.539706924,0.159840947,0.159840947,2.201614553584,8,5,16,16,10,4,left_to_right,superposition_derived_refresh,8,16,False,True
+117,1.528620133,0.158950404,0.158950404,2.201836633255,8,5,16,16,10,4,left_to_right,equal_size_neutral_refresh,16,16,False,True
+118,1.525694886,0.158737675,0.158737675,2.201859837624,8,5,16,16,10,4,left_to_right,superposition_derived_refresh,8,4,False,True
+119,1.513993114,0.157500259,0.157502189,2.202234280485,8,5,16,16,10,4,left_to_right,layer_delimited_descriptor_refresh,16,16,False,True
+120,1.506906037,0.157240758,0.157240758,2.202198965672,8,5,16,16,10,4,left_to_right,superposition_derived_refresh,8,3,False,True
+121,1.500595356,0.156315243,0.156315482,2.202568627712,8,5,16,16,10,4,left_to_right,phase_rotated_rechunk,16,16,False,True
+122,1.486851269,0.155032661,0.155032661,2.202926305183,8,5,16,16,10,4,left_to_right,deterministic_bitstream_rechunk,16,16,False,True
+123,1.473060265,0.153721593,0.153721829,2.203290818130,8,5,16,16,10,4,left_to_right,deterministic_entry_permutation,16,16,False,True
+124,1.446010165,0.151169219,0.151169219,2.204003246326,8,5,16,16,10,4,left_to_right,self_refresh_changed_windows,16,16,False,True
+125,1.379960643,0.144848932,0.144848932,2.205770239217,8,5,16,16,10,4,left_to_right,no_refresh,0,1,False,False
+126,1.545756794,0.132081541,0.132081541,2.204546900559,8,5,32,32,10,8,left_to_right,superposition_derived_refresh,16,16,False,True
+127,1.486701701,0.128363601,0.128363601,2.205850607017,8,5,32,32,10,8,left_to_right,superposition_derived_refresh,8,2,False,True
+128,1.464971573,0.126834589,0.126834589,2.206384380336,8,5,32,32,10,8,left_to_right,superposition_derived_refresh,4,16,False,True
+129,1.075507462,0.126138683,0.126138683,2.207378663602,8,4,24,24,10,8,left_to_right,superposition_derived_refresh,16,16,False,True
+130,1.411987788,0.123436213,0.123436213,2.207575163869,8,5,32,32,10,8,left_to_right,superposition_derived_refresh,2,16,False,True
+131,1.386112093,0.121750802,0.121750802,2.208165452881,8,5,32,32,10,8,left_to_right,superposition_derived_refresh,1,16,False,True
+132,0.735699337,0.118734390,0.118734390,2.210520519589,8,3,16,16,10,8,left_to_right,superposition_derived_refresh,16,16,False,True
+133,0.985265518,0.093224567,0.093224567,2.193809939728,8,5,96,96,10,16,oracle_weighted_interval,superposition_derived_refresh,16,16,True,True
+134,0.985265518,0.093149253,0.093149253,2.193941141195,8,5,96,96,10,16,greedy_largest_gain,superposition_derived_refresh,16,16,True,True
+135,1.016805771,0.082924728,0.099347308,2.192465731539,8,5,96,96,10,,oracle_weighted_interval,superposition_derived_refresh,16,16,True,True
+136,1.016805771,0.082851379,0.099230120,2.192606044768,8,5,96,96,10,,greedy_largest_gain,superposition_derived_refresh,16,16,True,True
+137,0.985265518,0.068047830,0.068047830,2.218700034317,8,5,96,96,10,16,left_to_right,superposition_derived_refresh,16,16,True,True
+138,0.570833075,0.066947002,0.070775946,2.216811472508,8,2,32,32,10,,oracle_weighted_interval,superposition_derived_refresh,16,16,True,True
+139,0.570833075,0.066899476,0.070715901,2.216873769802,8,2,32,32,10,,greedy_largest_gain,superposition_derived_refresh,16,16,True,True
+140,1.016805771,0.059655677,0.062664535,2.219895525089,8,5,96,96,10,,left_to_right,superposition_derived_refresh,16,16,True,True
+141,0.570833075,0.055439669,0.056793055,2.225717930287,8,2,32,32,10,,left_to_right,superposition_derived_refresh,16,16,True,True
+142,0.242696320,0.043950331,0.044060756,2.234364985859,8,1,24,24,10,,left_to_right,superposition_derived_refresh,16,16,True,True
+143,0.242696320,0.043950331,0.044060756,2.234364985859,8,1,24,24,10,,greedy_largest_gain,superposition_derived_refresh,16,16,True,True
+144,0.242696320,0.043950331,0.044060756,2.234364985859,8,1,24,24,10,,oracle_weighted_interval,superposition_derived_refresh,16,16,True,True
+145,0.670727793,0.042453196,0.042453197,2.204984136556,8,5,121,121,10,24,oracle_weighted_interval,superposition_derived_refresh,16,16,True,True
+146,0.670727793,0.042436016,0.042436016,2.205103173384,8,5,121,121,10,24,greedy_largest_gain,superposition_derived_refresh,16,16,True,True
+147,0.670727793,0.031919079,0.031919079,2.226734441299,8,5,121,121,10,24,left_to_right,superposition_derived_refresh,16,16,True,True

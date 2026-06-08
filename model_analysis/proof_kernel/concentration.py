@@ -1,48 +1,61 @@
-"""proof_kernel.concentration — from expectation to every-large-file statements.
+"""Concentration bounds for large-file Telomere expectation statements."""
 
-Goal (PROOF_TARGET): given E[final/raw] for profile P, bound the probability
-that a single file deviates: P( |final/raw − E| > ε ) ≤ f(N, ε).
+from __future__ import annotations
 
-Instrument: bounded differences (McDiarmid/Hoeffding). Changing one input
-block changes the final size by at most c bits, where c is bounded by the
-worst per-block swing the format allows (one wrapped literal vs the largest
-record share a block can carry):
-
-    c  ≤  (b + LITERAL_BITS)  +  max over a<=A of record_cost(a, a*b)/a
-
-Then for X = final_bits over N blocks:
-
-    P( |X − E[X]| ≥ t )  ≤  2 · exp( −2 t² / (N · c²) )
-
-Setting t = ε·N·b gives the ratio form. The bound is crude but PROVABLE; the
-kernel reports it alongside every surface point so that "the average file"
-becomes "all but an exp(−Θ(N))-fraction of files".
-"""
 import math
+from dataclasses import dataclass
 
-from costs import LITERAL_BITS, record_cost
-
-
-def per_block_swing(b: int, A: int) -> float:
-    """Provable bound c on how much one block can move the final size (bits)."""
-    wrap = b + LITERAL_BITS
-    widest = max(record_cost(a, a * b) / a for a in range(1, A + 1))
-    return wrap + widest
+from costs import literal_entry_bits, record_cost_for_payload_width
 
 
-def deviation_bound(N: int, b: int, A: int, eps_ratio: float) -> float:
-    """P( |final/raw − E| > eps_ratio ) ≤ this value (two-sided)."""
-    c = per_block_swing(b, A)
-    t = eps_ratio * N * b
-    return min(1.0, 2.0 * math.exp(-2.0 * t * t / (N * c * c)))
+@dataclass(frozen=True)
+class ConcentrationBound:
+    epsilon_ratio: float
+    alpha: float
+    per_block_swing_bits: float
+    statement: str
 
 
-def eps_for_confidence(N: int, b: int, A: int, alpha: float = 1e-9) -> float:
-    """Smallest ratio-deviation ε guaranteed except with probability alpha."""
-    c = per_block_swing(b, A)
-    return c * math.sqrt(math.log(2.0 / alpha) / (2.0 * N)) / b
+def per_block_swing(block_bits: int, arity_cap: int, payload_width_bits: int = 160) -> float:
+    literal = literal_entry_bits(block_bits)
+    record_share = max(
+        record_cost_for_payload_width(arity, min(payload_width_bits, arity * block_bits)) / arity
+        for arity in range(1, arity_cap + 1)
+    )
+    return literal + record_share
+
+
+def deviation_probability(entry_count: int, block_bits: int, arity_cap: int, epsilon_ratio: float) -> float:
+    if entry_count <= 0:
+        return 1.0
+    c = per_block_swing(block_bits, arity_cap)
+    t = epsilon_ratio * entry_count * block_bits
+    exponent = -2.0 * t * t / (entry_count * c * c)
+    if exponent < -700:
+        return 0.0
+    return min(1.0, 2.0 * math.exp(exponent))
+
+
+def epsilon_for_confidence(
+    entry_count: int,
+    block_bits: int,
+    arity_cap: int,
+    alpha: float = 1e-9,
+) -> ConcentrationBound:
+    c = per_block_swing(block_bits, arity_cap)
+    eps = c * math.sqrt(math.log(2.0 / alpha) / (2.0 * entry_count)) / block_bits
+    return ConcentrationBound(
+        epsilon_ratio=eps,
+        alpha=alpha,
+        per_block_swing_bits=c,
+        statement=(
+            "P(|final/raw - E| > epsilon) <= alpha by a bounded-differences "
+            "bound using the stated per-block swing."
+        ),
+    )
 
 
 if __name__ == "__main__":
-    for N in (10**6, 10**9, 10**12):
-        print(f"  N={N:>14,}: ε(α=1e-9) = ±{100*eps_for_confidence(N, 24, 5):.6f} %-points")
+    for n in (10**6, 10**9, 10**12):
+        bound = epsilon_for_confidence(n, 24, 5)
+        print(n, bound)

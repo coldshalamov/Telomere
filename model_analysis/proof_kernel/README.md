@@ -1,34 +1,64 @@
-# proof_kernel — the rigorous core (evidence level 4)
+# Telomere Proof Kernel
 
-Goal: compute the drift surface `E[final_bits/raw_bits]` over Telomere
-profiles with **provable brackets** instead of heuristics, plus concentration
-bounds, per `docs/PROOF_TARGET.md`. Canonical costs only
-(`docs/FORMAT_CANONICAL.md`): arity alphabet 1..5 (`00,01,100,101,110`,
-literal `111` = 3 bits), J3D1 seed field, 7-bit minimum record, marker
-charged once.
+This directory is the evidence-level-4 mathematical kernel described in
+`docs/PROOF_TARGET.md`. It does not run broad seed searches. It models exact
+seed-record hit probability, current-layer entry recurrences, superposition,
+refresh rules, deterministic bitstream rechunking, selection bounds, and
+concentration.
 
-| module | provides |
+## Modules
+
+| file | role |
 | --- | --- |
-| `costs.py` | exact `C(a,p) = arity_cost(a) + J3D1_cost(p)`, `pstar`, Kraft self-check |
-| `hit_distribution.py` | exact `M(a,r,D)`, `P(min_record ≤ r \| S,a)` (exact + stable forms), full `P(gain ≥ g)` tails |
-| `selection_bounds.py` | conservative disjoint-window LOWER bound; oracle interval-scheduling UPPER bound |
-| `state_recurrence.py` | `H_t[L]` histogram recurrence; pass 1 (wrapped bar) + passes 2+ (strict bar); every state is a (lower, upper) bracket |
-| `superposition.py` | retained-mass per prune Δ, alternate overhead, off/approx/oracle bracket |
-| `concentration.py` | bounded-differences bound: deviation probability and ε(N, α) radius |
-| `run_surface.py` | grid runner → `surface.csv` (lower %, upper %, ε per point) |
+| `costs.py` | exact canonical v1 arity and Lotus/J3D1 costs; validates against `src/bin/v1_cost_table.rs` |
+| `hit_distribution.py` | exact `M(a,r,D)`, hit probabilities, and full gain tails |
+| `entry_state.py` | `H_t[L, kind, variant_state]` state recurrence and pass ledger |
+| `span_distribution.py` | arity-a span distributions from current entry histograms |
+| `selection_bounds.py` | left-to-right lower selector, greedy deterministic estimate, oracle upper bound |
+| `superposition_model.py` | retained neutral/bloat variants, whole-window bundles, and opportunity multipliers |
+| `refresh_model.py` | refresh rules, charged metadata, and decode proof sketches |
+| `concentration.py` | bounded-differences radius for large files |
+| `viability_search.py` | validation, innovation loop, bounded sweep, recurrence, and report writer |
 
-Discipline:
+Legacy exploratory helpers (`run_surface.py`, `state_recurrence.py`,
+`superposition.py`, and `break_even_surface.py`) are not the acceptance path for
+the current proof target.
 
-- No hashing, no laptop search, no dictionaries/rank tables/foreign mechanisms.
-- No verdict strings in any output. Surfaces, brackets, assumptions only.
-- Every number is conditional on the assumptions listed in
-  `docs/PROOF_TARGET.md` (uniform match law; stated source model; the bound
-  actually used). The exact toy (`../telomere_exact_toy_model.py`) and
-  validator (`../telomere_toy_validator.py`) are the unit tests for these
-  formulas — toy percentages are never thesis evidence.
+## Reproduce
 
-Status: scaffolding complete; surface runner functional on the default grid.
-Next obligations (not yet implemented by design — see the alignment task):
-source models beyond uniform (planted density ρ as a parameter), tightened
-selection brackets, refresh-rule pricing hooks, kernel-vs-toy matched-settings
-regression test.
+```powershell
+python model_analysis/proof_kernel/viability_search.py --write-artifacts
+```
+
+The command writes:
+
+- `docs/PROOF_IDEA_LOG.md`
+- `model_analysis/proof_kernel/best_config.json`
+- `model_analysis/proof_kernel/sweep_summary.json`
+- `model_analysis/proof_kernel/top_profiles.csv`
+- either `docs/TELOMERE_VIABILITY_TARGET.md`,
+  `docs/TELOMERE_STRETCH_TARGET.md`, or `docs/TELOMERE_FRONTIER_REPORT.md`
+
+## Current Successful Profile
+
+The current generated success path uses a fixed decoder profile with:
+
+- `block_bits = 8`
+- `arity_cap = 5`
+- `depth_schedule_bits = [32]`
+- `initial_literal_overhead_bits = 10`
+- `rechunk_bits = 4`
+- `refresh = superposition_derived_refresh`
+- retained bloat enabled, equal-size retained variants disabled, prune delta `16`,
+  max variants `16`
+
+The fixed 4-bit rechunk changes only the next pass's profile-known entry
+boundaries. It preserves the charged bitstream length and assumes no per-file
+sidecar or selector map. If an implementation multiplexes profiles, it must
+charge the profile selector separately.
+
+The cost probe can also be run directly:
+
+```powershell
+cargo run --quiet --bin v1_cost_table
+```
