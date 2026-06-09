@@ -30,14 +30,12 @@ the current proof target.
 python model_analysis/proof_kernel/viability_search.py --write-artifacts
 ```
 
-The command writes:
+The command writes the compact acceptance artifacts:
 
-- `docs/PROOF_IDEA_LOG.md`
 - `model_analysis/proof_kernel/best_config.json`
 - `model_analysis/proof_kernel/sweep_summary.json`
 - `model_analysis/proof_kernel/top_profiles.csv`
-- either `docs/TELOMERE_VIABILITY_TARGET.md`,
-  `docs/TELOMERE_STRETCH_TARGET.md`, or `docs/TELOMERE_FRONTIER_REPORT.md`
+- `docs/TELOMERE_VIABILITY_TARGET.md`
 
 ## Current Successful Profile
 
@@ -45,12 +43,16 @@ The current generated success path uses a fixed decoder profile with:
 
 - `block_bits = 8`
 - `arity_cap = 5`
-- `depth_schedule_bits = [32]`
+- `depth_schedule_bits = [16]`
 - `initial_literal_overhead_bits = 10`
-- `rechunk_bits = 4`
+- `rechunk_schedule_bits = [4]`
 - `refresh = superposition_derived_refresh`
-- retained bloat enabled, equal-size retained variants disabled, prune delta `16`,
-  max variants `16`
+- retained bloat enabled, equal-size retained variants disabled, prune delta `8`,
+  max variants `4`
+
+The report also preserves faster high-working-state and oracle upper-bound
+category winners separately. `best_config.json` points at the practical capped
+profile when it clears the raw-crossover gate.
 
 The fixed 4-bit rechunk changes only the next pass's profile-known entry
 boundaries. It preserves the charged bitstream length and assumes no per-file

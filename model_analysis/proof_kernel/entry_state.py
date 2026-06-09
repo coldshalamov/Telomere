@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from collections import defaultdict
 from dataclasses import dataclass, replace
 
@@ -11,6 +12,9 @@ from refresh_model import RefreshRule
 from selection_bounds import estimate_selection
 from span_distribution import span_distributions
 from superposition_model import SuperpositionConfig, retained_bundle_variant_stats, variant_scores_for_lengths
+
+
+RechunkSchedule = int | tuple[int | None, ...] | None
 
 
 @dataclass(frozen=True)
@@ -107,8 +111,20 @@ class PassLedgerRow:
     expected_gain_bits: float
     avg_variants_per_position: float
     max_window_multiplier: float
+    optimistic_window_multiplier: float
+    conservative_window_multiplier: float
+    opportunity_discount_ratio: float
+    variant_cap: int
+    strict_seed_channels_per_entry: float
+    equal_size_neutral_variants_per_entry: float
+    retained_noncompressive_variants_per_entry: float
+    bundled_variants_per_window: float
+    phase_rechunk_derived_multiplier: float
     entry_count_before: float
     entry_count_after: float
+    rechunk_entry_bits: int | None = None
+    rechunk_residual_bits: float = 0.0
+    rechunk_pad_bits: float = 0.0
 
 
 def initial_raw_state(entry_count: int, block_bits: int) -> EntryState:
@@ -123,13 +139,40 @@ def _variant_summary(
     depth_bits: int,
     superposition: SuperpositionConfig,
     refresh: RefreshRule,
-) -> tuple[dict[int, float], float, float]:
+) -> tuple[dict[int, float], float, float, float, float, float]:
     lengths = list(state.length_pmf().keys())
     scores, stats = variant_scores_for_lengths(lengths, depth_bits, superposition, refresh.rho)
     pmf = state.length_pmf()
     avg_variants = sum(pmf[length] * stats[length].avg_variants for length in pmf)
+    equal_size = sum(
+        pmf[length] * stats[length].retained_by_excess.get(0, 0.0)
+        for length in pmf
+    )
+    retained_bloat = sum(
+        pmf[length] * sum(count for excess, count in stats[length].retained_by_excess.items() if excess > 0)
+        for length in pmf
+    )
     max_score = max(scores.values(), default=1.0)
-    return scores, avg_variants, max_score
+    if avg_variants > superposition.max_variants_per_position + 1e-9:
+        raise AssertionError(
+            "earned variant expectation exceeded configured cap: "
+            f"{avg_variants} > {superposition.max_variants_per_position}"
+        )
+    return scores, avg_variants, max_score, equal_size, retained_bloat, max(1.0, avg_variants)
+
+
+def _discount_combo_multiplier(optimistic_multiplier: float, arity: int) -> float:
+    """Discount independent-combo superposition for shared-entry correlation.
+
+    The optimistic convolution multiplies retained-entry opportunity scores.
+    A conservative no-double-counting proxy keeps only the linear marginal
+    contribution implied by the per-entry geometric mean.
+    """
+
+    if optimistic_multiplier <= 1.0 or arity <= 1:
+        return max(1.0, optimistic_multiplier)
+    per_entry = optimistic_multiplier ** (1.0 / arity)
+    return max(1.0, 1.0 + arity * (per_entry - 1.0))
 
 
 def run_pass(
@@ -146,28 +189,47 @@ def run_pass(
     bits_before = state.total_charged_bits
     entry_count = state.entry_count
     wrap_unmatched = any(key.kind == "raw" for key in state.buckets)
-    scores, avg_variants, max_score = _variant_summary(state, depth_bits, superposition, refresh)
+    scores, avg_variants, max_score, equal_size_variants, retained_bloat_variants, _earned = _variant_summary(
+        state,
+        depth_bits,
+        superposition,
+        refresh,
+    )
     span_buckets = span_distributions(state.length_pmf(), scores, arity_cap)
 
     add_records: dict[int, float] = defaultdict(float)
     accepted_windows = 0.0
     expected_gain_bits = 0.0
     removed_entries = 0.0
-    max_observed_multiplier = 1.0
+    max_optimistic_multiplier = 1.0
+    max_conservative_multiplier = 1.0
+    max_discount_ratio = 1.0
+    bundled_variant_mass = 0.0
+    bundled_variant_weight = 0.0
 
     for arity in range(arity_cap, 0, -1):
         for span in span_buckets[arity]:
             bundle_stats = retained_bundle_variant_stats(span.span_bits, arity, depth_bits, superposition)
-            opportunity_multiplier = span.opportunity_multiplier + max(0.0, refresh.rho) * (
+            bundle_credit = max(0.0, refresh.rho) * (
                 bundle_stats.weighted_score - 1.0
             )
-            max_observed_multiplier = max(max_observed_multiplier, opportunity_multiplier)
+            optimistic_multiplier = span.opportunity_multiplier + bundle_credit
+            conservative_multiplier = _discount_combo_multiplier(span.opportunity_multiplier, arity) + bundle_credit
+            max_optimistic_multiplier = max(max_optimistic_multiplier, optimistic_multiplier)
+            max_conservative_multiplier = max(max_conservative_multiplier, conservative_multiplier)
+            if optimistic_multiplier > 1.0:
+                max_discount_ratio = max(
+                    max_discount_ratio,
+                    optimistic_multiplier / max(conservative_multiplier, 1e-300),
+                )
+            bundled_variant_mass += span.probability * max(0.0, bundle_stats.avg_variants - 1.0)
+            bundled_variant_weight += span.probability
             hit = p_min_record_le(
                 span.span_bits - 1,
                 span.span_bits,
                 arity,
                 depth_bits,
-                opportunity_multiplier,
+                conservative_multiplier,
             )
             if hit <= 0:
                 continue
@@ -176,7 +238,7 @@ def run_pass(
                 span.span_bits,
                 arity,
                 depth_bits,
-                opportunity_multiplier,
+                conservative_multiplier,
             )
             denom = max(selection.candidate_windows * hit, 1e-300)
             scale = min(1.0, selection.accepted_windows / denom)
@@ -227,11 +289,55 @@ def run_pass(
         accepted_windows=accepted_windows,
         expected_gain_bits=expected_gain_bits,
         avg_variants_per_position=avg_variants,
-        max_window_multiplier=max(max_score**arity_cap, max_observed_multiplier),
+        max_window_multiplier=max_conservative_multiplier,
+        optimistic_window_multiplier=max(max_score**arity_cap, max_optimistic_multiplier),
+        conservative_window_multiplier=max_conservative_multiplier,
+        opportunity_discount_ratio=max_discount_ratio,
+        variant_cap=superposition.max_variants_per_position,
+        strict_seed_channels_per_entry=1.0,
+        equal_size_neutral_variants_per_entry=equal_size_variants,
+        retained_noncompressive_variants_per_entry=retained_bloat_variants,
+        bundled_variants_per_window=(
+            bundled_variant_mass / bundled_variant_weight
+            if bundled_variant_weight > 0
+            else 0.0
+        ),
+        phase_rechunk_derived_multiplier=(
+            max(0.0, refresh.rho) * max(0.0, max_score - 1.0)
+            if "rechunk" in refresh.name or "phase" in refresh.name or "permutation" in refresh.name
+            else 0.0
+        ),
         entry_count_before=entry_count,
         entry_count_after=next_state.entry_count,
     )
     return next_state, row
+
+
+def normalize_rechunk_schedule(rechunk_bits: RechunkSchedule) -> tuple[int | None, ...]:
+    if isinstance(rechunk_bits, tuple):
+        if not rechunk_bits:
+            raise ValueError("rechunk schedule must not be empty")
+        return rechunk_bits
+    return (rechunk_bits,)
+
+
+def rechunk_bits_for_pass(rechunk_bits: RechunkSchedule, pass_i: int) -> int | None:
+    schedule = normalize_rechunk_schedule(rechunk_bits)
+    return schedule[min(pass_i, len(schedule) - 1)]
+
+
+def rechunk_residual_bits(payload_bits: float, entry_bits: int | None) -> float:
+    if entry_bits is None:
+        return 0.0
+    if entry_bits <= 0:
+        raise ValueError("rechunk entry_bits must be positive")
+    if payload_bits <= 0:
+        return 0.0
+    full = math.floor(payload_bits / entry_bits)
+    residual = payload_bits - full * entry_bits
+    if residual <= 1e-6 or residual >= entry_bits - 1e-6:
+        return 0.0
+    return max(0.0, residual)
 
 
 def run_profile(
@@ -244,7 +350,7 @@ def run_profile(
     superposition: SuperpositionConfig,
     refresh: RefreshRule,
     initial_literal_overhead_bits: int = LITERAL_ENTRY_OVERHEAD_BITS,
-    rechunk_bits: int | None = None,
+    rechunk_bits: RechunkSchedule = None,
 ) -> tuple[EntryState, list[PassLedgerRow]]:
     return run_scheduled_profile(
         entry_count,
@@ -270,7 +376,7 @@ def run_scheduled_profile(
     superposition: SuperpositionConfig,
     refresh: RefreshRule,
     initial_literal_overhead_bits: int = LITERAL_ENTRY_OVERHEAD_BITS,
-    rechunk_bits: int | None = None,
+    rechunk_bits: RechunkSchedule = None,
 ) -> tuple[EntryState, list[PassLedgerRow]]:
     if not depth_schedule_bits:
         raise ValueError("depth_schedule_bits must not be empty")
@@ -288,9 +394,17 @@ def run_scheduled_profile(
             refresh,
             literal_overhead_bits,
         )
-        state = state.rechunk(rechunk_bits)
-        if rechunk_bits is not None:
-            row = replace(row, entry_count_after=state.entry_count)
+        current_rechunk_bits = rechunk_bits_for_pass(rechunk_bits, pass_i)
+        residual_bits = rechunk_residual_bits(state.payload_bits, current_rechunk_bits)
+        state = state.rechunk(current_rechunk_bits)
+        if current_rechunk_bits is not None:
+            row = replace(
+                row,
+                entry_count_after=state.entry_count,
+                rechunk_entry_bits=current_rechunk_bits,
+                rechunk_residual_bits=residual_bits,
+                rechunk_pad_bits=0.0,
+            )
         rows.append(row)
     return state, rows
 

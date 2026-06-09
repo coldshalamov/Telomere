@@ -1,26 +1,82 @@
 # Telomere Viability Target
 
-Under this model, the configuration below reaches the stated current-layer
-net expected compression target for ten effective passes after charged metadata.
+This report separates per-pass drift from raw-size payback. A configuration
+is a viability target only if it clears the current-layer floor, uses a
+deterministic selector, survives conservative variant discounting, and shows
+`final/raw < 1.0` within `200` effective passes.
+
+Current primary class: `viability_practical_candidate`.
+
+## Category Winners
+
+| category | min current delta % | final/raw 11 | final/raw 200 | final/raw 500 | payback effective pass | selector | rechunk | variants cap | class |
+| --- | ---: | ---: | ---: | ---: | ---: | --- | --- | ---: | --- |
+| `highest_per_pass_drift` | 0.527368 | 2.113318600 | 0.777941814 | 0.159232551 | 152 | `oracle_weighted_interval` | `3` | 16 | `component_oracle_upper_bound` |
+| `highest_per_pass_drift_deterministic` | 0.522658 | 2.114374738 | 0.785327173 | 0.163043829 | 153 | `greedy_largest_gain` | `3` | 16 | `viability_high_working_state` |
+| `fastest_raw_payback` | 0.502443 | 1.099451108 | 0.424348701 | 0.093637239 | 29 | `greedy_largest_gain` | `4` | 16 | `viability_high_working_state` |
+| `best_practical_memory_compute` | 0.489717 | 2.121718950 | 0.838942909 | 0.192363245 | 164 | `greedy_largest_gain` | `4` | 4 | `viability_practical_candidate` |
 
 ## Configuration
 
 - block bits: `8`
 - arity cap: `5`
-- seed-depth bits: `32`
-- depth schedule bits: `[32]`
+- seed-depth bits: `16`
+- depth schedule bits: `[16]`
 - initial literal overhead bits: `10`
-- rechunk bits: `4`
-- selection policy: `oracle_weighted_interval`
+- rechunk schedule bits: `4`
+- selection policy: `greedy_largest_gain`
 - refresh rule: `superposition_derived_refresh`
-- superposition: `{'prune_delta_bits': 16, 'max_variants_per_position': 16, 'equal_size_allowed': False, 'bloat_tolerant_retained': True}`
+- superposition: `{'prune_delta_bits': 8, 'max_variants_per_position': 4, 'equal_size_allowed': False, 'bloat_tolerant_retained': True}`
 - refresh metadata bits per pass: `0`
 - rechunk metadata bits per pass: `0` because the chunk size is fixed by
   this decoder profile; a multiplexed implementation must charge its profile ID.
-- final charged/raw ratio after `11` modeled passes: `2.104283231`
-- ten-effective-pass minimum: `0.508922%`
-- ten-effective-pass average: `0.508922%`
-- concentration radius at alpha `1e-9`: `±0.994405` percentage points
+- final charged/raw ratio after `11` modeled passes: `2.121718950`
+- final/raw after `50` passes: `1.752016905`
+- final/raw after `100` passes: `1.370680724`
+- final/raw after `200` passes: `0.838942909`
+- final/raw after `500` passes: `0.192363245`
+- raw payback modeled pass: `165`
+- raw payback effective pass: `164`
+- ten-effective-pass minimum: `0.489717%`
+- ten-effective-pass average: `0.489717%`
+- concentration radius at alpha `1e-9`: `±0.990406` percentage points
+- max expected live variants per entry: `4.000000`
+- working variant entries proxy: `17827820.16`
+- max optimistic/conservative multiplier ratio: `1.008065`
+
+## Raw-Crossover Curve
+
+| modeled passes | final/raw |
+| ---: | ---: |
+| 11 | 2.121718950 |
+| 50 | 1.752016905 |
+| 100 | 1.370680724 |
+| 200 | 0.838942909 |
+| 500 | 0.192363245 |
+
+## Audit Verdict
+
+- earned variants, not cap assumed: `True`
+- actual gain path: `conservative discounted opportunity multiplier`
+- optimistic independent-combo gain: reported in the ledger only as an upper-bound diagnostic
+- selector viable without side table: `True`
+- oracle upper bound: `False`
+- raw crossover within 200 effective passes: `True`
+- final collapse serializes encoder-only retained state: `False`
+- refresh/rechunk decodable: `True`
+- metadata sidecar OK: `True`
+- compute/memory profile: `practical_capped`
+
+## Ablation Table
+
+| disabled mechanism | active change | min current delta % | contribution vs best | final/raw 11 | final/raw 200 | payback effective pass | class |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | --- |
+| `no_equal_size_replacements` | False | 0.489717 | 0.000000 | 2.121718950 | 0.838942909 | 164 | `viability_practical_candidate` |
+| `no_retained_bloat` | True | 0.445929 | -0.043789 | 2.132505345 | 0.916317377 | 180 | `viability_practical_candidate` |
+| `no_superposition` | True | 0.445929 | -0.043789 | 2.132505345 | 0.916317377 | 180 | `viability_practical_candidate` |
+| `no_rechunk` | True | 0.044460 | -0.445257 | 2.218564102 | n/a | none | `frontier_below_0_1` |
+| `no_phase_rotation` | False | 0.489717 | 0.000000 | 2.121718950 | 0.838942909 | 164 | `viability_practical_candidate` |
+| `greedy_instead_of_oracle` | False | 0.489717 | 0.000000 | 2.121718950 | 0.838942909 | 164 | `viability_practical_candidate` |
 
 ## Equations
 
@@ -37,6 +93,8 @@ net_delta_pct_current = 100*(bits_before - bits_after - charged_metadata_bits)/b
 superposition and whole-window retained bundles. Rechunking changes only the
 profile-known current entry boundaries; it does not remove bits from
 `bits_before` and does not add file-specific side information.
+The model reports optimistic independent-combo multipliers, but charged
+expected gain uses the conservative shared-entry discount.
 
 ## Cost Table
 
@@ -85,22 +143,24 @@ against `cargo run --quiet --bin v1_cost_table`.
 - accumulated profile/rechunk sidecar bits: `0` in this fixed-profile model
 - no per-file sidecar, table, manifest, seed map, selector map, or model is assumed
 - retained variants are encoder working state only and are not serialized unless selected
+- final size is counted after collapsing to the selected path
+- compact sweep summary and experiment registry: `model_analysis/proof_kernel/sweep_summary.json`
 
 ## Pass Ledger
 
-| pass | depth bits | literal overhead | bits before | bits after | current delta % | raw delta % | accepted windows | avg variants | max multiplier |
-| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| 1 | 32 | 10 | 8000000.00 | 17715476.27 | -121.443453 | -121.443453 | 11841.2969 | 16.0000 | 1.2052 |
-| 2 | 32 | 0 | 17715476.27 | 17625318.25 | 0.508922 | 1.126975 | 54607.7003 | 16.0000 | 1.1828 |
-| 3 | 32 | 0 | 17625318.25 | 17535619.06 | 0.508922 | 1.121240 | 54329.7894 | 16.0000 | 1.1828 |
-| 4 | 32 | 0 | 17535619.06 | 17446376.37 | 0.508922 | 1.115534 | 54053.2928 | 16.0000 | 1.1828 |
-| 5 | 32 | 0 | 17446376.37 | 17357587.85 | 0.508922 | 1.109856 | 53778.2034 | 16.0000 | 1.1828 |
-| 6 | 32 | 0 | 17357587.85 | 17269251.20 | 0.508922 | 1.104208 | 53504.5139 | 16.0000 | 1.1828 |
-| 7 | 32 | 0 | 17269251.20 | 17181364.12 | 0.508922 | 1.098589 | 53232.2173 | 16.0000 | 1.1828 |
-| 8 | 32 | 0 | 17181364.12 | 17093924.31 | 0.508922 | 1.092998 | 52961.3065 | 16.0000 | 1.1828 |
-| 9 | 32 | 0 | 17093924.31 | 17006929.51 | 0.508922 | 1.087435 | 52691.7744 | 16.0000 | 1.1828 |
-| 10 | 32 | 0 | 17006929.51 | 16920377.44 | 0.508922 | 1.081901 | 52423.6141 | 16.0000 | 1.1828 |
-| 11 | 32 | 0 | 16920377.44 | 16834265.85 | 0.508922 | 1.076395 | 52156.8184 | 16.0000 | 1.1828 |
+| pass | depth bits | literal overhead | bits before | bits after | current delta % | raw delta % | accepted windows | avg variants | equal | bloat retained | bundled | conservative multiplier | optimistic multiplier | discount | rechunk | residual bits |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: |
+| 1 | 16 | 10 | 8000000.00 | 17827820.16 | -122.847752 | -122.847752 | 9341.0117 | 2.9589 | 0.0000 | 1.9589 | 0.5902 | 1.1500 | 1.1593 | 1.0081 | 4 | 0.1618 |
+| 2 | 16 | 0 | 17827820.16 | 17740514.23 | 0.489717 | 1.091324 | 52995.9159 | 4.0000 | 0.0000 | 3.0000 | 1.3007 | 1.1293 | 1.1357 | 1.0057 | 4 | 2.2305 |
+| 3 | 16 | 0 | 17740514.23 | 17653635.85 | 0.489717 | 1.085980 | 52736.3856 | 4.0000 | 0.0000 | 3.0000 | 1.3007 | 1.1293 | 1.1357 | 1.0057 | 4 | 3.8518 |
+| 4 | 16 | 0 | 17653635.85 | 17567182.93 | 0.489717 | 1.080661 | 52478.1262 | 4.0000 | 0.0000 | 3.0000 | 1.3007 | 1.1293 | 1.1357 | 1.0057 | 4 | 2.9319 |
+| 5 | 16 | 0 | 17567182.93 | 17481153.39 | 0.489717 | 1.075369 | 52221.1316 | 4.0000 | 0.0000 | 3.0000 | 1.3007 | 1.1293 | 1.1357 | 1.0057 | 4 | 1.3871 |
+| 6 | 16 | 0 | 17481153.39 | 17395545.14 | 0.489717 | 1.070103 | 51965.3955 | 4.0000 | 0.0000 | 3.0000 | 1.3007 | 1.1293 | 1.1357 | 1.0057 | 4 | 1.1442 |
+| 7 | 16 | 0 | 17395545.14 | 17310356.14 | 0.489717 | 1.064863 | 51710.9118 | 4.0000 | 0.0000 | 3.0000 | 1.3007 | 1.1293 | 1.1357 | 1.0057 | 4 | 0.1400 |
+| 8 | 16 | 0 | 17310356.14 | 17225584.32 | 0.489717 | 1.059648 | 51457.6744 | 4.0000 | 0.0000 | 3.0000 | 1.3007 | 1.1293 | 1.1357 | 1.0057 | 4 | 0.3213 |
+| 9 | 16 | 0 | 17225584.32 | 17141227.65 | 0.489717 | 1.054458 | 51205.6771 | 4.0000 | 0.0000 | 3.0000 | 1.3007 | 1.1293 | 1.1357 | 1.0057 | 4 | 3.6452 |
+| 10 | 16 | 0 | 17141227.65 | 17057284.08 | 0.489717 | 1.049295 | 50954.9139 | 4.0000 | 0.0000 | 3.0000 | 1.3007 | 1.1293 | 1.1357 | 1.0057 | 4 | 0.0785 |
+| 11 | 16 | 0 | 17057284.08 | 16973751.60 | 0.489717 | 1.044156 | 50705.3787 | 4.0000 | 0.0000 | 3.0000 | 1.3007 | 1.1293 | 1.1357 | 1.0057 | 4 | 3.5984 |
 
 ## Large-File Concentration
 
@@ -111,11 +171,11 @@ file of that size clears the target with alpha `1e-9`. Because the radius
 scales as `1/sqrt(N)`, the entries below give the large-file scale where
 the radius falls below each target margin.
 
-- evaluated entry count: `4230094`
+- evaluated entry count: `4264321`
 - concentration entry bits: `4`
-- radius at alpha `1e-9`: `±0.994405` percentage points
-- entries for radius <= margin to `0.1%`: `25014685`
-- entries for radius <= margin to `0.2%`: `43830664`
+- radius at alpha `1e-9`: `±0.990406` percentage points
+- entries for radius <= margin to `0.1%`: `27540847`
+- entries for radius <= margin to `0.2%`: `49834231`
 
 ## Assumptions And Proof Boundary
 
@@ -125,6 +185,12 @@ the radius falls below each target margin.
 - Rechunk decode follows the fixed profile schedule and charged metadata.
 - The model operates on current encoded entry bits after pass 1.
 - Concentration uses the bounded-differences radius reported in `best_config.json`.
+- High per-pass drift without raw crossover is labeled as a component, not as
+  a viable net-compression path.
+- A profile using `oracle_weighted_interval` is an upper bound until a
+  deterministic selector with no side table matches it.
+- Registry rows are compact machine-readable rows in `sweep_summary.json`;
+  evaluated row count: `12`.
 
 ## Reproduction
 
