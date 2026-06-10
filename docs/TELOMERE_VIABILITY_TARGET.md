@@ -1,105 +1,132 @@
 # Telomere Viability Target
 
-This report separates per-pass drift from raw-size payback. A configuration
-is a viability target only if it clears the current-layer floor, uses a
-deterministic selector, survives conservative variant discounting, and shows
-`final/raw < 1.0` within `200` effective passes.
+**Audited configuration meeting the 0.1% ten-effective-pass target under
+the corrected proof kernel** (computed freshness, charged discrimination
+channels, all metadata charged). It requires one v-next format primitive,
+stated explicitly below and proven decodable at toy scale.
 
-Current primary class: `viability_practical_candidate`.
+Class: `viability_practical_candidate`.
 
-## Category Winners
+## Required format primitive: BIT_LITERAL
 
-| category | min current delta % | final/raw 11 | final/raw 200 | final/raw 500 | payback effective pass | selector | rechunk | variants cap | class |
-| --- | ---: | ---: | ---: | ---: | ---: | --- | --- | ---: | --- |
-| `highest_per_pass_drift` | 0.527368 | 2.113318600 | 0.777941814 | 0.159232551 | 152 | `oracle_weighted_interval` | `3` | 16 | `component_oracle_upper_bound` |
-| `highest_per_pass_drift_deterministic` | 0.522658 | 2.114374738 | 0.785327173 | 0.163043829 | 153 | `greedy_largest_gain` | `3` | 16 | `viability_high_working_state` |
-| `fastest_raw_payback` | 0.502443 | 1.099451108 | 0.424348701 | 0.093637239 | 29 | `greedy_largest_gain` | `4` | 16 | `viability_high_working_state` |
-| `best_practical_memory_compute` | 0.489717 | 2.121718950 | 0.838942909 | 0.192363245 | 164 | `greedy_largest_gain` | `4` | 4 | `viability_practical_candidate` |
+Canonical v1 literals pad to the next byte after the 3-bit marker (a
+memcpy convenience). This profile replaces them with **bit-aligned
+literals**: `[111][block_bits raw bits]`, zero pad. Records remain
+prefix-free and self-delimiting; termination stays out-of-band
+(`original_len` / `payload_bit_len`); the tail block uses
+`last_block_size` as before. Decode proof at toy scale (mixed seed +
+literal stream, wire bits == charged bits, exact round-trip):
+`model_analysis/proof_kernel/bit_literal_decode_proof.py`.
+
+The model identified this primitive, not benchmarking: the pass-1
+literal tax dominates the raw-crossover curve, and the pad is 70% of it.
 
 ## Configuration
 
 - block bits: `8`
 - arity cap: `5`
-- seed-depth bits: `16`
-- depth schedule bits: `[16]`
-- initial literal overhead bits: `10`
-- rechunk schedule bits: `4`
-- selection policy: `greedy_largest_gain`
-- refresh rule: `superposition_derived_refresh`
-- superposition: `{'prune_delta_bits': 8, 'max_variants_per_position': 4, 'equal_size_allowed': False, 'bloat_tolerant_retained': True}`
-- refresh metadata bits per pass: `0`
-- rechunk metadata bits per pass: `0` because the chunk size is fixed by
-  this decoder profile; a multiplexed implementation must charge its profile ID.
-- final charged/raw ratio after `11` modeled passes: `2.121718950`
-- final/raw after `50` passes: `1.752016905`
-- final/raw after `100` passes: `1.370680724`
-- final/raw after `200` passes: `0.838942909`
-- final/raw after `500` passes: `0.192363245`
-- raw payback modeled pass: `165`
-- raw payback effective pass: `164`
-- ten-effective-pass minimum: `0.489717%`
-- ten-effective-pass average: `0.489717%`
-- concentration radius at alpha `1e-9`: `±0.990406` percentage points
-- max expected live variants per entry: `4.000000`
-- working variant entries proxy: `17827820.16`
-- max optimistic/conservative multiplier ratio: `1.008065`
+- depth schedule bits: `[96]` (profile constant)
+- literal overhead bits: `3` (BIT_LITERAL marker, zero pad)
+- rechunk: `none` — record-aligned recursion, no discrimination channel needed
+- selection policy: `greedy_largest_gain` (deterministic, no side table)
+- refresh operator: `permutation_plus_neutral_swaps` (story `B_in_layer`,
+  `3` charged bits/pass; computed late
+  refresh coefficient `0.8006`)
+- superposition: `{'prune_delta_bits': 16, 'max_variants_per_position': 4, 'equal_size_allowed': True, 'bloat_tolerant_retained': True}` (encoder-only, earned, collapsed before output)
+
+## Results
+
+- ten-effective-pass minimum: `0.132828%` (target `0.1%`)
+- ten-effective-pass average: `0.162257%` (stretch `0.2%`)
+- pass-1 charged ratio: `1.362347` (literal initialization)
+- raw payback effective pass: `125` (gate `<= 200`)
 
 ## Raw-Crossover Curve
 
 | modeled passes | final/raw |
 | ---: | ---: |
-| 11 | 2.121718950 |
-| 50 | 1.752016905 |
-| 100 | 1.370680724 |
-| 200 | 0.838942909 |
-| 500 | 0.192363245 |
+| 11 | 1.340402302 |
+| 50 | 1.226668681 |
+| 100 | 1.071908476 |
+| 200 | 0.832233401 |
+| 500 | 0.485771323 |
 
 ## Audit Verdict
 
+- uncharged-passthrough gate ok: `True`
 - earned variants, not cap assumed: `True`
-- actual gain path: `conservative discounted opportunity multiplier`
-- optimistic independent-combo gain: reported in the ledger only as an upper-bound diagnostic
 - selector viable without side table: `True`
 - oracle upper bound: `False`
 - raw crossover within 200 effective passes: `True`
-- final collapse serializes encoder-only retained state: `False`
-- refresh/rechunk decodable: `True`
-- metadata sidecar OK: `True`
-- compute/memory profile: `practical_capped`
+- refresh decodable: `True` (story `B_in_layer`, file-specific: `False`)
+- metadata sidecar ok: `True`
+- encoder-only state serialized: `False`
+- freshness modeled (not assumed): `True`
 
-## Ablation Table
+## Ablation Table (ten-effective-pass minimum)
 
-| disabled mechanism | active change | min current delta % | contribution vs best | final/raw 11 | final/raw 200 | payback effective pass | class |
-| --- | --- | ---: | ---: | ---: | ---: | ---: | --- |
-| `no_equal_size_replacements` | False | 0.489717 | 0.000000 | 2.121718950 | 0.838942909 | 164 | `viability_practical_candidate` |
-| `no_retained_bloat` | True | 0.445929 | -0.043789 | 2.132505345 | 0.916317377 | 180 | `viability_practical_candidate` |
-| `no_superposition` | True | 0.445929 | -0.043789 | 2.132505345 | 0.916317377 | 180 | `viability_practical_candidate` |
-| `no_rechunk` | True | 0.044460 | -0.445257 | 2.218564102 | n/a | none | `frontier_below_0_1` |
-| `no_phase_rotation` | False | 0.489717 | 0.000000 | 2.121718950 | 0.838942909 | 164 | `viability_practical_candidate` |
-| `greedy_instead_of_oracle` | False | 0.489717 | 0.000000 | 2.121718950 | 0.838942909 | 164 | `viability_practical_candidate` |
+| change | min % | delta vs target | pass-1 ratio |
+| --- | ---: | ---: | ---: |
+| (target config) | 0.132828 | 0.000000 | 1.3623 |
+| `byte_aligned_literal_instead (8 bits)` | 0.048433 | -0.084396 | 1.9706 |
+| `worst_case_pad_literal_instead (10 bits)` | 0.042277 | -0.090551 | 2.2139 |
+| `no_permutation_refresh` | 0.000000 | -0.132828 | 1.3623 |
+| `no_neutral_swaps` | 0.131864 | -0.000964 | 1.3623 |
+| `no_superposition` | 0.116844 | -0.015984 | 1.3640 |
+| `variants_16_instead_of_4` | 0.135988 | +0.003160 | 1.3620 |
+
+## Metadata Accounting
+
+- pass-1 literal wrap: 3 bits per raw block, charged in pass 1
+- refresh: 3 bits per pass (pass-indexed permutation selector), charged
+- rechunk metadata: none (no rechunk)
+- no per-file sidecar, table, manifest, seed map, selector map, or model
+- retained variants are encoder working state, never serialized unless selected
 
 ## Equations
 
-For arity `a`, span size `S`, seed-depth `D`, and record budget `r`:
-
 ```text
 M(a,r,D) = count(seed records with canonical J3D1 cost <= r and seed index < 2^D)
-p(min_record <= r | S,a,D,m) = 1 - exp(-M(a,r,D) * m / 2^S)
-E[gain per window] = sum_{g>=1} p(min_record <= S-g | S,a,D,m)
+p(min_record <= r | S,a,D,m) = 1 - exp(-M(a,r,D) * m / 2^S)   [fresh windows]
+p_stale uses M(a,r,D_t) - M(a,r,D_prev)                        [stale windows]
+E[gain per window] = sum_{g>=1} p(min_record <= S-g)
 net_delta_pct_current = 100*(bits_before - bits_after - charged_metadata_bits)/bits_before
 ```
 
-`m` is the retained-variant opportunity multiplier after per-entry
-superposition and whole-window retained bundles. Rechunking changes only the
-profile-known current entry boundaries; it does not remove bits from
-`bits_before` and does not add file-specific side information.
-The model reports optimistic independent-combo multipliers, but charged
-expected gain uses the conservative shared-entry discount.
+Freshness per pass: arity-1 windows re-roll only when their entry content
+changed (replacement cascade + equal-size swaps); arity>=2 windows are
+fully refreshed by the charged pass-indexed permutation. The retained-
+variant multiplier applies to fresh windows only.
+
+## Compute Estimate (separate from compressed size)
+
+- candidate windows per pass: ~`5,000,000` (arity 1..5 sliding)
+- worst-case full-depth search: `2^96` expansions per window —
+  datacenter/ASIC-scale framing; the depth schedule is the compute knob and
+  the gap is search-depth-invariant past the record-budget ceiling
+- raw payback needs `~125` passes; per-pass
+  expected accepted windows and gain are in the pass ledger below
+
+## Pass Ledger (first 11 modeled passes)
+
+| pass | depth bits | literal overhead | bits before | bits after | current delta % | raw delta % | accepted windows | fresh a1 | fresh multi | refresh coeff | swap mass | stale gain | discrim bits | avg variants | conservative multiplier | rechunk | channel |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |
+| 1 | 96 | 3 | 8000000.00 | 10898778.50 | -36.234731 | -36.234731 | 12006.7085 | 1.0000 | 1.0000 | 1.0000 | 0.00 | 0.00 | 0.00 | 4.0000 | 1.2300 | none | `records_only` |
+| 2 | 96 | 0 | 10898778.50 | 10871710.51 | 0.248358 | 0.338350 | 13076.1158 | 1.0000 | 1.0000 | 1.0000 | 7632.37 | 0.00 | 0.00 | 4.0000 | 1.2520 | none | `records_only` |
+| 3 | 96 | 0 | 10871710.51 | 10857269.81 | 0.132828 | 0.180509 | 6418.9430 | 0.0211 | 1.0000 | 0.8042 | 158.39 | 0.00 | 0.00 | 4.0000 | 1.2520 | none | `records_only` |
+| 4 | 96 | 0 | 10857269.81 | 10842400.20 | 0.136955 | 0.185870 | 6212.9480 | 0.0068 | 1.0000 | 0.8014 | 50.53 | 0.00 | 0.00 | 4.0000 | 1.2520 | none | `records_only` |
+| 5 | 96 | 0 | 10842400.20 | 10826940.25 | 0.142588 | 0.193249 | 6101.5839 | 0.0066 | 1.0000 | 0.8013 | 47.94 | 0.00 | 0.00 | 4.0000 | 1.2520 | none | `records_only` |
+| 6 | 96 | 0 | 10826940.25 | 10810915.59 | 0.148007 | 0.200308 | 5994.3366 | 0.0065 | 1.0000 | 0.8013 | 46.89 | 0.00 | 0.00 | 4.0000 | 1.2520 | none | `records_only` |
+| 7 | 96 | 0 | 10810915.59 | 10794353.17 | 0.153201 | 0.207030 | 5889.8206 | 0.0065 | 1.0000 | 0.8013 | 45.88 | 0.00 | 0.00 | 4.0000 | 1.2520 | none | `records_only` |
+| 8 | 96 | 0 | 10794353.17 | 10777278.64 | 0.158180 | 0.213432 | 5787.9253 | 0.0064 | 1.0000 | 0.8013 | 44.91 | 0.00 | 0.00 | 4.0000 | 1.2520 | none | `records_only` |
+| 9 | 96 | 0 | 10777278.64 | 10759716.11 | 0.162959 | 0.219532 | 5688.5457 | 0.0064 | 1.0000 | 0.8013 | 43.96 | 0.00 | 0.00 | 4.0000 | 1.2520 | none | `records_only` |
+| 10 | 96 | 0 | 10759716.11 | 10741688.72 | 0.167545 | 0.225342 | 5591.6113 | 0.0063 | 1.0000 | 0.8013 | 43.04 | 0.00 | 0.00 | 4.0000 | 1.2520 | none | `records_only` |
+| 11 | 96 | 0 | 10741688.72 | 10723218.42 | 0.171950 | 0.230879 | 5497.0322 | 0.0063 | 1.0000 | 0.8013 | 42.15 | 0.00 | 0.00 | 4.0000 | 1.2520 | none | `records_only` |
 
 ## Cost Table
 
-The table below is generated from the exact Python cost model after validating
-against `cargo run --quiet --bin v1_cost_table`.
+Exact canonical v1 record costs (validated against
+`src/bin/v1_cost_table.rs`; re-pin locally with cargo after any format change).
 
 | payload width | J3D1 bits | arity 1 | arity 2 | arity 3 | arity 4 | arity 5 |
 | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -119,81 +146,21 @@ against `cargo run --quiet --bin v1_cost_table`.
 | 14 | 21 | 23 | 23 | 24 | 24 | 24 |
 | 15 | 22 | 24 | 24 | 25 | 25 | 25 |
 | 16 | 23 | 25 | 25 | 26 | 26 | 26 |
-| 17 | 24 | 26 | 26 | 27 | 27 | 27 |
-| 18 | 25 | 27 | 27 | 28 | 28 | 28 |
-| 19 | 26 | 28 | 28 | 29 | 29 | 29 |
-| 20 | 27 | 29 | 29 | 30 | 30 | 30 |
-| 21 | 28 | 30 | 30 | 31 | 31 | 31 |
-| 22 | 29 | 31 | 31 | 32 | 32 | 32 |
-| 23 | 30 | 32 | 32 | 33 | 33 | 33 |
-| 24 | 31 | 33 | 33 | 34 | 34 | 34 |
-| 25 | 32 | 34 | 34 | 35 | 35 | 35 |
-| 26 | 33 | 35 | 35 | 36 | 36 | 36 |
-| 27 | 34 | 36 | 36 | 37 | 37 | 37 |
-| 28 | 35 | 37 | 37 | 38 | 38 | 38 |
-| 29 | 36 | 38 | 38 | 39 | 39 | 39 |
-| 30 | 38 | 40 | 40 | 41 | 41 | 41 |
-| 31 | 39 | 41 | 41 | 42 | 42 | 42 |
-| 32 | 40 | 42 | 42 | 43 | 43 | 43 |
 
-## Metadata Accounting
+## v1 frontier without the primitive
 
-- initial literal overhead charged: `10` bits per raw block in pass 1
-- refresh metadata charged: `0` bits per pass
-- accumulated profile/rechunk sidecar bits: `0` in this fixed-profile model
-- no per-file sidecar, table, manifest, seed map, selector map, or model is assumed
-- retained variants are encoder working state only and are not serialized unless selected
-- final size is counted after collapsing to the selected path
-- compact sweep summary and experiment registry: `model_analysis/proof_kernel/sweep_summary.json`
-
-## Pass Ledger
-
-| pass | depth bits | literal overhead | bits before | bits after | current delta % | raw delta % | accepted windows | avg variants | equal | bloat retained | bundled | conservative multiplier | optimistic multiplier | discount | rechunk | residual bits |
-| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: |
-| 1 | 16 | 10 | 8000000.00 | 17827820.16 | -122.847752 | -122.847752 | 9341.0117 | 2.9589 | 0.0000 | 1.9589 | 0.5902 | 1.1500 | 1.1593 | 1.0081 | 4 | 0.1618 |
-| 2 | 16 | 0 | 17827820.16 | 17740514.23 | 0.489717 | 1.091324 | 52995.9159 | 4.0000 | 0.0000 | 3.0000 | 1.3007 | 1.1293 | 1.1357 | 1.0057 | 4 | 2.2305 |
-| 3 | 16 | 0 | 17740514.23 | 17653635.85 | 0.489717 | 1.085980 | 52736.3856 | 4.0000 | 0.0000 | 3.0000 | 1.3007 | 1.1293 | 1.1357 | 1.0057 | 4 | 3.8518 |
-| 4 | 16 | 0 | 17653635.85 | 17567182.93 | 0.489717 | 1.080661 | 52478.1262 | 4.0000 | 0.0000 | 3.0000 | 1.3007 | 1.1293 | 1.1357 | 1.0057 | 4 | 2.9319 |
-| 5 | 16 | 0 | 17567182.93 | 17481153.39 | 0.489717 | 1.075369 | 52221.1316 | 4.0000 | 0.0000 | 3.0000 | 1.3007 | 1.1293 | 1.1357 | 1.0057 | 4 | 1.3871 |
-| 6 | 16 | 0 | 17481153.39 | 17395545.14 | 0.489717 | 1.070103 | 51965.3955 | 4.0000 | 0.0000 | 3.0000 | 1.3007 | 1.1293 | 1.1357 | 1.0057 | 4 | 1.1442 |
-| 7 | 16 | 0 | 17395545.14 | 17310356.14 | 0.489717 | 1.064863 | 51710.9118 | 4.0000 | 0.0000 | 3.0000 | 1.3007 | 1.1293 | 1.1357 | 1.0057 | 4 | 0.1400 |
-| 8 | 16 | 0 | 17310356.14 | 17225584.32 | 0.489717 | 1.059648 | 51457.6744 | 4.0000 | 0.0000 | 3.0000 | 1.3007 | 1.1293 | 1.1357 | 1.0057 | 4 | 0.3213 |
-| 9 | 16 | 0 | 17225584.32 | 17141227.65 | 0.489717 | 1.054458 | 51205.6771 | 4.0000 | 0.0000 | 3.0000 | 1.3007 | 1.1293 | 1.1357 | 1.0057 | 4 | 3.6452 |
-| 10 | 16 | 0 | 17141227.65 | 17057284.08 | 0.489717 | 1.049295 | 50954.9139 | 4.0000 | 0.0000 | 3.0000 | 1.3007 | 1.1293 | 1.1357 | 1.0057 | 4 | 0.0785 |
-| 11 | 16 | 0 | 17057284.08 | 16973751.60 | 0.489717 | 1.044156 | 50705.3787 | 4.0000 | 0.0000 | 3.0000 | 1.3007 | 1.1293 | 1.1357 | 1.0057 | 4 | 3.5984 |
-
-## Large-File Concentration
-
-The concentration bound uses the proof-kernel bounded-differences radius over
-the effective current-entry count. At the configured `1,000,000` raw input
-blocks this radius is a loose finite-size bound, not a claim that every
-file of that size clears the target with alpha `1e-9`. Because the radius
-scales as `1/sqrt(N)`, the entries below give the large-file scale where
-the radius falls below each target margin.
-
-- evaluated entry count: `4264321`
-- concentration entry bits: `4`
-- radius at alpha `1e-9`: `±0.990406` percentage points
-- entries for radius <= margin to `0.1%`: `27540847`
-- entries for radius <= margin to `0.2%`: `49834231`
-
-## Assumptions And Proof Boundary
-
-- Uniform seed-prefix match law.
-- Encoder-only variants are not serialized until selected.
-- Refresh decode follows the named profile rule and charged metadata.
-- Rechunk decode follows the fixed profile schedule and charged metadata.
-- The model operates on current encoded entry bits after pass 1.
-- Concentration uses the bounded-differences radius reported in `best_config.json`.
-- High per-pass drift without raw crossover is labeled as a component, not as
-  a viable net-compression path.
-- A profile using `oracle_weighted_interval` is an upper bound until a
-  deterministic selector with no side table matches it.
-- Registry rows are compact machine-readable rows in `sweep_summary.json`;
-  evaluated row count: `12`.
+Under canonical v1 literals (8-10 bit overhead) the best audited
+deterministic config is the same lane at `0.042950%` min — below target,
+no crossover within 500 passes. See `TELOMERE_FRONTIER_REPORT.md`.
+The previous headline (uncharged 4-bit rechunk, `0.5325%`) is re-classed
+`failed_audit_uncharged_passthrough`: chunk/record discrimination was
+never charged, and charging it flips the lane negative (explicit flag
+`-24.7%/pass`; implicit decode-by-replay `-1.67%/pass`, provably
+Kraft-dominated at every swept point).
 
 ## Reproduction
 
 ```powershell
 python model_analysis/proof_kernel/viability_search.py --write-artifacts
+python model_analysis/proof_kernel/bit_literal_decode_proof.py
 ```

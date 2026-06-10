@@ -33,9 +33,11 @@ from entry_state import (
     PassLedgerRow,
     normalize_rechunk_schedule,
     run_scheduled_profile,
+    validate_staleness,
     validate_state_recurrence,
 )
 from hit_distribution import p_min_record_le, validate_toy_probabilities
+from implicit_selector import dominance_table, escape_economics, validate_dominance
 from refresh_model import RefreshRule, by_name, refresh_rules, validate_refresh_rules
 from selection_bounds import POLICIES, validate_selection_order
 from span_distribution import validate_span_histogram
@@ -55,23 +57,36 @@ REQUIRED_BLOCK_BITS = (16, 24, 32)
 BLOCK_BITS = (8, 16, 24, 32, 48, 64)
 ARITY_CAPS = (1, 2, 3, 4, 5)
 SEED_DEPTH_BITS = (16, 24, 32, 48, 64, 96, 121, 160)
-DEPTH_SCHEDULES = tuple((depth,) for depth in SEED_DEPTH_BITS) + tuple(
-    (32, depth) for depth in SEED_DEPTH_BITS
+DEPTH_RAMPS: tuple[tuple[int, ...], ...] = (
+    (16, 24, 32, 48, 64, 96, 121, 160),
+    (32, 48, 64, 96, 121, 160),
 )
+DEPTH_SCHEDULES = (
+    tuple((depth,) for depth in SEED_DEPTH_BITS)
+    + tuple((32, depth) for depth in SEED_DEPTH_BITS)
+    + DEPTH_RAMPS
+)
+BIT_LITERAL_OVERHEAD_BITS = 3  # v-next primitive: bit-aligned literal, zero pad
 LITERAL_INIT_OVERHEAD_BITS = (
     LITERAL_ENTRY_OVERHEAD_BITS,
     LITERAL_BYTE_ALIGNED_ENTRY_OVERHEAD_BITS,
+    BIT_LITERAL_OVERHEAD_BITS,
 )
-RECHUNK_SCHEDULES: tuple[tuple[int | None, ...], ...] = (
-    (None,),
-    (3,),
-    (4,),
-    (8,),
-    (16,),
-    (24,),
-    (3, 4),
-    (4, 3),
-    (3, 3, 4),
+# (schedule, discrimination channel). Chunk layers mix records with verbatim
+# chunks, so they must carry a charged channel; ``uncharged_diagnostic`` is
+# kept only to quantify the failed-audit accounting and never classifies as
+# viable.
+RECHUNK_LANES: tuple[tuple[tuple[int | None, ...], str], ...] = (
+    ((None,), "records_only"),
+    ((3,), "explicit_flag"),
+    ((4,), "explicit_flag"),
+    ((8,), "explicit_flag"),
+    ((16,), "explicit_flag"),
+    ((3,), "implicit_selector"),
+    ((4,), "implicit_selector"),
+    ((8,), "implicit_selector"),
+    ((4,), "uncharged_diagnostic"),
+    ((3, 4), "explicit_flag"),
 )
 PASSES = 11
 RAW_CROSSOVER_HORIZONS = (11, 50, 100, 200, 500)
@@ -83,9 +98,16 @@ def format_rechunk_schedule(schedule: tuple[int | None, ...]) -> str:
     return "none" if schedule == (None,) else "->".join(str(item) for item in schedule)
 
 
-def current_entry_bits(block_bits: int, initial_literal_overhead_bits: int, schedule: tuple[int | None, ...]) -> int:
+def current_entry_bits(
+    block_bits: int,
+    initial_literal_overhead_bits: int,
+    schedule: tuple[int | None, ...],
+    rechunk_channel: str = "records_only",
+) -> int:
     first = schedule[0]
-    return first if first is not None else block_bits + initial_literal_overhead_bits
+    if first is None:
+        return block_bits + initial_literal_overhead_bits
+    return first + (1 if rechunk_channel == "explicit_flag" else 0)
 
 
 def profile_key_schedule(schedule: tuple[int | None, ...]) -> tuple[int | None, ...]:
@@ -121,13 +143,15 @@ MECHANISM_IDEAS = [
     ("two_phase_depth_schedule", "implemented", "Profile-known first-pass depth and later-pass depth schedule."),
     ("byte_aligned_literal_initialization", "implemented", "Charges the exact 3+5 literal overhead for byte-aligned literal runs."),
     ("block_bits_8", "expanded", "One-byte current-entry schedule point beyond the required 2/3/4-byte sweep."),
-    ("fixed_bitstream_rechunk_4", "implemented", "Profile-known 4-bit chunks after each emitted layer."),
+    ("fixed_bitstream_rechunk_4_uncharged", "failed_audit", "Uncharged record/chunk discrimination; undecodable as accounted. Kept as diagnostic lane only."),
+    ("rechunk_explicit_flag_channel", "implemented", "Charged 1-bit element flags; decodable, taxed 1 bit per chunk per pass."),
+    ("rechunk_implicit_selector", "implemented", "Decode-by-replay with charged per-fire stuffing escapes; Kraft-dominated at every swept point."),
     ("block_bits_16", "implemented", "Small current-entry schedule point."),
     ("block_bits_64", "implemented", "Larger current-entry schedule point."),
-    ("deterministic_rechunk", "implemented", "Profile-known bitstream rechunk refresh."),
-    ("entry_permutation_profile", "bounded", "Charged deterministic permutation profile."),
+    ("computed_freshness_model", "implemented", "Per-pass fresh/stale window split from cascade, swaps, permutation, and depth increments."),
+    ("entry_permutation_profile", "implemented", "Charged pass-indexed entry permutation; refreshes multi-entry adjacency every pass."),
     ("layer_descriptor_refresh", "implemented", "Charged layer descriptor refresh."),
-    ("phase_rotated_rechunk", "implemented", "Charged deterministic phase rotation."),
+    ("depth_ramp_schedule", "implemented", "Increasing per-pass depth gives stale windows the incremental seed slice."),
     ("multi_profile_selector", "bounded", "Allowed only with charged selector bits; bounded as profile metadata."),
     ("future_diversity_selector", "bounded", "Upper-bounded by oracle selection with superposition score."),
     ("final_collapse_stage", "implemented", "Encoder-state variants collapse to one serialized path."),
@@ -150,6 +174,7 @@ class BoundCandidate:
     superposition: SuperpositionConfig
     avg_variants: float
     window_multiplier: float
+    rechunk_channel: str = "records_only"
 
 
 @dataclass
@@ -185,6 +210,7 @@ class FirstEffectiveCeiling:
     refresh_name: str
     policy: str
     dominance_basis: list[str]
+    rechunk_channel: str = "records_only"
 
 
 def write_idea_log() -> Path:
@@ -211,6 +237,8 @@ def run_validations() -> dict:
         "toy_probability_rows": validate_toy_probabilities(),
         "span_histogram_validation": validate_span_histogram(),
         "state_validation": validate_state_recurrence(),
+        "staleness_validation": validate_staleness(),
+        "implicit_selector_dominance": validate_dominance(),
         "refresh_rules": validate_refresh_rules(),
         "superposition_sweep": validate_sweep_configs(),
         "bundle_variant_validation": asdict(
@@ -231,26 +259,21 @@ def first_effective_dominance_ceiling(representative: bool = False) -> FirstEffe
     alternatives enabled, and the highest-rho zero-metadata refresh rule.
     """
 
-    best: tuple[
-        float,
-        int,
-        int,
-        int,
-        tuple[int, ...],
-        int,
-        tuple[int | None, ...],
-        int,
-    ] | None = None
-    refresh = by_name("superposition_derived_refresh")
+    best: tuple | None = None
+    refresh = by_name("permutation_plus_neutral_swaps")
     block_axis = (8, 64) if representative else BLOCK_BITS
     depth_axis = ((32,),) if representative else DEPTH_SCHEDULES
     literal_axis = (LITERAL_BYTE_ALIGNED_ENTRY_OVERHEAD_BITS,) if representative else LITERAL_INIT_OVERHEAD_BITS
-    rechunk_axis = ((3,), (4,), (3, 4)) if representative else RECHUNK_SCHEDULES
+    lane_axis = (
+        (((None,), "records_only"), ((4,), "explicit_flag"))
+        if representative
+        else RECHUNK_LANES
+    )
     delta_axis = (16,) if representative else (0, 1, 2, 4, 8, 16, 32, 64)
     for block_bits in block_axis:
         for depth_schedule_bits in depth_axis:
             for initial_literal_overhead_bits in literal_axis:
-                for rechunk_schedule_bits in rechunk_axis:
+                for rechunk_schedule_bits, rechunk_channel in lane_axis:
                     for prune_delta_bits in delta_axis:
                         superposition = SuperpositionConfig(prune_delta_bits, 16, True, True)
                         _final, rows = run_scheduled_profile(
@@ -264,6 +287,7 @@ def first_effective_dominance_ceiling(representative: bool = False) -> FirstEffe
                             refresh,
                             initial_literal_overhead_bits,
                             rechunk_schedule_bits,
+                            rechunk_channel,
                         )
                         value = rows[1].net_delta_pct_current
                         if best is None or value > best[0]:
@@ -276,6 +300,7 @@ def first_effective_dominance_ceiling(representative: bool = False) -> FirstEffe
                                 initial_literal_overhead_bits,
                                 rechunk_schedule_bits,
                                 prune_delta_bits,
+                                rechunk_channel,
                             )
     assert best is not None
     return FirstEffectiveCeiling(
@@ -292,15 +317,15 @@ def first_effective_dominance_ceiling(representative: bool = False) -> FirstEffe
         policy="oracle_weighted_interval",
         dominance_basis=[
             "pass 2 must reach target for any 10-effective-pass success",
+            "pass 2 is fully fresh (pass-1 literal wrapping rewrote every entry), so it upper-bounds every later, partially stale pass",
             "oracle_weighted_interval is the selection upper bound",
             "arity cap 5 includes arities 1..5",
-            "the expanded one-byte lane dominates larger byte schedules for this ceiling in the tested profile space",
-            "byte-aligned literal initialization is charged explicitly and is no larger than the worst-case pad budget",
-            "fixed bitstream rechunking preserves charged bits while exposing smaller profile-known current entries",
             "max retained variants 16 dominates smaller retained-state caps",
             "equal-size and bloat-retained alternatives enabled dominate disabling either source of retained candidates",
-            "superposition_derived_refresh has the largest zero-metadata refresh coefficient in the modeled rule set",
+            "permutation_plus_neutral_swaps maximizes computed freshness among decodable operators",
+            "only charged discrimination channels are admissible for chunk lanes",
         ],
+        rechunk_channel=best[8],
     )
 
 
@@ -313,23 +338,30 @@ def bound_one(
     policy: str,
     refresh: RefreshRule,
     superposition: SuperpositionConfig,
+    rechunk_channel: str = "records_only",
 ) -> BoundCandidate:
     depth_bits = depth_schedule_bits[-1]
-    literal_bits = current_entry_bits(block_bits, initial_literal_overhead_bits, rechunk_schedule_bits)
+    literal_bits = current_entry_bits(
+        block_bits, initial_literal_overhead_bits, rechunk_schedule_bits, rechunk_channel
+    )
     stat = retained_variant_stats(literal_bits, depth_bits, superposition)
-    score = 1.0 + refresh.rho * (stat.weighted_score - 1.0)
+    score = stat.weighted_score
+    record_extra = 1 if rechunk_channel in ("explicit_flag", "implicit_selector") else 0
     best_gain = 0.0
     best_multiplier = 1.0
     for arity in range(1, arity_cap + 1):
         span_bits = literal_bits * arity
         multiplier = score**arity
         best_multiplier = max(best_multiplier, multiplier)
-        hit = p_min_record_le(span_bits - 1, span_bits, arity, depth_bits, multiplier)
-        gain = hit * max(0, span_bits - min_record_bits(min(arity, 5)))
+        hit = p_min_record_le(span_bits - 1 - record_extra, span_bits, arity, depth_bits, multiplier)
+        gain = hit * max(0, span_bits - record_extra - min_record_bits(min(arity, 5)))
         # Oracle-style upper bound: every starting position can contribute.
         best_gain += gain
+    tax = 0.0
+    if rechunk_channel == "implicit_selector":
+        tax = escape_economics(max(1, literal_bits), min(arity_cap, 5), depth_bits).stuff_bits_per_chunk
     metadata = refresh.metadata_bits_per_pass / ENTRY_COUNT
-    upper_pct = 100.0 * max(0.0, best_gain - metadata) / literal_bits
+    upper_pct = 100.0 * max(0.0, best_gain - tax - metadata) / literal_bits
     return BoundCandidate(
         upper_bound_pct_current=upper_pct,
         block_bits=block_bits,
@@ -343,6 +375,7 @@ def bound_one(
         superposition=superposition,
         avg_variants=stat.avg_variants,
         window_multiplier=best_multiplier,
+        rechunk_channel=rechunk_channel,
     )
 
 
@@ -353,7 +386,7 @@ def bounded_sweep(top_k: int, representative: bool = False) -> tuple[list[BoundC
     seq = 0
     supers = representative_superposition_configs() if representative else sweep_configs()
     rules = (
-        (by_name("no_refresh"), by_name("superposition_derived_refresh"), by_name("phase_rotated_rechunk"))
+        (by_name("no_refresh"), by_name("permutation_plus_neutral_swaps"))
         if representative
         else refresh_rules()
     )
@@ -361,50 +394,88 @@ def bounded_sweep(top_k: int, representative: bool = False) -> tuple[list[BoundC
     arity_axis = (5,) if representative else ARITY_CAPS
     depth_axis = ((32,),) if representative else DEPTH_SCHEDULES
     literal_axis = LITERAL_INIT_OVERHEAD_BITS
-    rechunk_axis = ((None,), (3,), (4,), (3, 4), (4, 3)) if representative else RECHUNK_SCHEDULES
+    lane_axis = (
+        (
+            ((None,), "records_only"),
+            ((4,), "explicit_flag"),
+            ((4,), "implicit_selector"),
+            ((4,), "uncharged_diagnostic"),
+        )
+        if representative
+        else RECHUNK_LANES
+    )
+    ranking_refresh = rules[0]
+    # The oracle bound assumes full freshness, so it is refresh-independent up
+    # to per-pass metadata (<= 3 bits over 1M entries); refresh rules are
+    # expanded onto the selected candidates for the full recurrences instead.
+    bound_cache: dict[tuple, BoundCandidate] = {}
     for block_bits in block_axis:
         for arity_cap in arity_axis:
             for depth_schedule_bits in depth_axis:
                 for initial_literal_overhead_bits in literal_axis:
-                    for rechunk_schedule_bits in rechunk_axis:
+                    for rechunk_schedule_bits, rechunk_channel in lane_axis:
                         for superposition in supers:
-                            for refresh in rules:
-                                candidate = bound_one(
+                            cache_key = (
+                                current_entry_bits(
+                                    block_bits,
+                                    initial_literal_overhead_bits,
+                                    rechunk_schedule_bits,
+                                    rechunk_channel,
+                                ),
+                                arity_cap,
+                                depth_schedule_bits[-1],
+                                rechunk_channel,
+                                superposition,
+                            )
+                            cached = bound_cache.get(cache_key)
+                            if cached is None:
+                                cached = bound_one(
                                     block_bits,
                                     arity_cap,
                                     depth_schedule_bits,
                                     initial_literal_overhead_bits,
                                     rechunk_schedule_bits,
                                     "oracle_weighted_interval",
-                                    refresh,
+                                    ranking_refresh,
                                     superposition,
+                                    rechunk_channel,
                                 )
-                                seen += len(POLICIES)
-                                seq += 1
-                                item = (candidate.upper_bound_pct_current, seq, candidate)
-                                if len(heap) < top_k:
-                                    heappush(heap, item)
-                                elif item[0] > heap[0][0]:
-                                    heappop(heap)
-                                    heappush(heap, item)
+                                bound_cache[cache_key] = cached
+                            candidate = replace(
+                                cached,
+                                block_bits=block_bits,
+                                depth_schedule_bits=depth_schedule_bits,
+                                depth_bits=depth_schedule_bits[-1],
+                                initial_literal_overhead_bits=initial_literal_overhead_bits,
+                                rechunk_schedule_bits=rechunk_schedule_bits,
+                                rechunk_channel=rechunk_channel,
+                            )
+                            seen += len(POLICIES) * len(rules)
+                            seq += 1
+                            item = (candidate.upper_bound_pct_current, seq, candidate)
+                            if len(heap) < top_k:
+                                heappush(heap, item)
+                            elif item[0] > heap[0][0]:
+                                heappop(heap)
+                                heappush(heap, item)
 
-                                for key in (
-                                    ("block_bits", block_bits),
-                                    ("arity_cap", arity_cap),
-                                    ("seed_depth_bits", depth_schedule_bits[-1]),
-                                    ("first_pass_depth_bits", depth_schedule_bits[0]),
-                                    ("depth_schedule_bits", depth_schedule_bits),
-                                    ("initial_literal_overhead_bits", initial_literal_overhead_bits),
-                                    ("rechunk_schedule_bits", rechunk_schedule_bits),
-                                    ("refresh_rule", refresh.name),
-                                    ("prune_delta_bits", superposition.prune_delta_bits),
-                                    ("max_variants_per_position", superposition.max_variants_per_position),
-                                    ("equal_size_allowed", superposition.equal_size_allowed),
-                                    ("bloat_tolerant_retained", superposition.bloat_tolerant_retained),
-                                ):
-                                    prior = group_best.get(key)
-                                    if prior is None or candidate.upper_bound_pct_current > prior.upper_bound_pct_current:
-                                        group_best[key] = candidate
+                            for key in (
+                                ("block_bits", block_bits),
+                                ("arity_cap", arity_cap),
+                                ("seed_depth_bits", depth_schedule_bits[-1]),
+                                ("first_pass_depth_bits", depth_schedule_bits[0]),
+                                ("depth_schedule_bits", depth_schedule_bits),
+                                ("initial_literal_overhead_bits", initial_literal_overhead_bits),
+                                ("rechunk_schedule_bits", rechunk_schedule_bits),
+                                ("rechunk_channel", rechunk_channel),
+                                ("prune_delta_bits", superposition.prune_delta_bits),
+                                ("max_variants_per_position", superposition.max_variants_per_position),
+                                ("equal_size_allowed", superposition.equal_size_allowed),
+                                ("bloat_tolerant_retained", superposition.bloat_tolerant_retained),
+                            ):
+                                prior = group_best.get(key)
+                                if prior is None or candidate.upper_bound_pct_current > prior.upper_bound_pct_current:
+                                    group_best[key] = candidate
 
     candidates_by_key: dict[tuple, BoundCandidate] = {}
     for candidate in [item[2] for item in sorted(heap, key=lambda x: x[0], reverse=True)] + list(group_best.values()):
@@ -415,7 +486,7 @@ def bounded_sweep(top_k: int, representative: bool = False) -> tuple[list[BoundC
             candidate.depth_schedule_bits,
             candidate.initial_literal_overhead_bits,
             candidate.rechunk_schedule_bits,
-            candidate.refresh_name,
+            candidate.rechunk_channel,
             candidate.superposition,
         )
         candidates_by_key[key] = candidate
@@ -424,7 +495,15 @@ def bounded_sweep(top_k: int, representative: bool = False) -> tuple[list[BoundC
         key=lambda candidate: candidate.upper_bound_pct_current,
         reverse=True,
     )
-    best = [replace(candidate, policy=policy) for candidate in best_unique for policy in POLICIES]
+    # Refresh expansion: freshness only matters on record-aligned layers.
+    # Chunk layers are boundary-refreshed every pass and their entries are too
+    # small for neutral swaps, so refresh rules only add metadata there.
+    best: list[BoundCandidate] = []
+    for candidate in best_unique:
+        lane_rules = rules if candidate.rechunk_schedule_bits == (None,) else (by_name("no_refresh"),)
+        for rule in lane_rules:
+            for policy in POLICIES:
+                best.append(replace(candidate, refresh_name=rule.name, policy=policy))
     summary = {
         "bounded_profiles": seen,
         "representative_mode": representative,
@@ -435,13 +514,16 @@ def bounded_sweep(top_k: int, representative: bool = False) -> tuple[list[BoundC
         "seed_depth_bits": sorted({schedule[-1] for schedule in depth_axis}),
         "depth_schedules": depth_axis,
         "initial_literal_overhead_bits": literal_axis,
-        "rechunk_schedules": [format_rechunk_schedule(schedule) for schedule in rechunk_axis],
+        "rechunk_lanes": [
+            f"{format_rechunk_schedule(schedule)}@{channel}" for schedule, channel in lane_axis
+        ],
         "superposition_configs": len(supers),
         "prune_delta_bits": sorted({cfg.prune_delta_bits for cfg in supers}),
         "max_variants_per_position": sorted({cfg.max_variants_per_position for cfg in supers}),
         "equal_size_allowed": sorted({cfg.equal_size_allowed for cfg in supers}),
         "bloat_tolerant_retained": sorted({cfg.bloat_tolerant_retained for cfg in supers}),
         "refresh_rules": [rule.name for rule in rules],
+        "refresh_expansion": "all rules on record-aligned lanes; no_refresh on chunk lanes (boundary-refreshed, swap-dead)",
         "selection_policies": POLICIES,
         "top_k_recurrence_profiles": len(best),
         "recurrence_seed_profiles": len(best_unique),
@@ -463,6 +545,7 @@ def run_candidate_rows(candidate: BoundCandidate, passes: int) -> tuple[float, l
         refresh,
         candidate.initial_literal_overhead_bits,
         candidate.rechunk_schedule_bits,
+        candidate.rechunk_channel,
     )
     return final.original_raw_bits, rows
 
@@ -487,6 +570,8 @@ def classify_viability(
     candidate: BoundCandidate,
     payback_effective_pass_count: int | None,
 ) -> str:
+    if candidate.rechunk_channel == "uncharged_diagnostic":
+        return "failed_audit_uncharged_passthrough"
     if min_pct < 0.1:
         return "frontier_below_0_1"
     if candidate.policy == "oracle_weighted_interval":
@@ -524,7 +609,20 @@ def audit_candidate(
     )
     profile_schedule_fixed = True
     no_sidecar_metadata = refresh.metadata_bits_per_pass >= 0 and profile_schedule_fixed
+    uncharged = any(row.uncharged_passthrough for row in rows)
+    late_rows = rows[2:] or rows
     return {
+        "uncharged_passthrough_gate_ok": not uncharged,
+        "rechunk_channel": candidate.rechunk_channel,
+        "discrimination_bits_per_pass_max": max((row.discrimination_bits for row in rows), default=0.0),
+        "escape_fire_rate_per_chunk_max": max((row.escape_fire_rate_per_chunk for row in rows), default=0.0),
+        "decode_replay_expansions_max": max((row.decode_replay_expansions for row in rows), default=0.0),
+        "freshness_modeled": True,
+        "refresh_story": refresh.story,
+        "refresh_file_specific": refresh.file_specific,
+        "refresh_coefficient_late_avg": sum(row.refresh_coefficient for row in late_rows) / max(1, len(late_rows)),
+        "neutral_swap_mass_max": max((row.neutral_swap_mass for row in rows), default=0.0),
+        "stale_gain_bits_max": max((row.stale_gain_bits for row in rows), default=0.0),
         "earned_variant_ok": earned_variant_ok,
         "max_expected_live_variants_per_entry": max_avg_variants,
         "max_variant_cap": candidate.superposition.max_variants_per_position,
@@ -553,9 +651,9 @@ def audit_candidate(
     }
 
 
-def evaluate_candidate(candidate: BoundCandidate) -> ProfileEvaluation:
+def evaluate_candidate(candidate: BoundCandidate, force_full_horizon: bool = False) -> ProfileEvaluation:
     long_horizon = max(RAW_CROSSOVER_HORIZONS)
-    if candidate.rechunk_schedule_bits == (None,):
+    if candidate.rechunk_schedule_bits == (None,) and not force_full_horizon:
         long_horizon = PASSES
     original_raw_bits, long_rows = run_candidate_rows(candidate, long_horizon)
     rows = long_rows[:PASSES]
@@ -567,6 +665,7 @@ def evaluate_candidate(candidate: BoundCandidate) -> ProfileEvaluation:
         candidate.block_bits,
         candidate.initial_literal_overhead_bits,
         candidate.rechunk_schedule_bits,
+        candidate.rechunk_channel,
     )
     concentration = epsilon_for_confidence(
         max(1, effective_entry_count),
@@ -598,23 +697,25 @@ def evaluate_candidate(candidate: BoundCandidate) -> ProfileEvaluation:
 
 def pass_ledger_markdown(rows: list[PassLedgerRow]) -> str:
     lines = [
-        "| pass | depth bits | literal overhead | bits before | bits after | current delta % | raw delta % | accepted windows | avg variants | equal | bloat retained | bundled | conservative multiplier | optimistic multiplier | discount | rechunk | residual bits |",
-        "| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | ---: |",
+        "| pass | depth bits | literal overhead | bits before | bits after | current delta % | raw delta % | accepted windows | fresh a1 | fresh multi | refresh coeff | swap mass | stale gain | discrim bits | avg variants | conservative multiplier | rechunk | channel |",
+        "| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- |",
     ]
     for row in rows:
         lines.append(
             f"| {row.pass_index} | {row.depth_bits} | {row.literal_overhead_bits} | "
             f"{row.bits_before:.2f} | {row.bits_after:.2f} | "
             f"{row.net_delta_pct_current:.6f} | {row.net_delta_pct_raw:.6f} | "
-            f"{row.accepted_windows:.4f} | {row.avg_variants_per_position:.4f} | "
-            f"{row.equal_size_neutral_variants_per_entry:.4f} | "
-            f"{row.retained_noncompressive_variants_per_entry:.4f} | "
-            f"{row.bundled_variants_per_window:.4f} | "
+            f"{row.accepted_windows:.4f} | "
+            f"{row.fresh_fraction_arity1:.4f} | "
+            f"{row.fresh_fraction_multi:.4f} | "
+            f"{row.refresh_coefficient:.4f} | "
+            f"{row.neutral_swap_mass:.2f} | "
+            f"{row.stale_gain_bits:.2f} | "
+            f"{row.discrimination_bits:.2f} | "
+            f"{row.avg_variants_per_position:.4f} | "
             f"{row.conservative_window_multiplier:.4f} | "
-            f"{row.optimistic_window_multiplier:.4f} | "
-            f"{row.opportunity_discount_ratio:.4f} | "
             f"{row.rechunk_entry_bits if row.rechunk_entry_bits is not None else 'none'} | "
-            f"{row.rechunk_residual_bits:.4f} |"
+            f"`{row.rechunk_channel}` |"
         )
     return "\n".join(lines)
 
@@ -650,7 +751,10 @@ def concentration_required_entries(evaluation: ProfileEvaluation) -> dict[str, i
 
 
 def select_winners(evaluations: list[ProfileEvaluation]) -> dict[str, ProfileEvaluation]:
-    deterministic = [ev for ev in evaluations if ev.candidate.policy != "oracle_weighted_interval"]
+    audited = [
+        ev for ev in evaluations if ev.audit_flags.get("uncharged_passthrough_gate_ok", True)
+    ] or evaluations
+    deterministic = [ev for ev in audited if ev.candidate.policy != "oracle_weighted_interval"]
     viable_floor = [ev for ev in deterministic if ev.effective_pass_min_pct >= 0.1]
     payback_pool = [ev for ev in viable_floor if ev.payback_effective_pass_count is not None]
     practical_pool = [
@@ -670,7 +774,7 @@ def select_winners(evaluations: list[ProfileEvaluation]) -> dict[str, ProfileEva
 
     winners = {
         "highest_per_pass_drift": max(
-            evaluations,
+            audited,
             key=lambda ev: (ev.effective_pass_min_pct, ev.effective_pass_avg_pct),
         ),
         "highest_per_pass_drift_deterministic": max(
@@ -765,38 +869,63 @@ def experiment_registry_rows(
 
     rows = [
         choose(
-            "fixed_rechunk_3",
-            lambda ev: ev.candidate.rechunk_schedule_bits == (3,),
-            "Decoder splits each decoded layer bitstream into fixed 3-bit current entries from the profile; final residual length is implied by the layer bit length.",
-            "Zero per-file bits for a fixed profile; multiplexed profile must charge a selector.",
+            "no_rechunk_record_aligned",
+            lambda ev: ev.candidate.rechunk_schedule_bits == (None,),
+            "Replacements cover whole records; recursive expansion terminates at literals; no discrimination channel needed.",
+            "Zero rechunk metadata.",
             "best deterministic/payback row when available",
         ),
         choose(
-            "fixed_rechunk_4",
-            lambda ev: ev.candidate.rechunk_schedule_bits == (4,),
-            "Decoder splits each decoded layer bitstream into fixed 4-bit current entries from the profile.",
-            "Zero per-file bits for a fixed profile; multiplexed profile must charge a selector.",
+            "rechunk_4_explicit_flag",
+            lambda ev: ev.candidate.rechunk_schedule_bits == (4,)
+            and ev.candidate.rechunk_channel == "explicit_flag",
+            "Profile-constant element prefix: flag 0 + 4 verbatim bits, flag 1 + record. Decoder discriminates by the charged flag.",
+            "1 charged flag bit per element per layer; flags are wire bits.",
             "best deterministic/payback row when available",
         ),
         choose(
-            "schedule_3_to_4",
-            lambda ev: ev.candidate.rechunk_schedule_bits == (3, 4),
-            "Decoder applies the fixed pass schedule: 3-bit rechunk after the first modeled layer, then 4-bit chunks for later layers.",
-            "Zero per-file bits only when this schedule is the fixed decoder profile.",
+            "rechunk_4_implicit_selector_charged_escapes",
+            lambda ev: ev.candidate.rechunk_schedule_bits == (4,)
+            and ev.candidate.rechunk_channel == "implicit_selector",
+            "Decode-by-replay: decoder parses-and-tests canonical records; a per-fire stuffing bit disambiguates; the decoder reruns the canonical search per fire (decode compute reported separately).",
+            "Charged per-fire stuffing escapes from the exact Kraft fire mass plus 1 bit per real record.",
             "best deterministic/payback row when available",
         ),
         choose(
-            "schedule_4_to_3",
-            lambda ev: ev.candidate.rechunk_schedule_bits == (4, 3),
-            "Decoder applies the fixed pass schedule: 4-bit rechunk, then 3-bit chunks for later layers.",
-            "Zero per-file bits only when this schedule is the fixed decoder profile.",
+            "rechunk_4_zero_escape_diagnostic",
+            lambda ev: ev.candidate.rechunk_schedule_bits == (4,)
+            and ev.candidate.rechunk_channel == "uncharged_diagnostic",
+            "DIAGNOSTIC ONLY: assumes free record/chunk discrimination; undecodable; always failed_audit. Zero-escape upper bound for the implicit-selector family.",
+            "Uncharged (that is the failure).",
+            "diagnostic upper bound",
+        ),
+        choose(
+            "rechunk_8_explicit_flag",
+            lambda ev: ev.candidate.rechunk_schedule_bits == (8,)
+            and ev.candidate.rechunk_channel == "explicit_flag",
+            "As rechunk_4_explicit_flag with 8-bit chunks (lower flag tax, exponentially fewer hits).",
+            "1 charged flag bit per element per layer.",
             "best deterministic/payback row when available",
         ),
         choose(
-            "large_initial_block_64",
-            lambda ev: ev.candidate.block_bits == 64,
-            "Pass 1 wraps larger raw blocks, then later profile rechunking exposes smaller current entries; raw bytes are recovered by normal recursive layer decode.",
-            "Literal wrapper is charged in pass 1; rechunk profile is fixed or must be selected in metadata.",
+            "permutation_refresh",
+            lambda ev: by_name(ev.candidate.refresh_name).permutes_entries,
+            "Pass-indexed content-independent entry permutation, inverted after parsing each layer; keeps multi-entry windows fresh.",
+            "3 bits per pass profile selector.",
+            "best deterministic/payback row when available",
+        ),
+        choose(
+            "neutral_swap_refresh",
+            lambda ev: by_name(ev.candidate.refresh_name).neutral_swaps,
+            "Equal-size record swaps; ordinary records, wire-size neutral; refresh swapped entries and their windows.",
+            "Zero metadata; swap-alive mass decays and is modeled.",
+            "best deterministic/payback row when available",
+        ),
+        choose(
+            "depth_ramp_schedule",
+            lambda ev: len(set(ev.candidate.depth_schedule_bits)) > 2,
+            "Increasing per-pass depth; stale windows draw only the incremental seed slice; compute is reported separately.",
+            "Zero metadata; the schedule is a profile constant.",
             "best deterministic/payback row when available",
         ),
         choose(
@@ -818,20 +947,6 @@ def experiment_registry_rows(
             lambda ev: ev.candidate.superposition.max_variants_per_position <= 4,
             "Encoder may keep up to four earned variants per position, then serializes only the selected collapsed path.",
             "Working state is compute/memory only; selected records are charged in output.",
-            "best deterministic/payback row when available",
-        ),
-        choose(
-            "phase_rotated_rechunk",
-            lambda ev: ev.candidate.refresh_name == "phase_rotated_rechunk",
-            "Decoder reverses the deterministic phase from the charged profile selector and layer number.",
-            "3 bits per pass in the current proof-kernel rule.",
-            "best deterministic/payback row when available",
-        ),
-        choose(
-            "no_rechunk_baseline",
-            lambda ev: ev.candidate.rechunk_schedule_bits == (None,),
-            "Decoder uses the emitted record stream directly with no profile rechunk boundary change.",
-            "Zero rechunk metadata.",
             "best deterministic/payback row when available",
         ),
     ]
@@ -880,13 +995,36 @@ def ablation_rows(best: ProfileEvaluation) -> list[dict]:
         ),
         (
             "no_rechunk",
-            replace(cand, rechunk_schedule_bits=(None,)),
+            replace(cand, rechunk_schedule_bits=(None,), rechunk_channel="records_only"),
             cand.rechunk_schedule_bits != (None,),
         ),
         (
-            "no_phase_rotation",
-            replace(cand, refresh_name="no_refresh") if cand.refresh_name == "phase_rotated_rechunk" else cand,
-            cand.refresh_name == "phase_rotated_rechunk",
+            "no_permutation_refresh",
+            replace(
+                cand,
+                refresh_name=(
+                    "equal_size_neutral_refresh"
+                    if by_name(cand.refresh_name).neutral_swaps
+                    else "no_refresh"
+                ),
+            )
+            if by_name(cand.refresh_name).permutes_entries
+            else cand,
+            by_name(cand.refresh_name).permutes_entries,
+        ),
+        (
+            "no_neutral_swaps",
+            replace(
+                cand,
+                refresh_name=(
+                    "deterministic_entry_permutation"
+                    if by_name(cand.refresh_name).permutes_entries
+                    else "no_refresh"
+                ),
+            )
+            if by_name(cand.refresh_name).neutral_swaps
+            else cand,
+            by_name(cand.refresh_name).neutral_swaps,
         ),
         (
             "greedy_instead_of_oracle",
@@ -896,7 +1034,7 @@ def ablation_rows(best: ProfileEvaluation) -> list[dict]:
     ]
     rows: list[dict] = []
     for name, ablated, active in variants:
-        ev = evaluate_candidate(ablated)
+        ev = evaluate_candidate(ablated, force_full_horizon=True)
         rows.append(
             {
                 "mechanism_disabled": name,
@@ -930,8 +1068,8 @@ def ablation_markdown(rows: list[dict]) -> str:
 
 def winners_markdown(winners: dict[str, ProfileEvaluation]) -> str:
     lines = [
-        "| category | min current delta % | final/raw 11 | final/raw 200 | final/raw 500 | payback effective pass | selector | rechunk | variants cap | class |",
-        "| --- | ---: | ---: | ---: | ---: | ---: | --- | --- | ---: | --- |",
+        "| category | min current delta % | final/raw 11 | final/raw 200 | final/raw 500 | payback effective pass | selector | rechunk | channel | variants cap | class |",
+        "| --- | ---: | ---: | ---: | ---: | ---: | --- | --- | --- | ---: | --- |",
     ]
     for name, ev in winners.items():
         payback = ev.payback_effective_pass_count
@@ -942,6 +1080,7 @@ def winners_markdown(winners: dict[str, ProfileEvaluation]) -> str:
             f"{fmt_optional_float(ev.raw_ratio_by_pass.get(500))} | "
             f"{payback if payback is not None else 'none'} | `{ev.candidate.policy}` | "
             f"`{format_rechunk_schedule(ev.candidate.rechunk_schedule_bits)}` | "
+            f"`{ev.candidate.rechunk_channel}` | "
             f"{ev.candidate.superposition.max_variants_per_position} | `{ev.viability_class}` |"
         )
     return "\n".join(lines)
@@ -1029,6 +1168,10 @@ def write_frontier_report(
         f"- depth schedule bits: `{list(cand.depth_schedule_bits)}`",
         f"- initial literal overhead bits: `{cand.initial_literal_overhead_bits}`",
         f"- rechunk schedule bits: `{format_rechunk_schedule(cand.rechunk_schedule_bits)}`",
+        f"- rechunk discrimination channel: `{cand.rechunk_channel}`",
+        f"- refresh story: `{by_name(cand.refresh_name).story}`",
+        f"- computed late refresh coefficient: `{best.audit_flags.get('refresh_coefficient_late_avg', 0.0):.6f}`",
+        f"- uncharged-passthrough gate ok: `{best.audit_flags.get('uncharged_passthrough_gate_ok', True)}`",
         f"- selection policy: `{cand.policy}`",
         f"- refresh rule: `{cand.refresh_name}`",
         f"- prune delta bits: `{cand.superposition.prune_delta_bits}`",
@@ -1055,6 +1198,7 @@ def write_frontier_report(
         f"- depth schedule bits: `{list(first_effective_ceiling.depth_schedule_bits)}`",
         f"- initial literal overhead bits: `{first_effective_ceiling.initial_literal_overhead_bits}`",
         f"- rechunk schedule bits: `{format_rechunk_schedule(first_effective_ceiling.rechunk_schedule_bits)}`",
+        f"- rechunk channel: `{first_effective_ceiling.rechunk_channel}`",
         f"- prune delta bits: `{first_effective_ceiling.prune_delta_bits}`",
         f"- max variants per position: `{first_effective_ceiling.max_variants_per_position}`",
         f"- refresh rule: `{first_effective_ceiling.refresh_name}`",
@@ -1086,7 +1230,7 @@ def write_frontier_report(
         f"- seed-depth bits: `{list(sweep_summary['seed_depth_bits'])}`",
         f"- depth schedules: `{len(sweep_summary['depth_schedules'])}`",
         f"- initial literal overhead bits: `{list(sweep_summary['initial_literal_overhead_bits'])}`",
-        f"- rechunk schedules: `{list(sweep_summary['rechunk_schedules'])}`",
+        f"- rechunk lanes: `{list(sweep_summary['rechunk_lanes'])}`",
         f"- superposition configs: `{sweep_summary['superposition_configs']}`",
         f"- prune delta bits: `{list(sweep_summary['prune_delta_bits'])}`",
         f"- max retained variants per entry: `{list(sweep_summary['max_variants_per_position'])}`",
@@ -1110,29 +1254,51 @@ def write_frontier_report(
         "variants increase the candidate window multiplier, but even the oracle selection",
         "ceiling keeps the minimum effective pass below target.",
         "",
+        "## Discrimination Channel Dominance (Implicit Selector)",
+        "",
+        "Exact Kraft ledger per chunk position: a canonical compressive record of",
+        "cost `r` matching span `S` (gain `g = S - r`) contributes `~2^-S * g`",
+        "expected gain bits per window but `2^-r = 2^-S * 2^g` false-fire mass.",
+        "Net is proportional to `sum cnt * (g - 2^g) * 2^-S < 0` for all `g >= 1`,",
+        "so decode-by-replay with per-fire escapes loses at every chunk size,",
+        "depth, and budget; a k-bit signature thins hits and false fires by the",
+        "same `2^-k` and cannot change the sign.",
+        "",
+        "| chunk bits | depth bits | fire mass/chunk | gain mass/chunk | tax-gain/chunk | dominated |",
+        "| ---: | ---: | ---: | ---: | ---: | --- |",
+        *[
+            f"| {row['chunk_bits']} | {row['depth_bits']} | {row['fire_mass_per_chunk']:.6f} | "
+            f"{row['gain_mass_per_chunk']:.6f} | {row['tax_minus_gain_per_chunk']:.6f} | {row['dominated']} |"
+            for row in dominance_table((1, 2, 3, 4, 6, 8), 5, (16, 64, 160))
+        ],
+        "",
         "## Mechanism Movement",
         "",
-        "- Equal-size neutral refresh raised average variants without adding output bits.",
-        "- Byte-aligned literal initialization improved the first effective pass while",
-        "  still charging the emitted zero pad.",
-        "- Fixed bitstream rechunking changed only profile-known entry boundaries and",
-        "  preserved the charged bit count.",
-        "- Wider retained-variant deltas raised the upper opportunity bound but also shifted",
-        "  mass toward longer alternate entries, reducing conversion weight.",
-        "- Oracle selection gave the ceiling; greedy selection was the best deterministic",
-        "  estimate in the implemented recurrence.",
-        "- Charged profile refresh rules helped only when their rho gain exceeded their",
-        "  per-pass metadata cost.",
+        "- Freshness is computed per pass; with no refresh operator the gain rate",
+        "  decays to the replacement cascade, which the previous kernel revision",
+        "  silently assumed away by re-rolling every window i.i.d.",
+        "- Deterministic entry permutation (3 charged bits/pass) sustains full",
+        "  freshness for multi-entry windows; equal-size swaps refresh single",
+        "  entries at a modeled, decaying rate.",
+        "- Chunk lanes now charge their record/chunk discrimination channel: the",
+        "  explicit flag costs 1 bit per element per pass; the implicit",
+        "  decode-by-replay selector pays per-fire stuffing escapes whose exact",
+        "  Kraft mass strictly dominates the gain mass at every swept point.",
+        "- The previous headline (uncharged 4-bit rechunk) is re-classed",
+        "  failed_audit_uncharged_passthrough and kept only as a diagnostic lane.",
+        "- Oracle selection gave the ceiling; greedy selection was the best",
+        "  deterministic estimate in the implemented recurrence.",
         "",
         "## Next Three Open Ideas",
         "",
-        "1. A deterministic selector that preserves future variant diversity while staying",
-        "   close to the oracle interval bound.",
-        "2. A zero-metadata refresh schedule whose rho is near the superposition-derived",
-        "   bound but whose retained excess stays concentrated at `0..2` bits.",
-        "3. A concrete second independent zero-metadata refresh construction; a rho",
-        "   diagnostic shows that about a second retained-state lane would cross the",
-        "   current `0.1%` target, but it still needs a decode construction.",
+        "1. Lower the pass-1 literal initialization tax: larger first-pass blocks or",
+        "   a leaner literal wrapper directly scale the raw-crossover curve.",
+        "2. Raise sustained record-aligned drift: richer record-length mixtures give",
+        "   more short-span windows; model entry-size schedules that concentrate",
+        "   short records.",
+        "3. A second zero-metadata freshness source for arity-1 windows (permutation",
+        "   refreshes only multi-entry adjacency); candidates must come with a",
+        "   decode construction and charged metadata.",
         "",
         "## Validation",
         "",
@@ -1237,6 +1403,11 @@ def write_success_report(
         f"- raw crossover within 200 effective passes: `{best.audit_flags['raw_crossover_within_200_effective_passes']}`",
         f"- final collapse serializes encoder-only retained state: `{best.audit_flags['encoder_only_state_serialized']}`",
         f"- refresh/rechunk decodable: `{best.audit_flags['refresh_decodable']}`",
+        f"- uncharged-passthrough gate ok: `{best.audit_flags.get('uncharged_passthrough_gate_ok', True)}`",
+        f"- rechunk discrimination channel: `{best.audit_flags.get('rechunk_channel', 'records_only')}`",
+        f"- max discrimination bits per pass: `{best.audit_flags.get('discrimination_bits_per_pass_max', 0.0):.2f}`",
+        f"- computed late refresh coefficient: `{best.audit_flags.get('refresh_coefficient_late_avg', 0.0):.6f}`",
+        f"- max decode replay expansions per layer: `{best.audit_flags.get('decode_replay_expansions_max', 0.0):.2f}`",
         f"- metadata sidecar OK: `{best.audit_flags['metadata_sidecar_ok']}`",
         f"- compute/memory profile: `{best.audit_flags['compute_memory_profile']}`",
         "",
@@ -1256,9 +1427,11 @@ def write_success_report(
         "```",
         "",
         "`m` is the retained-variant opportunity multiplier after per-entry",
-        "superposition and whole-window retained bundles. Rechunking changes only the",
-        "profile-known current entry boundaries; it does not remove bits from",
-        "`bits_before` and does not add file-specific side information.",
+        "superposition and whole-window retained bundles; it applies to fresh",
+        "windows only. Per pass, windows split into a fresh fraction (full `M`",
+        "trials) and a stale fraction (only the incremental depth slice",
+        "`M(a,r,D_t) - M(a,r,D_prev)`, zero on a flat schedule). Chunk layers",
+        "charge their record/chunk discrimination channel in the wire.",
         "The model reports optimistic independent-combo multipliers, but charged",
         "expected gain uses the conservative shared-entry discount.",
         "",
@@ -1343,6 +1516,7 @@ def write_csv(evaluations: list[ProfileEvaluation]) -> Path:
                 "depth_schedule_bits",
                 "initial_literal_overhead_bits",
                 "rechunk_schedule",
+                "rechunk_channel",
                 "policy",
                 "refresh",
                 "delta",
@@ -1376,6 +1550,7 @@ def write_csv(evaluations: list[ProfileEvaluation]) -> Path:
                     " ".join(str(depth) for depth in ev.candidate.depth_schedule_bits),
                     ev.candidate.initial_literal_overhead_bits,
                     format_rechunk_schedule(ev.candidate.rechunk_schedule_bits),
+                    ev.candidate.rechunk_channel,
                     ev.candidate.policy,
                     ev.candidate.refresh_name,
                     cfg.prune_delta_bits,
@@ -1430,6 +1605,11 @@ def main() -> None:
         evaluations.append(evaluate_candidate(candidate))
     evaluations.sort(key=profile_rank_key)
     winners = select_winners(evaluations)
+    print("re-evaluating category winners at full horizon...", flush=True)
+    winners = {
+        name: evaluate_candidate(ev.candidate, force_full_horizon=True)
+        for name, ev in winners.items()
+    }
     practical = winners["best_practical_memory_compute"]
     if (
         practical.viability_class == "viability_practical_candidate"
@@ -1486,10 +1666,48 @@ def main() -> None:
         if best_path is None:
             best_path = KERNEL_DIR / "best_config.json"
             write_best_config(best, best_path)
-        report_path = write_success_report(best, winners, ablations, registry, summary_path)
+        if success:
+            report_path = write_success_report(best, winners, ablations, registry, summary_path)
+            stale_frontier = ROOT / "docs" / "TELOMERE_FRONTIER_REPORT.md"
+            if stale_frontier.exists():
+                stale_frontier.unlink()
+        else:
+            report_path = write_frontier_report(
+                best, validations, sweep_summary, summary_path, first_effective_ceiling
+            )
+            (ROOT / "docs" / "TELOMERE_VIABILITY_TARGET.md").write_text(
+                "\n".join(
+                    [
+                        "# Telomere Viability Target",
+                        "",
+                        "No audited configuration currently meets the 0.1% ten-effective-pass",
+                        "target under the corrected proof kernel (computed freshness and",
+                        "charged discrimination channels).",
+                        "",
+                        "An earlier revision of this file claimed `viability_practical_candidate`",
+                        "for an uncharged 4-bit rechunk profile. That profile carried verbatim",
+                        "chunks with no charged record/chunk discrimination channel; as",
+                        "accounted it would shrink arbitrary (including uniform random) bit",
+                        "strings every pass, which no decodable code can do. It is re-classed",
+                        "`failed_audit_uncharged_passthrough` and retained only as a diagnostic",
+                        "lane in the sweep artifacts.",
+                        "",
+                        f"Best audited frontier: `{best.effective_pass_min_pct:.6f}%` minimum",
+                        "over ten effective passes; see `TELOMERE_FRONTIER_REPORT.md` for the",
+                        "full ledger, ablations, and the missing-multiplier statement.",
+                        "",
+                        "## Reproduction",
+                        "",
+                        "```powershell",
+                        "python model_analysis/proof_kernel/viability_search.py --write-artifacts",
+                        "```",
+                    ]
+                )
+                + "\n",
+                encoding="utf-8",
+            )
         for stale in (
             ROOT / "docs" / "TELOMERE_STRETCH_TARGET.md",
-            ROOT / "docs" / "TELOMERE_FRONTIER_REPORT.md",
             ROOT / "docs" / "PROOF_IDEA_LOG.md",
         ):
             if stale.exists():
@@ -1514,6 +1732,7 @@ def main() -> None:
                         "payback_effective_pass_count": ev.payback_effective_pass_count,
                         "policy": ev.candidate.policy,
                         "rechunk_schedule": format_rechunk_schedule(ev.candidate.rechunk_schedule_bits),
+                        "rechunk_channel": ev.candidate.rechunk_channel,
                         "viability_class": ev.viability_class,
                     }
                     for name, ev in winners.items()

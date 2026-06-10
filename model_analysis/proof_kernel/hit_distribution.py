@@ -51,6 +51,61 @@ def p_min_record_le(
     return _poissonized_at_least_one(log_expected)
 
 
+@lru_cache(maxsize=None)
+def p_min_record_le_incremental(
+    record_budget_bits: int,
+    span_bits: int,
+    arity: int,
+    depth_bits: int,
+    prev_depth_bits: int,
+    opportunity_multiplier: float = 1.0,
+) -> float:
+    """Hit probability using only the NEW depth slice (stale-window channel).
+
+    A window whose content is unchanged since its last search can only hit on
+    seeds it has not tried before: indices in [2^prev_depth, 2^depth). When the
+    depth schedule is flat the incremental trial count is zero and so is this
+    probability — that is the staleness statement, not an approximation.
+    """
+
+    if depth_bits <= prev_depth_bits:
+        return 0.0
+    if record_budget_bits < min_record_bits(min(arity, 5)) or span_bits <= 0:
+        return 0.0
+    new_trials = M(arity, record_budget_bits, depth_bits) - M(
+        arity, record_budget_bits, prev_depth_bits
+    )
+    if new_trials <= 0 or opportunity_multiplier <= 0:
+        return 0.0
+    log_expected = math.log(new_trials * opportunity_multiplier) - span_bits * LN2
+    return _poissonized_at_least_one(log_expected)
+
+
+def incremental_gain_per_window(
+    span_bits: int,
+    arity: int,
+    depth_bits: int,
+    prev_depth_bits: int,
+    opportunity_multiplier: float = 1.0,
+) -> float:
+    """Expected gain for a stale window via the new depth slice only."""
+
+    if depth_bits <= prev_depth_bits:
+        return 0.0
+    total = 0.0
+    max_gain = max(0, span_bits - min_record_bits(min(arity, 5)))
+    for gain in range(1, max_gain + 1):
+        total += p_min_record_le_incremental(
+            span_bits - gain,
+            span_bits,
+            arity,
+            depth_bits,
+            prev_depth_bits,
+            opportunity_multiplier,
+        )
+    return total
+
+
 def gain_tail(
     span_bits: int,
     arity: int,

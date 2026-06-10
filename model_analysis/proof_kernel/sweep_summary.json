@@ -1,10 +1,7 @@
 {
   "validations": {
     "cost_validation": {
-      "payload_widths_checked": 256,
-      "rust_v1_record_bit_len_checked_widths": 64,
-      "literal_marker_bits": 3,
-      "max_payload_width_bits": 508
+      "skipped": "rust probe unavailable in this environment (FileNotFoundError); costs.py is unchanged from the revision validated against src/bin/v1_cost_table.rs; re-run locally with cargo to refresh"
     },
     "toy_probability_rows": [
       {
@@ -123,62 +120,55 @@
       "entry_count_after": 9999.92368615639,
       "bits_after": 259504.5615256188
     },
+    "staleness_validation": {
+      "no_refresh_late_coefficient_max": 0.017301592840810943,
+      "permutation_multi_fresh": 1.0
+    },
+    "implicit_selector_dominance": {
+      "points": 40,
+      "nonzero_gain_points": 35,
+      "all_dominated": true
+    },
     "refresh_rules": [
       {
         "name": "no_refresh",
         "decodable": true,
         "metadata_bits_per_pass": 0,
-        "rho": 0.0,
-        "proof": "Decoder sees only the selected record stream; no extra state is needed."
-      },
-      {
-        "name": "self_refresh_changed_windows",
-        "decodable": true,
-        "metadata_bits_per_pass": 0,
-        "rho": 0.25,
-        "proof": "Any selected replacement creates new encoded bits at its stream position; later windows touching it are fresh by construction."
+        "permutes_entries": false,
+        "neutral_swaps": false,
+        "story": "A_encoder_view",
+        "file_specific": false,
+        "proof": "Decoder sees only the selected record stream. Freshness comes only from the replacement cascade: a selected replacement writes new bits at its stream position, so windows touching it re-roll next pass."
       },
       {
         "name": "equal_size_neutral_refresh",
         "decodable": true,
         "metadata_bits_per_pass": 0,
-        "rho": 0.55,
-        "proof": "An equal-size seed record is a legal entry with the same output length, so selecting it changes current-layer bits without increasing output size."
-      },
-      {
-        "name": "superposition_derived_refresh",
-        "decodable": true,
-        "metadata_bits_per_pass": 0,
-        "rho": 0.7,
-        "proof": "Retained encoder-only variants are not serialized; when one is selected, the wire contains only the selected legal record."
-      },
-      {
-        "name": "deterministic_bitstream_rechunk",
-        "decodable": true,
-        "metadata_bits_per_pass": 0,
-        "rho": 0.4,
-        "proof": "After each layer, both encoder and decoder split the emitted bitstream into the next fixed entry schedule from the profile."
+        "permutes_entries": false,
+        "neutral_swaps": true,
+        "story": "A_encoder_view",
+        "file_specific": false,
+        "proof": "An equal-size seed record is a legal entry with the same output length; swapping it changes current-layer bits without growing the wire. The swap is an ordinary record the decoder expands normally. Only entries whose content changed since their last search get a fresh swap draw; the swap-alive mass decays accordingly and is modeled, not assumed."
       },
       {
         "name": "deterministic_entry_permutation",
         "decodable": true,
         "metadata_bits_per_pass": 3,
-        "rho": 0.35,
-        "proof": "A profile-selected layer permutation is inverted after decoding that layer; the 3-bit rule selector is charged per pass."
+        "permutes_entries": true,
+        "neutral_swaps": false,
+        "story": "B_in_layer",
+        "file_specific": false,
+        "proof": "A pass-indexed, content-independent permutation of the current entry sequence (profile constant; the 3-bit per-pass rule selector is charged). Decoder parses the layer into self-delimiting entries, applies the inverse permutation to the entry sequence, and concatenates. Multi-entry windows get new adjacencies every pass (fresh); single-entry windows are NOT refreshed by permutation because their content is unchanged."
       },
       {
-        "name": "layer_delimited_descriptor_refresh",
-        "decodable": true,
-        "metadata_bits_per_pass": 24,
-        "rho": 0.5,
-        "proof": "A layer descriptor names the refresh profile and bit length; the descriptor cost is charged once per layer."
-      },
-      {
-        "name": "phase_rotated_rechunk",
+        "name": "permutation_plus_neutral_swaps",
         "decodable": true,
         "metadata_bits_per_pass": 3,
-        "rho": 0.45,
-        "proof": "The layer number selects a deterministic bit offset rotation; the decoder reverses it from the charged profile selector."
+        "permutes_entries": true,
+        "neutral_swaps": true,
+        "story": "B_in_layer",
+        "file_specific": false,
+        "proof": "Composition of the two operators above; charges are the union (3 bits per pass for the permutation selector, zero for swaps)."
       }
     ],
     "superposition_sweep": {
@@ -237,7 +227,7 @@
     "selection_validation": "ok"
   },
   "sweep_summary": {
-    "bounded_profiles": 33384960,
+    "bounded_profiles": 20865600,
     "representative_mode": false,
     "required_block_bits": [
       16,
@@ -333,22 +323,41 @@
       [
         32,
         160
+      ],
+      [
+        16,
+        24,
+        32,
+        48,
+        64,
+        96,
+        121,
+        160
+      ],
+      [
+        32,
+        48,
+        64,
+        96,
+        121,
+        160
       ]
     ],
     "initial_literal_overhead_bits": [
       10,
       8
     ],
-    "rechunk_schedules": [
-      "none",
-      "3",
-      "4",
-      "8",
-      "16",
-      "24",
-      "3->4",
-      "4->3",
-      "3->3->4"
+    "rechunk_lanes": [
+      "none@records_only",
+      "3@explicit_flag",
+      "4@explicit_flag",
+      "8@explicit_flag",
+      "16@explicit_flag",
+      "3@implicit_selector",
+      "4@implicit_selector",
+      "8@implicit_selector",
+      "4@uncharged_diagnostic",
+      "3->4@explicit_flag"
     ],
     "superposition_configs": 161,
     "prune_delta_bits": [
@@ -379,25 +388,22 @@
     ],
     "refresh_rules": [
       "no_refresh",
-      "self_refresh_changed_windows",
       "equal_size_neutral_refresh",
-      "superposition_derived_refresh",
-      "deterministic_bitstream_rechunk",
       "deterministic_entry_permutation",
-      "layer_delimited_descriptor_refresh",
-      "phase_rotated_rechunk"
+      "permutation_plus_neutral_swaps"
     ],
+    "refresh_expansion": "all rules on record-aligned lanes; no_refresh on chunk lanes (boundary-refreshed, swap-dead)",
     "selection_policies": [
       "left_to_right",
       "greedy_largest_gain",
       "oracle_weighted_interval"
     ],
-    "top_k_recurrence_profiles": 486,
-    "recurrence_seed_profiles": 162,
+    "top_k_recurrence_profiles": 297,
+    "recurrence_seed_profiles": 87,
     "recurrence_profile_selection": "top bounded profiles plus best representatives for each required sweep axis"
   },
   "first_effective_dominance_ceiling": {
-    "net_delta_pct_current": 0.5285641535753938,
+    "net_delta_pct_current": 0.5324946835576175,
     "block_bits": 64,
     "first_pass_depth_bits": 32,
     "depth_bits": 32,
@@ -406,99 +412,192 @@
     ],
     "initial_literal_overhead_bits": 10,
     "rechunk_schedule_bits": [
-      3
+      4
     ],
     "prune_delta_bits": 16,
     "max_variants_per_position": 16,
-    "refresh_name": "superposition_derived_refresh",
+    "refresh_name": "permutation_plus_neutral_swaps",
     "policy": "oracle_weighted_interval",
     "dominance_basis": [
       "pass 2 must reach target for any 10-effective-pass success",
+      "pass 2 is fully fresh (pass-1 literal wrapping rewrote every entry), so it upper-bounds every later, partially stale pass",
       "oracle_weighted_interval is the selection upper bound",
       "arity cap 5 includes arities 1..5",
-      "the expanded one-byte lane dominates larger byte schedules for this ceiling in the tested profile space",
-      "byte-aligned literal initialization is charged explicitly and is no larger than the worst-case pad budget",
-      "fixed bitstream rechunking preserves charged bits while exposing smaller profile-known current entries",
       "max retained variants 16 dominates smaller retained-state caps",
       "equal-size and bloat-retained alternatives enabled dominate disabling either source of retained candidates",
-      "superposition_derived_refresh has the largest zero-metadata refresh coefficient in the modeled rule set"
-    ]
+      "permutation_plus_neutral_swaps maximizes computed freshness among decodable operators",
+      "uncharged_diagnostic lanes appear in the scan as inadmissible upper bounds only"
+    ],
+    "rechunk_channel": "uncharged_diagnostic"
   },
   "winners": {
     "highest_per_pass_drift": {
       "candidate": {
-        "upper_bound_pct_current": 1.0485252465214063,
+        "upper_bound_pct_current": 1.04138006451568,
         "block_bits": 8,
         "arity_cap": 5,
-        "depth_bits": 16,
+        "depth_bits": 96,
         "depth_schedule_bits": [
-          16
+          96
         ],
         "initial_literal_overhead_bits": 10,
         "rechunk_schedule_bits": [
-          3
+          null
         ],
         "policy": "oracle_weighted_interval",
-        "refresh_name": "superposition_derived_refresh",
+        "refresh_name": "permutation_plus_neutral_swaps",
         "superposition": {
           "prune_delta_bits": 16,
           "max_variants_per_position": 16,
-          "equal_size_allowed": false,
+          "equal_size_allowed": true,
           "bloat_tolerant_retained": true
         },
-        "avg_variants": 16.0,
-        "window_multiplier": 1.1580366688890213,
-        "rechunk_schedule": "3"
+        "avg_variants": 15.999999999999996,
+        "window_multiplier": 1.1648671001445958,
+        "rechunk_channel": "records_only",
+        "rechunk_schedule": "none"
       },
-      "final_ratio_raw": 2.113318600363497,
+      "final_ratio_raw": 2.2003977808955395,
       "raw_ratio_by_pass": {
-        "11": 2.113318600363497,
-        "50": 1.7195139477684644,
-        "100": 1.3200371156114559,
-        "200": 0.7779418141139279,
-        "500": 0.15923255052217278
+        "11": 2.2003977808955395,
+        "50": 2.119814160340902,
+        "100": 1.987131751466232,
+        "200": 1.7376381559398768,
+        "500": 1.2586529484540643
       },
-      "payback_pass_count": 153,
-      "payback_effective_pass_count": 152,
-      "viability_class": "component_oracle_upper_bound",
-      "effective_pass_min_pct": 0.5273682475207481,
-      "effective_pass_avg_pct": 0.5273682546484156,
-      "concentration_eps_pct": 1.0540226158222807,
-      "concentration_entry_count": 5665393,
-      "concentration_entry_bits": 3,
+      "payback_pass_count": null,
+      "payback_effective_pass_count": null,
+      "viability_class": "frontier_below_0_1",
+      "effective_pass_min_pct": 0.04303592198002534,
+      "effective_pass_avg_pct": 0.05633705066108119,
+      "concentration_eps_pct": 1.0343538253459565,
+      "concentration_entry_count": 934456,
+      "concentration_entry_bits": 18,
       "concentration_required_entries": {
-        "radius_le_margin_to_0_1_pct": 34460804,
-        "radius_le_margin_to_0_2_pct": 58729567
+        "radius_le_margin_to_0_1_pct": null,
+        "radius_le_margin_to_0_2_pct": null
       },
       "audit_flags": {
+        "uncharged_passthrough_gate_ok": true,
+        "rechunk_channel": "records_only",
+        "discrimination_bits_per_pass_max": 0.0,
+        "escape_fire_rate_per_chunk_max": 0.0,
+        "decode_replay_expansions_max": 0.0,
+        "freshness_modeled": true,
+        "refresh_story": "B_in_layer",
+        "refresh_file_specific": false,
+        "refresh_coefficient_late_avg": 0.8003698072617367,
+        "neutral_swap_mass_max": 3851.089005077729,
+        "stale_gain_bits_max": 0.0,
         "earned_variant_ok": true,
-        "max_expected_live_variants_per_entry": 16.0,
+        "max_expected_live_variants_per_entry": 15.999999999999996,
         "max_variant_cap": 16,
         "opportunity_multiplier_basis": "earned_expected_variants_discounted_for_shared_entries",
         "optimistic_combo_reported_only": true,
-        "max_optimistic_to_conservative_multiplier": 1.0125558280970275,
+        "max_optimistic_to_conservative_multiplier": 1.0280042879326903,
         "selector_viability_ok": false,
         "selector_type": "oracle_weighted_interval",
         "oracle_is_upper_bound": true,
-        "raw_crossover_within_200_effective_passes": true,
-        "final_raw_after_200": 0.7779418141139279,
+        "raw_crossover_within_200_effective_passes": false,
+        "final_raw_after_200": 1.7376381559398768,
         "final_collapse_ok": true,
         "encoder_only_state_serialized": false,
         "refresh_decodable": true,
-        "refresh_decode_story": "Retained encoder-only variants are not serialized; when one is selected, the wire contains only the selected legal record.",
-        "fixed_rechunk_schedule": "3",
+        "refresh_decode_story": "Composition of the two operators above; charges are the union (3 bits per pass for the permutation selector, zero for swaps).",
+        "fixed_rechunk_schedule": "none",
         "metadata_sidecar_ok": true,
-        "refresh_metadata_bits_per_pass": 0,
-        "working_variant_entries_proxy": 95064333.63046825,
+        "refresh_metadata_bits_per_pass": 3,
+        "working_variant_entries_proxy": 15999999.999999996,
         "compute_memory_profile": "theoretical_upper_bound",
-        "ten_effective_pass_min_pct": 0.5273682475207481
+        "ten_effective_pass_min_pct": 0.04303592198002534
       }
     },
     "highest_per_pass_drift_deterministic": {
       "candidate": {
-        "upper_bound_pct_current": 1.0485252465214063,
+        "upper_bound_pct_current": 1.04138006451568,
         "block_bits": 8,
         "arity_cap": 5,
+        "depth_bits": 96,
+        "depth_schedule_bits": [
+          96
+        ],
+        "initial_literal_overhead_bits": 10,
+        "rechunk_schedule_bits": [
+          null
+        ],
+        "policy": "greedy_largest_gain",
+        "refresh_name": "permutation_plus_neutral_swaps",
+        "superposition": {
+          "prune_delta_bits": 16,
+          "max_variants_per_position": 16,
+          "equal_size_allowed": true,
+          "bloat_tolerant_retained": true
+        },
+        "avg_variants": 15.999999999999996,
+        "window_multiplier": 1.1648671001445958,
+        "rechunk_channel": "records_only",
+        "rechunk_schedule": "none"
+      },
+      "final_ratio_raw": 2.200549398668639,
+      "raw_ratio_by_pass": {
+        "11": 2.200549398668639,
+        "50": 2.1201510468677482,
+        "100": 1.9877048776642787,
+        "200": 1.7384795842994853,
+        "500": 1.259608746956045
+      },
+      "payback_pass_count": null,
+      "payback_effective_pass_count": null,
+      "viability_class": "frontier_below_0_1",
+      "effective_pass_min_pct": 0.0429496928962116,
+      "effective_pass_avg_pct": 0.05622020711435577,
+      "concentration_eps_pct": 1.0342791173670693,
+      "concentration_entry_count": 934591,
+      "concentration_entry_bits": 18,
+      "concentration_required_entries": {
+        "radius_le_margin_to_0_1_pct": null,
+        "radius_le_margin_to_0_2_pct": null
+      },
+      "audit_flags": {
+        "uncharged_passthrough_gate_ok": true,
+        "rechunk_channel": "records_only",
+        "discrimination_bits_per_pass_max": 0.0,
+        "escape_fire_rate_per_chunk_max": 0.0,
+        "decode_replay_expansions_max": 0.0,
+        "freshness_modeled": true,
+        "refresh_story": "B_in_layer",
+        "refresh_file_specific": false,
+        "refresh_coefficient_late_avg": 0.8003694574809223,
+        "neutral_swap_mass_max": 3851.351668657916,
+        "stale_gain_bits_max": 0.0,
+        "earned_variant_ok": true,
+        "max_expected_live_variants_per_entry": 16.0,
+        "max_variant_cap": 16,
+        "opportunity_multiplier_basis": "earned_expected_variants_discounted_for_shared_entries",
+        "optimistic_combo_reported_only": true,
+        "max_optimistic_to_conservative_multiplier": 1.0280042879326903,
+        "selector_viability_ok": true,
+        "selector_type": "greedy_largest_gain",
+        "oracle_is_upper_bound": false,
+        "raw_crossover_within_200_effective_passes": false,
+        "final_raw_after_200": 1.7384795842994853,
+        "final_collapse_ok": true,
+        "encoder_only_state_serialized": false,
+        "refresh_decodable": true,
+        "refresh_decode_story": "Composition of the two operators above; charges are the union (3 bits per pass for the permutation selector, zero for swaps).",
+        "fixed_rechunk_schedule": "none",
+        "metadata_sidecar_ok": true,
+        "refresh_metadata_bits_per_pass": 3,
+        "working_variant_entries_proxy": 15999999.999999996,
+        "compute_memory_profile": "theoretical_upper_bound",
+        "ten_effective_pass_min_pct": 0.0429496928962116
+      }
+    },
+    "fastest_raw_payback": {
+      "candidate": {
+        "upper_bound_pct_current": 0.0,
+        "block_bits": 8,
+        "arity_cap": 1,
         "depth_bits": 16,
         "depth_schedule_bits": [
           16
@@ -507,444 +606,165 @@
         "rechunk_schedule_bits": [
           3
         ],
-        "policy": "greedy_largest_gain",
-        "refresh_name": "superposition_derived_refresh",
+        "policy": "left_to_right",
+        "refresh_name": "no_refresh",
         "superposition": {
-          "prune_delta_bits": 16,
-          "max_variants_per_position": 16,
+          "prune_delta_bits": 0,
+          "max_variants_per_position": 1,
           "equal_size_allowed": false,
-          "bloat_tolerant_retained": true
+          "bloat_tolerant_retained": false
         },
-        "avg_variants": 16.0,
-        "window_multiplier": 1.1580366688890213,
+        "avg_variants": 1.0,
+        "window_multiplier": 1.0,
+        "rechunk_channel": "implicit_selector",
         "rechunk_schedule": "3"
       },
-      "final_ratio_raw": 2.1143747379678373,
+      "final_ratio_raw": 2.2446393830214113,
       "raw_ratio_by_pass": {
-        "11": 2.1143747379678373,
-        "50": 1.7235531117132148,
-        "100": 1.3262741101889177,
-        "200": 0.7853271734514521,
-        "500": 0.16304382944612902
+        "11": 2.2446393830214113,
+        "50": 2.2446393830214113,
+        "100": 2.2446393830214113,
+        "200": 2.2446393830214113,
+        "500": 2.2446393830214113
       },
-      "payback_pass_count": 154,
-      "payback_effective_pass_count": 153,
-      "viability_class": "viability_high_working_state",
-      "effective_pass_min_pct": 0.5226581518189394,
-      "effective_pass_avg_pct": 0.5226581587530339,
-      "concentration_eps_pct": 1.0537842789837848,
-      "concentration_entry_count": 5667956,
+      "payback_pass_count": null,
+      "payback_effective_pass_count": null,
+      "viability_class": "frontier_below_0_1",
+      "effective_pass_min_pct": 0.0,
+      "effective_pass_avg_pct": 0.0,
+      "concentration_eps_pct": 1.0254330144004666,
+      "concentration_entry_count": 5985705,
       "concentration_entry_bits": 3,
       "concentration_required_entries": {
-        "radius_le_margin_to_0_1_pct": 35233145,
-        "radius_le_margin_to_0_2_pct": 60456725
+        "radius_le_margin_to_0_1_pct": null,
+        "radius_le_margin_to_0_2_pct": null
       },
       "audit_flags": {
+        "uncharged_passthrough_gate_ok": true,
+        "rechunk_channel": "implicit_selector",
+        "discrimination_bits_per_pass_max": 0.0,
+        "escape_fire_rate_per_chunk_max": 0.0,
+        "decode_replay_expansions_max": 0.0,
+        "freshness_modeled": true,
+        "refresh_story": "A_encoder_view",
+        "refresh_file_specific": false,
+        "refresh_coefficient_late_avg": 1.0,
+        "neutral_swap_mass_max": 0.0,
+        "stale_gain_bits_max": 0.0,
         "earned_variant_ok": true,
-        "max_expected_live_variants_per_entry": 16.0,
-        "max_variant_cap": 16,
+        "max_expected_live_variants_per_entry": 1.0,
+        "max_variant_cap": 1,
         "opportunity_multiplier_basis": "earned_expected_variants_discounted_for_shared_entries",
         "optimistic_combo_reported_only": true,
-        "max_optimistic_to_conservative_multiplier": 1.0125558280970275,
+        "max_optimistic_to_conservative_multiplier": 1.0,
         "selector_viability_ok": true,
-        "selector_type": "greedy_largest_gain",
+        "selector_type": "left_to_right",
         "oracle_is_upper_bound": false,
-        "raw_crossover_within_200_effective_passes": true,
-        "final_raw_after_200": 0.7853271734514521,
+        "raw_crossover_within_200_effective_passes": false,
+        "final_raw_after_200": 2.2446393830214113,
         "final_collapse_ok": true,
         "encoder_only_state_serialized": false,
         "refresh_decodable": true,
-        "refresh_decode_story": "Retained encoder-only variants are not serialized; when one is selected, the wire contains only the selected legal record.",
+        "refresh_decode_story": "Decoder sees only the selected record stream. Freshness comes only from the replacement cascade: a selected replacement writes new bits at its stream position, so windows touching it re-roll next pass.",
         "fixed_rechunk_schedule": "3",
         "metadata_sidecar_ok": true,
         "refresh_metadata_bits_per_pass": 0,
-        "working_variant_entries_proxy": 95066817.96019329,
-        "compute_memory_profile": "theoretical_upper_bound",
-        "ten_effective_pass_min_pct": 0.5226581518189394
-      }
-    },
-    "fastest_raw_payback": {
-      "candidate": {
-        "upper_bound_pct_current": 1.5713326930608749,
-        "block_bits": 64,
-        "arity_cap": 5,
-        "depth_bits": 16,
-        "depth_schedule_bits": [
-          16
-        ],
-        "initial_literal_overhead_bits": 10,
-        "rechunk_schedule_bits": [
-          4
-        ],
-        "policy": "greedy_largest_gain",
-        "refresh_name": "superposition_derived_refresh",
-        "superposition": {
-          "prune_delta_bits": 16,
-          "max_variants_per_position": 16,
-          "equal_size_allowed": false,
-          "bloat_tolerant_retained": true
-        },
-        "avg_variants": 16.0,
-        "window_multiplier": 1.1733125888931413,
-        "rechunk_schedule": "4"
-      },
-      "final_ratio_raw": 1.0994511077459261,
-      "raw_ratio_by_pass": {
-        "11": 1.0994511077459261,
-        "50": 0.9033586488948699,
-        "100": 0.7022327669859999,
-        "200": 0.42434870064684593,
-        "500": 0.09363723925073233
-      },
-      "payback_pass_count": 30,
-      "payback_effective_pass_count": 29,
-      "viability_class": "viability_high_working_state",
-      "effective_pass_min_pct": 0.5024429850156891,
-      "effective_pass_avg_pct": 0.5024429865575053,
-      "concentration_eps_pct": 0.4864034584151798,
-      "concentration_entry_count": 17680049,
-      "concentration_entry_bits": 4,
-      "concentration_required_entries": {
-        "radius_le_margin_to_0_1_pct": 25826649,
-        "radius_le_margin_to_0_2_pct": 45728794
-      },
-      "audit_flags": {
-        "earned_variant_ok": true,
-        "max_expected_live_variants_per_entry": 16.0,
-        "max_variant_cap": 16,
-        "opportunity_multiplier_basis": "earned_expected_variants_discounted_for_shared_entries",
-        "optimistic_combo_reported_only": true,
-        "max_optimistic_to_conservative_multiplier": 1.0093436746296598,
-        "selector_viability_ok": true,
-        "selector_type": "greedy_largest_gain",
-        "oracle_is_upper_bound": false,
-        "raw_crossover_within_200_effective_passes": true,
-        "final_raw_after_200": 0.42434870064684593,
-        "final_collapse_ok": true,
-        "encoder_only_state_serialized": false,
-        "refresh_decodable": true,
-        "refresh_decode_story": "Retained encoder-only variants are not serialized; when one is selected, the wire contains only the selected legal record.",
-        "fixed_rechunk_schedule": "4",
-        "metadata_sidecar_ok": true,
-        "refresh_metadata_bits_per_pass": 0,
-        "working_variant_entries_proxy": 295999999.9999992,
-        "compute_memory_profile": "theoretical_upper_bound",
-        "ten_effective_pass_min_pct": 0.5024429850156891
+        "working_variant_entries_proxy": 5985705.021390431,
+        "compute_memory_profile": "practical_capped",
+        "ten_effective_pass_min_pct": 0.0
       }
     },
     "best_practical_memory_compute": {
       "candidate": {
-        "upper_bound_pct_current": 1.5256948859485773,
+        "upper_bound_pct_current": 0.0,
         "block_bits": 8,
-        "arity_cap": 5,
+        "arity_cap": 1,
         "depth_bits": 16,
         "depth_schedule_bits": [
           16
         ],
         "initial_literal_overhead_bits": 10,
         "rechunk_schedule_bits": [
-          4
+          3
         ],
-        "policy": "greedy_largest_gain",
-        "refresh_name": "superposition_derived_refresh",
+        "policy": "left_to_right",
+        "refresh_name": "no_refresh",
         "superposition": {
-          "prune_delta_bits": 8,
-          "max_variants_per_position": 4,
+          "prune_delta_bits": 0,
+          "max_variants_per_position": 1,
           "equal_size_allowed": false,
-          "bloat_tolerant_retained": true
+          "bloat_tolerant_retained": false
         },
-        "avg_variants": 4.0,
-        "window_multiplier": 1.1316268736190578,
-        "rechunk_schedule": "4"
+        "avg_variants": 1.0,
+        "window_multiplier": 1.0,
+        "rechunk_channel": "implicit_selector",
+        "rechunk_schedule": "3"
       },
-      "final_ratio_raw": 2.1217189497963367,
+      "final_ratio_raw": 2.2446393830214113,
       "raw_ratio_by_pass": {
-        "11": 2.1217189497963367,
-        "50": 1.7520169054101251,
-        "100": 1.370680723967908,
-        "200": 0.8389429086076751,
-        "500": 0.1923632451010006
+        "11": 2.2446393830214113,
+        "50": 2.2446393830214113,
+        "100": 2.2446393830214113,
+        "200": 2.2446393830214113,
+        "500": 2.2446393830214113
       },
-      "payback_pass_count": 165,
-      "payback_effective_pass_count": 164,
-      "viability_class": "viability_practical_candidate",
-      "effective_pass_min_pct": 0.48971735349469697,
-      "effective_pass_avg_pct": 0.4897173595603485,
-      "concentration_eps_pct": 0.9904064084498824,
-      "concentration_entry_count": 4264321,
-      "concentration_entry_bits": 4,
+      "payback_pass_count": null,
+      "payback_effective_pass_count": null,
+      "viability_class": "frontier_below_0_1",
+      "effective_pass_min_pct": 0.0,
+      "effective_pass_avg_pct": 0.0,
+      "concentration_eps_pct": 1.0254330144004666,
+      "concentration_entry_count": 5985705,
+      "concentration_entry_bits": 3,
       "concentration_required_entries": {
-        "radius_le_margin_to_0_1_pct": 27540847,
-        "radius_le_margin_to_0_2_pct": 49834231
+        "radius_le_margin_to_0_1_pct": null,
+        "radius_le_margin_to_0_2_pct": null
       },
       "audit_flags": {
+        "uncharged_passthrough_gate_ok": true,
+        "rechunk_channel": "implicit_selector",
+        "discrimination_bits_per_pass_max": 0.0,
+        "escape_fire_rate_per_chunk_max": 0.0,
+        "decode_replay_expansions_max": 0.0,
+        "freshness_modeled": true,
+        "refresh_story": "A_encoder_view",
+        "refresh_file_specific": false,
+        "refresh_coefficient_late_avg": 1.0,
+        "neutral_swap_mass_max": 0.0,
+        "stale_gain_bits_max": 0.0,
         "earned_variant_ok": true,
-        "max_expected_live_variants_per_entry": 4.0,
-        "max_variant_cap": 4,
+        "max_expected_live_variants_per_entry": 1.0,
+        "max_variant_cap": 1,
         "opportunity_multiplier_basis": "earned_expected_variants_discounted_for_shared_entries",
         "optimistic_combo_reported_only": true,
-        "max_optimistic_to_conservative_multiplier": 1.0080652809817572,
+        "max_optimistic_to_conservative_multiplier": 1.0,
         "selector_viability_ok": true,
-        "selector_type": "greedy_largest_gain",
+        "selector_type": "left_to_right",
         "oracle_is_upper_bound": false,
-        "raw_crossover_within_200_effective_passes": true,
-        "final_raw_after_200": 0.8389429086076751,
+        "raw_crossover_within_200_effective_passes": false,
+        "final_raw_after_200": 2.2446393830214113,
         "final_collapse_ok": true,
         "encoder_only_state_serialized": false,
         "refresh_decodable": true,
-        "refresh_decode_story": "Retained encoder-only variants are not serialized; when one is selected, the wire contains only the selected legal record.",
-        "fixed_rechunk_schedule": "4",
+        "refresh_decode_story": "Decoder sees only the selected record stream. Freshness comes only from the replacement cascade: a selected replacement writes new bits at its stream position, so windows touching it re-roll next pass.",
+        "fixed_rechunk_schedule": "3",
         "metadata_sidecar_ok": true,
         "refresh_metadata_bits_per_pass": 0,
-        "working_variant_entries_proxy": 17827820.161751576,
+        "working_variant_entries_proxy": 5985705.021390431,
         "compute_memory_profile": "practical_capped",
-        "ten_effective_pass_min_pct": 0.48971735349469697
+        "ten_effective_pass_min_pct": 0.0
       }
     }
   },
   "experiment_registry": [
     {
-      "mechanism_name": "fixed_rechunk_3",
-      "telomere_native_decode_story": "Decoder splits each decoded layer bitstream into fixed 3-bit current entries from the profile; final residual length is implied by the layer bit length.",
-      "charged_metadata": "Zero per-file bits for a fixed profile; multiplexed profile must charge a selector.",
-      "selector_type": "best deterministic/payback row when available",
-      "result_uses_conservative_discount": true,
-      "expected_per_pass_rate_pct": 0.5273682475207481,
-      "final_raw_11": 2.113318600363497,
-      "final_raw_50": 1.7195139477684644,
-      "final_raw_100": 1.3200371156114559,
-      "final_raw_200": 0.7779418141139279,
-      "final_raw_500": 0.15923255052217278,
-      "payback_effective_pass_count": 152,
-      "concentration_entry_requirement": {
-        "radius_le_margin_to_0_1_pct": 34460804,
-        "radius_le_margin_to_0_2_pct": 58729567
-      },
-      "viability_class": "component_oracle_upper_bound",
-      "selected_config": {
-        "block_bits": 8,
-        "rechunk_schedule": "3",
-        "policy": "oracle_weighted_interval",
-        "refresh": "superposition_derived_refresh",
-        "max_variants": 16
-      }
-    },
-    {
-      "mechanism_name": "fixed_rechunk_4",
-      "telomere_native_decode_story": "Decoder splits each decoded layer bitstream into fixed 4-bit current entries from the profile.",
-      "charged_metadata": "Zero per-file bits for a fixed profile; multiplexed profile must charge a selector.",
-      "selector_type": "best deterministic/payback row when available",
-      "result_uses_conservative_discount": true,
-      "expected_per_pass_rate_pct": 0.5058623361740254,
-      "final_raw_11": 1.0990733267995665,
-      "final_raw_50": 0.901838698546216,
-      "final_raw_100": 0.6998476131621023,
-      "final_raw_200": 0.4214564871895009,
-      "final_raw_500": 0.09204514609172715,
-      "payback_effective_pass_count": 29,
-      "concentration_entry_requirement": {
-        "radius_le_margin_to_0_1_pct": 25393308,
-        "radius_le_margin_to_0_2_pct": 44712070
-      },
-      "viability_class": "component_oracle_upper_bound",
-      "selected_config": {
-        "block_bits": 64,
-        "rechunk_schedule": "4",
-        "policy": "oracle_weighted_interval",
-        "refresh": "superposition_derived_refresh",
-        "max_variants": 16
-      }
-    },
-    {
-      "mechanism_name": "schedule_3_to_4",
-      "telomere_native_decode_story": "Decoder applies the fixed pass schedule: 3-bit rechunk after the first modeled layer, then 4-bit chunks for later layers.",
-      "charged_metadata": "Zero per-file bits only when this schedule is the fixed decoder profile.",
-      "selector_type": "best deterministic/payback row when available",
-      "result_uses_conservative_discount": true,
-      "expected_per_pass_rate_pct": 0.5058621149966211,
-      "final_raw_11": 2.1174342823731247,
-      "final_raw_50": 1.7374494625957515,
-      "final_raw_100": 1.3483010313287647,
-      "final_raw_200": 0.8119631541156511,
-      "final_raw_500": 0.1773316485421114,
-      "payback_effective_pass_count": 158,
-      "concentration_entry_requirement": {
-        "radius_le_margin_to_0_1_pct": 38209634,
-        "radius_le_margin_to_0_2_pct": 67278845
-      },
-      "viability_class": "component_oracle_upper_bound",
-      "selected_config": {
-        "block_bits": 8,
-        "rechunk_schedule": "3->4",
-        "policy": "oracle_weighted_interval",
-        "refresh": "superposition_derived_refresh",
-        "max_variants": 16
-      }
-    },
-    {
-      "mechanism_name": "schedule_4_to_3",
-      "telomere_native_decode_story": "Decoder applies the fixed pass schedule: 4-bit rechunk, then 3-bit chunks for later layers.",
-      "charged_metadata": "Zero per-file bits only when this schedule is the fixed decoder profile.",
-      "selector_type": "best deterministic/payback row when available",
-      "result_uses_conservative_discount": true,
-      "expected_per_pass_rate_pct": 0.5073332698476108,
-      "final_raw_11": 1.8697742327352527,
-      "final_raw_50": 1.5206396629907983,
-      "final_raw_100": 1.1666638773143982,
-      "final_raw_200": 0.6867279637769024,
-      "final_raw_500": 0.14005665415111482,
-      "payback_effective_pass_count": 129,
-      "concentration_entry_requirement": {
-        "radius_le_margin_to_0_1_pct": 25210242,
-        "radius_le_margin_to_0_2_pct": 44285099
-      },
-      "viability_class": "component_oracle_upper_bound",
-      "selected_config": {
-        "block_bits": 8,
-        "rechunk_schedule": "4->3",
-        "policy": "oracle_weighted_interval",
-        "refresh": "superposition_derived_refresh",
-        "max_variants": 16
-      }
-    },
-    {
-      "mechanism_name": "large_initial_block_64",
-      "telomere_native_decode_story": "Pass 1 wraps larger raw blocks, then later profile rechunking exposes smaller current entries; raw bytes are recovered by normal recursive layer decode.",
-      "charged_metadata": "Literal wrapper is charged in pass 1; rechunk profile is fixed or must be selected in metadata.",
-      "selector_type": "best deterministic/payback row when available",
-      "result_uses_conservative_discount": true,
-      "expected_per_pass_rate_pct": 0.5058623361740254,
-      "final_raw_11": 1.0990733267995665,
-      "final_raw_50": 0.901838698546216,
-      "final_raw_100": 0.6998476131621023,
-      "final_raw_200": 0.4214564871895009,
-      "final_raw_500": 0.09204514609172715,
-      "payback_effective_pass_count": 29,
-      "concentration_entry_requirement": {
-        "radius_le_margin_to_0_1_pct": 25393308,
-        "radius_le_margin_to_0_2_pct": 44712070
-      },
-      "viability_class": "component_oracle_upper_bound",
-      "selected_config": {
-        "block_bits": 64,
-        "rechunk_schedule": "4",
-        "policy": "oracle_weighted_interval",
-        "refresh": "superposition_derived_refresh",
-        "max_variants": 16
-      }
-    },
-    {
-      "mechanism_name": "greedy_selector",
-      "telomere_native_decode_story": "Encoder emits only the chosen non-overlapping seed/literal records; decoder follows the record stream and needs no selector side table.",
-      "charged_metadata": "No selector sidecar.",
-      "selector_type": "greedy_largest_gain",
-      "result_uses_conservative_discount": true,
-      "expected_per_pass_rate_pct": 0.5024429850156891,
-      "final_raw_11": 1.0994511077459261,
-      "final_raw_50": 0.9033586488948699,
-      "final_raw_100": 0.7022327669859999,
-      "final_raw_200": 0.42434870064684593,
-      "final_raw_500": 0.09363723925073233,
-      "payback_effective_pass_count": 29,
-      "concentration_entry_requirement": {
-        "radius_le_margin_to_0_1_pct": 25826649,
-        "radius_le_margin_to_0_2_pct": 45728794
-      },
-      "viability_class": "viability_high_working_state",
-      "selected_config": {
-        "block_bits": 64,
-        "rechunk_schedule": "4",
-        "policy": "greedy_largest_gain",
-        "refresh": "superposition_derived_refresh",
-        "max_variants": 16
-      }
-    },
-    {
-      "mechanism_name": "oracle_selector_upper_bound",
-      "telomere_native_decode_story": "Not a viability selector; decoder story is the ordinary emitted stream, but the selection estimate is an upper bound.",
-      "charged_metadata": "No selector sidecar modeled, but result is labeled upper bound.",
-      "selector_type": "oracle upper bound only",
-      "result_uses_conservative_discount": true,
-      "expected_per_pass_rate_pct": 0.5058623361740254,
-      "final_raw_11": 1.0990733267995665,
-      "final_raw_50": 0.901838698546216,
-      "final_raw_100": 0.6998476131621023,
-      "final_raw_200": 0.4214564871895009,
-      "final_raw_500": 0.09204514609172715,
-      "payback_effective_pass_count": 29,
-      "concentration_entry_requirement": {
-        "radius_le_margin_to_0_1_pct": 25393308,
-        "radius_le_margin_to_0_2_pct": 44712070
-      },
-      "viability_class": "component_oracle_upper_bound",
-      "selected_config": {
-        "block_bits": 64,
-        "rechunk_schedule": "4",
-        "policy": "oracle_weighted_interval",
-        "refresh": "superposition_derived_refresh",
-        "max_variants": 16
-      }
-    },
-    {
-      "mechanism_name": "practical_variant_cap_4",
-      "telomere_native_decode_story": "Encoder may keep up to four earned variants per position, then serializes only the selected collapsed path.",
-      "charged_metadata": "Working state is compute/memory only; selected records are charged in output.",
-      "selector_type": "best deterministic/payback row when available",
-      "result_uses_conservative_discount": true,
-      "expected_per_pass_rate_pct": 0.4929597111872012,
-      "final_raw_11": 2.120974023914669,
-      "final_raw_50": 1.7491775771768194,
-      "final_raw_100": 1.3662317363380456,
-      "final_raw_200": 0.8334995765681681,
-      "final_raw_500": 0.1892560843451072,
-      "payback_effective_pass_count": 163,
-      "concentration_entry_requirement": {
-        "radius_le_margin_to_0_1_pct": 27088236,
-        "radius_le_margin_to_0_2_pct": 48737245
-      },
-      "viability_class": "component_oracle_upper_bound",
-      "selected_config": {
-        "block_bits": 8,
-        "rechunk_schedule": "4",
-        "policy": "oracle_weighted_interval",
-        "refresh": "superposition_derived_refresh",
-        "max_variants": 4
-      }
-    },
-    {
-      "mechanism_name": "phase_rotated_rechunk",
-      "telomere_native_decode_story": "Decoder reverses the deterministic phase from the charged profile selector and layer number.",
-      "charged_metadata": "3 bits per pass in the current proof-kernel rule.",
-      "selector_type": "best deterministic/payback row when available",
-      "result_uses_conservative_discount": true,
-      "expected_per_pass_rate_pct": 0.48539514948446,
-      "final_raw_11": 2.122884202710712,
-      "final_raw_50": 1.7559536905107784,
-      "final_raw_100": 1.3767573186397932,
-      "final_raw_200": 0.8463663983164451,
-      "final_raw_500": 0.19676977722921346,
-      "payback_effective_pass_count": 165,
-      "concentration_entry_requirement": {
-        "radius_le_margin_to_0_1_pct": 28162052,
-        "radius_le_margin_to_0_2_pct": 51355103
-      },
-      "viability_class": "component_oracle_upper_bound",
-      "selected_config": {
-        "block_bits": 8,
-        "rechunk_schedule": "4",
-        "policy": "oracle_weighted_interval",
-        "refresh": "phase_rotated_rechunk",
-        "max_variants": 16
-      }
-    },
-    {
-      "mechanism_name": "no_rechunk_baseline",
-      "telomere_native_decode_story": "Decoder uses the emitted record stream directly with no profile rechunk boundary change.",
+      "mechanism_name": "no_rechunk_record_aligned",
+      "telomere_native_decode_story": "Replacements cover whole records; recursive expansion terminates at literals; no discrimination channel needed.",
       "charged_metadata": "Zero rechunk metadata.",
       "selector_type": "best deterministic/payback row when available",
       "result_uses_conservative_discount": true,
-      "expected_per_pass_rate_pct": 0.08286215042889324,
-      "final_raw_11": 2.1926635819973384,
+      "expected_per_pass_rate_pct": 0.04305784475508414,
+      "final_raw_11": 2.2003794357131676,
       "final_raw_50": null,
       "final_raw_100": null,
       "final_raw_200": null,
@@ -959,8 +779,258 @@
         "block_bits": 8,
         "rechunk_schedule": "none",
         "policy": "oracle_weighted_interval",
-        "refresh": "superposition_derived_refresh",
+        "refresh": "permutation_plus_neutral_swaps",
         "max_variants": 16
+      }
+    },
+    {
+      "mechanism_name": "rechunk_4_explicit_flag",
+      "telomere_native_decode_story": "Profile-constant element prefix: flag 0 + 4 verbatim bits, flag 1 + record. Decoder discriminates by the charged flag.",
+      "charged_metadata": "1 charged flag bit per element per layer; flags are wire bits.",
+      "selector_type": "best deterministic/payback row when available",
+      "result_uses_conservative_discount": true,
+      "expected_per_pass_rate_pct": -24.731037124968196,
+      "final_raw_11": 25.376354448183587,
+      "final_raw_50": 140422.27928893283,
+      "final_raw_100": 8834107237.54012,
+      "final_raw_200": 3.4963585620323574e+19,
+      "final_raw_500": 2.1675836034940568e+48,
+      "payback_effective_pass_count": null,
+      "concentration_entry_requirement": {
+        "radius_le_margin_to_0_1_pct": null,
+        "radius_le_margin_to_0_2_pct": null
+      },
+      "viability_class": "frontier_below_0_1",
+      "selected_config": {
+        "block_bits": 8,
+        "rechunk_schedule": "4",
+        "policy": "oracle_weighted_interval",
+        "refresh": "no_refresh",
+        "max_variants": 16
+      }
+    },
+    {
+      "mechanism_name": "rechunk_4_implicit_selector_charged_escapes",
+      "telomere_native_decode_story": "Decode-by-replay: decoder parses-and-tests canonical records; a per-fire stuffing bit disambiguates; the decoder reruns the canonical search per fire (decode compute reported separately).",
+      "charged_metadata": "Charged per-fire stuffing escapes from the exact Kraft fire mass plus 1 bit per real record.",
+      "selector_type": "best deterministic/payback row when available",
+      "result_uses_conservative_discount": true,
+      "expected_per_pass_rate_pct": null,
+      "final_raw_11": null,
+      "final_raw_50": null,
+      "final_raw_100": null,
+      "final_raw_200": null,
+      "final_raw_500": null,
+      "payback_effective_pass_count": null,
+      "concentration_entry_requirement": null,
+      "viability_class": "not_evaluated"
+    },
+    {
+      "mechanism_name": "rechunk_4_zero_escape_diagnostic",
+      "telomere_native_decode_story": "DIAGNOSTIC ONLY: assumes free record/chunk discrimination; undecodable; always failed_audit. Zero-escape upper bound for the implicit-selector family.",
+      "charged_metadata": "Uncharged (that is the failure).",
+      "selector_type": "diagnostic upper bound",
+      "result_uses_conservative_discount": true,
+      "expected_per_pass_rate_pct": 0.5303973634089536,
+      "final_raw_11": 1.0963660426495174,
+      "final_raw_50": 0.8910057667629885,
+      "final_raw_100": 0.6829669255480427,
+      "final_raw_200": 0.4012712180573628,
+      "final_raw_500": 0.08138670609715133,
+      "payback_effective_pass_count": 28,
+      "concentration_entry_requirement": {
+        "radius_le_margin_to_0_1_pct": 22580709,
+        "radius_le_margin_to_0_2_pct": 38318071
+      },
+      "viability_class": "failed_audit_uncharged_passthrough",
+      "selected_config": {
+        "block_bits": 64,
+        "rechunk_schedule": "4",
+        "policy": "oracle_weighted_interval",
+        "refresh": "no_refresh",
+        "max_variants": 16
+      }
+    },
+    {
+      "mechanism_name": "rechunk_8_explicit_flag",
+      "telomere_native_decode_story": "As rechunk_4_explicit_flag with 8-bit chunks (lower flag tax, exponentially fewer hits).",
+      "charged_metadata": "1 charged flag bit per element per layer.",
+      "selector_type": "best deterministic/payback row when available",
+      "result_uses_conservative_discount": true,
+      "expected_per_pass_rate_pct": -12.379606423813572,
+      "final_raw_11": 7.997863954546202,
+      "final_raw_50": 758.2052135446312,
+      "final_raw_100": 259514.77638926104,
+      "final_raw_200": 30402741026.175247,
+      "final_raw_500": 4.888376950619235e+25,
+      "payback_effective_pass_count": null,
+      "concentration_entry_requirement": {
+        "radius_le_margin_to_0_1_pct": null,
+        "radius_le_margin_to_0_2_pct": null
+      },
+      "viability_class": "frontier_below_0_1",
+      "selected_config": {
+        "block_bits": 8,
+        "rechunk_schedule": "8",
+        "policy": "oracle_weighted_interval",
+        "refresh": "no_refresh",
+        "max_variants": 16
+      }
+    },
+    {
+      "mechanism_name": "permutation_refresh",
+      "telomere_native_decode_story": "Pass-indexed content-independent entry permutation, inverted after parsing each layer; keeps multi-entry windows fresh.",
+      "charged_metadata": "3 bits per pass profile selector.",
+      "selector_type": "best deterministic/payback row when available",
+      "result_uses_conservative_discount": true,
+      "expected_per_pass_rate_pct": 0.04305784475508414,
+      "final_raw_11": 2.2003794357131676,
+      "final_raw_50": null,
+      "final_raw_100": null,
+      "final_raw_200": null,
+      "final_raw_500": null,
+      "payback_effective_pass_count": null,
+      "concentration_entry_requirement": {
+        "radius_le_margin_to_0_1_pct": null,
+        "radius_le_margin_to_0_2_pct": null
+      },
+      "viability_class": "frontier_below_0_1",
+      "selected_config": {
+        "block_bits": 8,
+        "rechunk_schedule": "none",
+        "policy": "oracle_weighted_interval",
+        "refresh": "permutation_plus_neutral_swaps",
+        "max_variants": 16
+      }
+    },
+    {
+      "mechanism_name": "neutral_swap_refresh",
+      "telomere_native_decode_story": "Equal-size record swaps; ordinary records, wire-size neutral; refresh swapped entries and their windows.",
+      "charged_metadata": "Zero metadata; swap-alive mass decays and is modeled.",
+      "selector_type": "best deterministic/payback row when available",
+      "result_uses_conservative_discount": true,
+      "expected_per_pass_rate_pct": 0.04305784475508414,
+      "final_raw_11": 2.2003794357131676,
+      "final_raw_50": null,
+      "final_raw_100": null,
+      "final_raw_200": null,
+      "final_raw_500": null,
+      "payback_effective_pass_count": null,
+      "concentration_entry_requirement": {
+        "radius_le_margin_to_0_1_pct": null,
+        "radius_le_margin_to_0_2_pct": null
+      },
+      "viability_class": "frontier_below_0_1",
+      "selected_config": {
+        "block_bits": 8,
+        "rechunk_schedule": "none",
+        "policy": "oracle_weighted_interval",
+        "refresh": "permutation_plus_neutral_swaps",
+        "max_variants": 16
+      }
+    },
+    {
+      "mechanism_name": "depth_ramp_schedule",
+      "telomere_native_decode_story": "Increasing per-pass depth; stale windows draw only the incremental seed slice; compute is reported separately.",
+      "charged_metadata": "Zero metadata; the schedule is a profile constant.",
+      "selector_type": "best deterministic/payback row when available",
+      "result_uses_conservative_discount": true,
+      "expected_per_pass_rate_pct": 0.5315051449119982,
+      "final_raw_11": 2.0980742248795177,
+      "final_raw_50": 1.7043436239517757,
+      "final_raw_100": 1.305673240274221,
+      "final_raw_200": 0.7662831683653968,
+      "final_raw_500": 0.15490146452599107,
+      "payback_effective_pass_count": 150,
+      "concentration_entry_requirement": {
+        "radius_le_margin_to_0_1_pct": 22464917,
+        "radius_le_margin_to_0_2_pct": 38062406
+      },
+      "viability_class": "failed_audit_uncharged_passthrough",
+      "selected_config": {
+        "block_bits": 8,
+        "rechunk_schedule": "4",
+        "policy": "oracle_weighted_interval",
+        "refresh": "no_refresh",
+        "max_variants": 16
+      }
+    },
+    {
+      "mechanism_name": "greedy_selector",
+      "telomere_native_decode_story": "Encoder emits only the chosen non-overlapping seed/literal records; decoder follows the record stream and needs no selector side table.",
+      "charged_metadata": "No selector sidecar.",
+      "selector_type": "greedy_largest_gain",
+      "result_uses_conservative_discount": true,
+      "expected_per_pass_rate_pct": 0.5266285923699435,
+      "final_raw_11": 1.0967815120078492,
+      "final_raw_50": 0.8926614639833597,
+      "final_raw_100": 0.6855334813594808,
+      "final_raw_200": 0.4043081169516219,
+      "final_raw_500": 0.08294004426895325,
+      "payback_effective_pass_count": 28,
+      "concentration_entry_requirement": {
+        "radius_le_margin_to_0_1_pct": 22981420,
+        "radius_le_margin_to_0_2_pct": 39207430
+      },
+      "viability_class": "failed_audit_uncharged_passthrough",
+      "selected_config": {
+        "block_bits": 64,
+        "rechunk_schedule": "4",
+        "policy": "greedy_largest_gain",
+        "refresh": "no_refresh",
+        "max_variants": 16
+      }
+    },
+    {
+      "mechanism_name": "oracle_selector_upper_bound",
+      "telomere_native_decode_story": "Not a viability selector; decoder story is the ordinary emitted stream, but the selection estimate is an upper bound.",
+      "charged_metadata": "No selector sidecar modeled, but result is labeled upper bound.",
+      "selector_type": "oracle upper bound only",
+      "result_uses_conservative_discount": true,
+      "expected_per_pass_rate_pct": 0.5303973634089536,
+      "final_raw_11": 1.0963660426495174,
+      "final_raw_50": 0.8910057667629885,
+      "final_raw_100": 0.6829669255480427,
+      "final_raw_200": 0.4012712180573628,
+      "final_raw_500": 0.08138670609715133,
+      "payback_effective_pass_count": 28,
+      "concentration_entry_requirement": {
+        "radius_le_margin_to_0_1_pct": 22580709,
+        "radius_le_margin_to_0_2_pct": 38318071
+      },
+      "viability_class": "failed_audit_uncharged_passthrough",
+      "selected_config": {
+        "block_bits": 64,
+        "rechunk_schedule": "4",
+        "policy": "oracle_weighted_interval",
+        "refresh": "no_refresh",
+        "max_variants": 16
+      }
+    },
+    {
+      "mechanism_name": "practical_variant_cap_4",
+      "telomere_native_decode_story": "Encoder may keep up to four earned variants per position, then serializes only the selected collapsed path.",
+      "charged_metadata": "Working state is compute/memory only; selected records are charged in output.",
+      "selector_type": "best deterministic/payback row when available",
+      "result_uses_conservative_discount": true,
+      "expected_per_pass_rate_pct": 0.5119674729699638,
+      "final_raw_11": 2.1163134853098597,
+      "final_raw_50": 1.7323787848402297,
+      "final_raw_100": 1.3402474815090601,
+      "final_raw_200": 0.8021754616541111,
+      "final_raw_500": 0.17199828864160613,
+      "payback_effective_pass_count": 157,
+      "concentration_entry_requirement": {
+        "radius_le_margin_to_0_1_pct": 24646254,
+        "radius_le_margin_to_0_2_pct": 42979182
+      },
+      "viability_class": "failed_audit_uncharged_passthrough",
+      "selected_config": {
+        "block_bits": 8,
+        "rechunk_schedule": "4",
+        "policy": "oracle_weighted_interval",
+        "refresh": "no_refresh",
+        "max_variants": 4
       }
     },
     {
@@ -970,9 +1040,95 @@
       "selector_type": "oracle_weighted_interval",
       "result_uses_conservative_discount": true,
       "candidate": {
-        "upper_bound_pct_current": 1.0485252465214063,
+        "upper_bound_pct_current": 1.04138006451568,
         "block_bits": 8,
         "arity_cap": 5,
+        "depth_bits": 96,
+        "depth_schedule_bits": [
+          96
+        ],
+        "initial_literal_overhead_bits": 10,
+        "rechunk_schedule_bits": [
+          null
+        ],
+        "policy": "oracle_weighted_interval",
+        "refresh_name": "permutation_plus_neutral_swaps",
+        "superposition": {
+          "prune_delta_bits": 16,
+          "max_variants_per_position": 16,
+          "equal_size_allowed": true,
+          "bloat_tolerant_retained": true
+        },
+        "avg_variants": 15.999999999999996,
+        "window_multiplier": 1.1648671001445958,
+        "rechunk_channel": "records_only",
+        "rechunk_schedule": "none"
+      },
+      "final_ratio_raw": 2.2003977808955395,
+      "raw_ratio_by_pass": {
+        "11": 2.2003977808955395,
+        "50": 2.119814160340902,
+        "100": 1.987131751466232,
+        "200": 1.7376381559398768,
+        "500": 1.2586529484540643
+      },
+      "payback_pass_count": null,
+      "payback_effective_pass_count": null,
+      "viability_class": "frontier_below_0_1",
+      "effective_pass_min_pct": 0.04303592198002534,
+      "effective_pass_avg_pct": 0.05633705066108119,
+      "concentration_eps_pct": 1.0343538253459565,
+      "concentration_entry_count": 934456,
+      "concentration_entry_bits": 18,
+      "concentration_required_entries": {
+        "radius_le_margin_to_0_1_pct": null,
+        "radius_le_margin_to_0_2_pct": null
+      },
+      "audit_flags": {
+        "uncharged_passthrough_gate_ok": true,
+        "rechunk_channel": "records_only",
+        "discrimination_bits_per_pass_max": 0.0,
+        "escape_fire_rate_per_chunk_max": 0.0,
+        "decode_replay_expansions_max": 0.0,
+        "freshness_modeled": true,
+        "refresh_story": "B_in_layer",
+        "refresh_file_specific": false,
+        "refresh_coefficient_late_avg": 0.8003698072617367,
+        "neutral_swap_mass_max": 3851.089005077729,
+        "stale_gain_bits_max": 0.0,
+        "earned_variant_ok": true,
+        "max_expected_live_variants_per_entry": 15.999999999999996,
+        "max_variant_cap": 16,
+        "opportunity_multiplier_basis": "earned_expected_variants_discounted_for_shared_entries",
+        "optimistic_combo_reported_only": true,
+        "max_optimistic_to_conservative_multiplier": 1.0280042879326903,
+        "selector_viability_ok": false,
+        "selector_type": "oracle_weighted_interval",
+        "oracle_is_upper_bound": true,
+        "raw_crossover_within_200_effective_passes": false,
+        "final_raw_after_200": 1.7376381559398768,
+        "final_collapse_ok": true,
+        "encoder_only_state_serialized": false,
+        "refresh_decodable": true,
+        "refresh_decode_story": "Composition of the two operators above; charges are the union (3 bits per pass for the permutation selector, zero for swaps).",
+        "fixed_rechunk_schedule": "none",
+        "metadata_sidecar_ok": true,
+        "refresh_metadata_bits_per_pass": 3,
+        "working_variant_entries_proxy": 15999999.999999996,
+        "compute_memory_profile": "theoretical_upper_bound",
+        "ten_effective_pass_min_pct": 0.04303592198002534
+      }
+    },
+    {
+      "mechanism_name": "winning_fastest_raw_payback",
+      "telomere_native_decode_story": "Category winner, see selected config.",
+      "charged_metadata": "See selected config.",
+      "selector_type": "left_to_right",
+      "result_uses_conservative_discount": true,
+      "candidate": {
+        "upper_bound_pct_current": 0.0,
+        "block_bits": 8,
+        "arity_cap": 1,
         "depth_bits": 16,
         "depth_schedule_bits": [
           16
@@ -981,203 +1137,151 @@
         "rechunk_schedule_bits": [
           3
         ],
-        "policy": "oracle_weighted_interval",
-        "refresh_name": "superposition_derived_refresh",
+        "policy": "left_to_right",
+        "refresh_name": "no_refresh",
         "superposition": {
-          "prune_delta_bits": 16,
-          "max_variants_per_position": 16,
+          "prune_delta_bits": 0,
+          "max_variants_per_position": 1,
           "equal_size_allowed": false,
-          "bloat_tolerant_retained": true
+          "bloat_tolerant_retained": false
         },
-        "avg_variants": 16.0,
-        "window_multiplier": 1.1580366688890213,
+        "avg_variants": 1.0,
+        "window_multiplier": 1.0,
+        "rechunk_channel": "implicit_selector",
         "rechunk_schedule": "3"
       },
-      "final_ratio_raw": 2.113318600363497,
+      "final_ratio_raw": 2.2446393830214113,
       "raw_ratio_by_pass": {
-        "11": 2.113318600363497,
-        "50": 1.7195139477684644,
-        "100": 1.3200371156114559,
-        "200": 0.7779418141139279,
-        "500": 0.15923255052217278
+        "11": 2.2446393830214113,
+        "50": 2.2446393830214113,
+        "100": 2.2446393830214113,
+        "200": 2.2446393830214113,
+        "500": 2.2446393830214113
       },
-      "payback_pass_count": 153,
-      "payback_effective_pass_count": 152,
-      "viability_class": "component_oracle_upper_bound",
-      "effective_pass_min_pct": 0.5273682475207481,
-      "effective_pass_avg_pct": 0.5273682546484156,
-      "concentration_eps_pct": 1.0540226158222807,
-      "concentration_entry_count": 5665393,
+      "payback_pass_count": null,
+      "payback_effective_pass_count": null,
+      "viability_class": "frontier_below_0_1",
+      "effective_pass_min_pct": 0.0,
+      "effective_pass_avg_pct": 0.0,
+      "concentration_eps_pct": 1.0254330144004666,
+      "concentration_entry_count": 5985705,
       "concentration_entry_bits": 3,
       "concentration_required_entries": {
-        "radius_le_margin_to_0_1_pct": 34460804,
-        "radius_le_margin_to_0_2_pct": 58729567
+        "radius_le_margin_to_0_1_pct": null,
+        "radius_le_margin_to_0_2_pct": null
       },
       "audit_flags": {
+        "uncharged_passthrough_gate_ok": true,
+        "rechunk_channel": "implicit_selector",
+        "discrimination_bits_per_pass_max": 0.0,
+        "escape_fire_rate_per_chunk_max": 0.0,
+        "decode_replay_expansions_max": 0.0,
+        "freshness_modeled": true,
+        "refresh_story": "A_encoder_view",
+        "refresh_file_specific": false,
+        "refresh_coefficient_late_avg": 1.0,
+        "neutral_swap_mass_max": 0.0,
+        "stale_gain_bits_max": 0.0,
         "earned_variant_ok": true,
-        "max_expected_live_variants_per_entry": 16.0,
-        "max_variant_cap": 16,
+        "max_expected_live_variants_per_entry": 1.0,
+        "max_variant_cap": 1,
         "opportunity_multiplier_basis": "earned_expected_variants_discounted_for_shared_entries",
         "optimistic_combo_reported_only": true,
-        "max_optimistic_to_conservative_multiplier": 1.0125558280970275,
-        "selector_viability_ok": false,
-        "selector_type": "oracle_weighted_interval",
-        "oracle_is_upper_bound": true,
-        "raw_crossover_within_200_effective_passes": true,
-        "final_raw_after_200": 0.7779418141139279,
+        "max_optimistic_to_conservative_multiplier": 1.0,
+        "selector_viability_ok": true,
+        "selector_type": "left_to_right",
+        "oracle_is_upper_bound": false,
+        "raw_crossover_within_200_effective_passes": false,
+        "final_raw_after_200": 2.2446393830214113,
         "final_collapse_ok": true,
         "encoder_only_state_serialized": false,
         "refresh_decodable": true,
-        "refresh_decode_story": "Retained encoder-only variants are not serialized; when one is selected, the wire contains only the selected legal record.",
+        "refresh_decode_story": "Decoder sees only the selected record stream. Freshness comes only from the replacement cascade: a selected replacement writes new bits at its stream position, so windows touching it re-roll next pass.",
         "fixed_rechunk_schedule": "3",
         "metadata_sidecar_ok": true,
         "refresh_metadata_bits_per_pass": 0,
-        "working_variant_entries_proxy": 95064333.63046825,
-        "compute_memory_profile": "theoretical_upper_bound",
-        "ten_effective_pass_min_pct": 0.5273682475207481
-      }
-    },
-    {
-      "mechanism_name": "winning_fastest_raw_payback",
-      "telomere_native_decode_story": "Category winner, see selected config.",
-      "charged_metadata": "See selected config.",
-      "selector_type": "greedy_largest_gain",
-      "result_uses_conservative_discount": true,
-      "candidate": {
-        "upper_bound_pct_current": 1.5713326930608749,
-        "block_bits": 64,
-        "arity_cap": 5,
-        "depth_bits": 16,
-        "depth_schedule_bits": [
-          16
-        ],
-        "initial_literal_overhead_bits": 10,
-        "rechunk_schedule_bits": [
-          4
-        ],
-        "policy": "greedy_largest_gain",
-        "refresh_name": "superposition_derived_refresh",
-        "superposition": {
-          "prune_delta_bits": 16,
-          "max_variants_per_position": 16,
-          "equal_size_allowed": false,
-          "bloat_tolerant_retained": true
-        },
-        "avg_variants": 16.0,
-        "window_multiplier": 1.1733125888931413,
-        "rechunk_schedule": "4"
-      },
-      "final_ratio_raw": 1.0994511077459261,
-      "raw_ratio_by_pass": {
-        "11": 1.0994511077459261,
-        "50": 0.9033586488948699,
-        "100": 0.7022327669859999,
-        "200": 0.42434870064684593,
-        "500": 0.09363723925073233
-      },
-      "payback_pass_count": 30,
-      "payback_effective_pass_count": 29,
-      "viability_class": "viability_high_working_state",
-      "effective_pass_min_pct": 0.5024429850156891,
-      "effective_pass_avg_pct": 0.5024429865575053,
-      "concentration_eps_pct": 0.4864034584151798,
-      "concentration_entry_count": 17680049,
-      "concentration_entry_bits": 4,
-      "concentration_required_entries": {
-        "radius_le_margin_to_0_1_pct": 25826649,
-        "radius_le_margin_to_0_2_pct": 45728794
-      },
-      "audit_flags": {
-        "earned_variant_ok": true,
-        "max_expected_live_variants_per_entry": 16.0,
-        "max_variant_cap": 16,
-        "opportunity_multiplier_basis": "earned_expected_variants_discounted_for_shared_entries",
-        "optimistic_combo_reported_only": true,
-        "max_optimistic_to_conservative_multiplier": 1.0093436746296598,
-        "selector_viability_ok": true,
-        "selector_type": "greedy_largest_gain",
-        "oracle_is_upper_bound": false,
-        "raw_crossover_within_200_effective_passes": true,
-        "final_raw_after_200": 0.42434870064684593,
-        "final_collapse_ok": true,
-        "encoder_only_state_serialized": false,
-        "refresh_decodable": true,
-        "refresh_decode_story": "Retained encoder-only variants are not serialized; when one is selected, the wire contains only the selected legal record.",
-        "fixed_rechunk_schedule": "4",
-        "metadata_sidecar_ok": true,
-        "refresh_metadata_bits_per_pass": 0,
-        "working_variant_entries_proxy": 295999999.9999992,
-        "compute_memory_profile": "theoretical_upper_bound",
-        "ten_effective_pass_min_pct": 0.5024429850156891
+        "working_variant_entries_proxy": 5985705.021390431,
+        "compute_memory_profile": "practical_capped",
+        "ten_effective_pass_min_pct": 0.0
       }
     }
   ],
   "best_config_ablation_table": [
     {
       "mechanism_disabled": "no_equal_size_replacements",
-      "changed_active_mechanism": false,
-      "effective_pass_min_pct": 0.48971735349469697,
-      "delta_min_pct_vs_best": 0.0,
-      "final_raw_11": 2.1217189497963367,
-      "final_raw_200": 0.8389429086076751,
-      "payback_effective_pass_count": 164,
-      "viability_class": "viability_practical_candidate"
-    },
-    {
-      "mechanism_disabled": "no_retained_bloat",
       "changed_active_mechanism": true,
-      "effective_pass_min_pct": 0.44592884223706786,
-      "delta_min_pct_vs_best": -0.043788511257629115,
-      "final_raw_11": 2.13250534499054,
-      "final_raw_200": 0.9163173772490881,
-      "payback_effective_pass_count": 180,
-      "viability_class": "viability_practical_candidate"
-    },
-    {
-      "mechanism_disabled": "no_superposition",
-      "changed_active_mechanism": true,
-      "effective_pass_min_pct": 0.44592884223706786,
-      "delta_min_pct_vs_best": -0.043788511257629115,
-      "final_raw_11": 2.13250534499054,
-      "final_raw_200": 0.9163173772490881,
-      "payback_effective_pass_count": 180,
-      "viability_class": "viability_practical_candidate"
-    },
-    {
-      "mechanism_disabled": "no_rechunk",
-      "changed_active_mechanism": true,
-      "effective_pass_min_pct": 0.04446038518068692,
-      "delta_min_pct_vs_best": -0.44525696831401007,
-      "final_raw_11": 2.218564102373583,
-      "final_raw_200": null,
+      "effective_pass_min_pct": 0.04242184264838736,
+      "delta_min_pct_vs_best": -0.0005278502478242436,
+      "final_raw_11": 2.2007734286402414,
+      "final_raw_200": 1.7440409327693542,
       "payback_effective_pass_count": null,
       "viability_class": "frontier_below_0_1"
     },
     {
-      "mechanism_disabled": "no_phase_rotation",
+      "mechanism_disabled": "no_retained_bloat",
+      "changed_active_mechanism": true,
+      "effective_pass_min_pct": 0.03911705277350123,
+      "delta_min_pct_vs_best": -0.003832640122710375,
+      "final_raw_11": 2.2073977523835713,
+      "final_raw_200": 1.7826392825699202,
+      "payback_effective_pass_count": null,
+      "viability_class": "frontier_below_0_1"
+    },
+    {
+      "mechanism_disabled": "no_superposition",
+      "changed_active_mechanism": true,
+      "effective_pass_min_pct": 0.03862460218390111,
+      "delta_min_pct_vs_best": -0.004325090712310492,
+      "final_raw_11": 2.2075900144664375,
+      "final_raw_200": 1.7882524546915892,
+      "payback_effective_pass_count": null,
+      "viability_class": "frontier_below_0_1"
+    },
+    {
+      "mechanism_disabled": "no_rechunk",
       "changed_active_mechanism": false,
-      "effective_pass_min_pct": 0.48971735349469697,
+      "effective_pass_min_pct": 0.0429496928962116,
       "delta_min_pct_vs_best": 0.0,
-      "final_raw_11": 2.1217189497963367,
-      "final_raw_200": 0.8389429086076751,
-      "payback_effective_pass_count": 164,
-      "viability_class": "viability_practical_candidate"
+      "final_raw_11": 2.200549398668639,
+      "final_raw_200": 1.7384795842994853,
+      "payback_effective_pass_count": null,
+      "viability_class": "frontier_below_0_1"
+    },
+    {
+      "mechanism_disabled": "no_permutation_refresh",
+      "changed_active_mechanism": true,
+      "effective_pass_min_pct": 0.0,
+      "delta_min_pct_vs_best": -0.0429496928962116,
+      "final_raw_11": 2.2110443475185106,
+      "final_raw_200": 2.2110443475185106,
+      "payback_effective_pass_count": null,
+      "viability_class": "frontier_below_0_1"
+    },
+    {
+      "mechanism_disabled": "no_neutral_swaps",
+      "changed_active_mechanism": true,
+      "effective_pass_min_pct": 0.042769892991221685,
+      "delta_min_pct_vs_best": -0.00017979990498991766,
+      "final_raw_11": 2.2005535381886148,
+      "final_raw_200": 1.7384856494450707,
+      "payback_effective_pass_count": null,
+      "viability_class": "frontier_below_0_1"
     },
     {
       "mechanism_disabled": "greedy_instead_of_oracle",
       "changed_active_mechanism": false,
-      "effective_pass_min_pct": 0.48971735349469697,
+      "effective_pass_min_pct": 0.0429496928962116,
       "delta_min_pct_vs_best": 0.0,
-      "final_raw_11": 2.1217189497963367,
-      "final_raw_200": 0.8389429086076751,
-      "payback_effective_pass_count": 164,
-      "viability_class": "viability_practical_candidate"
+      "final_raw_11": 2.200549398668639,
+      "final_raw_200": 1.7384795842994853,
+      "payback_effective_pass_count": null,
+      "viability_class": "frontier_below_0_1"
     }
   ],
   "top_profiles": [
     {
       "candidate": {
-        "upper_bound_pct_current": 1.5713326930608749,
+        "upper_bound_pct_current": 1.6596535378620276,
         "block_bits": 64,
         "arity_cap": 5,
         "depth_bits": 16,
@@ -1189,7 +1293,7 @@
           4
         ],
         "policy": "greedy_largest_gain",
-        "refresh_name": "superposition_derived_refresh",
+        "refresh_name": "no_refresh",
         "superposition": {
           "prune_delta_bits": 16,
           "max_variants_per_position": 16,
@@ -1197,56 +1301,68 @@
           "bloat_tolerant_retained": true
         },
         "avg_variants": 16.0,
-        "window_multiplier": 1.1733125888931413,
+        "window_multiplier": 1.2545743257104327,
+        "rechunk_channel": "uncharged_diagnostic",
         "rechunk_schedule": "4"
       },
-      "final_ratio_raw": 1.0994511077459261,
+      "final_ratio_raw": 1.0967815120078492,
       "raw_ratio_by_pass": {
-        "11": 1.0994511077459261,
-        "50": 0.9033586488948699,
-        "100": 0.7022327669859999,
-        "200": 0.42434870064684593,
-        "500": 0.09363723925073233
+        "11": 1.0967815120078492,
+        "50": 0.8926614639833597,
+        "100": 0.6855334813594808,
+        "200": 0.4043081169516219,
+        "500": 0.08294004426895325
       },
-      "payback_pass_count": 30,
-      "payback_effective_pass_count": 29,
-      "viability_class": "viability_high_working_state",
-      "effective_pass_min_pct": 0.5024429850156891,
-      "effective_pass_avg_pct": 0.5024429865575053,
-      "concentration_eps_pct": 0.4864034584151798,
-      "concentration_entry_count": 17680049,
+      "payback_pass_count": 29,
+      "payback_effective_pass_count": 28,
+      "viability_class": "failed_audit_uncharged_passthrough",
+      "effective_pass_min_pct": 0.5266285923699435,
+      "effective_pass_avg_pct": 0.5266285940711375,
+      "concentration_eps_pct": 0.48693586589887916,
+      "concentration_entry_count": 17641408,
       "concentration_entry_bits": 4,
       "concentration_required_entries": {
-        "radius_le_margin_to_0_1_pct": 25826649,
-        "radius_le_margin_to_0_2_pct": 45728794
+        "radius_le_margin_to_0_1_pct": 22981420,
+        "radius_le_margin_to_0_2_pct": 39207430
       },
       "audit_flags": {
+        "uncharged_passthrough_gate_ok": false,
+        "rechunk_channel": "uncharged_diagnostic",
+        "discrimination_bits_per_pass_max": 0.0,
+        "escape_fire_rate_per_chunk_max": 0.0,
+        "decode_replay_expansions_max": 0.0,
+        "freshness_modeled": true,
+        "refresh_story": "A_encoder_view",
+        "refresh_file_specific": false,
+        "refresh_coefficient_late_avg": 1.0,
+        "neutral_swap_mass_max": 0.0,
+        "stale_gain_bits_max": 0.0,
         "earned_variant_ok": true,
         "max_expected_live_variants_per_entry": 16.0,
         "max_variant_cap": 16,
         "opportunity_multiplier_basis": "earned_expected_variants_discounted_for_shared_entries",
         "optimistic_combo_reported_only": true,
-        "max_optimistic_to_conservative_multiplier": 1.0093436746296598,
+        "max_optimistic_to_conservative_multiplier": 1.0182212412106963,
         "selector_viability_ok": true,
         "selector_type": "greedy_largest_gain",
         "oracle_is_upper_bound": false,
         "raw_crossover_within_200_effective_passes": true,
-        "final_raw_after_200": 0.42434870064684593,
+        "final_raw_after_200": 0.4043081169516219,
         "final_collapse_ok": true,
         "encoder_only_state_serialized": false,
         "refresh_decodable": true,
-        "refresh_decode_story": "Retained encoder-only variants are not serialized; when one is selected, the wire contains only the selected legal record.",
+        "refresh_decode_story": "Decoder sees only the selected record stream. Freshness comes only from the replacement cascade: a selected replacement writes new bits at its stream position, so windows touching it re-roll next pass.",
         "fixed_rechunk_schedule": "4",
         "metadata_sidecar_ok": true,
         "refresh_metadata_bits_per_pass": 0,
         "working_variant_entries_proxy": 295999999.9999992,
         "compute_memory_profile": "theoretical_upper_bound",
-        "ten_effective_pass_min_pct": 0.5024429850156891
+        "ten_effective_pass_min_pct": 0.5266285923699435
       }
     },
     {
       "candidate": {
-        "upper_bound_pct_current": 1.5713326930608749,
+        "upper_bound_pct_current": 1.6596535378620276,
         "block_bits": 48,
         "arity_cap": 5,
         "depth_bits": 16,
@@ -1258,7 +1374,7 @@
           4
         ],
         "policy": "greedy_largest_gain",
-        "refresh_name": "superposition_derived_refresh",
+        "refresh_name": "no_refresh",
         "superposition": {
           "prune_delta_bits": 16,
           "max_variants_per_position": 16,
@@ -1266,56 +1382,68 @@
           "bloat_tolerant_retained": true
         },
         "avg_variants": 16.0,
-        "window_multiplier": 1.1733125888931413,
+        "window_multiplier": 1.2545743257104327,
+        "rechunk_channel": "uncharged_diagnostic",
         "rechunk_schedule": "4"
       },
-      "final_ratio_raw": 1.1489759344101735,
+      "final_ratio_raw": 1.1461860867196585,
       "raw_ratio_by_pass": {
-        "11": 1.1489759344101735,
-        "50": 0.944050489377043,
-        "100": 0.7338648907092136,
-        "200": 0.44346353465594157,
-        "500": 0.09785517316544878
+        "11": 1.1461860867196585,
+        "50": 0.9328714497241076,
+        "100": 0.7164133856943917,
+        "200": 0.4225202228071929,
+        "500": 0.08667612307408623
       },
-      "payback_pass_count": 39,
-      "payback_effective_pass_count": 38,
-      "viability_class": "viability_high_working_state",
-      "effective_pass_min_pct": 0.5024429659509774,
-      "effective_pass_avg_pct": 0.5024429679181055,
-      "concentration_eps_pct": 0.5494124703105833,
-      "concentration_entry_count": 13857336,
+      "payback_pass_count": 37,
+      "payback_effective_pass_count": 36,
+      "viability_class": "failed_audit_uncharged_passthrough",
+      "effective_pass_min_pct": 0.5266285722880036,
+      "effective_pass_avg_pct": 0.5266285744584455,
+      "concentration_eps_pct": 0.5500138424210168,
+      "concentration_entry_count": 13827050,
       "concentration_entry_bits": 4,
       "concentration_required_entries": {
-        "radius_le_margin_to_0_1_pct": 25826651,
-        "radius_le_margin_to_0_2_pct": 45728800
+        "radius_le_margin_to_0_1_pct": 22981422,
+        "radius_le_margin_to_0_2_pct": 39207435
       },
       "audit_flags": {
+        "uncharged_passthrough_gate_ok": false,
+        "rechunk_channel": "uncharged_diagnostic",
+        "discrimination_bits_per_pass_max": 0.0,
+        "escape_fire_rate_per_chunk_max": 0.0,
+        "decode_replay_expansions_max": 0.0,
+        "freshness_modeled": true,
+        "refresh_story": "A_encoder_view",
+        "refresh_file_specific": false,
+        "refresh_coefficient_late_avg": 1.0,
+        "neutral_swap_mass_max": 0.0,
+        "stale_gain_bits_max": 0.0,
         "earned_variant_ok": true,
         "max_expected_live_variants_per_entry": 16.0,
         "max_variant_cap": 16,
         "opportunity_multiplier_basis": "earned_expected_variants_discounted_for_shared_entries",
         "optimistic_combo_reported_only": true,
-        "max_optimistic_to_conservative_multiplier": 1.0093436746296598,
+        "max_optimistic_to_conservative_multiplier": 1.0182212412106963,
         "selector_viability_ok": true,
         "selector_type": "greedy_largest_gain",
         "oracle_is_upper_bound": false,
         "raw_crossover_within_200_effective_passes": true,
-        "final_raw_after_200": 0.44346353465594157,
+        "final_raw_after_200": 0.4225202228071929,
         "final_collapse_ok": true,
         "encoder_only_state_serialized": false,
         "refresh_decodable": true,
-        "refresh_decode_story": "Retained encoder-only variants are not serialized; when one is selected, the wire contains only the selected legal record.",
+        "refresh_decode_story": "Decoder sees only the selected record stream. Freshness comes only from the replacement cascade: a selected replacement writes new bits at its stream position, so windows touching it re-roll next pass.",
         "fixed_rechunk_schedule": "4",
         "metadata_sidecar_ok": true,
         "refresh_metadata_bits_per_pass": 0,
         "working_variant_entries_proxy": 231999999.9674037,
         "compute_memory_profile": "theoretical_upper_bound",
-        "ten_effective_pass_min_pct": 0.5024429659509774
+        "ten_effective_pass_min_pct": 0.5266285722880036
       }
     },
     {
       "candidate": {
-        "upper_bound_pct_current": 1.5713326930608749,
+        "upper_bound_pct_current": 1.6596535378620276,
         "block_bits": 32,
         "arity_cap": 5,
         "depth_bits": 16,
@@ -1327,7 +1455,7 @@
           4
         ],
         "policy": "greedy_largest_gain",
-        "refresh_name": "superposition_derived_refresh",
+        "refresh_name": "no_refresh",
         "superposition": {
           "prune_delta_bits": 16,
           "max_variants_per_position": 16,
@@ -1335,56 +1463,68 @@
           "bloat_tolerant_retained": true
         },
         "avg_variants": 16.0,
-        "window_multiplier": 1.1733125888931413,
+        "window_multiplier": 1.2545743257104327,
+        "rechunk_channel": "uncharged_diagnostic",
         "rechunk_schedule": "4"
       },
-      "final_ratio_raw": 1.2480169734358142,
+      "final_ratio_raw": 1.2449866427569583,
       "raw_ratio_by_pass": {
-        "11": 1.2480169734358142,
-        "50": 1.02542709244161,
-        "100": 0.7971236360962818,
-        "200": 0.4816898778628766,
-        "500": 0.1062903073393939
+        "11": 1.2449866427569583,
+        "50": 1.0132844271192836,
+        "100": 0.7781678231453478,
+        "200": 0.4589412667269609,
+        "500": 0.0941476308424074
       },
-      "payback_pass_count": 55,
-      "payback_effective_pass_count": 54,
-      "viability_class": "viability_high_working_state",
-      "effective_pass_min_pct": 0.5024429323598795,
-      "effective_pass_avg_pct": 0.5024429350764283,
-      "concentration_eps_pct": 0.6456384270416793,
-      "concentration_entry_count": 10034553,
+      "payback_pass_count": 53,
+      "payback_effective_pass_count": 52,
+      "viability_class": "failed_audit_uncharged_passthrough",
+      "effective_pass_min_pct": 0.5266285369045631,
+      "effective_pass_avg_pct": 0.5266285399018914,
+      "concentration_eps_pct": 0.6463451226161184,
+      "concentration_entry_count": 10012622,
       "concentration_entry_bits": 4,
       "concentration_required_entries": {
-        "radius_le_margin_to_0_1_pct": 25826656,
-        "radius_le_margin_to_0_2_pct": 45728810
+        "radius_le_margin_to_0_1_pct": 22981426,
+        "radius_le_margin_to_0_2_pct": 39207444
       },
       "audit_flags": {
+        "uncharged_passthrough_gate_ok": false,
+        "rechunk_channel": "uncharged_diagnostic",
+        "discrimination_bits_per_pass_max": 0.0,
+        "escape_fire_rate_per_chunk_max": 0.0,
+        "decode_replay_expansions_max": 0.0,
+        "freshness_modeled": true,
+        "refresh_story": "A_encoder_view",
+        "refresh_file_specific": false,
+        "refresh_coefficient_late_avg": 1.0,
+        "neutral_swap_mass_max": 0.0,
+        "stale_gain_bits_max": 0.0,
         "earned_variant_ok": true,
         "max_expected_live_variants_per_entry": 16.0,
         "max_variant_cap": 16,
         "opportunity_multiplier_basis": "earned_expected_variants_discounted_for_shared_entries",
         "optimistic_combo_reported_only": true,
-        "max_optimistic_to_conservative_multiplier": 1.0093436746296598,
+        "max_optimistic_to_conservative_multiplier": 1.0182212412106963,
         "selector_viability_ok": true,
         "selector_type": "greedy_largest_gain",
         "oracle_is_upper_bound": false,
         "raw_crossover_within_200_effective_passes": true,
-        "final_raw_after_200": 0.4816898778628766,
+        "final_raw_after_200": 0.4589412667269609,
         "final_collapse_ok": true,
         "encoder_only_state_serialized": false,
         "refresh_decodable": true,
-        "refresh_decode_story": "Retained encoder-only variants are not serialized; when one is selected, the wire contains only the selected legal record.",
+        "refresh_decode_story": "Decoder sees only the selected record stream. Freshness comes only from the replacement cascade: a selected replacement writes new bits at its stream position, so windows touching it re-roll next pass.",
         "fixed_rechunk_schedule": "4",
         "metadata_sidecar_ok": true,
         "refresh_metadata_bits_per_pass": 0,
         "working_variant_entries_proxy": 167998840.34087792,
         "compute_memory_profile": "theoretical_upper_bound",
-        "ten_effective_pass_min_pct": 0.5024429323598795
+        "ten_effective_pass_min_pct": 0.5266285369045631
       }
     },
     {
       "candidate": {
-        "upper_bound_pct_current": 1.5713326930608749,
+        "upper_bound_pct_current": 1.6596535378620276,
         "block_bits": 24,
         "arity_cap": 5,
         "depth_bits": 16,
@@ -1396,7 +1536,7 @@
           4
         ],
         "policy": "greedy_largest_gain",
-        "refresh_name": "superposition_derived_refresh",
+        "refresh_name": "no_refresh",
         "superposition": {
           "prune_delta_bits": 16,
           "max_variants_per_position": 16,
@@ -1404,56 +1544,68 @@
           "bloat_tolerant_retained": true
         },
         "avg_variants": 16.0,
-        "window_multiplier": 1.1733125888931413,
+        "window_multiplier": 1.2545743257104327,
+        "rechunk_channel": "uncharged_diagnostic",
         "rechunk_schedule": "4"
       },
-      "final_ratio_raw": 1.346070342015314,
+      "final_ratio_raw": 1.3428019264739763,
       "raw_ratio_by_pass": {
-        "11": 1.346070342015314,
-        "50": 1.1059921809179236,
-        "100": 0.8597515444309874,
-        "200": 0.5195350157798652,
-        "500": 0.11464132445175915
+        "11": 1.3428019264739763,
+        "50": 1.0928954994911995,
+        "100": 0.8393064249899335,
+        "200": 0.4949991084069714,
+        "500": 0.10154463116311675
       },
-      "payback_pass_count": 71,
-      "payback_effective_pass_count": 70,
-      "viability_class": "viability_high_working_state",
-      "effective_pass_min_pct": 0.5024429035979432,
-      "effective_pass_avg_pct": 0.5024429069561485,
-      "concentration_eps_pct": 0.7178523103933298,
-      "concentration_entry_count": 8117206,
+      "payback_pass_count": 67,
+      "payback_effective_pass_count": 66,
+      "viability_class": "failed_audit_uncharged_passthrough",
+      "effective_pass_min_pct": 0.5266285066079643,
+      "effective_pass_avg_pct": 0.5266285103132726,
+      "concentration_eps_pct": 0.7186380691797432,
+      "concentration_entry_count": 8099465,
       "concentration_entry_bits": 4,
       "concentration_required_entries": {
-        "radius_le_margin_to_0_1_pct": 25826659,
-        "radius_le_margin_to_0_2_pct": 45728818
+        "radius_le_margin_to_0_1_pct": 22981430,
+        "radius_le_margin_to_0_2_pct": 39207451
       },
       "audit_flags": {
+        "uncharged_passthrough_gate_ok": false,
+        "rechunk_channel": "uncharged_diagnostic",
+        "discrimination_bits_per_pass_max": 0.0,
+        "escape_fire_rate_per_chunk_max": 0.0,
+        "decode_replay_expansions_max": 0.0,
+        "freshness_modeled": true,
+        "refresh_story": "A_encoder_view",
+        "refresh_file_specific": false,
+        "refresh_coefficient_late_avg": 1.0,
+        "neutral_swap_mass_max": 0.0,
+        "stale_gain_bits_max": 0.0,
         "earned_variant_ok": true,
         "max_expected_live_variants_per_entry": 16.0,
         "max_variant_cap": 16,
         "opportunity_multiplier_basis": "earned_expected_variants_discounted_for_shared_entries",
         "optimistic_combo_reported_only": true,
-        "max_optimistic_to_conservative_multiplier": 1.0093436746296598,
+        "max_optimistic_to_conservative_multiplier": 1.0182212412106963,
         "selector_viability_ok": true,
         "selector_type": "greedy_largest_gain",
         "oracle_is_upper_bound": false,
         "raw_crossover_within_200_effective_passes": true,
-        "final_raw_after_200": 0.5195350157798652,
+        "final_raw_after_200": 0.4949991084069714,
         "final_collapse_ok": true,
         "encoder_only_state_serialized": false,
         "refresh_decodable": true,
-        "refresh_decode_story": "Retained encoder-only variants are not serialized; when one is selected, the wire contains only the selected legal record.",
+        "refresh_decode_story": "Decoder sees only the selected record stream. Freshness comes only from the replacement cascade: a selected replacement writes new bits at its stream position, so windows touching it re-roll next pass.",
         "fixed_rechunk_schedule": "4",
         "metadata_sidecar_ok": true,
         "refresh_metadata_bits_per_pass": 0,
-        "working_variant_entries_proxy": 135898545.843175,
+        "working_variant_entries_proxy": 135898545.8377379,
         "compute_memory_profile": "theoretical_upper_bound",
-        "ten_effective_pass_min_pct": 0.5024429035979432
+        "ten_effective_pass_min_pct": 0.5266285066079643
       }
     },
     {
       "candidate": {
-        "upper_bound_pct_current": 1.5713326930608749,
+        "upper_bound_pct_current": 1.6596535378620276,
         "block_bits": 64,
         "arity_cap": 5,
         "depth_bits": 16,
@@ -1465,7 +1617,7 @@
           4
         ],
         "policy": "left_to_right",
-        "refresh_name": "superposition_derived_refresh",
+        "refresh_name": "no_refresh",
         "superposition": {
           "prune_delta_bits": 16,
           "max_variants_per_position": 16,
@@ -1473,56 +1625,68 @@
           "bloat_tolerant_retained": true
         },
         "avg_variants": 16.0,
-        "window_multiplier": 1.1733125888931413,
+        "window_multiplier": 1.2545743257104327,
+        "rechunk_channel": "uncharged_diagnostic",
         "rechunk_schedule": "4"
       },
-      "final_ratio_raw": 1.1376162869211957,
+      "final_ratio_raw": 1.1367627589880085,
       "raw_ratio_by_pass": {
-        "11": 1.1376162869211957,
-        "50": 1.067769759505438,
-        "100": 0.9844595894486365,
-        "200": 0.8368323241052192,
-        "500": 0.5139964361180538
+        "11": 1.1367627589880085,
+        "50": 1.0638499926166665,
+        "100": 0.9771716379044394,
+        "200": 0.8244261711537699,
+        "500": 0.4951018165777473
       },
-      "payback_pass_count": 91,
-      "payback_effective_pass_count": 90,
-      "viability_class": "viability_high_working_state",
-      "effective_pass_min_pct": 0.1623372200195975,
-      "effective_pass_avg_pct": 0.16233722001960693,
-      "concentration_eps_pct": 0.4789913797270424,
-      "concentration_entry_count": 18231457,
+      "payback_pass_count": 87,
+      "payback_effective_pass_count": 86,
+      "viability_class": "failed_audit_uncharged_passthrough",
+      "effective_pass_min_pct": 0.1698303456957464,
+      "effective_pass_avg_pct": 0.16983034569575817,
+      "concentration_eps_pct": 0.4791531970320835,
+      "concentration_entry_count": 18219145,
       "concentration_entry_bits": 4,
       "concentration_required_entries": {
-        "radius_le_margin_to_0_1_pct": 1076420380,
+        "radius_le_margin_to_0_1_pct": 857804636,
         "radius_le_margin_to_0_2_pct": null
       },
       "audit_flags": {
+        "uncharged_passthrough_gate_ok": false,
+        "rechunk_channel": "uncharged_diagnostic",
+        "discrimination_bits_per_pass_max": 0.0,
+        "escape_fire_rate_per_chunk_max": 0.0,
+        "decode_replay_expansions_max": 0.0,
+        "freshness_modeled": true,
+        "refresh_story": "A_encoder_view",
+        "refresh_file_specific": false,
+        "refresh_coefficient_late_avg": 1.0,
+        "neutral_swap_mass_max": 0.0,
+        "stale_gain_bits_max": 0.0,
         "earned_variant_ok": true,
         "max_expected_live_variants_per_entry": 16.0,
         "max_variant_cap": 16,
         "opportunity_multiplier_basis": "earned_expected_variants_discounted_for_shared_entries",
         "optimistic_combo_reported_only": true,
-        "max_optimistic_to_conservative_multiplier": 1.0093436746296598,
+        "max_optimistic_to_conservative_multiplier": 1.0182212412106963,
         "selector_viability_ok": true,
         "selector_type": "left_to_right",
         "oracle_is_upper_bound": false,
         "raw_crossover_within_200_effective_passes": true,
-        "final_raw_after_200": 0.8368323241052192,
+        "final_raw_after_200": 0.8244261711537699,
         "final_collapse_ok": true,
         "encoder_only_state_serialized": false,
         "refresh_decodable": true,
-        "refresh_decode_story": "Retained encoder-only variants are not serialized; when one is selected, the wire contains only the selected legal record.",
+        "refresh_decode_story": "Decoder sees only the selected record stream. Freshness comes only from the replacement cascade: a selected replacement writes new bits at its stream position, so windows touching it re-roll next pass.",
         "fixed_rechunk_schedule": "4",
         "metadata_sidecar_ok": true,
         "refresh_metadata_bits_per_pass": 0,
         "working_variant_entries_proxy": 295999999.9999992,
         "compute_memory_profile": "theoretical_upper_bound",
-        "ten_effective_pass_min_pct": 0.1623372200195975
+        "ten_effective_pass_min_pct": 0.1698303456957464
       }
     },
     {
       "candidate": {
-        "upper_bound_pct_current": 1.5713326930608749,
+        "upper_bound_pct_current": 1.6596535378620276,
         "block_bits": 16,
         "arity_cap": 5,
         "depth_bits": 16,
@@ -1534,7 +1698,7 @@
           4
         ],
         "policy": "greedy_largest_gain",
-        "refresh_name": "superposition_derived_refresh",
+        "refresh_name": "no_refresh",
         "superposition": {
           "prune_delta_bits": 16,
           "max_variants_per_position": 16,
@@ -1542,56 +1706,68 @@
           "bloat_tolerant_retained": true
         },
         "avg_variants": 16.0,
-        "window_multiplier": 1.1733125888931413,
+        "window_multiplier": 1.2545743257104327,
+        "rechunk_channel": "uncharged_diagnostic",
         "rechunk_schedule": "4"
       },
-      "final_ratio_raw": 1.5423095864197045,
+      "final_ratio_raw": 1.5385258434143252,
       "raw_ratio_by_pass": {
-        "11": 1.5423095864197045,
-        "50": 1.2672312318002155,
-        "100": 0.9850919950797018,
-        "200": 0.5952764346475288,
-        "500": 0.13135464393886076
+        "11": 1.5385258434143252,
+        "50": 1.2521936206290611,
+        "100": 0.9616419759488322,
+        "200": 0.5671492033190838,
+        "500": 0.11634569100361053
       },
-      "payback_pass_count": 98,
-      "payback_effective_pass_count": 97,
-      "viability_class": "viability_high_working_state",
-      "effective_pass_min_pct": 0.5024428570632804,
-      "effective_pass_avg_pct": 0.5024428614596587,
-      "concentration_eps_pct": 0.8213511087642233,
-      "concentration_entry_count": 6200391,
+      "payback_pass_count": 93,
+      "payback_effective_pass_count": 92,
+      "viability_class": "failed_audit_uncharged_passthrough",
+      "effective_pass_min_pct": 0.5266284575851335,
+      "effective_pass_avg_pct": 0.5266284624360023,
+      "concentration_eps_pct": 0.8222604836971424,
+      "concentration_entry_count": 6186684,
       "concentration_entry_bits": 4,
       "concentration_required_entries": {
-        "radius_le_margin_to_0_1_pct": 25826665,
-        "radius_le_margin_to_0_2_pct": 45728832
+        "radius_le_margin_to_0_1_pct": 22981435,
+        "radius_le_margin_to_0_2_pct": 39207463
       },
       "audit_flags": {
+        "uncharged_passthrough_gate_ok": false,
+        "rechunk_channel": "uncharged_diagnostic",
+        "discrimination_bits_per_pass_max": 0.0,
+        "escape_fire_rate_per_chunk_max": 0.0,
+        "decode_replay_expansions_max": 0.0,
+        "freshness_modeled": true,
+        "refresh_story": "A_encoder_view",
+        "refresh_file_specific": false,
+        "refresh_coefficient_late_avg": 1.0,
+        "neutral_swap_mass_max": 0.0,
+        "stale_gain_bits_max": 0.0,
         "earned_variant_ok": true,
         "max_expected_live_variants_per_entry": 16.0,
         "max_variant_cap": 16,
         "opportunity_multiplier_basis": "earned_expected_variants_discounted_for_shared_entries",
         "optimistic_combo_reported_only": true,
-        "max_optimistic_to_conservative_multiplier": 1.0093436746296598,
+        "max_optimistic_to_conservative_multiplier": 1.0182212412106963,
         "selector_viability_ok": true,
         "selector_type": "greedy_largest_gain",
         "oracle_is_upper_bound": false,
         "raw_crossover_within_200_effective_passes": true,
-        "final_raw_after_200": 0.5952764346475288,
+        "final_raw_after_200": 0.5671492033190838,
         "final_collapse_ok": true,
         "encoder_only_state_serialized": false,
         "refresh_decodable": true,
-        "refresh_decode_story": "Retained encoder-only variants are not serialized; when one is selected, the wire contains only the selected legal record.",
+        "refresh_decode_story": "Decoder sees only the selected record stream. Freshness comes only from the replacement cascade: a selected replacement writes new bits at its stream position, so windows touching it re-roll next pass.",
         "fixed_rechunk_schedule": "4",
         "metadata_sidecar_ok": true,
         "refresh_metadata_bits_per_pass": 0,
-        "working_variant_entries_proxy": 103807169.91961917,
+        "working_variant_entries_proxy": 103804549.63871849,
         "compute_memory_profile": "theoretical_upper_bound",
-        "ten_effective_pass_min_pct": 0.5024428570632804
+        "ten_effective_pass_min_pct": 0.5266284575851335
       }
     },
     {
       "candidate": {
-        "upper_bound_pct_current": 1.5713326930608749,
+        "upper_bound_pct_current": 1.6596535378620276,
         "block_bits": 48,
         "arity_cap": 5,
         "depth_bits": 16,
@@ -1603,7 +1779,7 @@
           4
         ],
         "policy": "left_to_right",
-        "refresh_name": "superposition_derived_refresh",
+        "refresh_name": "no_refresh",
         "superposition": {
           "prune_delta_bits": 16,
           "max_variants_per_position": 16,
@@ -1611,126 +1787,68 @@
           "bloat_tolerant_retained": true
         },
         "avg_variants": 16.0,
-        "window_multiplier": 1.1733125888931413,
+        "window_multiplier": 1.2545743257104327,
+        "rechunk_channel": "uncharged_diagnostic",
         "rechunk_schedule": "4"
       },
-      "final_ratio_raw": 1.1888602636425045,
+      "final_ratio_raw": 1.1879682885052454,
       "raw_ratio_by_pass": {
-        "11": 1.1888602636425045,
-        "50": 1.1158674962633193,
-        "100": 1.0288046158558317,
-        "200": 0.8745274737168189,
-        "500": 0.5371494286605163
+        "11": 1.1879682885052454,
+        "50": 1.1117711632990537,
+        "100": 1.0211883782071107,
+        "200": 0.8615624850486573,
+        "500": 0.5174037001346783
       },
-      "payback_pass_count": 118,
-      "payback_effective_pass_count": 117,
-      "viability_class": "viability_high_working_state",
-      "effective_pass_min_pct": 0.16233722001959558,
-      "effective_pass_avg_pct": 0.1623372200196077,
-      "concentration_eps_pct": 0.5410402387126938,
-      "concentration_entry_count": 14289520,
+      "payback_pass_count": 113,
+      "payback_effective_pass_count": 112,
+      "viability_class": "failed_audit_uncharged_passthrough",
+      "effective_pass_min_pct": 0.16983034569574618,
+      "effective_pass_avg_pct": 0.16983034569575733,
+      "concentration_eps_pct": 0.5412230000163613,
+      "concentration_entry_count": 14279871,
       "concentration_entry_bits": 4,
       "concentration_required_entries": {
-        "radius_le_margin_to_0_1_pct": 1076420380,
+        "radius_le_margin_to_0_1_pct": 857804636,
         "radius_le_margin_to_0_2_pct": null
       },
       "audit_flags": {
+        "uncharged_passthrough_gate_ok": false,
+        "rechunk_channel": "uncharged_diagnostic",
+        "discrimination_bits_per_pass_max": 0.0,
+        "escape_fire_rate_per_chunk_max": 0.0,
+        "decode_replay_expansions_max": 0.0,
+        "freshness_modeled": true,
+        "refresh_story": "A_encoder_view",
+        "refresh_file_specific": false,
+        "refresh_coefficient_late_avg": 1.0,
+        "neutral_swap_mass_max": 0.0,
+        "stale_gain_bits_max": 0.0,
         "earned_variant_ok": true,
         "max_expected_live_variants_per_entry": 16.0,
         "max_variant_cap": 16,
         "opportunity_multiplier_basis": "earned_expected_variants_discounted_for_shared_entries",
         "optimistic_combo_reported_only": true,
-        "max_optimistic_to_conservative_multiplier": 1.0093436746296598,
+        "max_optimistic_to_conservative_multiplier": 1.0182212412106963,
         "selector_viability_ok": true,
         "selector_type": "left_to_right",
         "oracle_is_upper_bound": false,
         "raw_crossover_within_200_effective_passes": true,
-        "final_raw_after_200": 0.8745274737168189,
+        "final_raw_after_200": 0.8615624850486573,
         "final_collapse_ok": true,
         "encoder_only_state_serialized": false,
         "refresh_decodable": true,
-        "refresh_decode_story": "Retained encoder-only variants are not serialized; when one is selected, the wire contains only the selected legal record.",
+        "refresh_decode_story": "Decoder sees only the selected record stream. Freshness comes only from the replacement cascade: a selected replacement writes new bits at its stream position, so windows touching it re-roll next pass.",
         "fixed_rechunk_schedule": "4",
         "metadata_sidecar_ok": true,
         "refresh_metadata_bits_per_pass": 0,
         "working_variant_entries_proxy": 231999999.9674037,
         "compute_memory_profile": "theoretical_upper_bound",
-        "ten_effective_pass_min_pct": 0.16233722001959558
+        "ten_effective_pass_min_pct": 0.16983034569574618
       }
     },
     {
       "candidate": {
-        "upper_bound_pct_current": 1.5713326930608749,
-        "block_bits": 8,
-        "arity_cap": 5,
-        "depth_bits": 64,
-        "depth_schedule_bits": [
-          64
-        ],
-        "initial_literal_overhead_bits": 8,
-        "rechunk_schedule_bits": [
-          4,
-          3
-        ],
-        "policy": "greedy_largest_gain",
-        "refresh_name": "superposition_derived_refresh",
-        "superposition": {
-          "prune_delta_bits": 32,
-          "max_variants_per_position": 16,
-          "equal_size_allowed": true,
-          "bloat_tolerant_retained": true
-        },
-        "avg_variants": 16.0,
-        "window_multiplier": 1.1733125888931413,
-        "rechunk_schedule": "4->3"
-      },
-      "final_ratio_raw": 1.870728054014071,
-      "raw_ratio_by_pass": {
-        "11": 1.870728054014071,
-        "50": 1.5242411357326016,
-        "100": 1.1722123380626797,
-        "200": 0.6932846931995892,
-        "500": 0.1434265554627457
-      },
-      "payback_pass_count": 131,
-      "payback_effective_pass_count": 130,
-      "viability_class": "viability_high_working_state",
-      "effective_pass_min_pct": 0.5038911358343794,
-      "effective_pass_avg_pct": 0.5218369960216859,
-      "concentration_eps_pct": 1.0300466324282371,
-      "concentration_entry_count": 3942421,
-      "concentration_entry_bits": 4,
-      "concentration_required_entries": {
-        "radius_le_margin_to_0_1_pct": 25641778,
-        "radius_le_margin_to_0_2_pct": 45294004
-      },
-      "audit_flags": {
-        "earned_variant_ok": true,
-        "max_expected_live_variants_per_entry": 16.0,
-        "max_variant_cap": 16,
-        "opportunity_multiplier_basis": "earned_expected_variants_discounted_for_shared_entries",
-        "optimistic_combo_reported_only": true,
-        "max_optimistic_to_conservative_multiplier": 1.0125059986312834,
-        "selector_viability_ok": true,
-        "selector_type": "greedy_largest_gain",
-        "oracle_is_upper_bound": false,
-        "raw_crossover_within_200_effective_passes": true,
-        "final_raw_after_200": 0.6932846931995892,
-        "final_collapse_ok": true,
-        "encoder_only_state_serialized": false,
-        "refresh_decodable": true,
-        "refresh_decode_story": "Retained encoder-only variants are not serialized; when one is selected, the wire contains only the selected legal record.",
-        "fixed_rechunk_schedule": "4->3",
-        "metadata_sidecar_ok": true,
-        "refresh_metadata_bits_per_pass": 0,
-        "working_variant_entries_proxy": 83681202.0209829,
-        "compute_memory_profile": "theoretical_upper_bound",
-        "ten_effective_pass_min_pct": 0.5038911358343794
-      }
-    },
-    {
-      "candidate": {
-        "upper_bound_pct_current": 1.5713326930608749,
+        "upper_bound_pct_current": 1.6596535378620276,
         "block_bits": 8,
         "arity_cap": 5,
         "depth_bits": 48,
@@ -1739,68 +1857,79 @@
         ],
         "initial_literal_overhead_bits": 8,
         "rechunk_schedule_bits": [
-          4,
-          3
+          4
         ],
         "policy": "greedy_largest_gain",
-        "refresh_name": "superposition_derived_refresh",
+        "refresh_name": "no_refresh",
         "superposition": {
-          "prune_delta_bits": 64,
+          "prune_delta_bits": 16,
           "max_variants_per_position": 16,
           "equal_size_allowed": true,
           "bloat_tolerant_retained": true
         },
         "avg_variants": 16.0,
-        "window_multiplier": 1.1733125888931413,
-        "rechunk_schedule": "4->3"
+        "window_multiplier": 1.2545743257104327,
+        "rechunk_channel": "uncharged_diagnostic",
+        "rechunk_schedule": "4"
       },
-      "final_ratio_raw": 1.870728054014071,
+      "final_ratio_raw": 1.8681233139940123,
       "raw_ratio_by_pass": {
-        "11": 1.870728054014071,
-        "50": 1.5242411357326016,
-        "100": 1.1722123380626797,
-        "200": 0.6932846931995892,
-        "500": 0.1434265554627457
+        "11": 1.8681233139940123,
+        "50": 1.5192186767088396,
+        "100": 1.1654966211013198,
+        "200": 0.6859501902940242,
+        "500": 0.1398425489206614
       },
-      "payback_pass_count": 131,
-      "payback_effective_pass_count": 130,
-      "viability_class": "viability_high_working_state",
-      "effective_pass_min_pct": 0.5038911358343794,
-      "effective_pass_avg_pct": 0.5218369960216859,
-      "concentration_eps_pct": 1.0300466324282371,
-      "concentration_entry_count": 3942421,
+      "payback_pass_count": 129,
+      "payback_effective_pass_count": 128,
+      "viability_class": "failed_audit_uncharged_passthrough",
+      "effective_pass_min_pct": 0.5286953901894551,
+      "effective_pass_avg_pct": 0.5286953982502388,
+      "concentration_eps_pct": 1.0552845553024408,
+      "concentration_entry_count": 3756104,
       "concentration_entry_bits": 4,
       "concentration_required_entries": {
-        "radius_le_margin_to_0_1_pct": 25641778,
-        "radius_le_margin_to_0_2_pct": 45294004
+        "radius_le_margin_to_0_1_pct": 22760361,
+        "radius_le_margin_to_0_2_pct": 38715917
       },
       "audit_flags": {
+        "uncharged_passthrough_gate_ok": false,
+        "rechunk_channel": "uncharged_diagnostic",
+        "discrimination_bits_per_pass_max": 0.0,
+        "escape_fire_rate_per_chunk_max": 0.0,
+        "decode_replay_expansions_max": 0.0,
+        "freshness_modeled": true,
+        "refresh_story": "A_encoder_view",
+        "refresh_file_specific": false,
+        "refresh_coefficient_late_avg": 1.0,
+        "neutral_swap_mass_max": 0.0,
+        "stale_gain_bits_max": 0.0,
         "earned_variant_ok": true,
         "max_expected_live_variants_per_entry": 16.0,
         "max_variant_cap": 16,
         "opportunity_multiplier_basis": "earned_expected_variants_discounted_for_shared_entries",
         "optimistic_combo_reported_only": true,
-        "max_optimistic_to_conservative_multiplier": 1.0125059986312834,
+        "max_optimistic_to_conservative_multiplier": 1.0242493318567802,
         "selector_viability_ok": true,
         "selector_type": "greedy_largest_gain",
         "oracle_is_upper_bound": false,
         "raw_crossover_within_200_effective_passes": true,
-        "final_raw_after_200": 0.6932846931995892,
+        "final_raw_after_200": 0.6859501902940242,
         "final_collapse_ok": true,
         "encoder_only_state_serialized": false,
         "refresh_decodable": true,
-        "refresh_decode_story": "Retained encoder-only variants are not serialized; when one is selected, the wire contains only the selected legal record.",
-        "fixed_rechunk_schedule": "4->3",
+        "refresh_decode_story": "Decoder sees only the selected record stream. Freshness comes only from the replacement cascade: a selected replacement writes new bits at its stream position, so windows touching it re-roll next pass.",
+        "fixed_rechunk_schedule": "4",
         "metadata_sidecar_ok": true,
         "refresh_metadata_bits_per_pass": 0,
-        "working_variant_entries_proxy": 83681202.0209829,
+        "working_variant_entries_proxy": 63034364.639363915,
         "compute_memory_profile": "theoretical_upper_bound",
-        "ten_effective_pass_min_pct": 0.5038911358343794
+        "ten_effective_pass_min_pct": 0.5286953901894551
       }
     },
     {
       "candidate": {
-        "upper_bound_pct_current": 1.5713326930608749,
+        "upper_bound_pct_current": 1.6596535378620276,
         "block_bits": 8,
         "arity_cap": 5,
         "depth_bits": 48,
@@ -1809,11 +1938,10 @@
         ],
         "initial_literal_overhead_bits": 8,
         "rechunk_schedule_bits": [
-          4,
-          3
+          4
         ],
         "policy": "greedy_largest_gain",
-        "refresh_name": "superposition_derived_refresh",
+        "refresh_name": "no_refresh",
         "superposition": {
           "prune_delta_bits": 32,
           "max_variants_per_position": 16,
@@ -1821,56 +1949,68 @@
           "bloat_tolerant_retained": true
         },
         "avg_variants": 16.0,
-        "window_multiplier": 1.1733125888931413,
-        "rechunk_schedule": "4->3"
+        "window_multiplier": 1.2545743257104327,
+        "rechunk_channel": "uncharged_diagnostic",
+        "rechunk_schedule": "4"
       },
-      "final_ratio_raw": 1.870728054014071,
+      "final_ratio_raw": 1.8681233139940123,
       "raw_ratio_by_pass": {
-        "11": 1.870728054014071,
-        "50": 1.5242411357326016,
-        "100": 1.1722123380626797,
-        "200": 0.6932846931995892,
-        "500": 0.1434265554627457
+        "11": 1.8681233139940123,
+        "50": 1.5192186767088396,
+        "100": 1.1654966211013198,
+        "200": 0.6859501902940242,
+        "500": 0.1398425489206614
       },
-      "payback_pass_count": 131,
-      "payback_effective_pass_count": 130,
-      "viability_class": "viability_high_working_state",
-      "effective_pass_min_pct": 0.5038911358343794,
-      "effective_pass_avg_pct": 0.5218369960216859,
-      "concentration_eps_pct": 1.0300466324282371,
-      "concentration_entry_count": 3942421,
+      "payback_pass_count": 129,
+      "payback_effective_pass_count": 128,
+      "viability_class": "failed_audit_uncharged_passthrough",
+      "effective_pass_min_pct": 0.5286953901894551,
+      "effective_pass_avg_pct": 0.5286953982502388,
+      "concentration_eps_pct": 1.0552845553024408,
+      "concentration_entry_count": 3756104,
       "concentration_entry_bits": 4,
       "concentration_required_entries": {
-        "radius_le_margin_to_0_1_pct": 25641778,
-        "radius_le_margin_to_0_2_pct": 45294004
+        "radius_le_margin_to_0_1_pct": 22760361,
+        "radius_le_margin_to_0_2_pct": 38715917
       },
       "audit_flags": {
+        "uncharged_passthrough_gate_ok": false,
+        "rechunk_channel": "uncharged_diagnostic",
+        "discrimination_bits_per_pass_max": 0.0,
+        "escape_fire_rate_per_chunk_max": 0.0,
+        "decode_replay_expansions_max": 0.0,
+        "freshness_modeled": true,
+        "refresh_story": "A_encoder_view",
+        "refresh_file_specific": false,
+        "refresh_coefficient_late_avg": 1.0,
+        "neutral_swap_mass_max": 0.0,
+        "stale_gain_bits_max": 0.0,
         "earned_variant_ok": true,
         "max_expected_live_variants_per_entry": 16.0,
         "max_variant_cap": 16,
         "opportunity_multiplier_basis": "earned_expected_variants_discounted_for_shared_entries",
         "optimistic_combo_reported_only": true,
-        "max_optimistic_to_conservative_multiplier": 1.0125059986312834,
+        "max_optimistic_to_conservative_multiplier": 1.0242493318567802,
         "selector_viability_ok": true,
         "selector_type": "greedy_largest_gain",
         "oracle_is_upper_bound": false,
         "raw_crossover_within_200_effective_passes": true,
-        "final_raw_after_200": 0.6932846931995892,
+        "final_raw_after_200": 0.6859501902940242,
         "final_collapse_ok": true,
         "encoder_only_state_serialized": false,
         "refresh_decodable": true,
-        "refresh_decode_story": "Retained encoder-only variants are not serialized; when one is selected, the wire contains only the selected legal record.",
-        "fixed_rechunk_schedule": "4->3",
+        "refresh_decode_story": "Decoder sees only the selected record stream. Freshness comes only from the replacement cascade: a selected replacement writes new bits at its stream position, so windows touching it re-roll next pass.",
+        "fixed_rechunk_schedule": "4",
         "metadata_sidecar_ok": true,
         "refresh_metadata_bits_per_pass": 0,
-        "working_variant_entries_proxy": 83681202.0209829,
+        "working_variant_entries_proxy": 63034364.639363915,
         "compute_memory_profile": "theoretical_upper_bound",
-        "ten_effective_pass_min_pct": 0.5038911358343794
+        "ten_effective_pass_min_pct": 0.5286953901894551
       }
     },
     {
       "candidate": {
-        "upper_bound_pct_current": 1.5713326930608749,
+        "upper_bound_pct_current": 1.6596535378620276,
         "block_bits": 8,
         "arity_cap": 5,
         "depth_bits": 48,
@@ -1879,151 +2019,10 @@
         ],
         "initial_literal_overhead_bits": 8,
         "rechunk_schedule_bits": [
-          4,
-          3
+          4
         ],
         "policy": "greedy_largest_gain",
-        "refresh_name": "superposition_derived_refresh",
-        "superposition": {
-          "prune_delta_bits": 16,
-          "max_variants_per_position": 16,
-          "equal_size_allowed": true,
-          "bloat_tolerant_retained": true
-        },
-        "avg_variants": 16.0,
-        "window_multiplier": 1.1733125888931413,
-        "rechunk_schedule": "4->3"
-      },
-      "final_ratio_raw": 1.870728054014071,
-      "raw_ratio_by_pass": {
-        "11": 1.870728054014071,
-        "50": 1.5242411357326016,
-        "100": 1.1722123380626797,
-        "200": 0.6932846931995892,
-        "500": 0.1434265554627457
-      },
-      "payback_pass_count": 131,
-      "payback_effective_pass_count": 130,
-      "viability_class": "viability_high_working_state",
-      "effective_pass_min_pct": 0.5038911358343794,
-      "effective_pass_avg_pct": 0.5218369960216859,
-      "concentration_eps_pct": 1.0300466324282371,
-      "concentration_entry_count": 3942421,
-      "concentration_entry_bits": 4,
-      "concentration_required_entries": {
-        "radius_le_margin_to_0_1_pct": 25641778,
-        "radius_le_margin_to_0_2_pct": 45294004
-      },
-      "audit_flags": {
-        "earned_variant_ok": true,
-        "max_expected_live_variants_per_entry": 16.0,
-        "max_variant_cap": 16,
-        "opportunity_multiplier_basis": "earned_expected_variants_discounted_for_shared_entries",
-        "optimistic_combo_reported_only": true,
-        "max_optimistic_to_conservative_multiplier": 1.0125059986312834,
-        "selector_viability_ok": true,
-        "selector_type": "greedy_largest_gain",
-        "oracle_is_upper_bound": false,
-        "raw_crossover_within_200_effective_passes": true,
-        "final_raw_after_200": 0.6932846931995892,
-        "final_collapse_ok": true,
-        "encoder_only_state_serialized": false,
-        "refresh_decodable": true,
-        "refresh_decode_story": "Retained encoder-only variants are not serialized; when one is selected, the wire contains only the selected legal record.",
-        "fixed_rechunk_schedule": "4->3",
-        "metadata_sidecar_ok": true,
-        "refresh_metadata_bits_per_pass": 0,
-        "working_variant_entries_proxy": 83681202.0209829,
-        "compute_memory_profile": "theoretical_upper_bound",
-        "ten_effective_pass_min_pct": 0.5038911358343794
-      }
-    },
-    {
-      "candidate": {
-        "upper_bound_pct_current": 1.5713326930608749,
-        "block_bits": 8,
-        "arity_cap": 5,
-        "depth_bits": 64,
-        "depth_schedule_bits": [
-          64
-        ],
-        "initial_literal_overhead_bits": 8,
-        "rechunk_schedule_bits": [
-          4,
-          3
-        ],
-        "policy": "greedy_largest_gain",
-        "refresh_name": "superposition_derived_refresh",
-        "superposition": {
-          "prune_delta_bits": 16,
-          "max_variants_per_position": 16,
-          "equal_size_allowed": true,
-          "bloat_tolerant_retained": true
-        },
-        "avg_variants": 16.0,
-        "window_multiplier": 1.1733125888931413,
-        "rechunk_schedule": "4->3"
-      },
-      "final_ratio_raw": 1.870728054014071,
-      "raw_ratio_by_pass": {
-        "11": 1.870728054014071,
-        "50": 1.5242411357326016,
-        "100": 1.1722123380626797,
-        "200": 0.6932846931995892,
-        "500": 0.1434265554627457
-      },
-      "payback_pass_count": 131,
-      "payback_effective_pass_count": 130,
-      "viability_class": "viability_high_working_state",
-      "effective_pass_min_pct": 0.5038911358343794,
-      "effective_pass_avg_pct": 0.5218369960216859,
-      "concentration_eps_pct": 1.0300466324282371,
-      "concentration_entry_count": 3942421,
-      "concentration_entry_bits": 4,
-      "concentration_required_entries": {
-        "radius_le_margin_to_0_1_pct": 25641778,
-        "radius_le_margin_to_0_2_pct": 45294004
-      },
-      "audit_flags": {
-        "earned_variant_ok": true,
-        "max_expected_live_variants_per_entry": 16.0,
-        "max_variant_cap": 16,
-        "opportunity_multiplier_basis": "earned_expected_variants_discounted_for_shared_entries",
-        "optimistic_combo_reported_only": true,
-        "max_optimistic_to_conservative_multiplier": 1.0125059986312834,
-        "selector_viability_ok": true,
-        "selector_type": "greedy_largest_gain",
-        "oracle_is_upper_bound": false,
-        "raw_crossover_within_200_effective_passes": true,
-        "final_raw_after_200": 0.6932846931995892,
-        "final_collapse_ok": true,
-        "encoder_only_state_serialized": false,
-        "refresh_decodable": true,
-        "refresh_decode_story": "Retained encoder-only variants are not serialized; when one is selected, the wire contains only the selected legal record.",
-        "fixed_rechunk_schedule": "4->3",
-        "metadata_sidecar_ok": true,
-        "refresh_metadata_bits_per_pass": 0,
-        "working_variant_entries_proxy": 83681202.0209829,
-        "compute_memory_profile": "theoretical_upper_bound",
-        "ten_effective_pass_min_pct": 0.5038911358343794
-      }
-    },
-    {
-      "candidate": {
-        "upper_bound_pct_current": 1.5713326930608749,
-        "block_bits": 8,
-        "arity_cap": 5,
-        "depth_bits": 64,
-        "depth_schedule_bits": [
-          64
-        ],
-        "initial_literal_overhead_bits": 8,
-        "rechunk_schedule_bits": [
-          4,
-          3
-        ],
-        "policy": "greedy_largest_gain",
-        "refresh_name": "superposition_derived_refresh",
+        "refresh_name": "no_refresh",
         "superposition": {
           "prune_delta_bits": 64,
           "max_variants_per_position": 16,
@@ -2031,56 +2030,68 @@
           "bloat_tolerant_retained": true
         },
         "avg_variants": 16.0,
-        "window_multiplier": 1.1733125888931413,
-        "rechunk_schedule": "4->3"
+        "window_multiplier": 1.2545743257104327,
+        "rechunk_channel": "uncharged_diagnostic",
+        "rechunk_schedule": "4"
       },
-      "final_ratio_raw": 1.870728054014071,
+      "final_ratio_raw": 1.8681233139940123,
       "raw_ratio_by_pass": {
-        "11": 1.870728054014071,
-        "50": 1.5242411357326016,
-        "100": 1.1722123380626797,
-        "200": 0.6932846931995892,
-        "500": 0.1434265554627457
+        "11": 1.8681233139940123,
+        "50": 1.5192186767088396,
+        "100": 1.1654966211013198,
+        "200": 0.6859501902940242,
+        "500": 0.1398425489206614
       },
-      "payback_pass_count": 131,
-      "payback_effective_pass_count": 130,
-      "viability_class": "viability_high_working_state",
-      "effective_pass_min_pct": 0.5038911358343794,
-      "effective_pass_avg_pct": 0.5218369960216859,
-      "concentration_eps_pct": 1.0300466324282371,
-      "concentration_entry_count": 3942421,
+      "payback_pass_count": 129,
+      "payback_effective_pass_count": 128,
+      "viability_class": "failed_audit_uncharged_passthrough",
+      "effective_pass_min_pct": 0.5286953901894551,
+      "effective_pass_avg_pct": 0.5286953982502388,
+      "concentration_eps_pct": 1.0552845553024408,
+      "concentration_entry_count": 3756104,
       "concentration_entry_bits": 4,
       "concentration_required_entries": {
-        "radius_le_margin_to_0_1_pct": 25641778,
-        "radius_le_margin_to_0_2_pct": 45294004
+        "radius_le_margin_to_0_1_pct": 22760361,
+        "radius_le_margin_to_0_2_pct": 38715917
       },
       "audit_flags": {
+        "uncharged_passthrough_gate_ok": false,
+        "rechunk_channel": "uncharged_diagnostic",
+        "discrimination_bits_per_pass_max": 0.0,
+        "escape_fire_rate_per_chunk_max": 0.0,
+        "decode_replay_expansions_max": 0.0,
+        "freshness_modeled": true,
+        "refresh_story": "A_encoder_view",
+        "refresh_file_specific": false,
+        "refresh_coefficient_late_avg": 1.0,
+        "neutral_swap_mass_max": 0.0,
+        "stale_gain_bits_max": 0.0,
         "earned_variant_ok": true,
         "max_expected_live_variants_per_entry": 16.0,
         "max_variant_cap": 16,
         "opportunity_multiplier_basis": "earned_expected_variants_discounted_for_shared_entries",
         "optimistic_combo_reported_only": true,
-        "max_optimistic_to_conservative_multiplier": 1.0125059986312834,
+        "max_optimistic_to_conservative_multiplier": 1.0242493318567802,
         "selector_viability_ok": true,
         "selector_type": "greedy_largest_gain",
         "oracle_is_upper_bound": false,
         "raw_crossover_within_200_effective_passes": true,
-        "final_raw_after_200": 0.6932846931995892,
+        "final_raw_after_200": 0.6859501902940242,
         "final_collapse_ok": true,
         "encoder_only_state_serialized": false,
         "refresh_decodable": true,
-        "refresh_decode_story": "Retained encoder-only variants are not serialized; when one is selected, the wire contains only the selected legal record.",
-        "fixed_rechunk_schedule": "4->3",
+        "refresh_decode_story": "Decoder sees only the selected record stream. Freshness comes only from the replacement cascade: a selected replacement writes new bits at its stream position, so windows touching it re-roll next pass.",
+        "fixed_rechunk_schedule": "4",
         "metadata_sidecar_ok": true,
         "refresh_metadata_bits_per_pass": 0,
-        "working_variant_entries_proxy": 83681202.0209829,
+        "working_variant_entries_proxy": 63034364.639363915,
         "compute_memory_profile": "theoretical_upper_bound",
-        "ten_effective_pass_min_pct": 0.5038911358343794
+        "ten_effective_pass_min_pct": 0.5286953901894551
       }
     },
     {
       "candidate": {
-        "upper_bound_pct_current": 1.5713326930608749,
+        "upper_bound_pct_current": 1.6596535378620276,
         "block_bits": 8,
         "arity_cap": 5,
         "depth_bits": 32,
@@ -2089,81 +2100,10 @@
         ],
         "initial_literal_overhead_bits": 8,
         "rechunk_schedule_bits": [
-          4,
-          3
+          4
         ],
         "policy": "greedy_largest_gain",
-        "refresh_name": "superposition_derived_refresh",
-        "superposition": {
-          "prune_delta_bits": 16,
-          "max_variants_per_position": 16,
-          "equal_size_allowed": true,
-          "bloat_tolerant_retained": true
-        },
-        "avg_variants": 16.0,
-        "window_multiplier": 1.1733125888931413,
-        "rechunk_schedule": "4->3"
-      },
-      "final_ratio_raw": 1.8707527512566464,
-      "raw_ratio_by_pass": {
-        "11": 1.8707527512566464,
-        "50": 1.5242612586721327,
-        "100": 1.172227813535552,
-        "200": 0.6932938458935392,
-        "500": 0.14342844895693782
-      },
-      "payback_pass_count": 131,
-      "payback_effective_pass_count": 130,
-      "viability_class": "viability_high_working_state",
-      "effective_pass_min_pct": 0.5038911358384683,
-      "effective_pass_avg_pct": 0.5218369960260341,
-      "concentration_eps_pct": 1.0300398394075234,
-      "concentration_entry_count": 3942473,
-      "concentration_entry_bits": 4,
-      "concentration_required_entries": {
-        "radius_le_margin_to_0_1_pct": 25641778,
-        "radius_le_margin_to_0_2_pct": 45294004
-      },
-      "audit_flags": {
-        "earned_variant_ok": true,
-        "max_expected_live_variants_per_entry": 16.0,
-        "max_variant_cap": 16,
-        "opportunity_multiplier_basis": "earned_expected_variants_discounted_for_shared_entries",
-        "optimistic_combo_reported_only": true,
-        "max_optimistic_to_conservative_multiplier": 1.0125486171987284,
-        "selector_viability_ok": true,
-        "selector_type": "greedy_largest_gain",
-        "oracle_is_upper_bound": false,
-        "raw_crossover_within_200_effective_passes": true,
-        "final_raw_after_200": 0.6932938458935392,
-        "final_collapse_ok": true,
-        "encoder_only_state_serialized": false,
-        "refresh_decodable": true,
-        "refresh_decode_story": "Retained encoder-only variants are not serialized; when one is selected, the wire contains only the selected legal record.",
-        "fixed_rechunk_schedule": "4->3",
-        "metadata_sidecar_ok": true,
-        "refresh_metadata_bits_per_pass": 0,
-        "working_variant_entries_proxy": 83682306.77536069,
-        "compute_memory_profile": "theoretical_upper_bound",
-        "ten_effective_pass_min_pct": 0.5038911358384683
-      }
-    },
-    {
-      "candidate": {
-        "upper_bound_pct_current": 1.5713326930608749,
-        "block_bits": 8,
-        "arity_cap": 5,
-        "depth_bits": 32,
-        "depth_schedule_bits": [
-          32
-        ],
-        "initial_literal_overhead_bits": 8,
-        "rechunk_schedule_bits": [
-          4,
-          3
-        ],
-        "policy": "greedy_largest_gain",
-        "refresh_name": "superposition_derived_refresh",
+        "refresh_name": "no_refresh",
         "superposition": {
           "prune_delta_bits": 64,
           "max_variants_per_position": 16,
@@ -2171,56 +2111,68 @@
           "bloat_tolerant_retained": true
         },
         "avg_variants": 16.0,
-        "window_multiplier": 1.1733125888931413,
-        "rechunk_schedule": "4->3"
+        "window_multiplier": 1.2545743257104327,
+        "rechunk_channel": "uncharged_diagnostic",
+        "rechunk_schedule": "4"
       },
-      "final_ratio_raw": 1.8707527512566464,
+      "final_ratio_raw": 1.868158547958515,
       "raw_ratio_by_pass": {
-        "11": 1.8707527512566464,
-        "50": 1.5242612586721327,
-        "100": 1.172227813535552,
-        "200": 0.6932938458935392,
-        "500": 0.14342844895693782
+        "11": 1.868158547958515,
+        "50": 1.5192473301111566,
+        "100": 1.1655186030818956,
+        "200": 0.6859631277255409,
+        "500": 0.13984518641658042
       },
-      "payback_pass_count": 131,
-      "payback_effective_pass_count": 130,
-      "viability_class": "viability_high_working_state",
-      "effective_pass_min_pct": 0.5038911358384683,
-      "effective_pass_avg_pct": 0.5218369960260341,
-      "concentration_eps_pct": 1.0300398394075234,
-      "concentration_entry_count": 3942473,
+      "payback_pass_count": 129,
+      "payback_effective_pass_count": 128,
+      "viability_class": "failed_audit_uncharged_passthrough",
+      "effective_pass_min_pct": 0.5286953901959134,
+      "effective_pass_avg_pct": 0.5286953982565611,
+      "concentration_eps_pct": 1.0552745816513873,
+      "concentration_entry_count": 3756175,
       "concentration_entry_bits": 4,
       "concentration_required_entries": {
-        "radius_le_margin_to_0_1_pct": 25641778,
-        "radius_le_margin_to_0_2_pct": 45294004
+        "radius_le_margin_to_0_1_pct": 22760361,
+        "radius_le_margin_to_0_2_pct": 38715917
       },
       "audit_flags": {
+        "uncharged_passthrough_gate_ok": false,
+        "rechunk_channel": "uncharged_diagnostic",
+        "discrimination_bits_per_pass_max": 0.0,
+        "escape_fire_rate_per_chunk_max": 0.0,
+        "decode_replay_expansions_max": 0.0,
+        "freshness_modeled": true,
+        "refresh_story": "A_encoder_view",
+        "refresh_file_specific": false,
+        "refresh_coefficient_late_avg": 1.0,
+        "neutral_swap_mass_max": 0.0,
+        "stale_gain_bits_max": 0.0,
         "earned_variant_ok": true,
         "max_expected_live_variants_per_entry": 16.0,
         "max_variant_cap": 16,
         "opportunity_multiplier_basis": "earned_expected_variants_discounted_for_shared_entries",
         "optimistic_combo_reported_only": true,
-        "max_optimistic_to_conservative_multiplier": 1.0125486171987284,
+        "max_optimistic_to_conservative_multiplier": 1.0243598162927472,
         "selector_viability_ok": true,
         "selector_type": "greedy_largest_gain",
         "oracle_is_upper_bound": false,
         "raw_crossover_within_200_effective_passes": true,
-        "final_raw_after_200": 0.6932938458935392,
+        "final_raw_after_200": 0.6859631277255409,
         "final_collapse_ok": true,
         "encoder_only_state_serialized": false,
         "refresh_decodable": true,
-        "refresh_decode_story": "Retained encoder-only variants are not serialized; when one is selected, the wire contains only the selected legal record.",
-        "fixed_rechunk_schedule": "4->3",
+        "refresh_decode_story": "Decoder sees only the selected record stream. Freshness comes only from the replacement cascade: a selected replacement writes new bits at its stream position, so windows touching it re-roll next pass.",
+        "fixed_rechunk_schedule": "4",
         "metadata_sidecar_ok": true,
         "refresh_metadata_bits_per_pass": 0,
-        "working_variant_entries_proxy": 83682306.77536069,
+        "working_variant_entries_proxy": 63035553.50662142,
         "compute_memory_profile": "theoretical_upper_bound",
-        "ten_effective_pass_min_pct": 0.5038911358384683
+        "ten_effective_pass_min_pct": 0.5286953901959134
       }
     },
     {
       "candidate": {
-        "upper_bound_pct_current": 1.5713326930608749,
+        "upper_bound_pct_current": 1.6596535378620276,
         "block_bits": 8,
         "arity_cap": 5,
         "depth_bits": 32,
@@ -2229,11 +2181,10 @@
         ],
         "initial_literal_overhead_bits": 8,
         "rechunk_schedule_bits": [
-          4,
-          3
+          4
         ],
         "policy": "greedy_largest_gain",
-        "refresh_name": "superposition_derived_refresh",
+        "refresh_name": "no_refresh",
         "superposition": {
           "prune_delta_bits": 32,
           "max_variants_per_position": 16,
@@ -2241,56 +2192,149 @@
           "bloat_tolerant_retained": true
         },
         "avg_variants": 16.0,
-        "window_multiplier": 1.1733125888931413,
-        "rechunk_schedule": "4->3"
+        "window_multiplier": 1.2545743257104327,
+        "rechunk_channel": "uncharged_diagnostic",
+        "rechunk_schedule": "4"
       },
-      "final_ratio_raw": 1.8707527512566464,
+      "final_ratio_raw": 1.868158547958515,
       "raw_ratio_by_pass": {
-        "11": 1.8707527512566464,
-        "50": 1.5242612586721327,
-        "100": 1.172227813535552,
-        "200": 0.6932938458935392,
-        "500": 0.14342844895693782
+        "11": 1.868158547958515,
+        "50": 1.5192473301111566,
+        "100": 1.1655186030818956,
+        "200": 0.6859631277255409,
+        "500": 0.13984518641658042
       },
-      "payback_pass_count": 131,
-      "payback_effective_pass_count": 130,
-      "viability_class": "viability_high_working_state",
-      "effective_pass_min_pct": 0.5038911358384683,
-      "effective_pass_avg_pct": 0.5218369960260341,
-      "concentration_eps_pct": 1.0300398394075234,
-      "concentration_entry_count": 3942473,
+      "payback_pass_count": 129,
+      "payback_effective_pass_count": 128,
+      "viability_class": "failed_audit_uncharged_passthrough",
+      "effective_pass_min_pct": 0.5286953901959134,
+      "effective_pass_avg_pct": 0.5286953982565611,
+      "concentration_eps_pct": 1.0552745816513873,
+      "concentration_entry_count": 3756175,
       "concentration_entry_bits": 4,
       "concentration_required_entries": {
-        "radius_le_margin_to_0_1_pct": 25641778,
-        "radius_le_margin_to_0_2_pct": 45294004
+        "radius_le_margin_to_0_1_pct": 22760361,
+        "radius_le_margin_to_0_2_pct": 38715917
       },
       "audit_flags": {
+        "uncharged_passthrough_gate_ok": false,
+        "rechunk_channel": "uncharged_diagnostic",
+        "discrimination_bits_per_pass_max": 0.0,
+        "escape_fire_rate_per_chunk_max": 0.0,
+        "decode_replay_expansions_max": 0.0,
+        "freshness_modeled": true,
+        "refresh_story": "A_encoder_view",
+        "refresh_file_specific": false,
+        "refresh_coefficient_late_avg": 1.0,
+        "neutral_swap_mass_max": 0.0,
+        "stale_gain_bits_max": 0.0,
         "earned_variant_ok": true,
         "max_expected_live_variants_per_entry": 16.0,
         "max_variant_cap": 16,
         "opportunity_multiplier_basis": "earned_expected_variants_discounted_for_shared_entries",
         "optimistic_combo_reported_only": true,
-        "max_optimistic_to_conservative_multiplier": 1.0125486171987284,
+        "max_optimistic_to_conservative_multiplier": 1.0243598162927472,
         "selector_viability_ok": true,
         "selector_type": "greedy_largest_gain",
         "oracle_is_upper_bound": false,
         "raw_crossover_within_200_effective_passes": true,
-        "final_raw_after_200": 0.6932938458935392,
+        "final_raw_after_200": 0.6859631277255409,
         "final_collapse_ok": true,
         "encoder_only_state_serialized": false,
         "refresh_decodable": true,
-        "refresh_decode_story": "Retained encoder-only variants are not serialized; when one is selected, the wire contains only the selected legal record.",
-        "fixed_rechunk_schedule": "4->3",
+        "refresh_decode_story": "Decoder sees only the selected record stream. Freshness comes only from the replacement cascade: a selected replacement writes new bits at its stream position, so windows touching it re-roll next pass.",
+        "fixed_rechunk_schedule": "4",
         "metadata_sidecar_ok": true,
         "refresh_metadata_bits_per_pass": 0,
-        "working_variant_entries_proxy": 83682306.77536069,
+        "working_variant_entries_proxy": 63035553.50662142,
         "compute_memory_profile": "theoretical_upper_bound",
-        "ten_effective_pass_min_pct": 0.5038911358384683
+        "ten_effective_pass_min_pct": 0.5286953901959134
       }
     },
     {
       "candidate": {
-        "upper_bound_pct_current": 1.5713326930608749,
+        "upper_bound_pct_current": 1.6596535378620276,
+        "block_bits": 8,
+        "arity_cap": 5,
+        "depth_bits": 32,
+        "depth_schedule_bits": [
+          32
+        ],
+        "initial_literal_overhead_bits": 8,
+        "rechunk_schedule_bits": [
+          4
+        ],
+        "policy": "greedy_largest_gain",
+        "refresh_name": "no_refresh",
+        "superposition": {
+          "prune_delta_bits": 16,
+          "max_variants_per_position": 16,
+          "equal_size_allowed": true,
+          "bloat_tolerant_retained": true
+        },
+        "avg_variants": 16.0,
+        "window_multiplier": 1.2545743257104327,
+        "rechunk_channel": "uncharged_diagnostic",
+        "rechunk_schedule": "4"
+      },
+      "final_ratio_raw": 1.868158547958515,
+      "raw_ratio_by_pass": {
+        "11": 1.868158547958515,
+        "50": 1.5192473301111566,
+        "100": 1.1655186030818956,
+        "200": 0.6859631277255409,
+        "500": 0.13984518641658042
+      },
+      "payback_pass_count": 129,
+      "payback_effective_pass_count": 128,
+      "viability_class": "failed_audit_uncharged_passthrough",
+      "effective_pass_min_pct": 0.5286953901959134,
+      "effective_pass_avg_pct": 0.5286953982565611,
+      "concentration_eps_pct": 1.0552745816513873,
+      "concentration_entry_count": 3756175,
+      "concentration_entry_bits": 4,
+      "concentration_required_entries": {
+        "radius_le_margin_to_0_1_pct": 22760361,
+        "radius_le_margin_to_0_2_pct": 38715917
+      },
+      "audit_flags": {
+        "uncharged_passthrough_gate_ok": false,
+        "rechunk_channel": "uncharged_diagnostic",
+        "discrimination_bits_per_pass_max": 0.0,
+        "escape_fire_rate_per_chunk_max": 0.0,
+        "decode_replay_expansions_max": 0.0,
+        "freshness_modeled": true,
+        "refresh_story": "A_encoder_view",
+        "refresh_file_specific": false,
+        "refresh_coefficient_late_avg": 1.0,
+        "neutral_swap_mass_max": 0.0,
+        "stale_gain_bits_max": 0.0,
+        "earned_variant_ok": true,
+        "max_expected_live_variants_per_entry": 16.0,
+        "max_variant_cap": 16,
+        "opportunity_multiplier_basis": "earned_expected_variants_discounted_for_shared_entries",
+        "optimistic_combo_reported_only": true,
+        "max_optimistic_to_conservative_multiplier": 1.0243598162927472,
+        "selector_viability_ok": true,
+        "selector_type": "greedy_largest_gain",
+        "oracle_is_upper_bound": false,
+        "raw_crossover_within_200_effective_passes": true,
+        "final_raw_after_200": 0.6859631277255409,
+        "final_collapse_ok": true,
+        "encoder_only_state_serialized": false,
+        "refresh_decodable": true,
+        "refresh_decode_story": "Decoder sees only the selected record stream. Freshness comes only from the replacement cascade: a selected replacement writes new bits at its stream position, so windows touching it re-roll next pass.",
+        "fixed_rechunk_schedule": "4",
+        "metadata_sidecar_ok": true,
+        "refresh_metadata_bits_per_pass": 0,
+        "working_variant_entries_proxy": 63035553.50662142,
+        "compute_memory_profile": "theoretical_upper_bound",
+        "ten_effective_pass_min_pct": 0.5286953901959134
+      }
+    },
+    {
+      "candidate": {
+        "upper_bound_pct_current": 1.6596535378620276,
         "block_bits": 8,
         "arity_cap": 5,
         "depth_bits": 48,
@@ -2299,68 +2343,79 @@
         ],
         "initial_literal_overhead_bits": 8,
         "rechunk_schedule_bits": [
-          4,
-          3
+          4
         ],
         "policy": "greedy_largest_gain",
-        "refresh_name": "superposition_derived_refresh",
+        "refresh_name": "no_refresh",
         "superposition": {
-          "prune_delta_bits": 64,
+          "prune_delta_bits": 16,
           "max_variants_per_position": 16,
           "equal_size_allowed": false,
           "bloat_tolerant_retained": true
         },
         "avg_variants": 16.0,
-        "window_multiplier": 1.1733125888931413,
-        "rechunk_schedule": "4->3"
+        "window_multiplier": 1.2545743257104327,
+        "rechunk_channel": "uncharged_diagnostic",
+        "rechunk_schedule": "4"
       },
-      "final_ratio_raw": 1.8709057376585974,
+      "final_ratio_raw": 1.868345637354803,
       "raw_ratio_by_pass": {
-        "11": 1.8709057376585974,
-        "50": 1.5248723535343534,
-        "100": 1.1731775610834585,
-        "200": 0.6944234289301863,
-        "500": 0.14401515351226368
+        "11": 1.868345637354803,
+        "50": 1.5199823192782034,
+        "100": 1.1666559680479727,
+        "200": 0.6873080876832949,
+        "500": 0.14053336532549734
       },
-      "payback_pass_count": 131,
-      "payback_effective_pass_count": 130,
-      "viability_class": "viability_high_working_state",
-      "effective_pass_min_pct": 0.5032057918697697,
-      "effective_pass_avg_pct": 0.5210360296360921,
-      "concentration_eps_pct": 1.0300391862395373,
-      "concentration_entry_count": 3942478,
+      "payback_pass_count": 130,
+      "payback_effective_pass_count": 129,
+      "viability_class": "failed_audit_uncharged_passthrough",
+      "effective_pass_min_pct": 0.5277171827134043,
+      "effective_pass_avg_pct": 0.5277171907432037,
+      "concentration_eps_pct": 1.0552268244247192,
+      "concentration_entry_count": 3756515,
       "concentration_entry_bits": 4,
       "concentration_required_entries": {
-        "radius_le_margin_to_0_1_pct": 25729021,
-        "radius_le_margin_to_0_2_pct": 45498994
+        "radius_le_margin_to_0_1_pct": 22864588,
+        "radius_le_margin_to_0_2_pct": 38947389
       },
       "audit_flags": {
+        "uncharged_passthrough_gate_ok": false,
+        "rechunk_channel": "uncharged_diagnostic",
+        "discrimination_bits_per_pass_max": 0.0,
+        "escape_fire_rate_per_chunk_max": 0.0,
+        "decode_replay_expansions_max": 0.0,
+        "freshness_modeled": true,
+        "refresh_story": "A_encoder_view",
+        "refresh_file_specific": false,
+        "refresh_coefficient_late_avg": 1.0,
+        "neutral_swap_mass_max": 0.0,
+        "stale_gain_bits_max": 0.0,
         "earned_variant_ok": true,
         "max_expected_live_variants_per_entry": 16.0,
         "max_variant_cap": 16,
         "opportunity_multiplier_basis": "earned_expected_variants_discounted_for_shared_entries",
         "optimistic_combo_reported_only": true,
-        "max_optimistic_to_conservative_multiplier": 1.0125059986312834,
+        "max_optimistic_to_conservative_multiplier": 1.0242493318567802,
         "selector_viability_ok": true,
         "selector_type": "greedy_largest_gain",
         "oracle_is_upper_bound": false,
         "raw_crossover_within_200_effective_passes": true,
-        "final_raw_after_200": 0.6944234289301863,
+        "final_raw_after_200": 0.6873080876832949,
         "final_collapse_ok": true,
         "encoder_only_state_serialized": false,
         "refresh_decodable": true,
-        "refresh_decode_story": "Retained encoder-only variants are not serialized; when one is selected, the wire contains only the selected legal record.",
-        "fixed_rechunk_schedule": "4->3",
+        "refresh_decode_story": "Decoder sees only the selected record stream. Freshness comes only from the replacement cascade: a selected replacement writes new bits at its stream position, so windows touching it re-roll next pass.",
+        "fixed_rechunk_schedule": "4",
         "metadata_sidecar_ok": true,
         "refresh_metadata_bits_per_pass": 0,
-        "working_variant_entries_proxy": 83682988.4590996,
+        "working_variant_entries_proxy": 63035667.0475181,
         "compute_memory_profile": "theoretical_upper_bound",
-        "ten_effective_pass_min_pct": 0.5032057918697697
+        "ten_effective_pass_min_pct": 0.5277171827134043
       }
     },
     {
       "candidate": {
-        "upper_bound_pct_current": 1.5713326930608749,
+        "upper_bound_pct_current": 1.6596535378620276,
         "block_bits": 8,
         "arity_cap": 5,
         "depth_bits": 48,
@@ -2369,11 +2424,10 @@
         ],
         "initial_literal_overhead_bits": 8,
         "rechunk_schedule_bits": [
-          4,
-          3
+          4
         ],
         "policy": "greedy_largest_gain",
-        "refresh_name": "superposition_derived_refresh",
+        "refresh_name": "no_refresh",
         "superposition": {
           "prune_delta_bits": 32,
           "max_variants_per_position": 16,
@@ -2381,126 +2435,68 @@
           "bloat_tolerant_retained": true
         },
         "avg_variants": 16.0,
-        "window_multiplier": 1.1733125888931413,
-        "rechunk_schedule": "4->3"
+        "window_multiplier": 1.2545743257104327,
+        "rechunk_channel": "uncharged_diagnostic",
+        "rechunk_schedule": "4"
       },
-      "final_ratio_raw": 1.8709057376585974,
+      "final_ratio_raw": 1.868345637354803,
       "raw_ratio_by_pass": {
-        "11": 1.8709057376585974,
-        "50": 1.5248723535343534,
-        "100": 1.1731775610834585,
-        "200": 0.6944234289301863,
-        "500": 0.14401515351226368
+        "11": 1.868345637354803,
+        "50": 1.5199823192782034,
+        "100": 1.1666559680479727,
+        "200": 0.6873080876832949,
+        "500": 0.14053336532549734
       },
-      "payback_pass_count": 131,
-      "payback_effective_pass_count": 130,
-      "viability_class": "viability_high_working_state",
-      "effective_pass_min_pct": 0.5032057918697697,
-      "effective_pass_avg_pct": 0.5210360296360921,
-      "concentration_eps_pct": 1.0300391862395373,
-      "concentration_entry_count": 3942478,
+      "payback_pass_count": 130,
+      "payback_effective_pass_count": 129,
+      "viability_class": "failed_audit_uncharged_passthrough",
+      "effective_pass_min_pct": 0.5277171827134043,
+      "effective_pass_avg_pct": 0.5277171907432037,
+      "concentration_eps_pct": 1.0552268244247192,
+      "concentration_entry_count": 3756515,
       "concentration_entry_bits": 4,
       "concentration_required_entries": {
-        "radius_le_margin_to_0_1_pct": 25729021,
-        "radius_le_margin_to_0_2_pct": 45498994
+        "radius_le_margin_to_0_1_pct": 22864588,
+        "radius_le_margin_to_0_2_pct": 38947389
       },
       "audit_flags": {
+        "uncharged_passthrough_gate_ok": false,
+        "rechunk_channel": "uncharged_diagnostic",
+        "discrimination_bits_per_pass_max": 0.0,
+        "escape_fire_rate_per_chunk_max": 0.0,
+        "decode_replay_expansions_max": 0.0,
+        "freshness_modeled": true,
+        "refresh_story": "A_encoder_view",
+        "refresh_file_specific": false,
+        "refresh_coefficient_late_avg": 1.0,
+        "neutral_swap_mass_max": 0.0,
+        "stale_gain_bits_max": 0.0,
         "earned_variant_ok": true,
         "max_expected_live_variants_per_entry": 16.0,
         "max_variant_cap": 16,
         "opportunity_multiplier_basis": "earned_expected_variants_discounted_for_shared_entries",
         "optimistic_combo_reported_only": true,
-        "max_optimistic_to_conservative_multiplier": 1.0125059986312834,
+        "max_optimistic_to_conservative_multiplier": 1.0242493318567802,
         "selector_viability_ok": true,
         "selector_type": "greedy_largest_gain",
         "oracle_is_upper_bound": false,
         "raw_crossover_within_200_effective_passes": true,
-        "final_raw_after_200": 0.6944234289301863,
+        "final_raw_after_200": 0.6873080876832949,
         "final_collapse_ok": true,
         "encoder_only_state_serialized": false,
         "refresh_decodable": true,
-        "refresh_decode_story": "Retained encoder-only variants are not serialized; when one is selected, the wire contains only the selected legal record.",
-        "fixed_rechunk_schedule": "4->3",
+        "refresh_decode_story": "Decoder sees only the selected record stream. Freshness comes only from the replacement cascade: a selected replacement writes new bits at its stream position, so windows touching it re-roll next pass.",
+        "fixed_rechunk_schedule": "4",
         "metadata_sidecar_ok": true,
         "refresh_metadata_bits_per_pass": 0,
-        "working_variant_entries_proxy": 83682988.4590996,
+        "working_variant_entries_proxy": 63035667.0475181,
         "compute_memory_profile": "theoretical_upper_bound",
-        "ten_effective_pass_min_pct": 0.5032057918697697
+        "ten_effective_pass_min_pct": 0.5277171827134043
       }
     },
     {
       "candidate": {
-        "upper_bound_pct_current": 1.5713326930608749,
-        "block_bits": 8,
-        "arity_cap": 5,
-        "depth_bits": 64,
-        "depth_schedule_bits": [
-          64
-        ],
-        "initial_literal_overhead_bits": 8,
-        "rechunk_schedule_bits": [
-          4,
-          3
-        ],
-        "policy": "greedy_largest_gain",
-        "refresh_name": "superposition_derived_refresh",
-        "superposition": {
-          "prune_delta_bits": 16,
-          "max_variants_per_position": 16,
-          "equal_size_allowed": false,
-          "bloat_tolerant_retained": true
-        },
-        "avg_variants": 16.0,
-        "window_multiplier": 1.1733125888931413,
-        "rechunk_schedule": "4->3"
-      },
-      "final_ratio_raw": 1.8709057376585974,
-      "raw_ratio_by_pass": {
-        "11": 1.8709057376585974,
-        "50": 1.5248723535343534,
-        "100": 1.1731775610834585,
-        "200": 0.6944234289301863,
-        "500": 0.14401515351226368
-      },
-      "payback_pass_count": 131,
-      "payback_effective_pass_count": 130,
-      "viability_class": "viability_high_working_state",
-      "effective_pass_min_pct": 0.5032057918697697,
-      "effective_pass_avg_pct": 0.5210360296360921,
-      "concentration_eps_pct": 1.0300391862395373,
-      "concentration_entry_count": 3942478,
-      "concentration_entry_bits": 4,
-      "concentration_required_entries": {
-        "radius_le_margin_to_0_1_pct": 25729021,
-        "radius_le_margin_to_0_2_pct": 45498994
-      },
-      "audit_flags": {
-        "earned_variant_ok": true,
-        "max_expected_live_variants_per_entry": 16.0,
-        "max_variant_cap": 16,
-        "opportunity_multiplier_basis": "earned_expected_variants_discounted_for_shared_entries",
-        "optimistic_combo_reported_only": true,
-        "max_optimistic_to_conservative_multiplier": 1.0125059986312834,
-        "selector_viability_ok": true,
-        "selector_type": "greedy_largest_gain",
-        "oracle_is_upper_bound": false,
-        "raw_crossover_within_200_effective_passes": true,
-        "final_raw_after_200": 0.6944234289301863,
-        "final_collapse_ok": true,
-        "encoder_only_state_serialized": false,
-        "refresh_decodable": true,
-        "refresh_decode_story": "Retained encoder-only variants are not serialized; when one is selected, the wire contains only the selected legal record.",
-        "fixed_rechunk_schedule": "4->3",
-        "metadata_sidecar_ok": true,
-        "refresh_metadata_bits_per_pass": 0,
-        "working_variant_entries_proxy": 83682988.4590996,
-        "compute_memory_profile": "theoretical_upper_bound",
-        "ten_effective_pass_min_pct": 0.5032057918697697
-      }
-    },
-    {
-      "candidate": {
-        "upper_bound_pct_current": 1.5713326930608749,
+        "upper_bound_pct_current": 1.6596535378620276,
         "block_bits": 8,
         "arity_cap": 5,
         "depth_bits": 48,
@@ -2509,81 +2505,10 @@
         ],
         "initial_literal_overhead_bits": 8,
         "rechunk_schedule_bits": [
-          4,
-          3
+          4
         ],
         "policy": "greedy_largest_gain",
-        "refresh_name": "superposition_derived_refresh",
-        "superposition": {
-          "prune_delta_bits": 16,
-          "max_variants_per_position": 16,
-          "equal_size_allowed": false,
-          "bloat_tolerant_retained": true
-        },
-        "avg_variants": 16.0,
-        "window_multiplier": 1.1733125888931413,
-        "rechunk_schedule": "4->3"
-      },
-      "final_ratio_raw": 1.8709057376585974,
-      "raw_ratio_by_pass": {
-        "11": 1.8709057376585974,
-        "50": 1.5248723535343534,
-        "100": 1.1731775610834585,
-        "200": 0.6944234289301863,
-        "500": 0.14401515351226368
-      },
-      "payback_pass_count": 131,
-      "payback_effective_pass_count": 130,
-      "viability_class": "viability_high_working_state",
-      "effective_pass_min_pct": 0.5032057918697697,
-      "effective_pass_avg_pct": 0.5210360296360921,
-      "concentration_eps_pct": 1.0300391862395373,
-      "concentration_entry_count": 3942478,
-      "concentration_entry_bits": 4,
-      "concentration_required_entries": {
-        "radius_le_margin_to_0_1_pct": 25729021,
-        "radius_le_margin_to_0_2_pct": 45498994
-      },
-      "audit_flags": {
-        "earned_variant_ok": true,
-        "max_expected_live_variants_per_entry": 16.0,
-        "max_variant_cap": 16,
-        "opportunity_multiplier_basis": "earned_expected_variants_discounted_for_shared_entries",
-        "optimistic_combo_reported_only": true,
-        "max_optimistic_to_conservative_multiplier": 1.0125059986312834,
-        "selector_viability_ok": true,
-        "selector_type": "greedy_largest_gain",
-        "oracle_is_upper_bound": false,
-        "raw_crossover_within_200_effective_passes": true,
-        "final_raw_after_200": 0.6944234289301863,
-        "final_collapse_ok": true,
-        "encoder_only_state_serialized": false,
-        "refresh_decodable": true,
-        "refresh_decode_story": "Retained encoder-only variants are not serialized; when one is selected, the wire contains only the selected legal record.",
-        "fixed_rechunk_schedule": "4->3",
-        "metadata_sidecar_ok": true,
-        "refresh_metadata_bits_per_pass": 0,
-        "working_variant_entries_proxy": 83682988.4590996,
-        "compute_memory_profile": "theoretical_upper_bound",
-        "ten_effective_pass_min_pct": 0.5032057918697697
-      }
-    },
-    {
-      "candidate": {
-        "upper_bound_pct_current": 1.5713326930608749,
-        "block_bits": 8,
-        "arity_cap": 5,
-        "depth_bits": 64,
-        "depth_schedule_bits": [
-          64
-        ],
-        "initial_literal_overhead_bits": 8,
-        "rechunk_schedule_bits": [
-          4,
-          3
-        ],
-        "policy": "greedy_largest_gain",
-        "refresh_name": "superposition_derived_refresh",
+        "refresh_name": "no_refresh",
         "superposition": {
           "prune_delta_bits": 64,
           "max_variants_per_position": 16,
@@ -2591,126 +2516,68 @@
           "bloat_tolerant_retained": true
         },
         "avg_variants": 16.0,
-        "window_multiplier": 1.1733125888931413,
-        "rechunk_schedule": "4->3"
+        "window_multiplier": 1.2545743257104327,
+        "rechunk_channel": "uncharged_diagnostic",
+        "rechunk_schedule": "4"
       },
-      "final_ratio_raw": 1.8709057376585974,
+      "final_ratio_raw": 1.868345637354803,
       "raw_ratio_by_pass": {
-        "11": 1.8709057376585974,
-        "50": 1.5248723535343534,
-        "100": 1.1731775610834585,
-        "200": 0.6944234289301863,
-        "500": 0.14401515351226368
+        "11": 1.868345637354803,
+        "50": 1.5199823192782034,
+        "100": 1.1666559680479727,
+        "200": 0.6873080876832949,
+        "500": 0.14053336532549734
       },
-      "payback_pass_count": 131,
-      "payback_effective_pass_count": 130,
-      "viability_class": "viability_high_working_state",
-      "effective_pass_min_pct": 0.5032057918697697,
-      "effective_pass_avg_pct": 0.5210360296360921,
-      "concentration_eps_pct": 1.0300391862395373,
-      "concentration_entry_count": 3942478,
+      "payback_pass_count": 130,
+      "payback_effective_pass_count": 129,
+      "viability_class": "failed_audit_uncharged_passthrough",
+      "effective_pass_min_pct": 0.5277171827134043,
+      "effective_pass_avg_pct": 0.5277171907432037,
+      "concentration_eps_pct": 1.0552268244247192,
+      "concentration_entry_count": 3756515,
       "concentration_entry_bits": 4,
       "concentration_required_entries": {
-        "radius_le_margin_to_0_1_pct": 25729021,
-        "radius_le_margin_to_0_2_pct": 45498994
+        "radius_le_margin_to_0_1_pct": 22864588,
+        "radius_le_margin_to_0_2_pct": 38947389
       },
       "audit_flags": {
+        "uncharged_passthrough_gate_ok": false,
+        "rechunk_channel": "uncharged_diagnostic",
+        "discrimination_bits_per_pass_max": 0.0,
+        "escape_fire_rate_per_chunk_max": 0.0,
+        "decode_replay_expansions_max": 0.0,
+        "freshness_modeled": true,
+        "refresh_story": "A_encoder_view",
+        "refresh_file_specific": false,
+        "refresh_coefficient_late_avg": 1.0,
+        "neutral_swap_mass_max": 0.0,
+        "stale_gain_bits_max": 0.0,
         "earned_variant_ok": true,
         "max_expected_live_variants_per_entry": 16.0,
         "max_variant_cap": 16,
         "opportunity_multiplier_basis": "earned_expected_variants_discounted_for_shared_entries",
         "optimistic_combo_reported_only": true,
-        "max_optimistic_to_conservative_multiplier": 1.0125059986312834,
+        "max_optimistic_to_conservative_multiplier": 1.0242493318567802,
         "selector_viability_ok": true,
         "selector_type": "greedy_largest_gain",
         "oracle_is_upper_bound": false,
         "raw_crossover_within_200_effective_passes": true,
-        "final_raw_after_200": 0.6944234289301863,
+        "final_raw_after_200": 0.6873080876832949,
         "final_collapse_ok": true,
         "encoder_only_state_serialized": false,
         "refresh_decodable": true,
-        "refresh_decode_story": "Retained encoder-only variants are not serialized; when one is selected, the wire contains only the selected legal record.",
-        "fixed_rechunk_schedule": "4->3",
+        "refresh_decode_story": "Decoder sees only the selected record stream. Freshness comes only from the replacement cascade: a selected replacement writes new bits at its stream position, so windows touching it re-roll next pass.",
+        "fixed_rechunk_schedule": "4",
         "metadata_sidecar_ok": true,
         "refresh_metadata_bits_per_pass": 0,
-        "working_variant_entries_proxy": 83682988.4590996,
+        "working_variant_entries_proxy": 63035667.0475181,
         "compute_memory_profile": "theoretical_upper_bound",
-        "ten_effective_pass_min_pct": 0.5032057918697697
+        "ten_effective_pass_min_pct": 0.5277171827134043
       }
     },
     {
       "candidate": {
-        "upper_bound_pct_current": 1.5713326930608749,
-        "block_bits": 8,
-        "arity_cap": 5,
-        "depth_bits": 64,
-        "depth_schedule_bits": [
-          64
-        ],
-        "initial_literal_overhead_bits": 8,
-        "rechunk_schedule_bits": [
-          4,
-          3
-        ],
-        "policy": "greedy_largest_gain",
-        "refresh_name": "superposition_derived_refresh",
-        "superposition": {
-          "prune_delta_bits": 32,
-          "max_variants_per_position": 16,
-          "equal_size_allowed": false,
-          "bloat_tolerant_retained": true
-        },
-        "avg_variants": 16.0,
-        "window_multiplier": 1.1733125888931413,
-        "rechunk_schedule": "4->3"
-      },
-      "final_ratio_raw": 1.8709057376585974,
-      "raw_ratio_by_pass": {
-        "11": 1.8709057376585974,
-        "50": 1.5248723535343534,
-        "100": 1.1731775610834585,
-        "200": 0.6944234289301863,
-        "500": 0.14401515351226368
-      },
-      "payback_pass_count": 131,
-      "payback_effective_pass_count": 130,
-      "viability_class": "viability_high_working_state",
-      "effective_pass_min_pct": 0.5032057918697697,
-      "effective_pass_avg_pct": 0.5210360296360921,
-      "concentration_eps_pct": 1.0300391862395373,
-      "concentration_entry_count": 3942478,
-      "concentration_entry_bits": 4,
-      "concentration_required_entries": {
-        "radius_le_margin_to_0_1_pct": 25729021,
-        "radius_le_margin_to_0_2_pct": 45498994
-      },
-      "audit_flags": {
-        "earned_variant_ok": true,
-        "max_expected_live_variants_per_entry": 16.0,
-        "max_variant_cap": 16,
-        "opportunity_multiplier_basis": "earned_expected_variants_discounted_for_shared_entries",
-        "optimistic_combo_reported_only": true,
-        "max_optimistic_to_conservative_multiplier": 1.0125059986312834,
-        "selector_viability_ok": true,
-        "selector_type": "greedy_largest_gain",
-        "oracle_is_upper_bound": false,
-        "raw_crossover_within_200_effective_passes": true,
-        "final_raw_after_200": 0.6944234289301863,
-        "final_collapse_ok": true,
-        "encoder_only_state_serialized": false,
-        "refresh_decodable": true,
-        "refresh_decode_story": "Retained encoder-only variants are not serialized; when one is selected, the wire contains only the selected legal record.",
-        "fixed_rechunk_schedule": "4->3",
-        "metadata_sidecar_ok": true,
-        "refresh_metadata_bits_per_pass": 0,
-        "working_variant_entries_proxy": 83682988.4590996,
-        "compute_memory_profile": "theoretical_upper_bound",
-        "ten_effective_pass_min_pct": 0.5032057918697697
-      }
-    },
-    {
-      "candidate": {
-        "upper_bound_pct_current": 1.5713326930608749,
+        "upper_bound_pct_current": 1.6596535378620276,
         "block_bits": 8,
         "arity_cap": 5,
         "depth_bits": 32,
@@ -2719,11 +2586,91 @@
         ],
         "initial_literal_overhead_bits": 8,
         "rechunk_schedule_bits": [
-          4,
-          3
+          4
         ],
         "policy": "greedy_largest_gain",
-        "refresh_name": "superposition_derived_refresh",
+        "refresh_name": "no_refresh",
+        "superposition": {
+          "prune_delta_bits": 32,
+          "max_variants_per_position": 16,
+          "equal_size_allowed": false,
+          "bloat_tolerant_retained": true
+        },
+        "avg_variants": 16.0,
+        "window_multiplier": 1.2545743257104327,
+        "rechunk_channel": "uncharged_diagnostic",
+        "rechunk_schedule": "4"
+      },
+      "final_ratio_raw": 1.868380874949745,
+      "raw_ratio_by_pass": {
+        "11": 1.868380874949745,
+        "50": 1.5200109866255054,
+        "100": 1.1666779715431834,
+        "200": 0.6873210505186089,
+        "500": 0.14053601580832595
+      },
+      "payback_pass_count": 130,
+      "payback_effective_pass_count": 129,
+      "viability_class": "failed_audit_uncharged_passthrough",
+      "effective_pass_min_pct": 0.5277171827198667,
+      "effective_pass_avg_pct": 0.5277171907495176,
+      "concentration_eps_pct": 1.0552169928593726,
+      "concentration_entry_count": 3756585,
+      "concentration_entry_bits": 4,
+      "concentration_required_entries": {
+        "radius_le_margin_to_0_1_pct": 22864588,
+        "radius_le_margin_to_0_2_pct": 38947389
+      },
+      "audit_flags": {
+        "uncharged_passthrough_gate_ok": false,
+        "rechunk_channel": "uncharged_diagnostic",
+        "discrimination_bits_per_pass_max": 0.0,
+        "escape_fire_rate_per_chunk_max": 0.0,
+        "decode_replay_expansions_max": 0.0,
+        "freshness_modeled": true,
+        "refresh_story": "A_encoder_view",
+        "refresh_file_specific": false,
+        "refresh_coefficient_late_avg": 1.0,
+        "neutral_swap_mass_max": 0.0,
+        "stale_gain_bits_max": 0.0,
+        "earned_variant_ok": true,
+        "max_expected_live_variants_per_entry": 16.0,
+        "max_variant_cap": 16,
+        "opportunity_multiplier_basis": "earned_expected_variants_discounted_for_shared_entries",
+        "optimistic_combo_reported_only": true,
+        "max_optimistic_to_conservative_multiplier": 1.0243598162927472,
+        "selector_viability_ok": true,
+        "selector_type": "greedy_largest_gain",
+        "oracle_is_upper_bound": false,
+        "raw_crossover_within_200_effective_passes": true,
+        "final_raw_after_200": 0.6873210505186089,
+        "final_collapse_ok": true,
+        "encoder_only_state_serialized": false,
+        "refresh_decodable": true,
+        "refresh_decode_story": "Decoder sees only the selected record stream. Freshness comes only from the replacement cascade: a selected replacement writes new bits at its stream position, so windows touching it re-roll next pass.",
+        "fixed_rechunk_schedule": "4",
+        "metadata_sidecar_ok": true,
+        "refresh_metadata_bits_per_pass": 0,
+        "working_variant_entries_proxy": 63036855.9203544,
+        "compute_memory_profile": "theoretical_upper_bound",
+        "ten_effective_pass_min_pct": 0.5277171827198667
+      }
+    },
+    {
+      "candidate": {
+        "upper_bound_pct_current": 1.6596535378620276,
+        "block_bits": 8,
+        "arity_cap": 5,
+        "depth_bits": 32,
+        "depth_schedule_bits": [
+          32
+        ],
+        "initial_literal_overhead_bits": 8,
+        "rechunk_schedule_bits": [
+          4
+        ],
+        "policy": "greedy_largest_gain",
+        "refresh_name": "no_refresh",
         "superposition": {
           "prune_delta_bits": 16,
           "max_variants_per_position": 16,
@@ -2731,56 +2678,68 @@
           "bloat_tolerant_retained": true
         },
         "avg_variants": 16.0,
-        "window_multiplier": 1.1733125888931413,
-        "rechunk_schedule": "4->3"
+        "window_multiplier": 1.2545743257104327,
+        "rechunk_channel": "uncharged_diagnostic",
+        "rechunk_schedule": "4"
       },
-      "final_ratio_raw": 1.8709304369953745,
+      "final_ratio_raw": 1.868380874949745,
       "raw_ratio_by_pass": {
-        "11": 1.8709304369953745,
-        "50": 1.524892484602151,
-        "100": 1.1731930491414073,
-        "200": 0.6944325965642915,
-        "500": 0.1440170547577331
+        "11": 1.868380874949745,
+        "50": 1.5200109866255054,
+        "100": 1.1666779715431834,
+        "200": 0.6873210505186089,
+        "500": 0.14053601580832595
       },
-      "payback_pass_count": 131,
-      "payback_effective_pass_count": 130,
-      "viability_class": "viability_high_working_state",
-      "effective_pass_min_pct": 0.5032057918738763,
-      "effective_pass_avg_pct": 0.5210360296404318,
-      "concentration_eps_pct": 1.0300323933661413,
-      "concentration_entry_count": 3942530,
+      "payback_pass_count": 130,
+      "payback_effective_pass_count": 129,
+      "viability_class": "failed_audit_uncharged_passthrough",
+      "effective_pass_min_pct": 0.5277171827198667,
+      "effective_pass_avg_pct": 0.5277171907495176,
+      "concentration_eps_pct": 1.0552169928593726,
+      "concentration_entry_count": 3756585,
       "concentration_entry_bits": 4,
       "concentration_required_entries": {
-        "radius_le_margin_to_0_1_pct": 25729021,
-        "radius_le_margin_to_0_2_pct": 45498994
+        "radius_le_margin_to_0_1_pct": 22864588,
+        "radius_le_margin_to_0_2_pct": 38947389
       },
       "audit_flags": {
+        "uncharged_passthrough_gate_ok": false,
+        "rechunk_channel": "uncharged_diagnostic",
+        "discrimination_bits_per_pass_max": 0.0,
+        "escape_fire_rate_per_chunk_max": 0.0,
+        "decode_replay_expansions_max": 0.0,
+        "freshness_modeled": true,
+        "refresh_story": "A_encoder_view",
+        "refresh_file_specific": false,
+        "refresh_coefficient_late_avg": 1.0,
+        "neutral_swap_mass_max": 0.0,
+        "stale_gain_bits_max": 0.0,
         "earned_variant_ok": true,
         "max_expected_live_variants_per_entry": 16.0,
         "max_variant_cap": 16,
         "opportunity_multiplier_basis": "earned_expected_variants_discounted_for_shared_entries",
         "optimistic_combo_reported_only": true,
-        "max_optimistic_to_conservative_multiplier": 1.0125486171987284,
+        "max_optimistic_to_conservative_multiplier": 1.0243598162927472,
         "selector_viability_ok": true,
         "selector_type": "greedy_largest_gain",
         "oracle_is_upper_bound": false,
         "raw_crossover_within_200_effective_passes": true,
-        "final_raw_after_200": 0.6944325965642915,
+        "final_raw_after_200": 0.6873210505186089,
         "final_collapse_ok": true,
         "encoder_only_state_serialized": false,
         "refresh_decodable": true,
-        "refresh_decode_story": "Retained encoder-only variants are not serialized; when one is selected, the wire contains only the selected legal record.",
-        "fixed_rechunk_schedule": "4->3",
+        "refresh_decode_story": "Decoder sees only the selected record stream. Freshness comes only from the replacement cascade: a selected replacement writes new bits at its stream position, so windows touching it re-roll next pass.",
+        "fixed_rechunk_schedule": "4",
         "metadata_sidecar_ok": true,
         "refresh_metadata_bits_per_pass": 0,
-        "working_variant_entries_proxy": 83684093.2258095,
+        "working_variant_entries_proxy": 63036855.9203544,
         "compute_memory_profile": "theoretical_upper_bound",
-        "ten_effective_pass_min_pct": 0.5032057918738763
+        "ten_effective_pass_min_pct": 0.5277171827198667
       }
     },
     {
       "candidate": {
-        "upper_bound_pct_current": 1.5713326930608749,
+        "upper_bound_pct_current": 1.6596535378620276,
         "block_bits": 8,
         "arity_cap": 5,
         "depth_bits": 32,
@@ -2789,81 +2748,10 @@
         ],
         "initial_literal_overhead_bits": 8,
         "rechunk_schedule_bits": [
-          4,
-          3
+          4
         ],
         "policy": "greedy_largest_gain",
-        "refresh_name": "superposition_derived_refresh",
-        "superposition": {
-          "prune_delta_bits": 32,
-          "max_variants_per_position": 16,
-          "equal_size_allowed": false,
-          "bloat_tolerant_retained": true
-        },
-        "avg_variants": 16.0,
-        "window_multiplier": 1.1733125888931413,
-        "rechunk_schedule": "4->3"
-      },
-      "final_ratio_raw": 1.8709304369953745,
-      "raw_ratio_by_pass": {
-        "11": 1.8709304369953745,
-        "50": 1.524892484602151,
-        "100": 1.1731930491414073,
-        "200": 0.6944325965642915,
-        "500": 0.1440170547577331
-      },
-      "payback_pass_count": 131,
-      "payback_effective_pass_count": 130,
-      "viability_class": "viability_high_working_state",
-      "effective_pass_min_pct": 0.5032057918738763,
-      "effective_pass_avg_pct": 0.5210360296404318,
-      "concentration_eps_pct": 1.0300323933661413,
-      "concentration_entry_count": 3942530,
-      "concentration_entry_bits": 4,
-      "concentration_required_entries": {
-        "radius_le_margin_to_0_1_pct": 25729021,
-        "radius_le_margin_to_0_2_pct": 45498994
-      },
-      "audit_flags": {
-        "earned_variant_ok": true,
-        "max_expected_live_variants_per_entry": 16.0,
-        "max_variant_cap": 16,
-        "opportunity_multiplier_basis": "earned_expected_variants_discounted_for_shared_entries",
-        "optimistic_combo_reported_only": true,
-        "max_optimistic_to_conservative_multiplier": 1.0125486171987284,
-        "selector_viability_ok": true,
-        "selector_type": "greedy_largest_gain",
-        "oracle_is_upper_bound": false,
-        "raw_crossover_within_200_effective_passes": true,
-        "final_raw_after_200": 0.6944325965642915,
-        "final_collapse_ok": true,
-        "encoder_only_state_serialized": false,
-        "refresh_decodable": true,
-        "refresh_decode_story": "Retained encoder-only variants are not serialized; when one is selected, the wire contains only the selected legal record.",
-        "fixed_rechunk_schedule": "4->3",
-        "metadata_sidecar_ok": true,
-        "refresh_metadata_bits_per_pass": 0,
-        "working_variant_entries_proxy": 83684093.2258095,
-        "compute_memory_profile": "theoretical_upper_bound",
-        "ten_effective_pass_min_pct": 0.5032057918738763
-      }
-    },
-    {
-      "candidate": {
-        "upper_bound_pct_current": 1.5713326930608749,
-        "block_bits": 8,
-        "arity_cap": 5,
-        "depth_bits": 32,
-        "depth_schedule_bits": [
-          32
-        ],
-        "initial_literal_overhead_bits": 8,
-        "rechunk_schedule_bits": [
-          4,
-          3
-        ],
-        "policy": "greedy_largest_gain",
-        "refresh_name": "superposition_derived_refresh",
+        "refresh_name": "no_refresh",
         "superposition": {
           "prune_delta_bits": 64,
           "max_variants_per_position": 16,
@@ -2871,51 +2759,549 @@
           "bloat_tolerant_retained": true
         },
         "avg_variants": 16.0,
-        "window_multiplier": 1.1733125888931413,
-        "rechunk_schedule": "4->3"
+        "window_multiplier": 1.2545743257104327,
+        "rechunk_channel": "uncharged_diagnostic",
+        "rechunk_schedule": "4"
       },
-      "final_ratio_raw": 1.8709304369953745,
+      "final_ratio_raw": 1.868380874949745,
       "raw_ratio_by_pass": {
-        "11": 1.8709304369953745,
-        "50": 1.524892484602151,
-        "100": 1.1731930491414073,
-        "200": 0.6944325965642915,
-        "500": 0.1440170547577331
+        "11": 1.868380874949745,
+        "50": 1.5200109866255054,
+        "100": 1.1666779715431834,
+        "200": 0.6873210505186089,
+        "500": 0.14053601580832595
       },
-      "payback_pass_count": 131,
-      "payback_effective_pass_count": 130,
-      "viability_class": "viability_high_working_state",
-      "effective_pass_min_pct": 0.5032057918738763,
-      "effective_pass_avg_pct": 0.5210360296404318,
-      "concentration_eps_pct": 1.0300323933661413,
-      "concentration_entry_count": 3942530,
+      "payback_pass_count": 130,
+      "payback_effective_pass_count": 129,
+      "viability_class": "failed_audit_uncharged_passthrough",
+      "effective_pass_min_pct": 0.5277171827198667,
+      "effective_pass_avg_pct": 0.5277171907495176,
+      "concentration_eps_pct": 1.0552169928593726,
+      "concentration_entry_count": 3756585,
       "concentration_entry_bits": 4,
       "concentration_required_entries": {
-        "radius_le_margin_to_0_1_pct": 25729021,
-        "radius_le_margin_to_0_2_pct": 45498994
+        "radius_le_margin_to_0_1_pct": 22864588,
+        "radius_le_margin_to_0_2_pct": 38947389
       },
       "audit_flags": {
+        "uncharged_passthrough_gate_ok": false,
+        "rechunk_channel": "uncharged_diagnostic",
+        "discrimination_bits_per_pass_max": 0.0,
+        "escape_fire_rate_per_chunk_max": 0.0,
+        "decode_replay_expansions_max": 0.0,
+        "freshness_modeled": true,
+        "refresh_story": "A_encoder_view",
+        "refresh_file_specific": false,
+        "refresh_coefficient_late_avg": 1.0,
+        "neutral_swap_mass_max": 0.0,
+        "stale_gain_bits_max": 0.0,
         "earned_variant_ok": true,
         "max_expected_live_variants_per_entry": 16.0,
         "max_variant_cap": 16,
         "opportunity_multiplier_basis": "earned_expected_variants_discounted_for_shared_entries",
         "optimistic_combo_reported_only": true,
-        "max_optimistic_to_conservative_multiplier": 1.0125486171987284,
+        "max_optimistic_to_conservative_multiplier": 1.0243598162927472,
         "selector_viability_ok": true,
         "selector_type": "greedy_largest_gain",
         "oracle_is_upper_bound": false,
         "raw_crossover_within_200_effective_passes": true,
-        "final_raw_after_200": 0.6944325965642915,
+        "final_raw_after_200": 0.6873210505186089,
         "final_collapse_ok": true,
         "encoder_only_state_serialized": false,
         "refresh_decodable": true,
-        "refresh_decode_story": "Retained encoder-only variants are not serialized; when one is selected, the wire contains only the selected legal record.",
-        "fixed_rechunk_schedule": "4->3",
+        "refresh_decode_story": "Decoder sees only the selected record stream. Freshness comes only from the replacement cascade: a selected replacement writes new bits at its stream position, so windows touching it re-roll next pass.",
+        "fixed_rechunk_schedule": "4",
         "metadata_sidecar_ok": true,
         "refresh_metadata_bits_per_pass": 0,
-        "working_variant_entries_proxy": 83684093.2258095,
+        "working_variant_entries_proxy": 63036855.9203544,
         "compute_memory_profile": "theoretical_upper_bound",
-        "ten_effective_pass_min_pct": 0.5032057918738763
+        "ten_effective_pass_min_pct": 0.5277171827198667
+      }
+    },
+    {
+      "candidate": {
+        "upper_bound_pct_current": 1.6596535378620276,
+        "block_bits": 8,
+        "arity_cap": 5,
+        "depth_bits": 24,
+        "depth_schedule_bits": [
+          24
+        ],
+        "initial_literal_overhead_bits": 8,
+        "rechunk_schedule_bits": [
+          4
+        ],
+        "policy": "greedy_largest_gain",
+        "refresh_name": "no_refresh",
+        "superposition": {
+          "prune_delta_bits": 16,
+          "max_variants_per_position": 16,
+          "equal_size_allowed": true,
+          "bloat_tolerant_retained": true
+        },
+        "avg_variants": 16.0,
+        "window_multiplier": 1.2545743257104327,
+        "rechunk_channel": "uncharged_diagnostic",
+        "rechunk_schedule": "4"
+      },
+      "final_ratio_raw": 1.8742364122684465,
+      "raw_ratio_by_pass": {
+        "11": 1.8742364122684465,
+        "50": 1.5241904606255097,
+        "100": 1.169311223261201,
+        "200": 0.688195742963948,
+        "500": 0.14030063291122571
+      },
+      "payback_pass_count": 130,
+      "payback_effective_pass_count": 129,
+      "viability_class": "failed_audit_uncharged_passthrough",
+      "effective_pass_min_pct": 0.5286946982034559,
+      "effective_pass_avg_pct": 0.5286947062379359,
+      "concentration_eps_pct": 1.0535620514958848,
+      "concentration_entry_count": 3768396,
+      "concentration_entry_bits": 4,
+      "concentration_required_entries": {
+        "radius_le_margin_to_0_1_pct": 22760435,
+        "radius_le_margin_to_0_2_pct": 38716080
+      },
+      "audit_flags": {
+        "uncharged_passthrough_gate_ok": false,
+        "rechunk_channel": "uncharged_diagnostic",
+        "discrimination_bits_per_pass_max": 0.0,
+        "escape_fire_rate_per_chunk_max": 0.0,
+        "decode_replay_expansions_max": 0.0,
+        "freshness_modeled": true,
+        "refresh_story": "A_encoder_view",
+        "refresh_file_specific": false,
+        "refresh_coefficient_late_avg": 1.0,
+        "neutral_swap_mass_max": 0.0,
+        "stale_gain_bits_max": 0.0,
+        "earned_variant_ok": true,
+        "max_expected_live_variants_per_entry": 16.0,
+        "max_variant_cap": 16,
+        "opportunity_multiplier_basis": "earned_expected_variants_discounted_for_shared_entries",
+        "optimistic_combo_reported_only": true,
+        "max_optimistic_to_conservative_multiplier": 1.0243785348540297,
+        "selector_viability_ok": true,
+        "selector_type": "greedy_largest_gain",
+        "oracle_is_upper_bound": false,
+        "raw_crossover_within_200_effective_passes": true,
+        "final_raw_after_200": 0.688195742963948,
+        "final_collapse_ok": true,
+        "encoder_only_state_serialized": false,
+        "refresh_decodable": true,
+        "refresh_decode_story": "Decoder sees only the selected record stream. Freshness comes only from the replacement cascade: a selected replacement writes new bits at its stream position, so windows touching it re-roll next pass.",
+        "fixed_rechunk_schedule": "4",
+        "metadata_sidecar_ok": true,
+        "refresh_metadata_bits_per_pass": 0,
+        "working_variant_entries_proxy": 63240628.88532886,
+        "compute_memory_profile": "theoretical_upper_bound",
+        "ten_effective_pass_min_pct": 0.5286946982034559
+      }
+    },
+    {
+      "candidate": {
+        "upper_bound_pct_current": 1.6596535378620276,
+        "block_bits": 8,
+        "arity_cap": 5,
+        "depth_bits": 24,
+        "depth_schedule_bits": [
+          24
+        ],
+        "initial_literal_overhead_bits": 8,
+        "rechunk_schedule_bits": [
+          4
+        ],
+        "policy": "greedy_largest_gain",
+        "refresh_name": "no_refresh",
+        "superposition": {
+          "prune_delta_bits": 64,
+          "max_variants_per_position": 16,
+          "equal_size_allowed": true,
+          "bloat_tolerant_retained": true
+        },
+        "avg_variants": 16.0,
+        "window_multiplier": 1.2545743257104327,
+        "rechunk_channel": "uncharged_diagnostic",
+        "rechunk_schedule": "4"
+      },
+      "final_ratio_raw": 1.8742364122684465,
+      "raw_ratio_by_pass": {
+        "11": 1.8742364122684465,
+        "50": 1.5241904606255097,
+        "100": 1.169311223261201,
+        "200": 0.688195742963948,
+        "500": 0.14030063291122571
+      },
+      "payback_pass_count": 130,
+      "payback_effective_pass_count": 129,
+      "viability_class": "failed_audit_uncharged_passthrough",
+      "effective_pass_min_pct": 0.5286946982034559,
+      "effective_pass_avg_pct": 0.5286947062379359,
+      "concentration_eps_pct": 1.0535620514958848,
+      "concentration_entry_count": 3768396,
+      "concentration_entry_bits": 4,
+      "concentration_required_entries": {
+        "radius_le_margin_to_0_1_pct": 22760435,
+        "radius_le_margin_to_0_2_pct": 38716080
+      },
+      "audit_flags": {
+        "uncharged_passthrough_gate_ok": false,
+        "rechunk_channel": "uncharged_diagnostic",
+        "discrimination_bits_per_pass_max": 0.0,
+        "escape_fire_rate_per_chunk_max": 0.0,
+        "decode_replay_expansions_max": 0.0,
+        "freshness_modeled": true,
+        "refresh_story": "A_encoder_view",
+        "refresh_file_specific": false,
+        "refresh_coefficient_late_avg": 1.0,
+        "neutral_swap_mass_max": 0.0,
+        "stale_gain_bits_max": 0.0,
+        "earned_variant_ok": true,
+        "max_expected_live_variants_per_entry": 16.0,
+        "max_variant_cap": 16,
+        "opportunity_multiplier_basis": "earned_expected_variants_discounted_for_shared_entries",
+        "optimistic_combo_reported_only": true,
+        "max_optimistic_to_conservative_multiplier": 1.0243785348540297,
+        "selector_viability_ok": true,
+        "selector_type": "greedy_largest_gain",
+        "oracle_is_upper_bound": false,
+        "raw_crossover_within_200_effective_passes": true,
+        "final_raw_after_200": 0.688195742963948,
+        "final_collapse_ok": true,
+        "encoder_only_state_serialized": false,
+        "refresh_decodable": true,
+        "refresh_decode_story": "Decoder sees only the selected record stream. Freshness comes only from the replacement cascade: a selected replacement writes new bits at its stream position, so windows touching it re-roll next pass.",
+        "fixed_rechunk_schedule": "4",
+        "metadata_sidecar_ok": true,
+        "refresh_metadata_bits_per_pass": 0,
+        "working_variant_entries_proxy": 63240628.88532886,
+        "compute_memory_profile": "theoretical_upper_bound",
+        "ten_effective_pass_min_pct": 0.5286946982034559
+      }
+    },
+    {
+      "candidate": {
+        "upper_bound_pct_current": 1.6596535378620276,
+        "block_bits": 8,
+        "arity_cap": 5,
+        "depth_bits": 24,
+        "depth_schedule_bits": [
+          24
+        ],
+        "initial_literal_overhead_bits": 8,
+        "rechunk_schedule_bits": [
+          4
+        ],
+        "policy": "greedy_largest_gain",
+        "refresh_name": "no_refresh",
+        "superposition": {
+          "prune_delta_bits": 32,
+          "max_variants_per_position": 16,
+          "equal_size_allowed": true,
+          "bloat_tolerant_retained": true
+        },
+        "avg_variants": 16.0,
+        "window_multiplier": 1.2545743257104327,
+        "rechunk_channel": "uncharged_diagnostic",
+        "rechunk_schedule": "4"
+      },
+      "final_ratio_raw": 1.8742364122684465,
+      "raw_ratio_by_pass": {
+        "11": 1.8742364122684465,
+        "50": 1.5241904606255097,
+        "100": 1.169311223261201,
+        "200": 0.688195742963948,
+        "500": 0.14030063291122571
+      },
+      "payback_pass_count": 130,
+      "payback_effective_pass_count": 129,
+      "viability_class": "failed_audit_uncharged_passthrough",
+      "effective_pass_min_pct": 0.5286946982034559,
+      "effective_pass_avg_pct": 0.5286947062379359,
+      "concentration_eps_pct": 1.0535620514958848,
+      "concentration_entry_count": 3768396,
+      "concentration_entry_bits": 4,
+      "concentration_required_entries": {
+        "radius_le_margin_to_0_1_pct": 22760435,
+        "radius_le_margin_to_0_2_pct": 38716080
+      },
+      "audit_flags": {
+        "uncharged_passthrough_gate_ok": false,
+        "rechunk_channel": "uncharged_diagnostic",
+        "discrimination_bits_per_pass_max": 0.0,
+        "escape_fire_rate_per_chunk_max": 0.0,
+        "decode_replay_expansions_max": 0.0,
+        "freshness_modeled": true,
+        "refresh_story": "A_encoder_view",
+        "refresh_file_specific": false,
+        "refresh_coefficient_late_avg": 1.0,
+        "neutral_swap_mass_max": 0.0,
+        "stale_gain_bits_max": 0.0,
+        "earned_variant_ok": true,
+        "max_expected_live_variants_per_entry": 16.0,
+        "max_variant_cap": 16,
+        "opportunity_multiplier_basis": "earned_expected_variants_discounted_for_shared_entries",
+        "optimistic_combo_reported_only": true,
+        "max_optimistic_to_conservative_multiplier": 1.0243785348540297,
+        "selector_viability_ok": true,
+        "selector_type": "greedy_largest_gain",
+        "oracle_is_upper_bound": false,
+        "raw_crossover_within_200_effective_passes": true,
+        "final_raw_after_200": 0.688195742963948,
+        "final_collapse_ok": true,
+        "encoder_only_state_serialized": false,
+        "refresh_decodable": true,
+        "refresh_decode_story": "Decoder sees only the selected record stream. Freshness comes only from the replacement cascade: a selected replacement writes new bits at its stream position, so windows touching it re-roll next pass.",
+        "fixed_rechunk_schedule": "4",
+        "metadata_sidecar_ok": true,
+        "refresh_metadata_bits_per_pass": 0,
+        "working_variant_entries_proxy": 63240628.88532886,
+        "compute_memory_profile": "theoretical_upper_bound",
+        "ten_effective_pass_min_pct": 0.5286946982034559
+      }
+    },
+    {
+      "candidate": {
+        "upper_bound_pct_current": 1.6596535378620276,
+        "block_bits": 8,
+        "arity_cap": 5,
+        "depth_bits": 24,
+        "depth_schedule_bits": [
+          24
+        ],
+        "initial_literal_overhead_bits": 8,
+        "rechunk_schedule_bits": [
+          4
+        ],
+        "policy": "greedy_largest_gain",
+        "refresh_name": "no_refresh",
+        "superposition": {
+          "prune_delta_bits": 16,
+          "max_variants_per_position": 16,
+          "equal_size_allowed": false,
+          "bloat_tolerant_retained": true
+        },
+        "avg_variants": 16.0,
+        "window_multiplier": 1.2545743257104327,
+        "rechunk_channel": "uncharged_diagnostic",
+        "rechunk_schedule": "4"
+      },
+      "final_ratio_raw": 1.8744593395554963,
+      "raw_ratio_by_pass": {
+        "11": 1.8744593395554963,
+        "50": 1.5249565085546628,
+        "100": 1.1704742994437816,
+        "200": 0.6895580550861428,
+        "500": 0.14099371085133977
+      },
+      "payback_pass_count": 130,
+      "payback_effective_pass_count": 129,
+      "viability_class": "failed_audit_uncharged_passthrough",
+      "effective_pass_min_pct": 0.5277164793272275,
+      "effective_pass_avg_pct": 0.5277164873307898,
+      "concentration_eps_pct": 1.0535046028378365,
+      "concentration_entry_count": 3768807,
+      "concentration_entry_bits": 4,
+      "concentration_required_entries": {
+        "radius_le_margin_to_0_1_pct": 22864664,
+        "radius_le_margin_to_0_2_pct": 38947557
+      },
+      "audit_flags": {
+        "uncharged_passthrough_gate_ok": false,
+        "rechunk_channel": "uncharged_diagnostic",
+        "discrimination_bits_per_pass_max": 0.0,
+        "escape_fire_rate_per_chunk_max": 0.0,
+        "decode_replay_expansions_max": 0.0,
+        "freshness_modeled": true,
+        "refresh_story": "A_encoder_view",
+        "refresh_file_specific": false,
+        "refresh_coefficient_late_avg": 1.0,
+        "neutral_swap_mass_max": 0.0,
+        "stale_gain_bits_max": 0.0,
+        "earned_variant_ok": true,
+        "max_expected_live_variants_per_entry": 16.0,
+        "max_variant_cap": 16,
+        "opportunity_multiplier_basis": "earned_expected_variants_discounted_for_shared_entries",
+        "optimistic_combo_reported_only": true,
+        "max_optimistic_to_conservative_multiplier": 1.0243785348540297,
+        "selector_viability_ok": true,
+        "selector_type": "greedy_largest_gain",
+        "oracle_is_upper_bound": false,
+        "raw_crossover_within_200_effective_passes": true,
+        "final_raw_after_200": 0.6895580550861428,
+        "final_collapse_ok": true,
+        "encoder_only_state_serialized": false,
+        "refresh_decodable": true,
+        "refresh_decode_story": "Decoder sees only the selected record stream. Freshness comes only from the replacement cascade: a selected replacement writes new bits at its stream position, so windows touching it re-roll next pass.",
+        "fixed_rechunk_schedule": "4",
+        "metadata_sidecar_ok": true,
+        "refresh_metadata_bits_per_pass": 0,
+        "working_variant_entries_proxy": 63241931.313180074,
+        "compute_memory_profile": "theoretical_upper_bound",
+        "ten_effective_pass_min_pct": 0.5277164793272275
+      }
+    },
+    {
+      "candidate": {
+        "upper_bound_pct_current": 1.6596535378620276,
+        "block_bits": 8,
+        "arity_cap": 5,
+        "depth_bits": 24,
+        "depth_schedule_bits": [
+          24
+        ],
+        "initial_literal_overhead_bits": 8,
+        "rechunk_schedule_bits": [
+          4
+        ],
+        "policy": "greedy_largest_gain",
+        "refresh_name": "no_refresh",
+        "superposition": {
+          "prune_delta_bits": 64,
+          "max_variants_per_position": 16,
+          "equal_size_allowed": false,
+          "bloat_tolerant_retained": true
+        },
+        "avg_variants": 16.0,
+        "window_multiplier": 1.2545743257104327,
+        "rechunk_channel": "uncharged_diagnostic",
+        "rechunk_schedule": "4"
+      },
+      "final_ratio_raw": 1.8744593395554963,
+      "raw_ratio_by_pass": {
+        "11": 1.8744593395554963,
+        "50": 1.5249565085546628,
+        "100": 1.1704742994437816,
+        "200": 0.6895580550861428,
+        "500": 0.14099371085133977
+      },
+      "payback_pass_count": 130,
+      "payback_effective_pass_count": 129,
+      "viability_class": "failed_audit_uncharged_passthrough",
+      "effective_pass_min_pct": 0.5277164793272275,
+      "effective_pass_avg_pct": 0.5277164873307898,
+      "concentration_eps_pct": 1.0535046028378365,
+      "concentration_entry_count": 3768807,
+      "concentration_entry_bits": 4,
+      "concentration_required_entries": {
+        "radius_le_margin_to_0_1_pct": 22864664,
+        "radius_le_margin_to_0_2_pct": 38947557
+      },
+      "audit_flags": {
+        "uncharged_passthrough_gate_ok": false,
+        "rechunk_channel": "uncharged_diagnostic",
+        "discrimination_bits_per_pass_max": 0.0,
+        "escape_fire_rate_per_chunk_max": 0.0,
+        "decode_replay_expansions_max": 0.0,
+        "freshness_modeled": true,
+        "refresh_story": "A_encoder_view",
+        "refresh_file_specific": false,
+        "refresh_coefficient_late_avg": 1.0,
+        "neutral_swap_mass_max": 0.0,
+        "stale_gain_bits_max": 0.0,
+        "earned_variant_ok": true,
+        "max_expected_live_variants_per_entry": 16.0,
+        "max_variant_cap": 16,
+        "opportunity_multiplier_basis": "earned_expected_variants_discounted_for_shared_entries",
+        "optimistic_combo_reported_only": true,
+        "max_optimistic_to_conservative_multiplier": 1.0243785348540297,
+        "selector_viability_ok": true,
+        "selector_type": "greedy_largest_gain",
+        "oracle_is_upper_bound": false,
+        "raw_crossover_within_200_effective_passes": true,
+        "final_raw_after_200": 0.6895580550861428,
+        "final_collapse_ok": true,
+        "encoder_only_state_serialized": false,
+        "refresh_decodable": true,
+        "refresh_decode_story": "Decoder sees only the selected record stream. Freshness comes only from the replacement cascade: a selected replacement writes new bits at its stream position, so windows touching it re-roll next pass.",
+        "fixed_rechunk_schedule": "4",
+        "metadata_sidecar_ok": true,
+        "refresh_metadata_bits_per_pass": 0,
+        "working_variant_entries_proxy": 63241931.313180074,
+        "compute_memory_profile": "theoretical_upper_bound",
+        "ten_effective_pass_min_pct": 0.5277164793272275
+      }
+    },
+    {
+      "candidate": {
+        "upper_bound_pct_current": 1.6596535378620276,
+        "block_bits": 8,
+        "arity_cap": 5,
+        "depth_bits": 24,
+        "depth_schedule_bits": [
+          24
+        ],
+        "initial_literal_overhead_bits": 8,
+        "rechunk_schedule_bits": [
+          4
+        ],
+        "policy": "greedy_largest_gain",
+        "refresh_name": "no_refresh",
+        "superposition": {
+          "prune_delta_bits": 32,
+          "max_variants_per_position": 16,
+          "equal_size_allowed": false,
+          "bloat_tolerant_retained": true
+        },
+        "avg_variants": 16.0,
+        "window_multiplier": 1.2545743257104327,
+        "rechunk_channel": "uncharged_diagnostic",
+        "rechunk_schedule": "4"
+      },
+      "final_ratio_raw": 1.8744593395554963,
+      "raw_ratio_by_pass": {
+        "11": 1.8744593395554963,
+        "50": 1.5249565085546628,
+        "100": 1.1704742994437816,
+        "200": 0.6895580550861428,
+        "500": 0.14099371085133977
+      },
+      "payback_pass_count": 130,
+      "payback_effective_pass_count": 129,
+      "viability_class": "failed_audit_uncharged_passthrough",
+      "effective_pass_min_pct": 0.5277164793272275,
+      "effective_pass_avg_pct": 0.5277164873307898,
+      "concentration_eps_pct": 1.0535046028378365,
+      "concentration_entry_count": 3768807,
+      "concentration_entry_bits": 4,
+      "concentration_required_entries": {
+        "radius_le_margin_to_0_1_pct": 22864664,
+        "radius_le_margin_to_0_2_pct": 38947557
+      },
+      "audit_flags": {
+        "uncharged_passthrough_gate_ok": false,
+        "rechunk_channel": "uncharged_diagnostic",
+        "discrimination_bits_per_pass_max": 0.0,
+        "escape_fire_rate_per_chunk_max": 0.0,
+        "decode_replay_expansions_max": 0.0,
+        "freshness_modeled": true,
+        "refresh_story": "A_encoder_view",
+        "refresh_file_specific": false,
+        "refresh_coefficient_late_avg": 1.0,
+        "neutral_swap_mass_max": 0.0,
+        "stale_gain_bits_max": 0.0,
+        "earned_variant_ok": true,
+        "max_expected_live_variants_per_entry": 16.0,
+        "max_variant_cap": 16,
+        "opportunity_multiplier_basis": "earned_expected_variants_discounted_for_shared_entries",
+        "optimistic_combo_reported_only": true,
+        "max_optimistic_to_conservative_multiplier": 1.0243785348540297,
+        "selector_viability_ok": true,
+        "selector_type": "greedy_largest_gain",
+        "oracle_is_upper_bound": false,
+        "raw_crossover_within_200_effective_passes": true,
+        "final_raw_after_200": 0.6895580550861428,
+        "final_collapse_ok": true,
+        "encoder_only_state_serialized": false,
+        "refresh_decodable": true,
+        "refresh_decode_story": "Decoder sees only the selected record stream. Freshness comes only from the replacement cascade: a selected replacement writes new bits at its stream position, so windows touching it re-roll next pass.",
+        "fixed_rechunk_schedule": "4",
+        "metadata_sidecar_ok": true,
+        "refresh_metadata_bits_per_pass": 0,
+        "working_variant_entries_proxy": 63241931.313180074,
+        "compute_memory_profile": "theoretical_upper_bound",
+        "ten_effective_pass_min_pct": 0.5277164793272275
       }
     }
   ]
