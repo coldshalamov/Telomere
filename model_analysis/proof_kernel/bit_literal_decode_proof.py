@@ -35,10 +35,21 @@ def expand(seed_index: int, nbits: int) -> str:
 
 
 def j3d1_encode(seed_index: int) -> str:
+    """Reference J3D1 layout. The 3-bit jumpstarter stores tier_width - 1.
+
+    Tier widths run 1..8 (payload widths 1..508 via the Lotus offset ranges),
+    so the raw 3-bit field encodes tw-1 in 0..7. The previous revision stored
+    tw directly, which wasted the 0 slot and overflowed at tw=8 (payload
+    width >= 254); widths and costs are unchanged by this fix. Wire
+    compatibility with the sibling lotus crate still requires a local golden
+    vector pin (the crate is not in this checkout).
+    """
+
     value = seed_index + 1
     pw = payload_width_for_seed_index(seed_index)
     tw = lotus_width_for_value(pw)
-    bits = f"{tw:03b}"
+    assert 1 <= tw <= 8, "tier width out of J3D1 range"
+    bits = format(tw - 1, "03b")
     bits += format(pw - ((1 << tw) - 2), f"0{tw}b")
     bits += format(value - ((1 << pw) - 2), f"0{pw}b")
     assert len(bits) == j3d1_cost_for_seed_index(seed_index), "width mismatch vs costs.py"
@@ -46,7 +57,7 @@ def j3d1_encode(seed_index: int) -> str:
 
 
 def j3d1_decode(stream: str, pos: int) -> tuple[int, int]:
-    tw = int(stream[pos : pos + 3], 2)
+    tw = int(stream[pos : pos + 3], 2) + 1
     pos += 3
     pw = int(stream[pos : pos + tw], 2) + ((1 << tw) - 2)
     pos += tw

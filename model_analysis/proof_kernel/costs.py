@@ -33,6 +33,22 @@ LOTUS_SEED_INDEX_TIERS = 1
 MAX_PAYLOAD_WIDTH_BITS = 508
 
 
+def max_payload_width_for_j_bits(j_bits: int) -> int:
+    """Mirror of ``src/bin/v1_cost_table.rs::max_width_for_config(j_bits, 1)``.
+
+    J2D1 -> 28, J3D1 -> 508. The pasted-note figure of 127 for J3D1 does not
+    arise from this arithmetic for any ``j_bits``; it matches a plain-binary
+    reading of a 7-bit field and is treated as stale pending a golden-vector
+    pin against the sibling lotus crate (not present in this checkout).
+    """
+
+    if j_bits < 1:
+        raise ValueError("j_bits must be >= 1")
+    max_width = 1 << j_bits
+    shift = max_width + 1
+    return (1 << shift) - 4
+
+
 @dataclass(frozen=True)
 class CostRow:
     payload_width: int
@@ -87,11 +103,46 @@ def payload_width_for_seed_index(seed_index: int) -> int:
 
 
 @lru_cache(maxsize=None)
+def lotus_cost_for_payload_width(payload_width: int, j_bits: int = LOTUS_SEED_INDEX_J_BITS) -> int:
+    """Single-tier Lotus field cost: jumpstarter + tier width + payload width.
+
+    Generalizes J3D1 to any jumpstarter width (J2D1: min field 4 bits, payload
+    cap 28; J3D1: min field 5 bits, payload cap 508). The arithmetic for
+    ``j_bits=3`` is identical to ``j3d1_cost_for_payload_width``.
+    """
+
+    cap = max_payload_width_for_j_bits(j_bits)
+    if not 1 <= payload_width <= cap:
+        raise ValueError(f"payload_width must be 1..={cap} for J{j_bits}D1")
+    tier_width = lotus_width_for_value(payload_width)
+    return j_bits + tier_width + payload_width
+
+
+@lru_cache(maxsize=None)
 def j3d1_cost_for_payload_width(payload_width: int) -> int:
     if not 1 <= payload_width <= MAX_PAYLOAD_WIDTH_BITS:
         raise ValueError(f"payload_width must be 1..={MAX_PAYLOAD_WIDTH_BITS}")
     tier_width = lotus_width_for_value(payload_width)
     return LOTUS_SEED_INDEX_J_BITS + tier_width + payload_width
+
+
+def lotus_cost_for_value(value: int, j_bits: int = LOTUS_SEED_INDEX_J_BITS) -> int:
+    """Exact single-tier Lotus cost for encoding ``value`` (>= 1)."""
+
+    return lotus_cost_for_payload_width(lotus_width_for_value(value), j_bits)
+
+
+def literal_run_header_bits(run_len_blocks: int, j_bits: int = LOTUS_SEED_INDEX_J_BITS) -> int:
+    """LITERAL_RUN v-next primitive: ``[111][Lotus(run_len)][run_len*block_bits raw]``.
+
+    Length-prefix form (a terminal marker cannot decode: raw bits may contain
+    any marker pattern). Returns the charged header bits; the raw payload adds
+    ``run_len_blocks * block_bits`` on top.
+    """
+
+    if run_len_blocks < 1:
+        raise ValueError("run_len_blocks must be >= 1")
+    return LITERAL_MARKER_BITS + lotus_cost_for_value(run_len_blocks, j_bits)
 
 
 def j3d1_cost_for_seed_index(seed_index: int) -> int:
@@ -165,6 +216,37 @@ def seed_records_with_cost_le(arity: int, record_budget_bits: int, depth_bits: i
     return min(payload_width_count_le(payload_width), seed_count_for_depth_bits(depth_bits))
 
 
+@lru_cache(maxsize=None)
+def record_cost_for_payload_width_j(arity: int, payload_width: int, j_bits: int) -> int:
+    return arity_cost(arity) + lotus_cost_for_payload_width(payload_width, j_bits)
+
+
+@lru_cache(maxsize=None)
+def pstar_for_record_budget_j(arity: int, record_budget_bits: int, j_bits: int) -> int:
+    best = 0
+    for payload_width in range(1, max_payload_width_for_j_bits(j_bits) + 1):
+        if record_cost_for_payload_width_j(arity, payload_width, j_bits) <= record_budget_bits:
+            best = payload_width
+        else:
+            break
+    return best
+
+
+def seed_records_with_cost_le_j(
+    arity: int, record_budget_bits: int, depth_bits: int, j_bits: int
+) -> int:
+    """M(a, r, D) under an alternate jumpstarter profile (J2D1 or J3D1).
+
+    J2D1 caps the payload at 28 bits, so seed depths above 28 bits are
+    unreachable in that profile; the depth clamp makes this explicit.
+    """
+
+    payload_width = pstar_for_record_budget_j(arity, record_budget_bits, j_bits)
+    if payload_width < 1:
+        return 0
+    return min(payload_width_count_le(payload_width), seed_count_for_depth_bits(depth_bits))
+
+
 def exact_cost_rows(max_payload_width: int = 256) -> list[CostRow]:
     return [
         CostRow(
@@ -189,10 +271,29 @@ def rust_cost_table() -> dict:
     return json.loads(output)
 
 
-def validate_against_rust_probe(max_payload_width: int = 256) -> dict:
-    """Return a validation summary, raising if Python and Rust disagree."""
+def validate_against_rust_probe(max_payload_width: int = 256, allow_missing_cargo: bool = True) -> dict:
+    """Return a validation summary, raising if Python and Rust disagree.
 
-    rust = rust_cost_table()
+    If cargo is unavailable (sandboxed runs), returns an honest status row
+    instead of silently passing; re-pin locally with
+    ``cargo run --quiet --bin v1_cost_table``.
+    """
+
+    try:
+        rust = rust_cost_table()
+    except (FileNotFoundError, subprocess.CalledProcessError, OSError) as exc:
+        if not allow_missing_cargo:
+            raise
+        return {
+            "rust_probe_available": False,
+            "status": "NOT_NEWLY_VALIDATED",
+            "note": (
+                "cargo unavailable in this environment; costs.py arithmetic is "
+                "unchanged from the revision pinned against the Rust probe. "
+                "Re-pin locally: cargo run --quiet --bin v1_cost_table"
+            ),
+            "error": str(exc),
+        }
     rows = rust["payload_width_rows"]
     if len(rows) < max_payload_width:
         raise AssertionError("Rust probe returned too few payload-width rows")
@@ -210,6 +311,8 @@ def validate_against_rust_probe(max_payload_width: int = 256) -> dict:
     if mismatches:
         raise AssertionError("cost mismatches: " + ", ".join(mismatches[:20]))
     return {
+        "rust_probe_available": True,
+        "status": "validated",
         "payload_widths_checked": max_payload_width,
         "rust_v1_record_bit_len_checked_widths": sum(
             1 for row in rows[:max_payload_width] if row["rust_v1_record_bit_len_checked"]

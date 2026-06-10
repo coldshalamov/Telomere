@@ -1,0 +1,670 @@
+{
+  "self_checks": {
+    "arity_codeword_bits": {
+      "1": 2,
+      "2": 2,
+      "3": 3,
+      "4": 3,
+      "5": 3,
+      "literal": 3
+    },
+    "kraft_sum": 1.0,
+    "smallest_records": {
+      "J3D1": 7,
+      "J2D1": 6
+    }
+  },
+  "rust_probe": {
+    "rust_probe_available": false,
+    "status": "NOT_NEWLY_VALIDATED",
+    "note": "cargo unavailable in this environment; costs.py arithmetic is unchanged from the revision pinned against the Rust probe. Re-pin locally: cargo run --quiet --bin v1_cost_table",
+    "error": "[Errno 2] No such file or directory: 'cargo'"
+  },
+  "pinned_costs": {
+    "literal_marker_bits": 3,
+    "literal_worst_case_overhead_bits": 10,
+    "literal_byte_aligned_overhead_bits": 8,
+    "bit_literal_overhead_bits": 3,
+    "literal_run_header_bits_j3d1": {
+      "1": 8,
+      "2": 10,
+      "3": 10,
+      "4": 10,
+      "8": 11,
+      "16": 12,
+      "64": 15,
+      "1024": 19,
+      "1000000": 29
+    },
+    "literal_run_header_bits_j2d1": {
+      "1": 7,
+      "2": 9,
+      "3": 9,
+      "4": 9,
+      "8": 10,
+      "16": 11,
+      "64": 14,
+      "1024": 18,
+      "1000000": 28
+    },
+    "tail_literal_rule": "termination is out-of-band (original_len / payload_bit_len / last_block_size); the final literal carries last_block_size raw payload under the same marker \u2014 no extra in-band terminator cost (FORMAT_CANONICAL.md \u00a76)",
+    "min_record_bits": {
+      "J3D1_arity1_seed0": 7,
+      "J2D1_arity1_seed0": 6
+    },
+    "payload_caps": {
+      "J2D1": 28,
+      "J3D1": 508
+    },
+    "arity_record_bits_by_payload_width": {
+      "1": {
+        "1": 7,
+        "2": 7,
+        "3": 8,
+        "4": 8,
+        "5": 8
+      },
+      "2": {
+        "1": 9,
+        "2": 9,
+        "3": 10,
+        "4": 10,
+        "5": 10
+      },
+      "3": {
+        "1": 10,
+        "2": 10,
+        "3": 11,
+        "4": 11,
+        "5": 11
+      },
+      "4": {
+        "1": 11,
+        "2": 11,
+        "3": 12,
+        "4": 12,
+        "5": 12
+      },
+      "5": {
+        "1": 12,
+        "2": 12,
+        "3": 13,
+        "4": 13,
+        "5": 13
+      },
+      "6": {
+        "1": 14,
+        "2": 14,
+        "3": 15,
+        "4": 15,
+        "5": 15
+      },
+      "7": {
+        "1": 15,
+        "2": 15,
+        "3": 16,
+        "4": 16,
+        "5": 16
+      },
+      "8": {
+        "1": 16,
+        "2": 16,
+        "3": 17,
+        "4": 17,
+        "5": 17
+      },
+      "12": {
+        "1": 20,
+        "2": 20,
+        "3": 21,
+        "4": 21,
+        "5": 21
+      },
+      "16": {
+        "1": 25,
+        "2": 25,
+        "3": 26,
+        "4": 26,
+        "5": 26
+      },
+      "24": {
+        "1": 33,
+        "2": 33,
+        "3": 34,
+        "4": 34,
+        "5": 34
+      },
+      "32": {
+        "1": 42,
+        "2": 42,
+        "3": 43,
+        "4": 43,
+        "5": 43
+      },
+      "48": {
+        "1": 58,
+        "2": 58,
+        "3": 59,
+        "4": 59,
+        "5": 59
+      },
+      "64": {
+        "1": 75,
+        "2": 75,
+        "3": 76,
+        "4": 76,
+        "5": 76
+      },
+      "96": {
+        "1": 107,
+        "2": 107,
+        "3": 108,
+        "4": 108,
+        "5": 108
+      },
+      "121": {
+        "1": 132,
+        "2": 132,
+        "3": 133,
+        "4": 133,
+        "5": 133
+      },
+      "160": {
+        "1": 172,
+        "2": 172,
+        "3": 173,
+        "4": 173,
+        "5": 173
+      },
+      "256": {
+        "1": 269,
+        "2": 269,
+        "3": 270,
+        "4": 270,
+        "5": 270
+      }
+    },
+    "j_field_bits_by_payload_width": {
+      "1": {
+        "J3D1": 5,
+        "J2D1": 4
+      },
+      "2": {
+        "J3D1": 7,
+        "J2D1": 6
+      },
+      "3": {
+        "J3D1": 8,
+        "J2D1": 7
+      },
+      "4": {
+        "J3D1": 9,
+        "J2D1": 8
+      },
+      "5": {
+        "J3D1": 10,
+        "J2D1": 9
+      },
+      "6": {
+        "J3D1": 12,
+        "J2D1": 11
+      },
+      "7": {
+        "J3D1": 13,
+        "J2D1": 12
+      },
+      "8": {
+        "J3D1": 14,
+        "J2D1": 13
+      },
+      "12": {
+        "J3D1": 18,
+        "J2D1": 17
+      },
+      "16": {
+        "J3D1": 23,
+        "J2D1": 22
+      },
+      "24": {
+        "J3D1": 31,
+        "J2D1": 30
+      },
+      "32": {
+        "J3D1": 40,
+        "J2D1": null
+      },
+      "48": {
+        "J3D1": 56,
+        "J2D1": null
+      },
+      "64": {
+        "J3D1": 73,
+        "J2D1": null
+      },
+      "96": {
+        "J3D1": 105,
+        "J2D1": null
+      },
+      "121": {
+        "J3D1": 130,
+        "J2D1": null
+      },
+      "160": {
+        "J3D1": 170,
+        "J2D1": null
+      },
+      "256": {
+        "J3D1": 267,
+        "J2D1": null
+      }
+    },
+    "seed_index_boundaries": {
+      "1": {
+        "min_seed_index": 0,
+        "max_seed_index": 0
+      },
+      "2": {
+        "min_seed_index": 1,
+        "max_seed_index": 4
+      },
+      "3": {
+        "min_seed_index": 5,
+        "max_seed_index": 12
+      },
+      "4": {
+        "min_seed_index": 13,
+        "max_seed_index": 28
+      },
+      "5": {
+        "min_seed_index": 29,
+        "max_seed_index": 60
+      },
+      "6": {
+        "min_seed_index": 61,
+        "max_seed_index": 124
+      },
+      "7": {
+        "min_seed_index": 125,
+        "max_seed_index": 252
+      },
+      "8": {
+        "min_seed_index": 253,
+        "max_seed_index": 508
+      },
+      "12": {
+        "min_seed_index": 4093,
+        "max_seed_index": 8188
+      },
+      "16": {
+        "min_seed_index": 65533,
+        "max_seed_index": 131068
+      },
+      "24": {
+        "min_seed_index": 16777213,
+        "max_seed_index": 33554428
+      },
+      "32": {
+        "min_seed_index": 4294967293,
+        "max_seed_index": 8589934588
+      },
+      "48": {
+        "min_seed_index": 281474976710653,
+        "max_seed_index": 562949953421308
+      },
+      "64": {
+        "min_seed_index": 18446744073709551613,
+        "max_seed_index": 36893488147419103228
+      },
+      "96": {
+        "min_seed_index": 79228162514264337593543950333,
+        "max_seed_index": 158456325028528675187087900668
+      },
+      "121": {
+        "min_seed_index": 2658455991569831745807614120560689149,
+        "max_seed_index": 5316911983139663491615228241121378300
+      },
+      "160": {
+        "min_seed_index": 1461501637330902918203684832716283019655932542973,
+        "max_seed_index": 2923003274661805836407369665432566039311865085948
+      },
+      "256": {
+        "min_seed_index": 115792089237316195423570985008687907853269984665640564039457584007913129639933,
+        "max_seed_index": 231584178474632390847141970017375815706539969331281128078915168015826259279868
+      }
+    },
+    "M_examples": {
+      "J3D1_a1_r12_D96": 61,
+      "J3D1_a1_r23_D96": 32765,
+      "J2D1_a1_r12_D28": 61,
+      "J2D1_a1_r23_D28": 65533
+    }
+  },
+  "reference_layout_golden_vectors": [
+    {
+      "seed_index": 0,
+      "payload_width": 1,
+      "wire_bits": 5,
+      "costs_py_bits": 5,
+      "round_trip_ok": true
+    },
+    {
+      "seed_index": 1,
+      "payload_width": 2,
+      "wire_bits": 7,
+      "costs_py_bits": 7,
+      "round_trip_ok": true
+    },
+    {
+      "seed_index": 4,
+      "payload_width": 2,
+      "wire_bits": 7,
+      "costs_py_bits": 7,
+      "round_trip_ok": true
+    },
+    {
+      "seed_index": 5,
+      "payload_width": 3,
+      "wire_bits": 8,
+      "costs_py_bits": 8,
+      "round_trip_ok": true
+    },
+    {
+      "seed_index": 12,
+      "payload_width": 3,
+      "wire_bits": 8,
+      "costs_py_bits": 8,
+      "round_trip_ok": true
+    },
+    {
+      "seed_index": 13,
+      "payload_width": 4,
+      "wire_bits": 9,
+      "costs_py_bits": 9,
+      "round_trip_ok": true
+    },
+    {
+      "seed_index": 28,
+      "payload_width": 4,
+      "wire_bits": 9,
+      "costs_py_bits": 9,
+      "round_trip_ok": true
+    },
+    {
+      "seed_index": 29,
+      "payload_width": 5,
+      "wire_bits": 10,
+      "costs_py_bits": 10,
+      "round_trip_ok": true
+    },
+    {
+      "seed_index": 60,
+      "payload_width": 5,
+      "wire_bits": 10,
+      "costs_py_bits": 10,
+      "round_trip_ok": true
+    },
+    {
+      "seed_index": 61,
+      "payload_width": 6,
+      "wire_bits": 12,
+      "costs_py_bits": 12,
+      "round_trip_ok": true
+    },
+    {
+      "seed_index": 124,
+      "payload_width": 6,
+      "wire_bits": 12,
+      "costs_py_bits": 12,
+      "round_trip_ok": true
+    },
+    {
+      "seed_index": 125,
+      "payload_width": 7,
+      "wire_bits": 13,
+      "costs_py_bits": 13,
+      "round_trip_ok": true
+    },
+    {
+      "seed_index": 252,
+      "payload_width": 7,
+      "wire_bits": 13,
+      "costs_py_bits": 13,
+      "round_trip_ok": true
+    },
+    {
+      "seed_index": 253,
+      "payload_width": 8,
+      "wire_bits": 14,
+      "costs_py_bits": 14,
+      "round_trip_ok": true
+    },
+    {
+      "seed_index": 508,
+      "payload_width": 8,
+      "wire_bits": 14,
+      "costs_py_bits": 14,
+      "round_trip_ok": true
+    },
+    {
+      "seed_index": 4093,
+      "payload_width": 12,
+      "wire_bits": 18,
+      "costs_py_bits": 18,
+      "round_trip_ok": true
+    },
+    {
+      "seed_index": 8188,
+      "payload_width": 12,
+      "wire_bits": 18,
+      "costs_py_bits": 18,
+      "round_trip_ok": true
+    },
+    {
+      "seed_index": 65533,
+      "payload_width": 16,
+      "wire_bits": 23,
+      "costs_py_bits": 23,
+      "round_trip_ok": true
+    },
+    {
+      "seed_index": 131068,
+      "payload_width": 16,
+      "wire_bits": 23,
+      "costs_py_bits": 23,
+      "round_trip_ok": true
+    },
+    {
+      "seed_index": 16777213,
+      "payload_width": 24,
+      "wire_bits": 31,
+      "costs_py_bits": 31,
+      "round_trip_ok": true
+    },
+    {
+      "seed_index": 33554428,
+      "payload_width": 24,
+      "wire_bits": 31,
+      "costs_py_bits": 31,
+      "round_trip_ok": true
+    },
+    {
+      "seed_index": 4294967293,
+      "payload_width": 32,
+      "wire_bits": 40,
+      "costs_py_bits": 40,
+      "round_trip_ok": true
+    },
+    {
+      "seed_index": 8589934588,
+      "payload_width": 32,
+      "wire_bits": 40,
+      "costs_py_bits": 40,
+      "round_trip_ok": true
+    },
+    {
+      "seed_index": 281474976710653,
+      "payload_width": 48,
+      "wire_bits": 56,
+      "costs_py_bits": 56,
+      "round_trip_ok": true
+    },
+    {
+      "seed_index": 562949953421308,
+      "payload_width": 48,
+      "wire_bits": 56,
+      "costs_py_bits": 56,
+      "round_trip_ok": true
+    },
+    {
+      "seed_index": 18446744073709551613,
+      "payload_width": 64,
+      "wire_bits": 73,
+      "costs_py_bits": 73,
+      "round_trip_ok": true
+    },
+    {
+      "seed_index": 36893488147419103228,
+      "payload_width": 64,
+      "wire_bits": 73,
+      "costs_py_bits": 73,
+      "round_trip_ok": true
+    },
+    {
+      "seed_index": 79228162514264337593543950333,
+      "payload_width": 96,
+      "wire_bits": 105,
+      "costs_py_bits": 105,
+      "round_trip_ok": true
+    },
+    {
+      "seed_index": 158456325028528675187087900668,
+      "payload_width": 96,
+      "wire_bits": 105,
+      "costs_py_bits": 105,
+      "round_trip_ok": true
+    },
+    {
+      "seed_index": 2658455991569831745807614120560689149,
+      "payload_width": 121,
+      "wire_bits": 130,
+      "costs_py_bits": 130,
+      "round_trip_ok": true
+    },
+    {
+      "seed_index": 5316911983139663491615228241121378300,
+      "payload_width": 121,
+      "wire_bits": 130,
+      "costs_py_bits": 130,
+      "round_trip_ok": true
+    },
+    {
+      "seed_index": 42535295865117307932921825928971026429,
+      "payload_width": 125,
+      "wire_bits": 134,
+      "costs_py_bits": 134,
+      "round_trip_ok": true
+    },
+    {
+      "seed_index": 85070591730234615865843651857942052860,
+      "payload_width": 125,
+      "wire_bits": 134,
+      "costs_py_bits": 134,
+      "round_trip_ok": true
+    },
+    {
+      "seed_index": 85070591730234615865843651857942052861,
+      "payload_width": 126,
+      "wire_bits": 136,
+      "costs_py_bits": 136,
+      "round_trip_ok": true
+    },
+    {
+      "seed_index": 170141183460469231731687303715884105724,
+      "payload_width": 126,
+      "wire_bits": 136,
+      "costs_py_bits": 136,
+      "round_trip_ok": true
+    },
+    {
+      "seed_index": 1461501637330902918203684832716283019655932542973,
+      "payload_width": 160,
+      "wire_bits": 170,
+      "costs_py_bits": 170,
+      "round_trip_ok": true
+    },
+    {
+      "seed_index": 2923003274661805836407369665432566039311865085948,
+      "payload_width": 160,
+      "wire_bits": 170,
+      "costs_py_bits": 170,
+      "round_trip_ok": true
+    },
+    {
+      "seed_index": 14474011154664524427946373126085988481658748083205070504932198000989141204989,
+      "payload_width": 253,
+      "wire_bits": 263,
+      "costs_py_bits": 263,
+      "round_trip_ok": true
+    },
+    {
+      "seed_index": 28948022309329048855892746252171976963317496166410141009864396001978282409980,
+      "payload_width": 253,
+      "wire_bits": 263,
+      "costs_py_bits": 263,
+      "round_trip_ok": true
+    },
+    {
+      "seed_index": 28948022309329048855892746252171976963317496166410141009864396001978282409981,
+      "payload_width": 254,
+      "wire_bits": 265,
+      "costs_py_bits": 265,
+      "round_trip_ok": true
+    },
+    {
+      "seed_index": 57896044618658097711785492504343953926634992332820282019728792003956564819964,
+      "payload_width": 254,
+      "wire_bits": 265,
+      "costs_py_bits": 265,
+      "round_trip_ok": true
+    },
+    {
+      "seed_index": 115792089237316195423570985008687907853269984665640564039457584007913129639933,
+      "payload_width": 256,
+      "wire_bits": 267,
+      "costs_py_bits": 267,
+      "round_trip_ok": true
+    },
+    {
+      "seed_index": 231584178474632390847141970017375815706539969331281128078915168015826259279868,
+      "payload_width": 256,
+      "wire_bits": 267,
+      "costs_py_bits": 267,
+      "round_trip_ok": true
+    }
+  ],
+  "payload_cap_analysis": {
+    "repo_rust_probe_cap": 508,
+    "repo_python_cap": 508,
+    "pasted_note_cap": 127,
+    "conventions": {
+      "plain_binary_7bit_length_field": {
+        "cap": 127,
+        "consistent_with_header_rs_costs": false,
+        "note": "would change every cost; contradicts v1_cost_table.rs arithmetic"
+      },
+      "lotus_offset_tw_raw_0_to_7": {
+        "cap": 253,
+        "consistent_with_header_rs_costs": "yes for payload widths <= 253",
+        "note": "previous reference encoder; wastes the tw=0 slot, overflows at width 254"
+      },
+      "lotus_offset_tw_minus_1": {
+        "cap": 508,
+        "consistent_with_header_rs_costs": true,
+        "note": "matches max_width_for_config(3,1)=508; adopted reference layout"
+      }
+    },
+    "operating_range_impact": "All swept depths (<=160 bits => payload widths <= ~161) cost identically under the 253- and 508-cap conventions; only depth-axis points above 253 would differ, and none are swept. A true 127 cap would invalidate the depth-160 axis; it is inconsistent with src/bin/v1_cost_table.rs.",
+    "final_pin_requires": "golden vectors against the sibling ../lotus crate (not in this checkout)"
+  },
+  "reference_layout_note": "3-bit jumpstarter stores tier_width-1 (tw in 1..8). The previous reference encoder stored tw directly and could not represent payload widths >= 254; all bit WIDTHS and costs are identical, so no prior result changes. Wire-layout pin vs the lotus crate remains open."
+}

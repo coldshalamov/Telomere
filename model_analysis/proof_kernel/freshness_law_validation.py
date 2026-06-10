@@ -41,11 +41,13 @@ ARITY_CAP = 3
 
 
 def j3d1_encode(seed_index: int) -> str:
+    # Reference layout: 3-bit jumpstarter stores tier_width - 1 (see
+    # bit_literal_decode_proof.py). Widths and costs are unchanged.
     value = seed_index + 1
     pw = payload_width_for_seed_index(seed_index)
     tw = lotus_width_for_value(pw)
     return (
-        f"{tw:03b}"
+        format(tw - 1, "03b")
         + format(pw - ((1 << tw) - 2), f"0{tw}b")
         + format(value - ((1 << pw) - 2), f"0{pw}b")
     )
@@ -75,7 +77,20 @@ class ToyUniverse:
         return table.get(content)
 
 
-def run_sim(salt: int, passes: int, permute: bool, entry_count: int) -> list[dict]:
+def _mask(salt: int, pass_i: int, q: int, span: int) -> int:
+    """Public (layer_index, position) mask — XOR whitening, decoder-replayable.
+
+    Keying by position ALONE deadlocks: until the first accept of a pass the
+    emitted stream replicates the previous layer, so every window repeats
+    last pass's (content, position) query and re-misses — measured zero
+    accepts from pass 3 in this validator. The layer index breaks the
+    deadlock with zero metadata (the decoder knows the layer number)."""
+    d = hashlib.sha256(b"MASK" + salt.to_bytes(4, "big") + pass_i.to_bytes(4, "big")
+                       + q.to_bytes(8, "big")).digest()
+    return int.from_bytes(d, "big") >> (256 - span)
+
+
+def run_sim(salt: int, passes: int, permute: bool, entry_count: int, masked: bool = False) -> list[dict]:
     rng = random.Random(salt * 7919 + 17)
     universe = ToyUniverse(salt)
     # Raw blocks (uniform random bytes — content-blind regime).
@@ -93,6 +108,7 @@ def run_sim(salt: int, passes: int, permute: bool, entry_count: int) -> list[dic
         accepted = 0
         gain_bits = 0
         out: list[str] = []
+        out_bits = 0  # running output position (decoder-known)
         i = 0
         while i < len(entries):
             best = None  # (gain, arity, record_bits)
@@ -101,7 +117,10 @@ def run_sim(salt: int, passes: int, permute: bool, entry_count: int) -> list[dic
                 span = len(content)
                 if span > MAX_SPAN:
                     continue
-                seed = universe.best_seed(content)
+                query = content
+                if masked:
+                    query = format(int(content, 2) ^ _mask(salt, pass_i, out_bits, span), f"0{span}b")
+                seed = universe.best_seed(query)
                 if seed is None:
                     continue
                 cost = ARITY_BITS[arity] + j3d1_cost_for_seed_index(seed)
@@ -112,14 +131,17 @@ def run_sim(salt: int, passes: int, permute: bool, entry_count: int) -> list[dic
             if best is not None:
                 gain, arity, record = best
                 out.append(record)
+                out_bits += len(record)
                 accepted += 1
                 gain_bits += gain
                 i += arity
             else:
                 if raw_layer:
                     out.append(LITERAL + entries[i])  # BIT_LITERAL wrap, charged
+                    out_bits += LITERAL_MARKER_BITS + len(entries[i])
                 else:
                     out.append(entries[i])  # already a charged record
+                    out_bits += len(entries[i])
                 i += 1
         entries = out
         raw_layer = False
@@ -172,14 +194,15 @@ def main() -> None:
 
     print(f"toy universe: depth 2^{DEPTH_BITS}, blocks {BLOCK_BITS} bits, "
           f"{args.entries} blocks, arity cap {ARITY_CAP}, {args.runs} salted runs")
-    for permute, label, refresh in (
-        (False, "NO REFRESH", "no_refresh"),
-        (True, "PERMUTATION REFRESH", "deterministic_entry_permutation"),
+    for permute, masked, label, refresh in (
+        (False, False, "NO REFRESH", "no_refresh"),
+        (True, False, "PERMUTATION REFRESH", "deterministic_entry_permutation"),
+        (False, True, "LAYER-MASKED TARGETS (XOR by (layer,position), shared unsalted tables)", "deterministic_entry_permutation"),
     ):
         acc = [[] for _ in range(args.passes)]
         net = [[] for _ in range(args.passes)]
         for salt in range(args.runs):
-            for row in run_sim(salt, args.passes, permute, args.entries):
+            for row in run_sim(salt, args.passes, permute, args.entries, masked):
                 acc[row["pass"] - 1].append(row["accepted"])
                 net[row["pass"] - 1].append(row["net_pct"])
         pred = kernel_prediction(args.passes, refresh, args.entries)

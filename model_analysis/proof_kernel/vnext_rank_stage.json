@@ -1,0 +1,6648 @@
+[
+ {
+  "name": "singles_position_salt_J3_B4",
+  "config": {
+   "block_bits": 4,
+   "input_blocks": 2000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "audited_equiv"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 1.0,
+   "initial_segments": 1,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.2392510768891404,
+  "ten_pass_avg_pct": 0.25703121591263156,
+  "pass1_final_over_raw": 1.745087108934293,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.7007480672523954
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 30000000.0,
+   "expansions_per_pass": 30000000.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "singles_position_salt_J3_B8",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "audited_equiv"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 1.0,
+   "initial_segments": 1,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.19977521649370986,
+  "ten_pass_avg_pct": 0.21225313616684977,
+  "pass1_final_over_raw": 1.3718457787648206,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.3430044226500748
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 15000000.0,
+   "expansions_per_pass": 15000000.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "singles_position_salt_J3_B16",
+  "config": {
+   "block_bits": 16,
+   "input_blocks": 500000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "audited_equiv"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 1.0,
+   "initial_segments": 1,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.06515866326601175,
+  "ten_pass_avg_pct": 0.06646260414451031,
+  "pass1_final_over_raw": 1.1866906707154692,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.1788271620437583
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 7500000.0,
+   "expansions_per_pass": 7500000.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "singles_position_salt_J2_B4",
+  "config": {
+   "block_bits": 4,
+   "input_blocks": 2000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "audited_equiv"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 1.0,
+   "initial_segments": 1,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.4287334005896121,
+  "ten_pass_avg_pct": 0.4811539139987652,
+  "pass1_final_over_raw": 1.7400706524552259,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.6581350196467597
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 30000000.0,
+   "expansions_per_pass": 30000000.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "singles_position_salt_J2_B8",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "audited_equiv"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 1.0,
+   "initial_segments": 1,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.36608297680255825,
+  "ten_pass_avg_pct": 0.3863961237693656,
+  "pass1_final_over_raw": 1.3693184295431928,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.31731895055089
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 15000000.0,
+   "expansions_per_pass": 15000000.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "singles_position_salt_J2_B16",
+  "config": {
+   "block_bits": 16,
+   "input_blocks": 500000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "audited_equiv"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 1.0,
+   "initial_segments": 1,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.10503863127820799,
+  "ten_pass_avg_pct": 0.1059450068035124,
+  "pass1_final_over_raw": 1.1862553372799172,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.1737473023935265
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 7500000.0,
+   "expansions_per_pass": 7500000.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "singles_permutation_J3_B4",
+  "config": {
+   "block_bits": 4,
+   "input_blocks": 2000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "audited_equiv"
+   ],
+   "refresh": "permutation",
+   "singles_fraction": 1.0,
+   "initial_segments": 1,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.23104017073902464,
+  "ten_pass_avg_pct": 0.2521541891668641,
+  "pass1_final_over_raw": 1.7450874839342931,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.701580162574401
+  },
+  "metadata_bits_per_pass": 3.0,
+  "compute": {
+   "mode": "unsalted k=1 (shared prefix table)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 30000000.0,
+   "expansions_per_pass": 30000000.0,
+   "feasibility": "shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "singles_permutation_J3_B8",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "audited_equiv"
+   ],
+   "refresh": "permutation",
+   "singles_fraction": 1.0,
+   "initial_segments": 1,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.09720718241040509,
+  "ten_pass_avg_pct": 0.10499734795761011,
+  "pass1_final_over_raw": 1.3718461537648206,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.3575099773565074
+  },
+  "metadata_bits_per_pass": 3.0,
+  "compute": {
+   "mode": "unsalted k=1 (shared prefix table)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 15000000.0,
+   "expansions_per_pass": 15000000.0,
+   "feasibility": "shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "singles_permutation_J3_B16",
+  "config": {
+   "block_bits": 16,
+   "input_blocks": 500000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "audited_equiv"
+   ],
+   "refresh": "permutation",
+   "singles_fraction": 1.0,
+   "initial_segments": 1,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.025113046209111808,
+  "ten_pass_avg_pct": 0.025972714898704913,
+  "pass1_final_over_raw": 1.1866910457154691,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.1836124864584254
+  },
+  "metadata_bits_per_pass": 3.0,
+  "compute": {
+   "mode": "unsalted k=1 (shared prefix table)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 7500000.0,
+   "expansions_per_pass": 7500000.0,
+   "feasibility": "shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "singles_permutation_J2_B4",
+  "config": {
+   "block_bits": 4,
+   "input_blocks": 2000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "audited_equiv"
+   ],
+   "refresh": "permutation",
+   "singles_fraction": 1.0,
+   "initial_segments": 1,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.3145427601122704,
+  "ten_pass_avg_pct": 0.3721730838754486,
+  "pass1_final_over_raw": 1.7400710274552258,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.6763826972977551
+  },
+  "metadata_bits_per_pass": 3.0,
+  "compute": {
+   "mode": "unsalted k=1 (shared prefix table)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 30000000.0,
+   "expansions_per_pass": 30000000.0,
+   "feasibility": "shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "singles_permutation_J2_B8",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "audited_equiv"
+   ],
+   "refresh": "permutation",
+   "singles_fraction": 1.0,
+   "initial_segments": 1,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.1379294607278475,
+  "ten_pass_avg_pct": 0.14972266594694644,
+  "pass1_final_over_raw": 1.3693188045431928,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.3489544924635812
+  },
+  "metadata_bits_per_pass": 3.0,
+  "compute": {
+   "mode": "unsalted k=1 (shared prefix table)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 15000000.0,
+   "expansions_per_pass": 15000000.0,
+   "feasibility": "shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "singles_permutation_J2_B16",
+  "config": {
+   "block_bits": 16,
+   "input_blocks": 500000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "audited_equiv"
+   ],
+   "refresh": "permutation",
+   "singles_fraction": 1.0,
+   "initial_segments": 1,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.02128323816312076,
+  "ten_pass_avg_pct": 0.021966305881026812,
+  "pass1_final_over_raw": 1.186255712279917,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.1836525199766375
+  },
+  "metadata_bits_per_pass": 3.0,
+  "compute": {
+   "mode": "unsalted k=1 (shared prefix table)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 7500000.0,
+   "expansions_per_pass": 7500000.0,
+   "feasibility": "shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "singles_none_J3_B4",
+  "config": {
+   "block_bits": 4,
+   "input_blocks": 2000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "audited_equiv"
+   ],
+   "refresh": "none",
+   "singles_fraction": 1.0,
+   "initial_segments": 1,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 1.6749121808389693e-11,
+  "ten_pass_avg_pct": 0.002884491297907092,
+  "pass1_final_over_raw": 1.745087108934293,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.744583752678855
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "unsalted k=1 (shared prefix table)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 30000000.0,
+   "expansions_per_pass": 30000000.0,
+   "feasibility": "shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "singles_none_J3_B8",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "audited_equiv"
+   ],
+   "refresh": "none",
+   "singles_fraction": 1.0,
+   "initial_segments": 1,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 6.544574380760831e-11,
+  "ten_pass_avg_pct": 0.0028129371394706544,
+  "pass1_final_over_raw": 1.3718457787648206,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.371459898024316
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "unsalted k=1 (shared prefix table)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 15000000.0,
+   "expansions_per_pass": 15000000.0,
+   "feasibility": "shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "singles_none_J3_B16",
+  "config": {
+   "block_bits": 16,
+   "input_blocks": 500000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "audited_equiv"
+   ],
+   "refresh": "none",
+   "singles_fraction": 1.0,
+   "initial_segments": 1,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 1.9620914595022873e-14,
+  "ten_pass_avg_pct": 0.00038306942407403244,
+  "pass1_final_over_raw": 1.1866906707154692,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.1866452123130409
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "unsalted k=1 (shared prefix table)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 7500000.0,
+   "expansions_per_pass": 7500000.0,
+   "feasibility": "shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "singles_none_J2_B4",
+  "config": {
+   "block_bits": 4,
+   "input_blocks": 2000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "audited_equiv"
+   ],
+   "refresh": "none",
+   "singles_fraction": 1.0,
+   "initial_segments": 1,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 3.052368129664154e-07,
+  "ten_pass_avg_pct": 0.01792226195505175,
+  "pass1_final_over_raw": 1.7400706524552259,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.7369531149854576
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "unsalted k=1 (shared prefix table)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 30000000.0,
+   "expansions_per_pass": 30000000.0,
+   "feasibility": "shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "singles_none_J2_B8",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "audited_equiv"
+   ],
+   "refresh": "none",
+   "singles_fraction": 1.0,
+   "initial_segments": 1,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 4.862345836941276e-09,
+  "ten_pass_avg_pct": 0.008016168495048808,
+  "pass1_final_over_raw": 1.3693184295431928,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.3682208827089535
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "unsalted k=1 (shared prefix table)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 15000000.0,
+   "expansions_per_pass": 15000000.0,
+   "feasibility": "shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "singles_none_J2_B16",
+  "config": {
+   "block_bits": 16,
+   "input_blocks": 500000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "audited_equiv"
+   ],
+   "refresh": "none",
+   "singles_fraction": 1.0,
+   "initial_segments": 1,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 7.851508693529029e-14,
+  "ten_pass_avg_pct": 0.0007175838289362184,
+  "pass1_final_over_raw": 1.1862553372799172,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.1861702138635406
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "unsalted k=1 (shared prefix table)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 7500000.0,
+   "expansions_per_pass": 7500000.0,
+   "feasibility": "shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "entry_singles_run_phi0.1_S1024_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "entry_singles_run"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.1,
+   "initial_segments": 1024,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.05577862394967333,
+  "ten_pass_avg_pct": 0.05804832564906106,
+  "pass1_final_over_raw": 1.0394847557589146,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.033466457279732
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 29946752.0,
+   "expansions_per_pass": 29946752.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "entry_singles_run_phi0.1_S1024_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "entry_singles_run"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.1,
+   "initial_segments": 1024,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.02968317946159266,
+  "ten_pass_avg_pct": 0.030162230587772863,
+  "pass1_final_over_raw": 1.0398801149737837,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.0367478583093417
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 29946752.0,
+   "expansions_per_pass": 29946752.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "entry_singles_run_phi0.1_S8192_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "entry_singles_run"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.1,
+   "initial_segments": 8192,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.05857012434115529,
+  "ten_pass_avg_pct": 0.061201589405167435,
+  "pass1_final_over_raw": 1.0542959392770104,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.0478612206290785
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 29574016.0,
+   "expansions_per_pass": 29574016.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "entry_singles_run_phi0.1_S8192_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "entry_singles_run"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.1,
+   "initial_segments": 8192,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.03168251983905986,
+  "ten_pass_avg_pct": 0.03225492827648673,
+  "pass1_final_over_raw": 1.0555985258063463,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.052198638022667
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 29574016.0,
+   "expansions_per_pass": 29574016.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "entry_singles_run_phi0.1_S65536_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "entry_singles_run"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.1,
+   "initial_segments": 65536,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.07120042983235456,
+  "ten_pass_avg_pct": 0.07536373706549794,
+  "pass1_final_over_raw": 1.1513781381625312,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.1427302866955442
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 26592128.0,
+   "expansions_per_pass": 26592128.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "entry_singles_run_phi0.1_S65536_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "entry_singles_run"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.1,
+   "initial_segments": 65536,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.03912629987999236,
+  "ten_pass_avg_pct": 0.04005361312782684,
+  "pass1_final_over_raw": 1.1599278670014372,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.1552903015379472
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 26592128.0,
+   "expansions_per_pass": 26592128.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "entry_singles_run_phi0.1_S262144_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "entry_singles_run"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.1,
+   "initial_segments": 262144,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.13388127651612503,
+  "ten_pass_avg_pct": 0.13816126870940518,
+  "pass1_final_over_raw": 1.3960883158506434,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.376919258302487
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 16368512.0,
+   "expansions_per_pass": 16368512.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "entry_singles_run_phi0.1_S262144_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "entry_singles_run"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.1,
+   "initial_segments": 262144,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.15641595184290302,
+  "ten_pass_avg_pct": 0.15739148490356686,
+  "pass1_final_over_raw": 1.4284463770101223,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.4061224157483811
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 16368512.0,
+   "expansions_per_pass": 16368512.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "entry_singles_run_phi0.25_S1024_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "entry_singles_run"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.25,
+   "initial_segments": 1024,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.13198302887591534,
+  "ten_pass_avg_pct": 0.13445440863135733,
+  "pass1_final_over_raw": 1.0948691461923334,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.0802368965815183
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 26946752.0,
+   "expansions_per_pass": 26946752.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "entry_singles_run_phi0.25_S1024_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "entry_singles_run"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.25,
+   "initial_segments": 1024,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.07039632939906584,
+  "ten_pass_avg_pct": 0.07049060691948375,
+  "pass1_final_over_raw": 1.0956662163317819,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.087967251955515
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 26946752.0,
+   "expansions_per_pass": 26946752.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "entry_singles_run_phi0.25_S8192_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "entry_singles_run"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.25,
+   "initial_segments": 8192,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.1406155741734406,
+  "ten_pass_avg_pct": 0.14352868069514751,
+  "pass1_final_over_raw": 1.1096029602217232,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.09377944341498
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 26574016.0,
+   "expansions_per_pass": 26574016.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "entry_singles_run_phi0.25_S8192_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "entry_singles_run"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.25,
+   "initial_segments": 8192,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.07674257868337436,
+  "ten_pass_avg_pct": 0.07685433121344129,
+  "pass1_final_over_raw": 1.1113285612115242,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.1028169981404552
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 26574016.0,
+   "expansions_per_pass": 26574016.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "entry_singles_run_phi0.25_S65536_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "entry_singles_run"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.25,
+   "initial_segments": 65536,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.1857106108637484,
+  "ten_pass_avg_pct": 0.1923389263043699,
+  "pass1_final_over_raw": 1.2062121031095017,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.1832117158703583
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 23592128.0,
+   "expansions_per_pass": 23592128.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "entry_singles_run_phi0.25_S65536_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "entry_singles_run"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.25,
+   "initial_segments": 65536,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.10753593654950859,
+  "ten_pass_avg_pct": 0.10841987243889517,
+  "pass1_final_over_raw": 1.215323708659616,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.2022112856833171
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 23592128.0,
+   "expansions_per_pass": 23592128.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "entry_singles_run_phi0.25_S262144_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "entry_singles_run"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.25,
+   "initial_segments": 262144,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.3840821004948745,
+  "ten_pass_avg_pct": 0.38572416207251903,
+  "pass1_final_over_raw": 1.4486184561082214,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.3937017172308013
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 13368512.0,
+   "expansions_per_pass": 13368512.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "entry_singles_run_phi0.25_S262144_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "entry_singles_run"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.25,
+   "initial_segments": 262144,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.27108667220315597,
+  "ten_pass_avg_pct": 0.27542724130976604,
+  "pass1_final_over_raw": 1.4827916270210615,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.4424539825252929
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 13368512.0,
+   "expansions_per_pass": 13368512.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "entry_singles_run_phi0.5_S1024_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "entry_singles_run"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.5,
+   "initial_segments": 1024,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.2359544223555414,
+  "ten_pass_avg_pct": 0.23873764214904786,
+  "pass1_final_over_raw": 1.1870533257518234,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.1590164186085805
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 21946752.0,
+   "expansions_per_pass": 21946752.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "entry_singles_run_phi0.5_S1024_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "entry_singles_run"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.5,
+   "initial_segments": 1024,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.1240779228403815,
+  "ten_pass_avg_pct": 0.1265155060980543,
+  "pass1_final_over_raw": 1.1885184673030065,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.1735671825168805
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 21946752.0,
+   "expansions_per_pass": 21946752.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "entry_singles_run_phi0.5_S8192_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "entry_singles_run"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.5,
+   "initial_segments": 8192,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.2506265112993672,
+  "ten_pass_avg_pct": 0.2536842624035962,
+  "pass1_final_over_raw": 1.2007892608675477,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.1706725322896332
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 21574016.0,
+   "expansions_per_pass": 21574016.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "entry_singles_run_phi0.5_S8192_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "entry_singles_run"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.5,
+   "initial_segments": 8192,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.13453828557256875,
+  "ten_pass_avg_pct": 0.13736381878877335,
+  "pass1_final_over_raw": 1.2032100167598876,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.1867840533656602
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 21574016.0,
+   "expansions_per_pass": 21574016.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "entry_singles_run_phi0.5_S65536_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "entry_singles_run"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.5,
+   "initial_segments": 65536,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.33471754380064767,
+  "ten_pass_avg_pct": 0.33737176178601513,
+  "pass1_final_over_raw": 1.2814429876703441,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.2388611890438535
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 18592128.0,
+   "expansions_per_pass": 18592128.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "entry_singles_run_phi0.5_S65536_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "entry_singles_run"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.5,
+   "initial_segments": 65536,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.1927419931103992,
+  "ten_pass_avg_pct": 0.19663828211108134,
+  "pass1_final_over_raw": 1.2913892917013134,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.2662191577947313
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 18592128.0,
+   "expansions_per_pass": 18592128.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "entry_singles_run_phi0.5_S262144_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "entry_singles_run"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.5,
+   "initial_segments": 262144,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.7159850349967093,
+  "ten_pass_avg_pct": 0.7400917045769371,
+  "pass1_final_over_raw": 1.536116638475186,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.4261422424499788
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 9145728.0,
+   "expansions_per_pass": 9145728.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "entry_singles_run_phi0.5_S262144_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "entry_singles_run"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.5,
+   "initial_segments": 262144,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.5109515151553937,
+  "ten_pass_avg_pct": 0.5392096374025462,
+  "pass1_final_over_raw": 1.5716352578035067,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.4889178980156748
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 9145728.0,
+   "expansions_per_pass": 9145728.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "entry_singles_run_phi0.75_S1024_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "entry_singles_run"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.75,
+   "initial_segments": 1024,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.31074776854549646,
+  "ten_pass_avg_pct": 0.321874023544674,
+  "pass1_final_over_raw": 1.2792418218748545,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.2386576271088061
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 16946752.0,
+   "expansions_per_pass": 16946752.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "entry_singles_run_phi0.75_S1024_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "entry_singles_run"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.75,
+   "initial_segments": 1024,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.1659432846345124,
+  "ten_pass_avg_pct": 0.17201065366909457,
+  "pass1_final_over_raw": 1.281373753933834,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.259502578075398
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 16946752.0,
+   "expansions_per_pass": 16946752.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "entry_singles_run_phi0.75_S8192_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "entry_singles_run"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.75,
+   "initial_segments": 8192,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.32772800679816316,
+  "ten_pass_avg_pct": 0.34006347657058333,
+  "pass1_final_over_raw": 1.2919997428238517,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.2487297987874943
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 16574016.0,
+   "expansions_per_pass": 16574016.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "entry_singles_run_phi0.75_S8192_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "entry_singles_run"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.75,
+   "initial_segments": 8192,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.17855693781173423,
+  "ten_pass_avg_pct": 0.18555771902804727,
+  "pass1_final_over_raw": 1.2951079613507297,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.2712758976062446
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 16574016.0,
+   "expansions_per_pass": 16574016.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "entry_singles_run_phi0.75_S65536_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "entry_singles_run"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.75,
+   "initial_segments": 65536,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.4527573341302409,
+  "ten_pass_avg_pct": 0.4742071320008073,
+  "pass1_final_over_raw": 1.3726615874536412,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.3089404860106992
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 13592128.0,
+   "expansions_per_pass": 13592128.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "entry_singles_run_phi0.75_S65536_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "entry_singles_run"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.75,
+   "initial_segments": 65536,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.2779244531549555,
+  "ten_pass_avg_pct": 0.2943507110261371,
+  "pass1_final_over_raw": 1.3833617737571045,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.3431774907865444
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 13592128.0,
+   "expansions_per_pass": 13592128.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "entry_singles_run_phi0.75_S262144_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "entry_singles_run"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.75,
+   "initial_segments": 262144,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 1.002464841162435,
+  "ten_pass_avg_pct": 1.1643856686340537,
+  "pass1_final_over_raw": 1.5867348336530025,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.411355653503254
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 12145728.0,
+   "expansions_per_pass": 12145728.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "entry_singles_run_phi0.75_S262144_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "entry_singles_run"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.75,
+   "initial_segments": 262144,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.7476026124869213,
+  "ten_pass_avg_pct": 0.8465918642181155,
+  "pass1_final_over_raw": 1.625641103538656,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.493138834145697
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 12145728.0,
+   "expansions_per_pass": 12145728.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_mix_phi0.1_S1024_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.1,
+   "initial_segments": 1024,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.055708103870492486,
+  "ten_pass_avg_pct": 0.057861125057486154,
+  "pass1_final_over_raw": 1.03948526730989,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.033486323946794
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 29946752.0,
+   "expansions_per_pass": 29946752.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_mix_phi0.1_S1024_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.1,
+   "initial_segments": 1024,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.028535310973492007,
+  "ten_pass_avg_pct": 0.02897783195095674,
+  "pass1_final_over_raw": 1.0398919466194867,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.036882491592301
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 29946752.0,
+   "expansions_per_pass": 29946752.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_mix_phi0.1_S8192_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.1,
+   "initial_segments": 8192,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.06106067678700283,
+  "ten_pass_avg_pct": 0.06357299125367367,
+  "pass1_final_over_raw": 1.0542695400965258,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.047586373322247
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 29574016.0,
+   "expansions_per_pass": 29574016.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_mix_phi0.1_S8192_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.1,
+   "initial_segments": 8192,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.03174907063363004,
+  "ten_pass_avg_pct": 0.03228086263693989,
+  "pass1_final_over_raw": 1.0555977284626394,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.05219511357149
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 29574016.0,
+   "expansions_per_pass": 29574016.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_mix_phi0.1_S65536_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.1,
+   "initial_segments": 65536,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.10451845179956215,
+  "ten_pass_avg_pct": 0.10900820103360709,
+  "pass1_final_over_raw": 1.1509953395083536,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.1385099099367504
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 26592128.0,
+   "expansions_per_pass": 26592128.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_mix_phi0.1_S65536_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.1,
+   "initial_segments": 65536,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.055764936111153525,
+  "ten_pass_avg_pct": 0.05685689294587228,
+  "pass1_final_over_raw": 1.1597352917982557,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.1531582423147968
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 26592128.0,
+   "expansions_per_pass": 26592128.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_mix_phi0.1_S262144_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.1,
+   "initial_segments": 262144,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.28290700035621097,
+  "ten_pass_avg_pct": 0.2838869377094934,
+  "pass1_final_over_raw": 1.3939963174140981,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.3549243253249041
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 16368512.0,
+   "expansions_per_pass": 16368512.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_mix_phi0.1_S262144_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.1,
+   "initial_segments": 262144,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.2280371860191789,
+  "ten_pass_avg_pct": 0.23221954016834867,
+  "pass1_final_over_raw": 1.4273189039098357,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.3945179914212256
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 16368512.0,
+   "expansions_per_pass": 16368512.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_mix_phi0.25_S1024_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.25,
+   "initial_segments": 1024,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.13140464282703584,
+  "ten_pass_avg_pct": 0.13363148703436456,
+  "pass1_final_over_raw": 1.0948749544525838,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.08033164595649
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 26946752.0,
+   "expansions_per_pass": 26946752.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_mix_phi0.25_S1024_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.25,
+   "initial_segments": 1024,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.0674485412215817,
+  "ten_pass_avg_pct": 0.06760954155741349,
+  "pass1_final_over_raw": 1.0956986305923648,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.0883131600104474
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 26946752.0,
+   "expansions_per_pass": 26946752.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_mix_phi0.25_S8192_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.25,
+   "initial_segments": 8192,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.14269218887789026,
+  "ten_pass_avg_pct": 0.14523101225474658,
+  "pass1_final_over_raw": 1.1095791580921148,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.0935695343298502
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 26574016.0,
+   "expansions_per_pass": 26574016.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_mix_phi0.25_S8192_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.25,
+   "initial_segments": 8192,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.07458805995280528,
+  "ten_pass_avg_pct": 0.07474568446456484,
+  "pass1_final_over_raw": 1.1113526013966757,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.1030736053434052
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 26574016.0,
+   "expansions_per_pass": 26574016.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_mix_phi0.25_S65536_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.25,
+   "initial_segments": 65536,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.22778557397947827,
+  "ten_pass_avg_pct": 0.23229311903728775,
+  "pass1_final_over_raw": 1.2057002110935933,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.1779835832016645
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 23592128.0,
+   "expansions_per_pass": 23592128.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_mix_phi0.25_S65536_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.25,
+   "initial_segments": 65536,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.12522614951612418,
+  "ten_pass_avg_pct": 0.12569144579256306,
+  "pass1_final_over_raw": 1.2151076060369508,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.1999208389802034
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 23592128.0,
+   "expansions_per_pass": 23592128.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_mix_phi0.25_S262144_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.25,
+   "initial_segments": 262144,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.5407765258238567,
+  "ten_pass_avg_pct": 0.5544573440876712,
+  "pass1_final_over_raw": 1.4459215431017254,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.3677223153303804
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 13368512.0,
+   "expansions_per_pass": 13368512.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_mix_phi0.25_S262144_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.25,
+   "initial_segments": 262144,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.35353955923339586,
+  "ten_pass_avg_pct": 0.3638761706164623,
+  "pass1_final_over_raw": 1.4813679793576398,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.4283386252005994
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 13368512.0,
+   "expansions_per_pass": 13368512.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_mix_phi0.5_S1024_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.5,
+   "initial_segments": 1024,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.23399162446763186,
+  "ten_pass_avg_pct": 0.23712265874677468,
+  "pass1_final_over_raw": 1.1870674587690595,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.1592178604050076
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 21946752.0,
+   "expansions_per_pass": 21946752.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_mix_phi0.5_S1024_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.5,
+   "initial_segments": 1024,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.1196398499566203,
+  "ten_pass_avg_pct": 0.12154963634217031,
+  "pass1_final_over_raw": 1.1885847556339206,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.1742163170320883
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 21946752.0,
+   "expansions_per_pass": 21946752.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_mix_phi0.5_S8192_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.5,
+   "initial_segments": 8192,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.25074509217164725,
+  "ten_pass_avg_pct": 0.25445353868025045,
+  "pass1_final_over_raw": 1.2007707266470538,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.1705641803306635
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 21574016.0,
+   "expansions_per_pass": 21574016.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_mix_phi0.5_S8192_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.5,
+   "initial_segments": 8192,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.1303791966558204,
+  "ten_pass_avg_pct": 0.13269325927873546,
+  "pass1_final_over_raw": 1.2032740125181927,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.187402379489208
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 21574016.0,
+   "expansions_per_pass": 21574016.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_mix_phi0.5_S65536_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.5,
+   "initial_segments": 65536,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.3694743722998844,
+  "ten_pass_avg_pct": 0.3786033917170162,
+  "pass1_final_over_raw": 1.2808165130162399,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.233142228790889
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 18592128.0,
+   "expansions_per_pass": 18592128.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_mix_phi0.5_S65536_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.5,
+   "initial_segments": 65536,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.2059948464262963,
+  "ten_pass_avg_pct": 0.21089924896071652,
+  "pass1_final_over_raw": 1.2911899010007957,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.2642157845368263
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 18592128.0,
+   "expansions_per_pass": 18592128.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_mix_phi0.5_S262144_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.5,
+   "initial_segments": 262144,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.8150716863750366,
+  "ten_pass_avg_pct": 0.8725187374536579,
+  "pass1_final_over_raw": 1.5334086899222679,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.4047477481802084
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 9145728.0,
+   "expansions_per_pass": 9145728.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_mix_phi0.5_S262144_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.5,
+   "initial_segments": 262144,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.552484265902558,
+  "ten_pass_avg_pct": 0.5902076282879859,
+  "pass1_final_over_raw": 1.570627233627655,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.4803508546068203
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 9145728.0,
+   "expansions_per_pass": 9145728.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_mix_phi0.75_S1024_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.75,
+   "initial_segments": 1024,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.3082000394732344,
+  "ten_pass_avg_pct": 0.31969147307782136,
+  "pass1_final_over_raw": 1.2792637690067568,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.2389501233920732
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 16946752.0,
+   "expansions_per_pass": 16946752.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_mix_phi0.75_S1024_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.75,
+   "initial_segments": 1024,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.16059703806609082,
+  "ten_pass_avg_pct": 0.16559230221096666,
+  "pass1_final_over_raw": 1.281473414617312,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.2604106240793185
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 16946752.0,
+   "expansions_per_pass": 16946752.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_mix_phi0.75_S8192_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.75,
+   "initial_segments": 8192,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.3272943578784573,
+  "ten_pass_avg_pct": 0.3404559672010511,
+  "pass1_final_over_raw": 1.291980969792574,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.248662471746214
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 16574016.0,
+   "expansions_per_pass": 16574016.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_mix_phi0.75_S8192_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.75,
+   "initial_segments": 8192,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.17343072291496847,
+  "ten_pass_avg_pct": 0.17934039496246318,
+  "pass1_final_over_raw": 1.295207515814099,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.2721657696832722
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 16574016.0,
+   "expansions_per_pass": 16574016.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_mix_phi0.75_S65536_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.75,
+   "initial_segments": 65536,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.47513229611824626,
+  "ten_pass_avg_pct": 0.5056572109111549,
+  "pass1_final_over_raw": 1.3720673165790813,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.3042450956779839
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 13592128.0,
+   "expansions_per_pass": 13592128.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_mix_phi0.75_S65536_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.75,
+   "initial_segments": 65536,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.28221817383666786,
+  "ten_pass_avg_pct": 0.29922451131182226,
+  "pass1_final_over_raw": 1.3832851222952192,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.3424466708830387
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 13592128.0,
+   "expansions_per_pass": 13592128.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_mix_phi0.75_S262144_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.75,
+   "initial_segments": 262144,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 1.0237095301609676,
+  "ten_pass_avg_pct": 1.2315523988472536,
+  "pass1_final_over_raw": 1.584356897198484,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.3996867843005756
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 12145728.0,
+   "expansions_per_pass": 12145728.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_mix_phi0.75_S262144_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.75,
+   "initial_segments": 262144,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.7359398878833951,
+  "ten_pass_avg_pct": 0.8334742437899445,
+  "pass1_final_over_raw": 1.625864538909862,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.4953209450343807
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 12145728.0,
+   "expansions_per_pass": 12145728.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_heavy_phi0.1_S1024_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_heavy"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.1,
+   "initial_segments": 1024,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.05116848355991011,
+  "ten_pass_avg_pct": 0.0534776753785202,
+  "pass1_final_over_raw": 1.0395332177781216,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.0339873937421877
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 29946752.0,
+   "expansions_per_pass": 29946752.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_heavy_phi0.1_S1024_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_heavy"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.1,
+   "initial_segments": 1024,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.02620136310693143,
+  "ten_pass_avg_pct": 0.026624293759385343,
+  "pass1_final_over_raw": 1.039916185646261,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.0371507970181437
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 29946752.0,
+   "expansions_per_pass": 29946752.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_heavy_phi0.1_S8192_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_heavy"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.1,
+   "initial_segments": 8192,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.05950110354970155,
+  "ten_pass_avg_pct": 0.06220263578199231,
+  "pass1_final_over_raw": 1.0542865041472862,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.0477468887082206
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 29574016.0,
+   "expansions_per_pass": 29574016.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_heavy_phi0.1_S8192_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_heavy"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.1,
+   "initial_segments": 8192,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.03093967404501642,
+  "ten_pass_avg_pct": 0.03143924120643467,
+  "pass1_final_over_raw": 1.0556062061923588,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.0522921516400787
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 29574016.0,
+   "expansions_per_pass": 29574016.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_heavy_phi0.1_S65536_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_heavy"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.1,
+   "initial_segments": 65536,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.13283912869620304,
+  "ten_pass_avg_pct": 0.13794001337640877,
+  "pass1_final_over_raw": 1.1506715257027498,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.1348973185180868
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 26592128.0,
+   "expansions_per_pass": 26592128.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_heavy_phi0.1_S65536_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_heavy"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.1,
+   "initial_segments": 65536,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.07053436233943973,
+  "ten_pass_avg_pct": 0.07164146693195743,
+  "pass1_final_over_raw": 1.1595640640996088,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.151283507249106
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 26592128.0,
+   "expansions_per_pass": 26592128.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_heavy_phi0.1_S262144_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_heavy"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.1,
+   "initial_segments": 262144,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.44092162155331394,
+  "ten_pass_avg_pct": 0.44133676274743383,
+  "pass1_final_over_raw": 1.3917856249468867,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.3315666643421382
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 16368512.0,
+   "expansions_per_pass": 16368512.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_heavy_phi0.1_S262144_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_heavy"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.1,
+   "initial_segments": 262144,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.3040629468501473,
+  "ten_pass_avg_pct": 0.31043201543261767,
+  "pass1_final_over_raw": 1.4261618192198302,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.3825025507129751
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 16368512.0,
+   "expansions_per_pass": 16368512.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_heavy_phi0.25_S1024_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_heavy"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.25,
+   "initial_segments": 1024,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.12004661222245801,
+  "ten_pass_avg_pct": 0.12341503960074293,
+  "pass1_final_over_raw": 1.095003243865569,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.081564060448773
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 26946752.0,
+   "expansions_per_pass": 26946752.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_heavy_phi0.25_S1024_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_heavy"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.25,
+   "initial_segments": 1024,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.061578690330273765,
+  "ten_pass_avg_pct": 0.06191626733662033,
+  "pass1_final_over_raw": 1.0957634407683527,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.0889977547061989
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 26946752.0,
+   "expansions_per_pass": 26946752.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_heavy_phi0.25_S8192_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_heavy"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.25,
+   "initial_segments": 8192,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.13314560473051423,
+  "ten_pass_avg_pct": 0.13692460710396132,
+  "pass1_final_over_raw": 1.1096894134774458,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.0945883125719749
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 26574016.0,
+   "expansions_per_pass": 26574016.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_heavy_phi0.25_S8192_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_heavy"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.25,
+   "initial_segments": 8192,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.06957996080439549,
+  "ten_pass_avg_pct": 0.06990529698381809,
+  "pass1_final_over_raw": 1.1114087434517919,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.103663802394697
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 26574016.0,
+   "expansions_per_pass": 26574016.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_heavy_phi0.25_S65536_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_heavy"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.25,
+   "initial_segments": 65536,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.2504616550130892,
+  "ten_pass_avg_pct": 0.25517144172861717,
+  "pass1_final_over_raw": 1.205428122488622,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.1750198402988512
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 23592128.0,
+   "expansions_per_pass": 23592128.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_heavy_phi0.25_S65536_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_heavy"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.25,
+   "initial_segments": 65536,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.1368636567192644,
+  "ten_pass_avg_pct": 0.13696902813194858,
+  "pass1_final_over_raw": 1.214965186759483,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.198426123106426
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 23592128.0,
+   "expansions_per_pass": 23592128.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_heavy_phi0.25_S262144_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_heavy"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.25,
+   "initial_segments": 262144,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.6457983610176541,
+  "ten_pass_avg_pct": 0.674853765025396,
+  "pass1_final_over_raw": 1.443901952304324,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.3493659987759756
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 13368512.0,
+   "expansions_per_pass": 13368512.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_heavy_phi0.25_S262144_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_heavy"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.25,
+   "initial_segments": 262144,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.3995318082984815,
+  "ten_pass_avg_pct": 0.41302428966785315,
+  "pass1_final_over_raw": 1.4805815906955875,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.4205540634976745
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 13368512.0,
+   "expansions_per_pass": 13368512.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_heavy_phi0.5_S1024_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_heavy"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.5,
+   "initial_segments": 1024,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.21930386334398758,
+  "ten_pass_avg_pct": 0.2202634833869163,
+  "pass1_final_over_raw": 1.1873281989586233,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.1614333974720903
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 21946752.0,
+   "expansions_per_pass": 21946752.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_heavy_phi0.5_S1024_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_heavy"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.5,
+   "initial_segments": 1024,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.11051120206324187,
+  "ten_pass_avg_pct": 0.11157360161247296,
+  "pass1_final_over_raw": 1.1887164543623647,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.17551990945629
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 21946752.0,
+   "expansions_per_pass": 21946752.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_heavy_phi0.5_S8192_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_heavy"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.5,
+   "initial_segments": 8192,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.23744356488380172,
+  "ten_pass_avg_pct": 0.23831976178847253,
+  "pass1_final_over_raw": 1.2010318159361497,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.1727138752937307
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 21574016.0,
+   "expansions_per_pass": 21574016.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_heavy_phi0.5_S8192_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_heavy"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.5,
+   "initial_segments": 8192,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.12144281654583557,
+  "ten_pass_avg_pct": 0.12283455983755794,
+  "pass1_final_over_raw": 1.2034071941302322,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.188706635608931
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 21574016.0,
+   "expansions_per_pass": 21574016.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_heavy_phi0.5_S65536_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_heavy"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.5,
+   "initial_segments": 65536,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.38131573684385034,
+  "ten_pass_avg_pct": 0.3887455767173579,
+  "pass1_final_over_raw": 1.2807250293327668,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.2317993937197134
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 18592128.0,
+   "expansions_per_pass": 18592128.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_heavy_phi0.5_S65536_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_heavy"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.5,
+   "initial_segments": 65536,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.20962531111841465,
+  "ten_pass_avg_pct": 0.21450472747544155,
+  "pass1_final_over_raw": 1.2911444465304402,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.2637145964720358
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 18592128.0,
+   "expansions_per_pass": 18592128.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_heavy_phi0.5_S262144_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_heavy"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.5,
+   "initial_segments": 262144,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.9080288134263282,
+  "ten_pass_avg_pct": 0.9911108057662903,
+  "pass1_final_over_raw": 1.531087680471932,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.3859301101157913
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 9145728.0,
+   "expansions_per_pass": 9145728.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_heavy_phi0.5_S262144_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_heavy"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.5,
+   "initial_segments": 262144,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.5868621687011225,
+  "ten_pass_avg_pct": 0.629853933776505,
+  "pass1_final_over_raw": 1.569895442363173,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.4737704338478055
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 9145728.0,
+   "expansions_per_pass": 9145728.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_heavy_phi0.75_S1024_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_heavy"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.75,
+   "initial_segments": 1024,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.29368603525477466,
+  "ten_pass_avg_pct": 0.29864621152410964,
+  "pass1_final_over_raw": 1.2796555340376217,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.2419486253243914
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 16946752.0,
+   "expansions_per_pass": 16946752.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_heavy_phi0.75_S1024_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_heavy"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.75,
+   "initial_segments": 1024,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.14916284012576064,
+  "ten_pass_avg_pct": 0.15245260912860442,
+  "pass1_final_over_raw": 1.2816712832212112,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.2622653712799643
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 16946752.0,
+   "expansions_per_pass": 16946752.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_heavy_phi0.75_S8192_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_heavy"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.75,
+   "initial_segments": 8192,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.3136402386246004,
+  "ten_pass_avg_pct": 0.31967684958803366,
+  "pass1_final_over_raw": 1.2923855233153843,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.2516602324415445
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 16574016.0,
+   "expansions_per_pass": 16574016.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_heavy_phi0.75_S8192_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_heavy"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.75,
+   "initial_segments": 8192,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.1619630889271003,
+  "ten_pass_avg_pct": 0.1659855278861929,
+  "pass1_final_over_raw": 1.2954137264896461,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.2740716260910585
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 16574016.0,
+   "expansions_per_pass": 16574016.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_heavy_phi0.75_S65536_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_heavy"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.75,
+   "initial_segments": 65536,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.48569135546588366,
+  "ten_pass_avg_pct": 0.5132065142468668,
+  "pass1_final_over_raw": 1.3720485528677522,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.3032380506804058
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 13592128.0,
+   "expansions_per_pass": 13592128.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_heavy_phi0.75_S65536_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_heavy"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.75,
+   "initial_segments": 65536,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.28380483148054286,
+  "ten_pass_avg_pct": 0.30036157995051704,
+  "pass1_final_over_raw": 1.3832811107815122,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.3422896876163284
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 13592128.0,
+   "expansions_per_pass": 13592128.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_heavy_phi0.75_S262144_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_heavy"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.75,
+   "initial_segments": 262144,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 1.0110457787208418,
+  "ten_pass_avg_pct": 1.2283821019725745,
+  "pass1_final_over_raw": 1.583958140449717,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.3997818504377055
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 12145728.0,
+   "expansions_per_pass": 12145728.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "grid_heavy_phi0.75_S262144_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_heavy"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.75,
+   "initial_segments": 262144,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.7087741761385574,
+  "ten_pass_avg_pct": 0.8013112634005273,
+  "pass1_final_over_raw": 1.6264791954265565,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.5007452897117377
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 12145728.0,
+   "expansions_per_pass": 12145728.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "runsgrid_S1024_J2_D28",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "runs_only_grid"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.0,
+   "initial_segments": 1024,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.00022628755680631819,
+  "ten_pass_avg_pct": 0.00023582825750312185,
+  "pass1_final_over_raw": 1.0025574991334996,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.002533856245572
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 39933440.0,
+   "expansions_per_pass": 39933440.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "runsgrid_S1024_J3_D48",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "runs_only_grid"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.0,
+   "initial_segments": 1024,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.00014213022861899802,
+  "ten_pass_avg_pct": 0.00014497211918461202,
+  "pass1_final_over_raw": 1.0026862787262447,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.002671742665602
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 39933440.0,
+   "expansions_per_pass": 39933440.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "runsgrid_S1024_J3_D96",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    96
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "runs_only_grid"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.0,
+   "initial_segments": 1024,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.0001421327085395405,
+  "ten_pass_avg_pct": 0.00014498275576797223,
+  "pass1_final_over_raw": 1.0026862787262447,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.0026717415991002
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 7.922816251426434e+28,
+   "windows_per_pass": 39933440.0,
+   "expansions_per_pass": 39933440.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "runsgrid_S8192_J2_D28",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "runs_only_grid"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.0,
+   "initial_segments": 8192,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.0024461150427513866,
+  "ten_pass_avg_pct": 0.0025709696891856996,
+  "pass1_final_over_raw": 1.0173834203394787,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.017121884402108
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 39467520.0,
+   "expansions_per_pass": 39467520.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "runsgrid_S8192_J3_D48",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "runs_only_grid"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.0,
+   "initial_segments": 8192,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.001680783743628986,
+  "ten_pass_avg_pct": 0.0017262122432456014,
+  "pass1_final_over_raw": 1.018414896933634,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.0182391105622637
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 39467520.0,
+   "expansions_per_pass": 39467520.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "runsgrid_S8192_J3_D96",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    96
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "runs_only_grid"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.0,
+   "initial_segments": 8192,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.001680788262258356,
+  "ten_pass_avg_pct": 0.0017263878206588,
+  "pass1_final_over_raw": 1.018414896933634,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.018239092683972
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 7.922816251426434e+28,
+   "windows_per_pass": 39467520.0,
+   "expansions_per_pass": 39467520.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "runsgrid_S65536_J2_D28",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "runs_only_grid"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.0,
+   "initial_segments": 65536,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.03487811198545007,
+  "ten_pass_avg_pct": 0.036530314038523734,
+  "pass1_final_over_raw": 1.1143086633172803,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.1102447431706512
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 35740160.0,
+   "expansions_per_pass": 35740160.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "runsgrid_S65536_J3_D48",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "runs_only_grid"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.0,
+   "initial_segments": 65536,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.026750162256415463,
+  "ten_pass_avg_pct": 0.02737623313823644,
+  "pass1_final_over_raw": 1.1225851314981437,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.1195156994072235
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 35740160.0,
+   "expansions_per_pass": 35740160.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "runsgrid_S65536_J3_D96",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    96
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "runs_only_grid"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.0,
+   "initial_segments": 65536,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.026750277019575032,
+  "ten_pass_avg_pct": 0.02738072002896272,
+  "pass1_final_over_raw": 1.1225851314979618,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.11951519695349
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 7.922816251426434e+28,
+   "windows_per_pass": 35740160.0,
+   "expansions_per_pass": 35740160.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "runsgrid_S262144_J2_D28",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "runs_only_grid"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.0,
+   "initial_segments": 262144,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.2778216609607969,
+  "ten_pass_avg_pct": 0.27959165618344917,
+  "pass1_final_over_raw": 1.3894085636548144,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.3510469867775678
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 22960640.0,
+   "expansions_per_pass": 22960640.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "runsgrid_S262144_J3_D48",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "runs_only_grid"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.0,
+   "initial_segments": 262144,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.2534136604487544,
+  "ten_pass_avg_pct": 0.2586940411414761,
+  "pass1_final_over_raw": 1.4222604739963933,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.385892809960541
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 22960640.0,
+   "expansions_per_pass": 22960640.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "runsgrid_S262144_J3_D96",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    96
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "runs_only_grid"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.0,
+   "initial_segments": 262144,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.29269676872828976,
+  "ten_pass_avg_pct": 0.30039241873538913,
+  "pass1_final_over_raw": 1.421629461225984,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.3794974404404108
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 7.922816251426434e+28,
+   "windows_per_pass": 22960640.0,
+   "expansions_per_pass": 22960640.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "single_cheap_then_audited_phi0.5",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "single_cheap",
+    "audited_equiv"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.5,
+   "initial_segments": 65536,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.23847471323347588,
+  "ten_pass_avg_pct": 0.24296845212297846,
+  "pass1_final_over_raw": 1.1226568780025572,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.0956761646833568
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 18592128.0,
+   "expansions_per_pass": 18592128.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "single_cheap_const_phi0.5",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "single_cheap"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.5,
+   "initial_segments": 65536,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.30680123597389586,
+  "ten_pass_avg_pct": 0.3121990088377668,
+  "pass1_final_over_raw": 1.2194150717953263,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.1818754632301538
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 18592128.0,
+   "expansions_per_pass": 18592128.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "single_cheap_then_audited_phi1.0",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "single_cheap",
+    "audited_equiv"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 1.0,
+   "initial_segments": 1,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.3973458594136857,
+  "ten_pass_avg_pct": 0.4316572063818911,
+  "pass1_final_over_raw": 1.245037986310679,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.1923267128419055
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 12000000.0,
+   "expansions_per_pass": 12000000.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "single_cheap_const_phi1.0",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "single_cheap"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 1.0,
+   "initial_segments": 1,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.34614102083496967,
+  "ten_pass_avg_pct": 0.36811547475009937,
+  "pass1_final_over_raw": 1.245037986310679,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.1999578925570624
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 12000000.0,
+   "expansions_per_pass": 12000000.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "mitm_k2_B8_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 2,
+   "alphabet_schedule": [
+    "audited_equiv"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 1.0,
+   "initial_segments": 1,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.02239426174714463,
+  "ten_pass_avg_pct": 0.022709574445401566,
+  "pass1_final_over_raw": 1.3746821097993855,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.3715634535781414
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted MitM k=2 (seed #1 salted, shared unsalted tables)",
+   "per_window_expansions": 16777216.0,
+   "shared_table_entries": 16777216.0,
+   "windows_per_pass": 15000000.0,
+   "expansions_per_pass": 251658240000000.0,
+   "feasibility": "mitm_2^24_per_window"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "mitm_k4_B8_J3",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 4,
+   "alphabet_schedule": [
+    "audited_equiv"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 1.0,
+   "initial_segments": 1,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 4.6337775983971836e-05,
+  "ten_pass_avg_pct": 4.775331656694915e-05,
+  "pass1_final_over_raw": 1.3749990020615854,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.3749924359994283
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted MitM k=4 (seed #1 salted, shared unsalted tables)",
+   "per_window_expansions": 65536.0,
+   "shared_table_entries": 65536.0,
+   "windows_per_pass": 15000000.0,
+   "expansions_per_pass": 983040000000.0,
+   "feasibility": "mitm_2^16_per_window"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "mitm_k2_B8_grid",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 2,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.5,
+   "initial_segments": 65536,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.024359164460549525,
+  "ten_pass_avg_pct": 0.024425185548028826,
+  "pass1_final_over_raw": 1.293678209018113,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.2905218468041837
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted MitM k=2 (seed #1 salted, shared unsalted tables)",
+   "per_window_expansions": 16777216.0,
+   "shared_table_entries": 16777216.0,
+   "windows_per_pass": 18592128.0,
+   "expansions_per_pass": 311924147355648.0,
+   "feasibility": "mitm_2^24_per_window"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "mitm_k2_B16_J3",
+  "config": {
+   "block_bits": 16,
+   "input_blocks": 500000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 2,
+   "alphabet_schedule": [
+    "audited_equiv"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 1.0,
+   "initial_segments": 1,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.01270679937284502,
+  "ten_pass_avg_pct": 0.0128197680538124,
+  "pass1_final_over_raw": 1.1873458508296941,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.185824578798075
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted MitM k=2 (seed #1 salted, shared unsalted tables)",
+   "per_window_expansions": 16777216.0,
+   "shared_table_entries": 16777216.0,
+   "windows_per_pass": 7500000.0,
+   "expansions_per_pass": 125829120000000.0,
+   "feasibility": "mitm_2^24_per_window"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "mitm_k4_B16_J3",
+  "config": {
+   "block_bits": 16,
+   "input_blocks": 500000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 4,
+   "alphabet_schedule": [
+    "audited_equiv"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 1.0,
+   "initial_segments": 1,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 9.302073141057184e-05,
+  "ten_pass_avg_pct": 9.382351425404177e-05,
+  "pass1_final_over_raw": 1.1874985768496116,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.1874874353676845
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted MitM k=4 (seed #1 salted, shared unsalted tables)",
+   "per_window_expansions": 65536.0,
+   "shared_table_entries": 65536.0,
+   "windows_per_pass": 7500000.0,
+   "expansions_per_pass": 491520000000.0,
+   "feasibility": "mitm_2^16_per_window"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "mitm_k2_B16_grid",
+  "config": {
+   "block_bits": 16,
+   "input_blocks": 500000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 2,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.5,
+   "initial_segments": 65536,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.022221011700755147,
+  "ten_pass_avg_pct": 0.02236771014419292,
+  "pass1_final_over_raw": 1.1999744825638936,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.1972931144477685
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted MitM k=2 (seed #1 salted, shared unsalted tables)",
+   "per_window_expansions": 16777216.0,
+   "shared_table_entries": 16777216.0,
+   "windows_per_pass": 11397824.0,
+   "expansions_per_pass": 191223755177984.0,
+   "feasibility": "mitm_2^24_per_window"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "mitm_k2_B24_J3",
+  "config": {
+   "block_bits": 24,
+   "input_blocks": 333333,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 2,
+   "alphabet_schedule": [
+    "audited_equiv"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 1.0,
+   "initial_segments": 1,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.008202178549782597,
+  "ten_pass_avg_pct": 0.008237452416674857,
+  "pass1_final_over_raw": 1.1249065889716732,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.123980295936523
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted MitM k=2 (seed #1 salted, shared unsalted tables)",
+   "per_window_expansions": 16777216.0,
+   "shared_table_entries": 16777216.0,
+   "windows_per_pass": 4999995.0,
+   "expansions_per_pass": 83885996113920.0,
+   "feasibility": "mitm_2^24_per_window"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "mitm_k4_B24_J3",
+  "config": {
+   "block_bits": 24,
+   "input_blocks": 333333,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 4,
+   "alphabet_schedule": [
+    "audited_equiv"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 1.0,
+   "initial_segments": 1,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 6.005794879860175e-05,
+  "ten_pass_avg_pct": 6.167257934743908e-05,
+  "pass1_final_over_raw": 1.1249989690894215,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.1249920309498531
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted MitM k=4 (seed #1 salted, shared unsalted tables)",
+   "per_window_expansions": 65536.0,
+   "shared_table_entries": 65536.0,
+   "windows_per_pass": 4999995.0,
+   "expansions_per_pass": 327679672320.0,
+   "feasibility": "mitm_2^16_per_window"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "mitm_k2_B24_grid",
+  "config": {
+   "block_bits": 24,
+   "input_blocks": 333333,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 2,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.5,
+   "initial_segments": 65536,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.0128904191338252,
+  "ten_pass_avg_pct": 0.012924591923621285,
+  "pass1_final_over_raw": 1.1688436770041888,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.167333872569493
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted MitM k=2 (seed #1 salted, shared unsalted tables)",
+   "per_window_expansions": 16777216.0,
+   "shared_table_entries": 16777216.0,
+   "windows_per_pass": 6203502.0,
+   "expansions_per_pass": 104077493010432.0,
+   "feasibility": "mitm_2^24_per_window"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "perm_J2_audited_equiv_phi1.0",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "audited_equiv"
+   ],
+   "refresh": "permutation",
+   "singles_fraction": 1.0,
+   "initial_segments": 1,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.1379294607278475,
+  "ten_pass_avg_pct": 0.14972266594694644,
+  "pass1_final_over_raw": 1.3693188045431928,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.3489544924635812
+  },
+  "metadata_bits_per_pass": 3.0,
+  "compute": {
+   "mode": "unsalted k=1 (shared prefix table)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 15000000.0,
+   "expansions_per_pass": 15000000.0,
+   "feasibility": "shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "perm_J2_entry_singles_run_phi0.5",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "entry_singles_run"
+   ],
+   "refresh": "permutation",
+   "singles_fraction": 0.5,
+   "initial_segments": 65536,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.12261189054163091,
+  "ten_pass_avg_pct": 0.12872092163305615,
+  "pass1_final_over_raw": 1.281443362670344,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.2650436998273247
+  },
+  "metadata_bits_per_pass": 3.0,
+  "compute": {
+   "mode": "unsalted k=1 (shared prefix table)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 18592128.0,
+   "expansions_per_pass": 18592128.0,
+   "feasibility": "shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "perm_J2_grid_mix_phi0.5",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "permutation",
+   "singles_fraction": 0.5,
+   "initial_segments": 65536,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.12048219382362603,
+  "ten_pass_avg_pct": 0.12631685554855074,
+  "pass1_final_over_raw": 1.28081688801624,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.2647296471165268
+  },
+  "metadata_bits_per_pass": 3.0,
+  "compute": {
+   "mode": "unsalted k=1 (shared prefix table)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 18592128.0,
+   "expansions_per_pass": 18592128.0,
+   "feasibility": "shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "gridmix_phi.5_S64k_J2_novar",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.5,
+   "initial_segments": 65536,
+   "superposition": {
+    "prune_delta_bits": 0,
+    "max_variants_per_position": 1,
+    "equal_size_allowed": false,
+    "bloat_tolerant_retained": false
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.3562116154333412,
+  "ten_pass_avg_pct": 0.3645649151915454,
+  "pass1_final_over_raw": 1.2810068658241602,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.2350645830489082
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 18592128.0,
+   "expansions_per_pass": 18592128.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "gridmix_phi.5_S64k_D16",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    16
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.5,
+   "initial_segments": 65536,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.3016445981049903,
+  "ten_pass_avg_pct": 0.3030245711650315,
+  "pass1_final_over_raw": 1.281932516307957,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.2436122573937525
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 65536.0,
+   "windows_per_pass": 18592128.0,
+   "expansions_per_pass": 18592128.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "gridmix_phi.5_S64k_D24",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    24
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.5,
+   "initial_segments": 65536,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.3682128416815422,
+  "ten_pass_avg_pct": 0.3780007356939257,
+  "pass1_final_over_raw": 1.2808165130162503,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.2332168265675192
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 16777216.0,
+   "windows_per_pass": 18592128.0,
+   "expansions_per_pass": 18592128.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "gridmix_phi.5_S64k_D28",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.5,
+   "initial_segments": 65536,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.3694743722998844,
+  "ten_pass_avg_pct": 0.3786033917170162,
+  "pass1_final_over_raw": 1.2808165130162399,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.233142228790889
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 18592128.0,
+   "expansions_per_pass": 18592128.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "gridmix_phi.5_S64k_D48",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    48
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.5,
+   "initial_segments": 65536,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.2059948464262963,
+  "ten_pass_avg_pct": 0.21089924896071652,
+  "pass1_final_over_raw": 1.2911899010007957,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.2642157845368263
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 281474976710656.0,
+   "windows_per_pass": 18592128.0,
+   "expansions_per_pass": 18592128.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "gridmix_phi.5_S64k_D96",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    96
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.5,
+   "initial_segments": 65536,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.21442418435181756,
+  "ten_pass_avg_pct": 0.22155732082162444,
+  "pass1_final_over_raw": 1.291013265193386,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.2626934070153704
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 7.922816251426434e+28,
+   "windows_per_pass": 18592128.0,
+   "expansions_per_pass": 18592128.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "gridmix_phi.5_S64k_D160",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    160
+   ],
+   "j_bits": 3,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.5,
+   "initial_segments": 65536,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": false
+  },
+  "evidence_class": "math_candidate",
+  "ten_pass_min_pct": 0.21493189637408416,
+  "ten_pass_avg_pct": 0.222169381897711,
+  "pass1_final_over_raw": 1.2910035159835227,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.2626064178230538
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 1.461501637330903e+48,
+   "windows_per_pass": 18592128.0,
+   "expansions_per_pass": 18592128.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "ORACLE_gridmix_phi.5_S64k_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "grid_mix"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 0.5,
+   "initial_segments": 65536,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": true
+  },
+  "evidence_class": "upper_bound",
+  "ten_pass_min_pct": 0.37069706721232126,
+  "ten_pass_avg_pct": 0.37986830347473544,
+  "pass1_final_over_raw": 1.2808000889135804,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.2329698524318764
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 18592128.0,
+   "expansions_per_pass": 18592128.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ },
+ {
+  "name": "ORACLE_singles_salt_J2",
+  "config": {
+   "block_bits": 8,
+   "input_blocks": 1000000,
+   "depth_schedule_bits": [
+    28
+   ],
+   "j_bits": 2,
+   "k_xor": 1,
+   "alphabet_schedule": [
+    "audited_equiv"
+   ],
+   "refresh": "position_salt",
+   "singles_fraction": 1.0,
+   "initial_segments": 1,
+   "superposition": {
+    "prune_delta_bits": 16,
+    "max_variants_per_position": 4,
+    "equal_size_allowed": true,
+    "bloat_tolerant_retained": true
+   },
+   "oracle": true
+  },
+  "evidence_class": "upper_bound",
+  "ten_pass_min_pct": 0.36714012332330137,
+  "ten_pass_avg_pct": 0.387576350846729,
+  "pass1_final_over_raw": 1.3693000999240044,
+  "payback_pass": null,
+  "raw_ratio_by_pass": {
+   "11": 1.3171452493627815
+  },
+  "metadata_bits_per_pass": 0.0,
+  "compute": {
+   "mode": "salted k=1 via masked targets (shared unsalted table, O(1)/window)",
+   "per_window_expansions": 1.0,
+   "shared_table_entries": 268435456.0,
+   "windows_per_pass": 15000000.0,
+   "expansions_per_pass": 15000000.0,
+   "feasibility": "masked_targets_shared_table_cheap"
+  },
+  "passes_evaluated": 11,
+  "uncharged_passthrough": false
+ }
+]
