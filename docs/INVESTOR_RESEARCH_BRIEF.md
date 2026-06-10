@@ -32,20 +32,35 @@ charged in its emitting layer, zero refresh metadata, greedy deterministic
 selection, no oracle, no passthrough; constituent primitives decode-proven
 at toy scale; the full configuration not yet wire-proven.
 
-**Primary** (`vnext_best.json`): block 8, J2D1 seed fields, mixed
-literal-run/single layer (φ=0.5, S0=262k), layer-masked expansion:
+**Primary** (`audited_primary.json`, audited reference kernel): block 8,
+J2D1 seed fields (per-file constant), one constant alphabet with a 2-bit
+single literal (its +1-bit arity-2 tax charged and netted), permutation +
+neutral-swaps refresh at 3 charged bits/pass, content-only expansion:
 
 | metric | value |
 | --- | ---: |
-| sustained rate (ten-effective-pass min) | **+0.908 %/pass** |
-| raw payback | pass **81** |
-| final/raw at 200 / 500 passes | **0.810 / 0.541** |
-| refresh metadata | 0 bits |
-| oracle bound on the same config | +0.910 %/pass (greedy ≈ oracle) |
+| sustained rate (ten-effective-pass min) | **+0.202 %/pass** |
+| pass-1 wrap (initial bloat) | 1.237 |
+| raw payback | pass **76** |
+| final/raw at 200 / 500 passes | **0.742 / 0.478** |
+| previous audited target (J3 canonical) | 0.1328 %/pass, payback 126, 0.486 @ 500 |
 
-Reference floor (previous target, independent kernel): 0.1328 %/pass,
-payback 126, 0.486 @ 500. Two independently built kernels agree within
-~25%, the newer reading lower (conservative).
+**Stated decode dependency.** Un-permuting the evolving stream requires
+identifying each pass's newly created bundles. A new lemma narrows the
+need: arity-1 replacements preserve sequence length, so only bundles
+matter — and bundles carry the affine-stride birth fingerprint (the
+maintainer's epoch-inference design). The induction proof of that
+inference, with its exact escape ledger (~T/N per bundle), is the
+program's single load-bearing open proof. Lanes needing channels beyond it
+are labeled conditional (alphabet schedules: 0.309 %/pass, payback 53) or
+upper bound (layer-masked fresh=1: 0.397 %/pass) — the gaps between those
+rows price exactly what each undiscovered channel is worth.
+
+**Correction disclosures.** This brief has retracted two earlier headline
+numbers: 0.908 %/pass (accounting bugs in run/grid bookkeeping, found by
+instrumented cross-checks) and 0.397 %/pass-as-primary (decode-dependency
+audit prompted by maintainer review). Both retractions moved numbers down
+and both are documented in the ledger; the audit loop is the method.
 
 ## What is proven vs modeled vs falsified
 
@@ -80,11 +95,18 @@ decode-by-replay rechunk (Kraft-dominated, analytic).
   compute-feasibility problem, which were the two weakest points of the
   prior pitch. MitM/k-XOR records, the previous compute answer, are now a
   niche (they cost ~9× in rate at small spans).
-- **LITERAL_RUN** makes initial bloat a dial instead of a tax (1.0027× at
+- **LITERAL_RUN** makes initial bloat a dial instead of a tax (1.0026× at
   the ε end), and re-segmentation is the legal form of rechunking (charged
-  boundary headers; no discrimination channel needed).
+  boundary headers; no discrimination channel needed). Corrected verdict:
+  carriage trades rate proportionally — it buys archival "never above
+  raw+ε" behavior, not faster payback.
 - **J2D1** (6-bit minimum records) roughly doubles sustained rate over
-  J3D1 at block-8 budgets.
+  J3D1 at block-8 budgets; **layer-indexed alphabet schedules** are free
+  (decoder knows the layer) and worth another ~1.6× on payback (2-bit
+  pass-1 singles: wrap 1.369 → 1.245, payback 130 → 76).
+- **Depth ceiling D\*:** seeds beyond the largest span budget can never be
+  compressive, so the shared table is built once to D\* and per-pass
+  compute is pure lookups — "how long to search" is not a tunable cost.
 
 ## Compute and business model (separate from size accounting)
 
@@ -94,7 +116,7 @@ profile, shared across files/passes/positions); encoding is lookup-bound at
 ~10M window probes per pass per raw MB. Decode is asymmetrically cheap
 (~one expansion per record; ms/MB).
 
-| machine tier | est. lookup throughput | s/pass/MB | to 1.0× (81 passes) | to 0.84× (~180) | to 0.60× (~420) | interpretation |
+| machine tier | est. lookup throughput | s/pass/MB | to 1.0× (~76 passes) | to 0.84× (~180) | to 0.60× (~420) | interpretation |
 | --- | ---: | ---: | ---: | ---: | ---: | --- |
 | 1 CPU core (model) | 2e7/s | 0.5 | 1.5 core-yr/TB | 3.3 | 7.7 | research only |
 | 64-core workstation | 1.3e9/s | 0.008 | ~9 days/TB (~$500) | ~$1.1k/TB | ~$2.6k/TB | pilots, not economics |

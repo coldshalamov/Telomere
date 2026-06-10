@@ -11,6 +11,13 @@ larger, especially at seed depth 1. Negative delta is expected only on data that
 contains planted or naturally recurring spans that are reproduced by short hash
 seeds.
 
+**Research status (June 2026).** The current truth surface lives in
+`docs/TELOMERE_RESULT_LEDGER.md` (every result with an evidence class),
+`docs/TELOMERE_VIABILITY_TARGET.md` (current best fully-charged model
+target), and `docs/TELOMERE_FRONTIER_REPORT.md` (what is not yet reached).
+Proof-kernel code and decode proofs: `model_analysis/proof_kernel/`.
+Older reports that contradict the ledger are stale.
+
 The serious research path is the `.tlmr` v2 engine. It supports reusable
 exact-prefix seed indexes and a CPU streaming matcher that builds equal-length
 target span tiers, enumerates seeds once, and checks each generated prefix

@@ -55,7 +55,7 @@ local golden-vector pin (crate absent from this checkout).
 
 Block 8, depth 96, J3D1, record-aligned, permutation+neutral-swaps
 (3 charged bits/pass), variants cap 4, greedy: **0.1328 %/pass min over ten
-effective passes, payback at effective pass 126, final/raw 0.486 @ 500**
+effective passes, payback at modeled pass 126 (effective 125), final/raw 0.486 @ 500**
 (`bit_literal_target.json`). Now superseded as primary by the v-next
 masked-expansion config (see `TELOMERE_VIABILITY_TARGET.md`), but unchanged
 as the conservative reference floor — and it requires only ONE new

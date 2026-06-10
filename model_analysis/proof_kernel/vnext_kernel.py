@@ -85,6 +85,11 @@ class Alphabet:
     grid_arities: tuple[tuple[int, int], ...]
     single_marker_bits: int | None
     run_marker_bits: int | None
+    # RUN_FIXED: [codeword][fixed_run_blocks * block_bits raw] — NO length
+    # field (profile constant), self-delimiting like BIT_LITERAL with a
+    # larger payload. Zero length-metadata literal grouping.
+    fixed_run_marker_bits: int | None = None
+    fixed_run_blocks: int = 0
 
     def kraft(self) -> float:
         total = sum(2.0 ** -b for _, b in self.entry_arities)
@@ -93,6 +98,8 @@ class Alphabet:
             total += 2.0 ** -self.single_marker_bits
         if self.run_marker_bits is not None:
             total += 2.0 ** -self.run_marker_bits
+        if self.fixed_run_marker_bits is not None:
+            total += 2.0 ** -self.fixed_run_marker_bits
         return total
 
 
@@ -120,6 +127,28 @@ ALPHABETS: dict[str, Alphabet] = {
     # cheap-literal pass-1 alphabet: single = 2 bits
     "single_cheap": Alphabet(
         "single_cheap", ((1, 2), (2, 3), (3, 3), (4, 3)), (), 2, 3
+    ),
+    # fixed-run alphabets: RUN_FIXED(m0) costs only its codeword (no Lotus
+    # length field); variable runs (111) remain for remnants/fragments.
+    "fixedrun2_singles": Alphabet(
+        "fixedrun2_singles", ((1, 2), (2, 2), (3, 3)), (), 3, 3,
+        fixed_run_marker_bits=3, fixed_run_blocks=2,
+    ),
+    "fixedrun3_singles": Alphabet(
+        "fixedrun3_singles", ((1, 2), (2, 2), (3, 3)), (), 3, 3,
+        fixed_run_marker_bits=3, fixed_run_blocks=3,
+    ),
+    "fixedrun4_singles": Alphabet(
+        "fixedrun4_singles", ((1, 2), (2, 2), (3, 3)), (), 3, 3,
+        fixed_run_marker_bits=3, fixed_run_blocks=4,
+    ),
+    "fixedrun2_grid": Alphabet(
+        "fixedrun2_grid", ((1, 2), (2, 2)), ((3, 3),), 3, 3,
+        fixed_run_marker_bits=3, fixed_run_blocks=2,
+    ),
+    "fixedrun4_grid": Alphabet(
+        "fixedrun4_grid", ((1, 2), (2, 2)), ((3, 3),), 3, 3,
+        fixed_run_marker_bits=3, fixed_run_blocks=4,
     ),
 }
 
@@ -318,9 +347,10 @@ class VConfig:
     j_bits: int = 3
     k_xor: int = 1
     alphabet_schedule: tuple[str, ...] = ("audited_equiv",)
-    refresh: str = "position_salt"  # position_salt | permutation | none
+    refresh: str = "position_salt"  # position_salt | affine_epoch | permutation | none
     singles_fraction: float = 1.0  # phi: pass-1 mass exposed as singles
-    initial_segments: int = 1  # S0: run count for the (1-phi) mass
+    fixed_run_fraction: float = 0.0  # share of the (1-phi) mass in FIXED runs
+    initial_segments: int = 1  # S0: run count for the variable-run mass
     superposition: SuperpositionConfig = field(
         default_factory=lambda: SuperpositionConfig(16, 4, True, True)
     )
@@ -412,9 +442,21 @@ def initial_state(cfg: VConfig) -> VState:
     run_mass_bits = (1.0 - phi) * raw
     segments = 0.0
     if run_mass_bits > 0:
-        if alpha.run_marker_bits is None:
-            raise ValueError(f"alphabet {alpha.name} has no run codeword; set phi=1")
-        segments = float(max(1, min(cfg.initial_segments, int(run_mass_bits))))
+        fix_share = max(0.0, min(1.0, cfg.fixed_run_fraction))
+        if alpha.fixed_run_marker_bits is not None and alpha.fixed_run_blocks > 0 and fix_share > 0:
+            # FIXED runs: entries of marker + m0*B bits, zero length metadata.
+            m0 = alpha.fixed_run_blocks
+            fixed_bits = run_mass_bits * fix_share
+            count = fixed_bits / (m0 * cfg.block_bits)
+            length = alpha.fixed_run_marker_bits + m0 * cfg.block_bits
+            entries[length] = entries.get(length, 0.0) + count
+            run_mass_bits -= fixed_bits
+        if run_mass_bits > 1e-9:
+            if alpha.run_marker_bits is None:
+                raise ValueError(f"alphabet {alpha.name} has no variable-run codeword")
+            segments = float(max(1, min(cfg.initial_segments, int(run_mass_bits))))
+        else:
+            run_mass_bits = 0.0
     return VState(raw_bits=raw, run_payload_bits=run_mass_bits, segments=segments,
                   entries=entries)
 
@@ -442,6 +484,15 @@ def run_pass(state: VState, cfg: VConfig) -> tuple[VState, VRow]:
         # (Position-only salting deadlocks: until the first accept of a pass
         # the emission replicates the previous layer, so queries repeat and
         # re-miss — measured dead by pass 3 in freshness_law_validation.py.)
+        fresh_e1 = fresh_multi = fresh_grid = 1.0
+    elif cfg.refresh == "affine_epoch":
+        # COMPARISON LANE (handoff v2): pass-indexed affine permutation +
+        # per-epoch expansion salts; bundles recover their epoch by stride
+        # inference with a charged 1-bit escape at ~pass_index/N collision
+        # rate. Under the uniform law its per-window trial statistics equal
+        # the layer-masked lane; it differs only in charges (escape ledger)
+        # and decode compute (T stride tests per bundle, reported in the
+        # compute estimate). Kept as the fallback if masking ever fails.
         fresh_e1 = fresh_multi = fresh_grid = 1.0
     elif cfg.refresh == "permutation":
         fresh_e1 = max(0.0, min(1.0, state.changed_fraction))
@@ -599,6 +650,13 @@ def run_pass(state: VState, cfg: VConfig) -> tuple[VState, VRow]:
                 coverage_run_bits += raw_mass * max(0.0, span - e_b_clean)
 
     accepted_total = accepted_entry + accepted_clean + accepted_dirty + accepted_interior
+    if cfg.refresh == "affine_epoch":
+        # stride-collision escape ledger: 1 bit per multi-entry accept at
+        # ~pass_index/N rate, plus 1 bit per bundle whose stride test is
+        # ambiguous at decode. Expectation-level charge:
+        n_total = max(1.0, n_e + state.segments)
+        escape_bits = accepted_total * min(1.0, (state.pass_index + 1) / n_total)
+        metadata_pass += escape_bits
 
     # coverage sanity cap (greedy non-overlap)
     cover = coverage_entry_bits + coverage_run_bits
@@ -625,8 +683,26 @@ def run_pass(state: VState, cfg: VConfig) -> tuple[VState, VRow]:
     if remove_entry_bits > 0 and state.entry_bits > 0:
         frac = min(0.98, remove_entry_bits / state.entry_bits)
         entries = {k: v * (1.0 - frac) for k, v in entries.items()}
-    run_payload = max(0.0, state.run_payload_bits - coverage_run_bits - removed_run_via_entry)
-    attrition = ((coverage_run_bits + removed_run_via_entry) / avg_seg_len) if avg_seg_len > 0 else 0.0
+    # Run-entry consumption is WIRE bits (header + payload). Split it:
+    # payload drops by the payload share; segments retire at the wire-period
+    # rate (header bits then vanish at re-emission via the segment count).
+    # The previous revision subtracted full wire from payload AND divided
+    # attrition by payload length — a triple-dip that inflated every
+    # segments>0 lane (caught by instrumentation; see ledger).
+    hdr_per_seg = (
+        (alpha.run_marker_bits + lotus_cost_for_value(max(1, round(avg_seg_len)), cfg.j_bits))
+        if (state.segments > 0 and alpha.run_marker_bits is not None)
+        else 0
+    )
+    run_period = avg_seg_len + hdr_per_seg
+    removed_run_wire = coverage_run_bits + removed_run_via_entry
+    if run_period > 0:
+        payload_drop = removed_run_wire * (avg_seg_len / run_period)
+        attrition = removed_run_wire / run_period
+    else:
+        payload_drop = removed_run_wire
+        attrition = 0.0
+    run_payload = max(0.0, state.run_payload_bits - payload_drop)
     segments = max(0.0, state.segments - attrition) + accepted_interior + accepted_dirty
     for length, count in new_entries.items():
         entries[length] = entries.get(length, 0.0) + count

@@ -24,12 +24,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.2392510768891404,
-  "ten_pass_avg_pct": 0.25703121591263156,
+  "ten_pass_min_pct": 0.2392663435212741,
+  "ten_pass_avg_pct": 0.2570474559174064,
   "pass1_final_over_raw": 1.745087108934293,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.7007480672523954
+   "11": 1.7007452981081552
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -68,12 +68,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.19977521649370986,
-  "ten_pass_avg_pct": 0.21225313616684977,
+  "ten_pass_min_pct": 0.19979165427536674,
+  "ten_pass_avg_pct": 0.21227021716628305,
   "pass1_final_over_raw": 1.3718457787648206,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.3430044226500748
+   "11": 1.3430021237816006
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -112,12 +112,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.06515866326601175,
-  "ten_pass_avg_pct": 0.06646260414451031,
+  "ten_pass_min_pct": 0.06517893976892372,
+  "ten_pass_avg_pct": 0.06648319544306361,
   "pass1_final_over_raw": 1.1866906707154692,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.1788271620437583
+   "11": 1.1788247330732402
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -156,12 +156,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.4287334005896121,
-  "ten_pass_avg_pct": 0.4811539139987652,
+  "ten_pass_min_pct": 0.4287439067411526,
+  "ten_pass_avg_pct": 0.4811646409883318,
   "pass1_final_over_raw": 1.7400706524552259,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.6581350196467597
+   "11": 1.6581332323539781
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -200,12 +200,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.36608297680255825,
-  "ten_pass_avg_pct": 0.3863961237693656,
+  "ten_pass_min_pct": 0.3661004863874118,
+  "ten_pass_avg_pct": 0.38641465395259955,
   "pass1_final_over_raw": 1.3693184295431928,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.31731895055089
+   "11": 1.317316500055856
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -244,12 +244,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.10503863127820799,
-  "ten_pass_avg_pct": 0.1059450068035124,
+  "ten_pass_min_pct": 0.10506207286125928,
+  "ten_pass_avg_pct": 0.10596849346220069,
   "pass1_final_over_raw": 1.1862553372799172,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.1737473023935265
+   "11": 1.1737445427324846
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -816,12 +816,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.05577862394967333,
-  "ten_pass_avg_pct": 0.05804832564906106,
-  "pass1_final_over_raw": 1.0394847557589146,
+  "ten_pass_min_pct": 0.05486177518252942,
+  "ten_pass_avg_pct": 0.057076689569050744,
+  "pass1_final_over_raw": 1.0394944401200854,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.033466457279732
+   "11": 1.0335765646076815
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -860,12 +860,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.02968317946159266,
-  "ten_pass_avg_pct": 0.030162230587772863,
-  "pass1_final_over_raw": 1.0398801149737837,
+  "ten_pass_min_pct": 0.029039083710784567,
+  "ten_pass_avg_pct": 0.029510127818638248,
+  "pass1_final_over_raw": 1.0398870513975933,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.0367478583093417
+   "11": 1.0368224032903082
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -904,12 +904,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.05857012434115529,
-  "ten_pass_avg_pct": 0.061201589405167435,
-  "pass1_final_over_raw": 1.0542959392770104,
+  "ten_pass_min_pct": 0.05253819428247531,
+  "ten_pass_avg_pct": 0.054783050365532035,
+  "pass1_final_over_raw": 1.0543589417279122,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.0478612206290785
+   "11": 1.0485970594107172
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -948,12 +948,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.03168251983905986,
-  "ten_pass_avg_pct": 0.03225492827648673,
-  "pass1_final_over_raw": 1.0555985258063463,
+  "ten_pass_min_pct": 0.0274743799165887,
+  "ten_pass_avg_pct": 0.027975879792969578,
+  "pass1_final_over_raw": 1.0556430842619564,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.052198638022667
+   "11": 1.052693544928514
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -992,12 +992,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.07120042983235456,
-  "ten_pass_avg_pct": 0.07536373706549794,
-  "pass1_final_over_raw": 1.1513781381625312,
+  "ten_pass_min_pct": 0.04168622702370397,
+  "ten_pass_avg_pct": 0.043603720578509794,
+  "pass1_final_over_raw": 1.1517127618508278,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.1427302866955442
+   "11": 1.1467007071737845
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -1036,12 +1036,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.03912629987999236,
-  "ten_pass_avg_pct": 0.04005361312782684,
-  "pass1_final_over_raw": 1.1599278670014372,
+  "ten_pass_min_pct": 0.020538783129608423,
+  "ten_pass_avg_pct": 0.020977493271893202,
+  "pass1_final_over_raw": 1.1601427929954364,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.1552903015379472
+   "11": 1.1577114002726476
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -1080,12 +1080,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.13388127651612503,
-  "ten_pass_avg_pct": 0.13816126870940518,
-  "pass1_final_over_raw": 1.3960883158506434,
+  "ten_pass_min_pct": 0.039122167043689524,
+  "ten_pass_avg_pct": 0.040054019362194916,
+  "pass1_final_over_raw": 1.397403850835227,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.376919258302487
+   "11": 1.3918167642236459
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -1124,12 +1124,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.15641595184290302,
-  "ten_pass_avg_pct": 0.15739148490356686,
-  "pass1_final_over_raw": 1.4284463770101223,
+  "ten_pass_min_pct": 0.025730748903751714,
+  "ten_pass_avg_pct": 0.025791207133407303,
+  "pass1_final_over_raw": 1.4303481010599175,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.4061224157483811
+   "11": 1.4266633392171766
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -1168,12 +1168,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.13198302887591534,
-  "ten_pass_avg_pct": 0.13445440863135733,
-  "pass1_final_over_raw": 1.0948691461923334,
+  "ten_pass_min_pct": 0.12989192349408055,
+  "ten_pass_avg_pct": 0.13232495509218206,
+  "pass1_final_over_raw": 1.0948922264048409,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.0802368965815183
+   "11": 1.0804900364691323
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -1212,12 +1212,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.07039632939906584,
-  "ten_pass_avg_pct": 0.07049060691948375,
-  "pass1_final_over_raw": 1.0956662163317819,
+  "ten_pass_min_pct": 0.06891373203757584,
+  "ten_pass_avg_pct": 0.0690295461256002,
+  "pass1_final_over_raw": 1.095682780213006,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.087967251955515
+   "11": 1.0881427830766657
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -1256,12 +1256,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.1406155741734406,
-  "ten_pass_avg_pct": 0.14352868069514751,
-  "pass1_final_over_raw": 1.1096029602217232,
+  "ten_pass_min_pct": 0.12661907760276392,
+  "ten_pass_avg_pct": 0.12922272629986334,
+  "pass1_final_over_raw": 1.1097578106055677,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.09377944341498
+   "11": 1.0955003203232079
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -1300,12 +1300,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.07674257868337436,
-  "ten_pass_avg_pct": 0.07685433121344129,
-  "pass1_final_over_raw": 1.1113285612115242,
+  "ten_pass_min_pct": 0.0668021241928529,
+  "ten_pass_avg_pct": 0.06702283579952353,
+  "pass1_final_over_raw": 1.111439676492951,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.1028169981404552
+   "11": 1.1040129194262114
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -1344,12 +1344,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.1857106108637484,
-  "ten_pass_avg_pct": 0.1923389263043699,
-  "pass1_final_over_raw": 1.2062121031095017,
+  "ten_pass_min_pct": 0.1077302109381925,
+  "ten_pass_avg_pct": 0.11095748255059804,
+  "pass1_final_over_raw": 1.2071447931167545,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.1832117158703583
+   "11": 1.1938172967312353
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -1388,12 +1388,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.10753593654950859,
-  "ten_pass_avg_pct": 0.10841987243889517,
-  "pass1_final_over_raw": 1.215323708659616,
+  "ten_pass_min_pct": 0.05484580561899862,
+  "ten_pass_avg_pct": 0.055432653680390076,
+  "pass1_final_over_raw": 1.2159643791267065,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.2022112856833171
+   "11": 1.2092407547372657
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -1432,12 +1432,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.3840821004948745,
-  "ten_pass_avg_pct": 0.38572416207251903,
-  "pass1_final_over_raw": 1.4486184561082214,
+  "ten_pass_min_pct": 0.0962989704904559,
+  "ten_pass_avg_pct": 0.09750751858236913,
+  "pass1_final_over_raw": 1.452801453285849,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.3937017172308013
+   "11": 1.4386975427429038
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -1476,12 +1476,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.27108667220315597,
-  "ten_pass_avg_pct": 0.27542724130976604,
-  "pass1_final_over_raw": 1.4827916270210615,
+  "ten_pass_min_pct": 0.05179177465255777,
+  "ten_pass_avg_pct": 0.05192237372452063,
+  "pass1_final_over_raw": 1.4861916541135147,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.4424539825252929
+   "11": 1.4784929993459068
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -1520,12 +1520,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.2359544223555414,
-  "ten_pass_avg_pct": 0.23873764214904786,
-  "pass1_final_over_raw": 1.1870533257518234,
+  "ten_pass_min_pct": 0.23284163307649908,
+  "ten_pass_avg_pct": 0.23549651924500276,
+  "pass1_final_over_raw": 1.187093844503836,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.1590164186085805
+   "11": 1.1594325988524543
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -1564,12 +1564,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.1240779228403815,
-  "ten_pass_avg_pct": 0.1265155060980543,
-  "pass1_final_over_raw": 1.1885184673030065,
+  "ten_pass_min_pct": 0.1219167171923716,
+  "ten_pass_avg_pct": 0.12423683133419798,
+  "pass1_final_over_raw": 1.1885476408459617,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.1735671825168805
+   "11": 1.173863779810802
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -1608,12 +1608,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.2506265112993672,
-  "ten_pass_avg_pct": 0.2536842624035962,
-  "pass1_final_over_raw": 1.2007892608675477,
+  "ten_pass_min_pct": 0.22952371052820628,
+  "ten_pass_avg_pct": 0.23177065394720775,
+  "pass1_final_over_raw": 1.201063817541137,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.1706725322896332
+   "11": 1.1735152270032232
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -1652,12 +1652,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.13453828557256875,
-  "ten_pass_avg_pct": 0.13736381878877335,
-  "pass1_final_over_raw": 1.2032100167598876,
+  "ten_pass_min_pct": 0.11978369517780481,
+  "ten_pass_avg_pct": 0.12185617363290738,
+  "pass1_final_over_raw": 1.2034088494212611,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.1867840533656602
+   "11": 1.1888247198402146
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -1696,12 +1696,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.33471754380064767,
-  "ten_pass_avg_pct": 0.33737176178601513,
-  "pass1_final_over_raw": 1.2814429876703441,
+  "ten_pass_min_pct": 0.2097763659693752,
+  "ten_pass_avg_pct": 0.209914375680868,
+  "pass1_final_over_raw": 1.2831080635794427,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.2388611890438535
+   "11": 1.2564267869772316
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -1740,12 +1740,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.1927419931103992,
-  "ten_pass_avg_pct": 0.19663828211108134,
-  "pass1_final_over_raw": 1.2913892917013134,
+  "ten_pass_min_pct": 0.10679305783737075,
+  "ten_pass_avg_pct": 0.10775068351959767,
+  "pass1_final_over_raw": 1.2925869765469498,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.2662191577947313
+   "11": 1.2787266020376595
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -1784,12 +1784,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.7159850349967093,
-  "ten_pass_avg_pct": 0.7400917045769371,
-  "pass1_final_over_raw": 1.536116638475186,
+  "ten_pass_min_pct": 0.18821780917537628,
+  "ten_pass_avg_pct": 0.1896394438439057,
+  "pass1_final_over_raw": 1.5449887578848411,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.4261422424499788
+   "11": 1.5159384479586706
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -1828,12 +1828,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.5109515151553937,
-  "ten_pass_avg_pct": 0.5392096374025462,
-  "pass1_final_over_raw": 1.5716352578035067,
+  "ten_pass_min_pct": 0.09834485654362873,
+  "ten_pass_avg_pct": 0.10035478107201772,
+  "pass1_final_over_raw": 1.57908975219471,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.4889178980156748
+   "11": 1.5633142031926506
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -1872,12 +1872,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.31074776854549646,
-  "ten_pass_avg_pct": 0.321874023544674,
-  "pass1_final_over_raw": 1.2792418218748545,
+  "ten_pass_min_pct": 0.3072815278761094,
+  "ten_pass_avg_pct": 0.318100400760741,
+  "pass1_final_over_raw": 1.2792954582730118,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.2386576271088061
+   "11": 1.2391785952368475
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -1916,12 +1916,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.1659432846345124,
-  "ten_pass_avg_pct": 0.17201065366909457,
-  "pass1_final_over_raw": 1.281373753933834,
+  "ten_pass_min_pct": 0.16345778666452937,
+  "ten_pass_avg_pct": 0.16930589663158052,
+  "pass1_final_over_raw": 1.2814124979847163,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.259502578075398
+   "11": 1.2598819652954827
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -1960,12 +1960,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.32772800679816316,
-  "ten_pass_avg_pct": 0.34006347657058333,
-  "pass1_final_over_raw": 1.2919997428238517,
+  "ten_pass_min_pct": 0.30396751093818075,
+  "ten_pass_avg_pct": 0.3141873123017964,
+  "pass1_final_over_raw": 1.2923695642844266,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.2487297987874943
+   "11": 1.2523342267128599
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -2004,12 +2004,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.17855693781173423,
-  "ten_pass_avg_pct": 0.18555771902804727,
-  "pass1_final_over_raw": 1.2951079613507297,
+  "ten_pass_min_pct": 0.16129906986051398,
+  "ten_pass_avg_pct": 0.1667967616125628,
+  "pass1_final_over_raw": 1.2953778136228882,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.2712758976062446
+   "11": 1.2739327788534929
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -2048,12 +2048,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.4527573341302409,
-  "ten_pass_avg_pct": 0.4742071320008073,
-  "pass1_final_over_raw": 1.3726615874536412,
+  "ten_pass_min_pct": 0.2831828874315282,
+  "ten_pass_avg_pct": 0.2899084050261523,
+  "pass1_final_over_raw": 1.375442330490924,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.3089404860106992
+   "11": 1.3360832950005814
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -2092,12 +2092,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.2779244531549555,
-  "ten_pass_avg_pct": 0.2943507110261371,
-  "pass1_final_over_raw": 1.3833617737571045,
+  "ten_pass_min_pct": 0.14901902174288123,
+  "ten_pass_avg_pct": 0.15346045862928695,
+  "pass1_final_over_raw": 1.3855374585241902,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.3431774907865444
+   "11": 1.3644211651945832
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -2136,12 +2136,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 1.002464841162435,
-  "ten_pass_avg_pct": 1.1643856686340537,
-  "pass1_final_over_raw": 1.5867348336530025,
+  "ten_pass_min_pct": 0.2777678304169087,
+  "ten_pass_avg_pct": 0.28813542600822467,
+  "pass1_final_over_raw": 1.6040817918854369,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.411355653503254
+   "11": 1.5584571795385072
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -2180,12 +2180,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.7476026124869213,
-  "ten_pass_avg_pct": 0.8465918642181155,
-  "pass1_final_over_raw": 1.625641103538656,
+  "ten_pass_min_pct": 0.14670235808368856,
+  "ten_pass_avg_pct": 0.15203503007887437,
+  "pass1_final_over_raw": 1.639088947930862,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.493138834145697
+   "11": 1.6143388463128947
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -2224,12 +2224,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.055708103870492486,
-  "ten_pass_avg_pct": 0.057861125057486154,
-  "pass1_final_over_raw": 1.03948526730989,
+  "ten_pass_min_pct": 0.054778804974299045,
+  "ten_pass_avg_pct": 0.05687472955534236,
+  "pass1_final_over_raw": 1.0394950737472473,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.033486323946794
+   "11": 1.0335980809792715
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -2268,12 +2268,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.028535310973492007,
-  "ten_pass_avg_pct": 0.02897783195095674,
-  "pass1_final_over_raw": 1.0398919466194867,
+  "ten_pass_min_pct": 0.027951091427831146,
+  "ten_pass_avg_pct": 0.02838504186088489,
+  "pass1_final_over_raw": 1.0398982580959084,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.036882491592301
+   "11": 1.036950270001684
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -2312,12 +2312,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.06106067678700283,
-  "ten_pass_avg_pct": 0.06357299125367367,
-  "pass1_final_over_raw": 1.0542695400965258,
+  "ten_pass_min_pct": 0.05438353886365277,
+  "ten_pass_avg_pct": 0.05652290050611595,
+  "pass1_final_over_raw": 1.0543393475640224,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.047586373322247
+   "11": 1.0483950499557306
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -2356,12 +2356,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.03174907063363004,
-  "ten_pass_avg_pct": 0.03228086263693989,
-  "pass1_final_over_raw": 1.0555977284626394,
+  "ten_pass_min_pct": 0.02756579960351376,
+  "ten_pass_avg_pct": 0.028031038180820745,
+  "pass1_final_over_raw": 1.0556420285979833,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.05219511357149
+   "11": 1.0526866841289122
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -2400,12 +2400,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.10451845179956215,
-  "ten_pass_avg_pct": 0.10900820103360709,
-  "pass1_final_over_raw": 1.1509953395083536,
+  "ten_pass_min_pct": 0.05219788115242366,
+  "ten_pass_avg_pct": 0.05429796759541618,
+  "pass1_final_over_raw": 1.1515920462134506,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.1385099099367504
+   "11": 1.1453543907474713
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -2444,12 +2444,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.055764936111153525,
-  "ten_pass_avg_pct": 0.05685689294587228,
-  "pass1_final_over_raw": 1.1597352917982557,
+  "ten_pass_min_pct": 0.025735038563680125,
+  "ten_pass_avg_pct": 0.026247914282929014,
+  "pass1_final_over_raw": 1.160082725899528,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.1531582423147968
+   "11": 1.1570413447184449
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -2488,12 +2488,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.28290700035621097,
-  "ten_pass_avg_pct": 0.2838869377094934,
-  "pass1_final_over_raw": 1.3939963174140981,
+  "ten_pass_min_pct": 0.058962506691179875,
+  "ten_pass_avg_pct": 0.05965253919393534,
+  "pass1_final_over_raw": 1.3971259924198571,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.3549243253249041
+   "11": 1.3888141174855255
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -2532,12 +2532,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.2280371860191789,
-  "ten_pass_avg_pct": 0.23221954016834867,
-  "pass1_final_over_raw": 1.4273189039098357,
+  "ten_pass_min_pct": 0.03513083776348787,
+  "ten_pass_avg_pct": 0.03531736694055622,
+  "pass1_final_over_raw": 1.4302074593841825,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.3945179914212256
+   "11": 1.4251643632991704
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -2576,12 +2576,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.13140464282703584,
-  "ten_pass_avg_pct": 0.13363148703436456,
-  "pass1_final_over_raw": 1.0948749544525838,
+  "ten_pass_min_pct": 0.12929891046246464,
+  "ten_pass_avg_pct": 0.13147081861587012,
+  "pass1_final_over_raw": 1.0948981551480914,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.08033164595649
+   "11": 1.0805883024270373
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -2620,12 +2620,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.0674485412215817,
-  "ten_pass_avg_pct": 0.06760954155741349,
-  "pass1_final_over_raw": 1.0956986305923648,
+  "ten_pass_min_pct": 0.06610950020004898,
+  "ten_pass_avg_pct": 0.0662812303645184,
+  "pass1_final_over_raw": 1.0957135927984365,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.0883131600104474
+   "11": 1.088472691651639
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -2664,12 +2664,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.14269218887789026,
-  "ten_pass_avg_pct": 0.14523101225474658,
-  "pass1_final_over_raw": 1.1095791580921148,
+  "ten_pass_min_pct": 0.12799567328840697,
+  "ten_pass_avg_pct": 0.13027852418377578,
+  "pass1_final_over_raw": 1.1097418784984705,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.0935695343298502
+   "11": 1.0953687880879388
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -2708,12 +2708,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.07458805995280528,
-  "ten_pass_avg_pct": 0.07474568446456484,
-  "pass1_final_over_raw": 1.1113526013966757,
+  "ten_pass_min_pct": 0.06521507826303423,
+  "ten_pass_avg_pct": 0.06545051810619558,
+  "pass1_final_over_raw": 1.1114573183038967,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.1030736053434052
+   "11": 1.1042041607318622
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -2752,12 +2752,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.22778557397947827,
-  "ten_pass_avg_pct": 0.23229311903728775,
-  "pass1_final_over_raw": 1.2057002110935933,
+  "ten_pass_min_pct": 0.12002848496966285,
+  "ten_pass_avg_pct": 0.1227698643684572,
+  "pass1_final_over_raw": 1.2069956682139544,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.1779835832016645
+   "11": 1.1922589952866565
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -2796,12 +2796,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.12522614951612418,
-  "ten_pass_avg_pct": 0.12569144579256306,
-  "pass1_final_over_raw": 1.2151076060369508,
+  "ten_pass_min_pct": 0.05995293166211247,
+  "ten_pass_avg_pct": 0.06047969410789629,
+  "pass1_final_over_raw": 1.2159021464970716,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.1999208389802034
+   "11": 1.2085683890355183
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -2840,12 +2840,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.5407765258238567,
-  "ten_pass_avg_pct": 0.5544573440876712,
-  "pass1_final_over_raw": 1.4459215431017254,
+  "ten_pass_min_pct": 0.11803649384184142,
+  "ten_pass_avg_pct": 0.11845240523428754,
+  "pass1_final_over_raw": 1.452483546531827,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.3677223153303804
+   "11": 1.4353699493462302
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -2884,12 +2884,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.35353955923339586,
-  "ten_pass_avg_pct": 0.3638761706164623,
-  "pass1_final_over_raw": 1.4813679793576398,
+  "ten_pass_min_pct": 0.061591439415702935,
+  "ten_pass_avg_pct": 0.06209707870173305,
+  "pass1_final_over_raw": 1.4860337254400522,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.4283386252005994
+   "11": 1.4768316333624167
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -2928,12 +2928,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.23399162446763186,
-  "ten_pass_avg_pct": 0.23712265874677468,
-  "pass1_final_over_raw": 1.1870674587690595,
+  "ten_pass_min_pct": 0.23074726908134233,
+  "ten_pass_avg_pct": 0.23380367136927555,
+  "pass1_final_over_raw": 1.18710811619885,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.1592178604050076
+   "11": 1.1596432924563196
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -2972,12 +2972,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.1196398499566203,
-  "ten_pass_avg_pct": 0.12154963634217031,
-  "pass1_final_over_raw": 1.1885847556339206,
+  "ten_pass_min_pct": 0.11763527481229681,
+  "ten_pass_avg_pct": 0.11946427335791347,
+  "pass1_final_over_raw": 1.1886110584898846,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.1742163170320883
+   "11": 1.1744874951780426
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -3016,12 +3016,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.25074509217164725,
-  "ten_pass_avg_pct": 0.25445353868025045,
-  "pass1_final_over_raw": 1.2007707266470538,
+  "ten_pass_min_pct": 0.22900964580715297,
+  "ten_pass_avg_pct": 0.23181438957336392,
+  "pass1_final_over_raw": 1.201055344440986,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.1705641803306635
+   "11": 1.1735018032771636
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -3060,12 +3060,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.1303791966558204,
-  "ten_pass_avg_pct": 0.13269325927873546,
-  "pass1_final_over_raw": 1.2032740125181927,
+  "ten_pass_min_pct": 0.11645981078297435,
+  "ten_pass_avg_pct": 0.11816513457149318,
+  "pass1_final_over_raw": 1.203458670584518,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.187402379489208
+   "11": 1.189313364026674
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -3104,12 +3104,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.3694743722998844,
-  "ten_pass_avg_pct": 0.3786033917170162,
-  "pass1_final_over_raw": 1.2808165130162399,
+  "ten_pass_min_pct": 0.21956101554381646,
+  "ten_pass_avg_pct": 0.22107141918225248,
+  "pass1_final_over_raw": 1.282944899115109,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.233142228790889
+   "11": 1.2548631504193068
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -3148,12 +3148,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.2059948464262963,
-  "ten_pass_avg_pct": 0.21089924896071652,
-  "pass1_final_over_raw": 1.2911899010007957,
+  "ten_pass_min_pct": 0.10996235385087644,
+  "ten_pass_avg_pct": 0.11099515991022901,
+  "pass1_final_over_raw": 1.2925440606679532,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.2642157845368263
+   "11": 1.2782688934506734
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -3192,12 +3192,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.8150716863750366,
-  "ten_pass_avg_pct": 0.8725187374536579,
-  "pass1_final_over_raw": 1.5334086899222679,
+  "ten_pass_min_pct": 0.20039220406789438,
+  "ten_pass_avg_pct": 0.20390608737898602,
+  "pass1_final_over_raw": 1.544730500053859,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.4047477481802084
+   "11": 1.5135199538037216
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -3236,12 +3236,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.552484265902558,
-  "ten_pass_avg_pct": 0.5902076282879859,
-  "pass1_final_over_raw": 1.570627233627655,
+  "ten_pass_min_pct": 0.10303502943217709,
+  "ten_pass_avg_pct": 0.10538834423306509,
+  "pass1_final_over_raw": 1.5790040310126747,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.4803508546068203
+   "11": 1.562441864702416
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -3280,12 +3280,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.3082000394732344,
-  "ten_pass_avg_pct": 0.31969147307782136,
-  "pass1_final_over_raw": 1.2792637690067568,
+  "ten_pass_min_pct": 0.3045063421394679,
+  "ten_pass_avg_pct": 0.31578003261987053,
+  "pass1_final_over_raw": 1.2793176650901283,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.2389501233920732
+   "11": 1.2394885908490398
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -3324,12 +3324,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.16059703806609082,
-  "ten_pass_avg_pct": 0.16559230221096666,
-  "pass1_final_over_raw": 1.281473414617312,
+  "ten_pass_min_pct": 0.15825987455631624,
+  "ten_pass_avg_pct": 0.16309721702842855,
+  "pass1_final_over_raw": 1.2815083810889256,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.2604106240793185
+   "11": 1.260760065086391
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -3368,12 +3368,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.3272943578784573,
-  "ten_pass_avg_pct": 0.3404559672010511,
-  "pass1_final_over_raw": 1.291980969792574,
+  "ten_pass_min_pct": 0.30260061122006765,
+  "ten_pass_avg_pct": 0.3134753416022196,
+  "pass1_final_over_raw": 1.292368074533126,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.248662471746214
+   "11": 1.2524222257597122
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -3412,12 +3412,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.17343072291496847,
-  "ten_pass_avg_pct": 0.17934039496246318,
-  "pass1_final_over_raw": 1.295207515814099,
+  "ten_pass_min_pct": 0.15692663367159246,
+  "ten_pass_avg_pct": 0.16157887005084384,
+  "pass1_final_over_raw": 1.2954598022913335,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.2721657696832722
+   "11": 1.274679446230088
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -3456,12 +3456,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.47513229611824626,
-  "ten_pass_avg_pct": 0.5056572109111549,
-  "pass1_final_over_raw": 1.3720673165790813,
+  "ten_pass_min_pct": 0.2874223696429787,
+  "ten_pass_avg_pct": 0.29565216644179765,
+  "pass1_final_over_raw": 1.3753394350528065,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.3042450956779839
+   "11": 1.3352139494582504
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -3500,12 +3500,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.28221817383666786,
-  "ten_pass_avg_pct": 0.29922451131182226,
-  "pass1_final_over_raw": 1.3832851222952192,
+  "ten_pass_min_pct": 0.14856733741346614,
+  "ten_pass_avg_pct": 0.1527490360817491,
+  "pass1_final_over_raw": 1.3855522372482096,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.3424466708830387
+   "11": 1.3645329406937468
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -3544,12 +3544,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 1.0237095301609676,
-  "ten_pass_avg_pct": 1.2315523988472536,
-  "pass1_final_over_raw": 1.584356897198484,
+  "ten_pass_min_pct": 0.2826571605608609,
+  "ten_pass_avg_pct": 0.29501639608324154,
+  "pass1_final_over_raw": 1.603926792324103,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.3996867843005756
+   "11": 1.5572315420659026
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -3588,12 +3588,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.7359398878833951,
-  "ten_pass_avg_pct": 0.8334742437899445,
-  "pass1_final_over_raw": 1.625864538909862,
+  "ten_pass_min_pct": 0.1462132350383649,
+  "ten_pass_avg_pct": 0.15095836641525884,
+  "pass1_final_over_raw": 1.6391207051718857,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.4953209450343807
+   "11": 1.614544212652841
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -3632,12 +3632,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.05116848355991011,
-  "ten_pass_avg_pct": 0.0534776753785202,
-  "pass1_final_over_raw": 1.0395332177781216,
+  "ten_pass_min_pct": 0.05041893106561465,
+  "ten_pass_avg_pct": 0.052659966541889855,
+  "pass1_final_over_raw": 1.0395411285904677,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.0339873937421877
+   "11": 1.0340798614767486
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -3676,12 +3676,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.02620136310693143,
-  "ten_pass_avg_pct": 0.026624293759385343,
-  "pass1_final_over_raw": 1.039916185646261,
+  "ten_pass_min_pct": 0.025713293814690032,
+  "ten_pass_avg_pct": 0.02612726808944173,
+  "pass1_final_over_raw": 1.039921494894431,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.0371507970181437
+   "11": 1.0372076563513568
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -3720,12 +3720,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.05950110354970155,
-  "ten_pass_avg_pct": 0.06220263578199231,
-  "pass1_final_over_raw": 1.0542865041472862,
+  "ten_pass_min_pct": 0.05345168339919975,
+  "ten_pass_avg_pct": 0.055718934500071406,
+  "pass1_final_over_raw": 1.0543495415719992,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.0477468887082206
+   "11": 1.0484895253152944
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -3764,12 +3764,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.03093967404501642,
-  "ten_pass_avg_pct": 0.03143924120643467,
-  "pass1_final_over_raw": 1.0556062061923588,
+  "ten_pass_min_pct": 0.027101681974680655,
+  "ten_pass_avg_pct": 0.02753841228484614,
+  "pass1_final_over_raw": 1.0556468673110881,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.0522921516400787
+   "11": 1.0527433833017794
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -3808,12 +3808,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.13283912869620304,
-  "ten_pass_avg_pct": 0.13794001337640877,
-  "pass1_final_over_raw": 1.1506715257027498,
+  "ten_pass_min_pct": 0.0662450033899231,
+  "ten_pass_avg_pct": 0.06859838297733448,
+  "pass1_final_over_raw": 1.1514311993506443,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.1348973185180868
+   "11": 1.1435569042212175
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -3852,12 +3852,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.07053436233943973,
-  "ten_pass_avg_pct": 0.07164146693195743,
-  "pass1_final_over_raw": 1.1595640640996088,
+  "ten_pass_min_pct": 0.03310350872961115,
+  "ten_pass_avg_pct": 0.03363396639882545,
+  "pass1_final_over_raw": 1.159997320907809,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.151283507249106
+   "11": 1.1561016895372764
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -3896,12 +3896,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.44092162155331394,
-  "ten_pass_avg_pct": 0.44133676274743383,
-  "pass1_final_over_raw": 1.3917856249468867,
+  "ten_pass_min_pct": 0.09628207432395984,
+  "ten_pass_avg_pct": 0.09719820088451028,
+  "pass1_final_over_raw": 1.3966048278963794,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.3315666643421382
+   "11": 1.3830893012165022
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -3940,12 +3940,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.3040629468501473,
-  "ten_pass_avg_pct": 0.31043201543261767,
-  "pass1_final_over_raw": 1.4261618192198302,
+  "ten_pass_min_pct": 0.052945564209674924,
+  "ten_pass_avg_pct": 0.05330964665975526,
+  "pass1_final_over_raw": 1.429946797127451,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.3825025507129751
+   "11": 1.4223420623298804
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -3984,12 +3984,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.12004661222245801,
-  "ten_pass_avg_pct": 0.12341503960074293,
-  "pass1_final_over_raw": 1.095003243865569,
+  "ten_pass_min_pct": 0.1183539302611892,
+  "ten_pass_avg_pct": 0.12160567330169456,
+  "pass1_final_over_raw": 1.0950217620110134,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.081564060448773
+   "11": 1.0817783071381284
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -4028,12 +4028,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.061578690330273765,
-  "ten_pass_avg_pct": 0.06191626733662033,
-  "pass1_final_over_raw": 1.0957634407683527,
+  "ten_pass_min_pct": 0.060462161139631466,
+  "ten_pass_avg_pct": 0.06079706496946682,
+  "pass1_final_over_raw": 1.0957759276425634,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.0889977547061989
+   "11": 1.089132128415159
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -4072,12 +4072,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.13314560473051423,
-  "ten_pass_avg_pct": 0.13692460710396132,
-  "pass1_final_over_raw": 1.1096894134774458,
+  "ten_pass_min_pct": 0.12063687324468755,
+  "ten_pass_avg_pct": 0.12384924681574942,
+  "pass1_final_over_raw": 1.109826965956134,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.0945883125719749
+   "11": 1.0961581924839843
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -4116,12 +4116,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.06957996080439549,
-  "ten_pass_avg_pct": 0.06990529698381809,
-  "pass1_final_over_raw": 1.1114087434517919,
+  "ten_pass_min_pct": 0.0614033838548356,
+  "ten_pass_avg_pct": 0.061753338722503034,
+  "pass1_final_over_raw": 1.1115000079387023,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.103663802394697
+   "11": 1.1046551669359541
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -4160,12 +4160,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.2504616550130892,
-  "ten_pass_avg_pct": 0.25517144172861717,
-  "pass1_final_over_raw": 1.205428122488622,
+  "ten_pass_min_pct": 0.13226972865738607,
+  "ten_pass_avg_pct": 0.13505492406155015,
+  "pass1_final_over_raw": 1.2068483412706843,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.1750198402988512
+   "11": 1.1906479597819537
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -4204,12 +4204,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.1368636567192644,
-  "ten_pass_avg_pct": 0.13696902813194858,
-  "pass1_final_over_raw": 1.214965186759483,
+  "ten_pass_min_pct": 0.06629341209928352,
+  "ten_pass_avg_pct": 0.06669380694393567,
+  "pass1_final_over_raw": 1.2158247049252433,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.198426123106426
+   "11": 1.2077402001408137
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -4248,12 +4248,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.6457983610176541,
-  "ten_pass_avg_pct": 0.674853765025396,
-  "pass1_final_over_raw": 1.443901952304324,
+  "ten_pass_min_pct": 0.14599391198198353,
+  "ten_pass_avg_pct": 0.14746740847129994,
+  "pass1_final_over_raw": 1.4520290156496731,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.3493659987759756
+   "11": 1.4307578574438948
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -4292,12 +4292,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.3995318082984815,
-  "ten_pass_avg_pct": 0.41302428966785315,
-  "pass1_final_over_raw": 1.4805815906955875,
+  "ten_pass_min_pct": 0.07429615212276851,
+  "ten_pass_avg_pct": 0.07522738488714706,
+  "pass1_final_over_raw": 1.4858306021858023,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.4205540634976745
+   "11": 1.4746908495431765
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -4336,12 +4336,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.21930386334398758,
-  "ten_pass_avg_pct": 0.2202634833869163,
-  "pass1_final_over_raw": 1.1873281989586233,
+  "ten_pass_min_pct": 0.2165754775415124,
+  "ten_pass_avg_pct": 0.21742076415272954,
+  "pass1_final_over_raw": 1.1873605559033622,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.1614333974720903
+   "11": 1.161795991952445
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -4380,12 +4380,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.11051120206324187,
-  "ten_pass_avg_pct": 0.11157360161247296,
-  "pass1_final_over_raw": 1.1887164543623647,
+  "ten_pass_min_pct": 0.10876705053236807,
+  "ten_pass_avg_pct": 0.10979592989744003,
+  "pass1_final_over_raw": 1.1887383581227888,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.17551990945629
+   "11": 1.1757507929426096
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -4424,12 +4424,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.23744356488380172,
-  "ten_pass_avg_pct": 0.23831976178847253,
-  "pass1_final_over_raw": 1.2010318159361497,
+  "ten_pass_min_pct": 0.21781188325465972,
+  "ten_pass_avg_pct": 0.2186094037079366,
+  "pass1_final_over_raw": 1.201267504670885,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.1727138752937307
+   "11": 1.1752635060011334
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -4468,12 +4468,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.12144281654583557,
-  "ten_pass_avg_pct": 0.12283455983755794,
-  "pass1_final_over_raw": 1.2034071941302322,
+  "ten_pass_min_pct": 0.10918386404399957,
+  "ten_pass_avg_pct": 0.11018843642042989,
+  "pass1_final_over_raw": 1.203565615204394,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.188706635608931
+   "11": 1.1903692796498062
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -4512,12 +4512,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.38131573684385034,
-  "ten_pass_avg_pct": 0.3887455767173579,
-  "pass1_final_over_raw": 1.2807250293327668,
+  "ten_pass_min_pct": 0.22649262235951764,
+  "ten_pass_avg_pct": 0.22712713355160802,
+  "pass1_final_over_raw": 1.282885320360858,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.2317993937197134
+   "11": 1.2540435265521637
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -4556,12 +4556,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.20962531111841465,
-  "ten_pass_avg_pct": 0.21450472747544155,
-  "pass1_final_over_raw": 1.2911444465304402,
+  "ten_pass_min_pct": 0.11248124860024121,
+  "ten_pass_avg_pct": 0.11346316098770773,
+  "pass1_final_over_raw": 1.2925130736980281,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.2637145964720358
+   "11": 1.277922463964655
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -4600,12 +4600,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.9080288134263282,
-  "ten_pass_avg_pct": 0.9911108057662903,
-  "pass1_final_over_raw": 1.531087680471932,
+  "ten_pass_min_pct": 0.2268534344267853,
+  "ten_pass_avg_pct": 0.23184818336968266,
+  "pass1_final_over_raw": 1.5442728966261345,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.3859301101157913
+   "11": 1.5088404484741544
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -4644,12 +4644,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.5868621687011225,
-  "ten_pass_avg_pct": 0.629853933776505,
-  "pass1_final_over_raw": 1.569895442363173,
+  "ten_pass_min_pct": 0.1139708250037731,
+  "ten_pass_avg_pct": 0.11665409995880009,
+  "pass1_final_over_raw": 1.5788192773117493,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.4737704338478055
+   "11": 1.5604980825042836
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -4688,12 +4688,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.29368603525477466,
-  "ten_pass_avg_pct": 0.29864621152410964,
-  "pass1_final_over_raw": 1.2796555340376217,
+  "ten_pass_min_pct": 0.29020715814623477,
+  "ten_pass_avg_pct": 0.29521999810509575,
+  "pass1_final_over_raw": 1.2796984734311396,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.2419486253243914
+   "11": 1.2424171723276312
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -4732,12 +4732,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.14916284012576064,
-  "ten_pass_avg_pct": 0.15245260912860442,
-  "pass1_final_over_raw": 1.2816712832212112,
+  "ten_pass_min_pct": 0.1470852872263192,
+  "ten_pass_avg_pct": 0.15029939421749333,
+  "pass1_final_over_raw": 1.2817004250446482,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.2622653712799643
+   "11": 1.262566312452789
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -4776,12 +4776,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.3136402386246004,
-  "ten_pass_avg_pct": 0.31967684958803366,
-  "pass1_final_over_raw": 1.2923855233153843,
+  "ten_pass_min_pct": 0.29071413405518454,
+  "ten_pass_avg_pct": 0.29576074655167983,
+  "pass1_final_over_raw": 1.2927082419590394,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.2516602324415445
+   "11": 1.2549798629752709
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -4820,12 +4820,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.1619630889271003,
-  "ten_pass_avg_pct": 0.1659855278861929,
-  "pass1_final_over_raw": 1.2954137264896461,
+  "ten_pass_min_pct": 0.14717915138223994,
+  "ten_pass_avg_pct": 0.15034481934740426,
+  "pass1_final_over_raw": 1.2956312476466783,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.2740716260910585
+   "11": 1.2762833598902088
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -4864,12 +4864,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.48569135546588366,
-  "ten_pass_avg_pct": 0.5132065142468668,
-  "pass1_final_over_raw": 1.3720485528677522,
+  "ten_pass_min_pct": 0.2904309659073971,
+  "ten_pass_avg_pct": 0.2960736912736683,
+  "pass1_final_over_raw": 1.3753918881755145,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.3032380506804058
+   "11": 1.3352084323056828
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -4908,12 +4908,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.28380483148054286,
-  "ten_pass_avg_pct": 0.30036157995051704,
-  "pass1_final_over_raw": 1.3832811107815122,
+  "ten_pass_min_pct": 0.1479456776606449,
+  "ten_pass_avg_pct": 0.15156225174950744,
+  "pass1_final_over_raw": 1.3855793236130036,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.3422896876163284
+   "11": 1.3647218176616642
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -4952,12 +4952,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 1.0110457787208418,
-  "ten_pass_avg_pct": 1.2283821019725745,
-  "pass1_final_over_raw": 1.583958140449717,
+  "ten_pass_min_pct": 0.2864537377627144,
+  "ten_pass_avg_pct": 0.29968124754662984,
+  "pass1_final_over_raw": 1.60382872535413,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.3997818504377055
+   "11": 1.5564079452006185
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -4996,12 +4996,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.7087741761385574,
-  "ten_pass_avg_pct": 0.8013112634005273,
-  "pass1_final_over_raw": 1.6264791954265565,
+  "ten_pass_min_pct": 0.1456800065571135,
+  "ten_pass_avg_pct": 0.15009684643005358,
+  "pass1_final_over_raw": 1.6391415017372677,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.5007452897117377
+   "11": 1.6147040121227652
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -5040,12 +5040,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.00022628755680631819,
-  "ten_pass_avg_pct": 0.00023582825750312185,
-  "pass1_final_over_raw": 1.0025574991334996,
+  "ten_pass_min_pct": 0.0002482614528840505,
+  "ten_pass_avg_pct": 0.0002617330975927913,
+  "pass1_final_over_raw": 1.0025575790611043,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.002533856245572
+   "11": 1.002531339120054
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -5084,12 +5084,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.00014213022861899802,
-  "ten_pass_avg_pct": 0.00014497211918461202,
-  "pass1_final_over_raw": 1.0026862787262447,
+  "ten_pass_min_pct": 0.0001688691380948587,
+  "ten_pass_avg_pct": 0.00017360991340564753,
+  "pass1_final_over_raw": 1.0026863436626423,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.002671742665602
+   "11": 1.0026689361697037
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -5128,12 +5128,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.0001421327085395405,
-  "ten_pass_avg_pct": 0.00014498275576797223,
-  "pass1_final_over_raw": 1.0026862787262447,
+  "ten_pass_min_pct": 0.00016886947745356875,
+  "ten_pass_avg_pct": 0.00017362338649448377,
+  "pass1_final_over_raw": 1.0026863436626423,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.0026717415991002
+   "11": 1.0026689348187965
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -5172,12 +5172,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.0024461150427513866,
-  "ten_pass_avg_pct": 0.0025709696891856996,
-  "pass1_final_over_raw": 1.0173834203394787,
+  "ten_pass_min_pct": 0.002045802659300461,
+  "ten_pass_avg_pct": 0.0021502029043649986,
+  "pass1_final_over_raw": 1.0173877406267455,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.017121884402108
+   "11": 1.0171690027827196
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -5216,12 +5216,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.001680783743628986,
-  "ten_pass_avg_pct": 0.0017262122432456014,
-  "pass1_final_over_raw": 1.018414896933634,
+  "ten_pass_min_pct": 0.0013594167811789677,
+  "ten_pass_avg_pct": 0.001395664333921315,
+  "pass1_final_over_raw": 1.0184184528002695,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.0182391105622637
+   "11": 1.0182763246954085
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -5260,12 +5260,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.001680788262258356,
-  "ten_pass_avg_pct": 0.0017263878206588,
-  "pass1_final_over_raw": 1.018414896933634,
+  "ten_pass_min_pct": 0.0013594194419936081,
+  "ten_pass_avg_pct": 0.0013957698797376725,
+  "pass1_final_over_raw": 1.0184184528002695,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.018239092683972
+   "11": 1.018276313947776
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -5304,12 +5304,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.03487811198545007,
-  "ten_pass_avg_pct": 0.036530314038523734,
-  "pass1_final_over_raw": 1.1143086633172803,
+  "ten_pass_min_pct": 0.013530984558692088,
+  "ten_pass_avg_pct": 0.014229362506927676,
+  "pass1_final_over_raw": 1.11454122641218,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.1102447431706512
+   "11": 1.112956320301904
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -5348,12 +5348,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.026750162256415463,
-  "ten_pass_avg_pct": 0.02737623313823644,
-  "pass1_final_over_raw": 1.1225851314981437,
+  "ten_pass_min_pct": 0.00947893761416904,
+  "ten_pass_avg_pct": 0.009696651933377492,
+  "pass1_final_over_raw": 1.122775769915854,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.1195156994072235
+   "11": 1.1216875282590455
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -5392,12 +5392,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.026750277019575032,
-  "ten_pass_avg_pct": 0.02738072002896272,
-  "pass1_final_over_raw": 1.1225851314979618,
+  "ten_pass_min_pct": 0.009478957163075981,
+  "ten_pass_avg_pct": 0.009697421618267319,
+  "pass1_final_over_raw": 1.1227757699157346,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.11951519695349
+   "11": 1.1216874419158644
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -5436,12 +5436,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.2778216609607969,
-  "ten_pass_avg_pct": 0.27959165618344917,
-  "pass1_final_over_raw": 1.3894085636548144,
+  "ten_pass_min_pct": 0.05080657551175628,
+  "ten_pass_avg_pct": 0.0513550663443446,
+  "pass1_final_over_raw": 1.3925202008261113,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.3510469867775678
+   "11": 1.3853854078499583
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -5480,12 +5480,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.2534136604487544,
-  "ten_pass_avg_pct": 0.2586940411414761,
-  "pass1_final_over_raw": 1.4222604739963933,
+  "ten_pass_min_pct": 0.034791815772882734,
+  "ten_pass_avg_pct": 0.03526344231179392,
+  "pass1_final_over_raw": 1.4254806978062704,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.385892809960541
+   "11": 1.420461931308936
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -5524,12 +5524,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.29269676872828976,
-  "ten_pass_avg_pct": 0.30039241873538913,
-  "pass1_final_over_raw": 1.421629461225984,
+  "ten_pass_min_pct": 0.036749964654372365,
+  "ten_pass_avg_pct": 0.03734814392488291,
+  "pass1_final_over_raw": 1.425448736944535,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.3794974404404108
+   "11": 1.4201338889840067
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -5569,12 +5569,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.23847471323347588,
-  "ten_pass_avg_pct": 0.24296845212297846,
-  "pass1_final_over_raw": 1.1226568780025572,
+  "ten_pass_min_pct": 0.23823264221477514,
+  "ten_pass_avg_pct": 0.24269817158979223,
+  "pass1_final_over_raw": 1.123948701396042,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.0956761646833568
+   "11": 1.0969666624982934
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -5613,12 +5613,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.30680123597389586,
-  "ten_pass_avg_pct": 0.3121990088377668,
-  "pass1_final_over_raw": 1.2194150717953263,
+  "ten_pass_min_pct": 0.1890689446888388,
+  "ten_pass_avg_pct": 0.19038728289136728,
+  "pass1_final_over_raw": 1.2209608780025571,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.1818754632301538
+   "11": 1.1979134820037232
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -5658,12 +5658,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.3973458594136857,
-  "ten_pass_avg_pct": 0.4316572063818911,
+  "ten_pass_min_pct": 0.3973635876067752,
+  "ten_pass_avg_pct": 0.4316762658269422,
   "pass1_final_over_raw": 1.245037986310679,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.1923267128419055
+   "11": 1.192324430446394
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -5702,12 +5702,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.34614102083496967,
-  "ten_pass_avg_pct": 0.36811547475009937,
+  "ten_pass_min_pct": 0.34615952728662375,
+  "ten_pass_avg_pct": 0.36813472109062695,
   "pass1_final_over_raw": 1.245037986310679,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.1999578925570624
+   "11": 1.1999555745376378
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -5746,12 +5746,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.02239426174714463,
-  "ten_pass_avg_pct": 0.022709574445401566,
+  "ten_pass_min_pct": 0.022411904559517644,
+  "ten_pass_avg_pct": 0.022727442046674477,
   "pass1_final_over_raw": 1.3746821097993855,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.3715634535781414
+   "11": 1.371561002368522
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -5790,12 +5790,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 4.6337775983971836e-05,
-  "ten_pass_avg_pct": 4.775331656694915e-05,
+  "ten_pass_min_pct": 7.257933689166686e-05,
+  "ten_pass_avg_pct": 7.258832454475037e-05,
   "pass1_final_over_raw": 1.3749990020615854,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.3749924359994283
+   "11": 1.3749890212068065
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -5834,12 +5834,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.024359164460549525,
-  "ten_pass_avg_pct": 0.024425185548028826,
-  "pass1_final_over_raw": 1.293678209018113,
+  "ten_pass_min_pct": 0.008816493333504065,
+  "ten_pass_avg_pct": 0.008819295671387563,
+  "pass1_final_over_raw": 1.2938819235952879,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.2905218468041837
+   "11": 1.2927412636354636
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -5878,12 +5878,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.01270679937284502,
-  "ten_pass_avg_pct": 0.0128197680538124,
+  "ten_pass_min_pct": 0.012727481400142028,
+  "ten_pass_avg_pct": 0.012840618568399695,
   "pass1_final_over_raw": 1.1873458508296941,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.185824578798075
+   "11": 1.1858221059781084
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -5922,12 +5922,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 9.302073141057184e-05,
-  "ten_pass_avg_pct": 9.382351425404177e-05,
+  "ten_pass_min_pct": 0.0001197982766180545,
+  "ten_pass_avg_pct": 0.00011981895906118161,
   "pass1_final_over_raw": 1.1874985768496116,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.1874874353676845
+   "11": 1.1874843484419926
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -5966,12 +5966,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.022221011700755147,
-  "ten_pass_avg_pct": 0.02236771014419292,
-  "pass1_final_over_raw": 1.1999744825638936,
+  "ten_pass_min_pct": 0.006361544089611845,
+  "ten_pass_avg_pct": 0.006379410937468241,
+  "pass1_final_over_raw": 1.2001691679486015,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.1972931144477685
+   "11": 1.199403750473608
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -6010,12 +6010,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.008202178549782597,
-  "ten_pass_avg_pct": 0.008237452416674857,
+  "ten_pass_min_pct": 0.00822425982632565,
+  "ten_pass_avg_pct": 0.00825961299985191,
   "pass1_final_over_raw": 1.1249065889716732,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.123980295936523
+   "11": 1.1239778049279265
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -6054,12 +6054,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 6.005794879860175e-05,
-  "ten_pass_avg_pct": 6.167257934743908e-05,
+  "ten_pass_min_pct": 9.160173832681556e-05,
+  "ten_pass_avg_pct": 9.161737678846862e-05,
   "pass1_final_over_raw": 1.1249989690894215,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.1249920309498531
+   "11": 1.1249886621864709
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -6098,12 +6098,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.0128904191338252,
-  "ten_pass_avg_pct": 0.012924591923621285,
-  "pass1_final_over_raw": 1.1688436770041888,
+  "ten_pass_min_pct": 0.0038379924746635126,
+  "ten_pass_avg_pct": 0.003839034217401878,
+  "pass1_final_over_raw": 1.1689512134569326,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.167333872569493
+   "11": 1.1685025266052824
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -6186,12 +6186,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.12261189054163091,
-  "ten_pass_avg_pct": 0.12872092163305615,
-  "pass1_final_over_raw": 1.281443362670344,
+  "ten_pass_min_pct": 0.06764663496624929,
+  "ten_pass_avg_pct": 0.0706675495423208,
+  "pass1_final_over_raw": 1.2831084385794427,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.2650436998273247
+   "11": 1.2740697981251718
   },
   "metadata_bits_per_pass": 3.0,
   "compute": {
@@ -6230,12 +6230,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.12048219382362603,
-  "ten_pass_avg_pct": 0.12631685554855074,
-  "pass1_final_over_raw": 1.28081688801624,
+  "ten_pass_min_pct": 0.06635172659092987,
+  "ten_pass_avg_pct": 0.06920075298240544,
+  "pass1_final_over_raw": 1.2829452741151088,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.2647296471165268
+   "11": 1.2740947852384936
   },
   "metadata_bits_per_pass": 3.0,
   "compute": {
@@ -6274,12 +6274,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.3562116154333412,
-  "ten_pass_avg_pct": 0.3645649151915454,
-  "pass1_final_over_raw": 1.2810068658241602,
+  "ten_pass_min_pct": 0.21133441599041594,
+  "ten_pass_avg_pct": 0.2127037204481829,
+  "pass1_final_over_raw": 1.283054004629976,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.2350645830489082
+   "11": 1.256022712761953
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -6318,12 +6318,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.3016445981049903,
-  "ten_pass_avg_pct": 0.3030245711650315,
-  "pass1_final_over_raw": 1.281932516307957,
+  "ten_pass_min_pct": 0.1944840359367249,
+  "ten_pass_avg_pct": 0.19567707694005804,
+  "pass1_final_over_raw": 1.2833075313129807,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.2436122573937525
+   "11": 1.2584161120725441
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -6362,12 +6362,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.3682128416815422,
-  "ten_pass_avg_pct": 0.3780007356939257,
-  "pass1_final_over_raw": 1.2808165130162503,
+  "ten_pass_min_pct": 0.21885027053116102,
+  "ten_pass_avg_pct": 0.2207248506013002,
+  "pass1_final_over_raw": 1.2829448991151176,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.2332168265675192
+   "11": 1.254906736805792
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -6406,12 +6406,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.3694743722998844,
-  "ten_pass_avg_pct": 0.3786033917170162,
-  "pass1_final_over_raw": 1.2808165130162399,
+  "ten_pass_min_pct": 0.21956101554381646,
+  "ten_pass_avg_pct": 0.22107141918225248,
+  "pass1_final_over_raw": 1.282944899115109,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.233142228790889
+   "11": 1.2548631504193068
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -6450,12 +6450,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.2059948464262963,
-  "ten_pass_avg_pct": 0.21089924896071652,
-  "pass1_final_over_raw": 1.2911899010007957,
+  "ten_pass_min_pct": 0.10996235385087644,
+  "ten_pass_avg_pct": 0.11099515991022901,
+  "pass1_final_over_raw": 1.2925440606679532,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.2642157845368263
+   "11": 1.2782688934506734
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -6494,12 +6494,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.21442418435181756,
-  "ten_pass_avg_pct": 0.22155732082162444,
-  "pass1_final_over_raw": 1.291013265193386,
+  "ten_pass_min_pct": 0.11140426996458609,
+  "ten_pass_avg_pct": 0.11304509753484973,
+  "pass1_final_over_raw": 1.292507154051732,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.2626934070153704
+   "11": 1.2779700973950952
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -6538,12 +6538,12 @@
    "oracle": false
   },
   "evidence_class": "math_candidate",
-  "ten_pass_min_pct": 0.21493189637408416,
-  "ten_pass_avg_pct": 0.222169381897711,
-  "pass1_final_over_raw": 1.2910035159835227,
+  "ten_pass_min_pct": 0.1114255105147457,
+  "ten_pass_avg_pct": 0.11309498407359242,
+  "pass1_final_over_raw": 1.2925060335008554,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.2626064178230538
+   "11": 1.2779626068762193
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -6582,12 +6582,12 @@
    "oracle": true
   },
   "evidence_class": "upper_bound",
-  "ten_pass_min_pct": 0.37069706721232126,
-  "ten_pass_avg_pct": 0.37986830347473544,
-  "pass1_final_over_raw": 1.2808000889135804,
+  "ten_pass_min_pct": 0.22024534199486703,
+  "ten_pass_avg_pct": 0.22174086285741906,
+  "pass1_final_over_raw": 1.2829367204270379,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.2329698524318764
+   "11": 1.254770961697305
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {
@@ -6626,12 +6626,12 @@
    "oracle": true
   },
   "evidence_class": "upper_bound",
-  "ten_pass_min_pct": 0.36714012332330137,
-  "ten_pass_avg_pct": 0.387576350846729,
+  "ten_pass_min_pct": 0.3671576926777671,
+  "ten_pass_avg_pct": 0.3875949474966278,
   "pass1_final_over_raw": 1.3693000999240044,
   "payback_pass": null,
   "raw_ratio_by_pass": {
-   "11": 1.3171452493627815
+   "11": 1.317142790373012
   },
   "metadata_bits_per_pass": 0.0,
   "compute": {

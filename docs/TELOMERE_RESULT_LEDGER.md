@@ -14,115 +14,152 @@ Everything else is exact counting against canonical costs
 `src/bin/v1_cost_table.rs`; re-pin locally with
 `cargo run --quiet --bin v1_cost_table`).
 
+> **Correction notice 1 (accounting).** An earlier revision headlined a
+> 0.908 %/pass "junction-density" primary. Instrumented cross-checks found
+> two accounting bugs in the v-next kernel's run/grid bookkeeping (finding
+> 5). Every `segments > 0` lane was re-evaluated; the family corrects to
+> ~0.19–0.31 %/pass. φ=1 lanes were unaffected.
+>
+> **Correction notice 2 (decode dependency — maintainer review).** The
+> claim that layer-masked expansion "needs no epoch inference" was wrong.
+> In the evolving-stream model (the one every kernel prices — surviving
+> entries carry forward free, which is correct for the wire), ANY
+> pass-varying rule — masks, salts, per-layer alphabets, and the
+> permutation refresh itself — requires per-record birth-epoch knowledge
+> at decode. The strict layer-stack alternative decodes trivially but pays
+> ~10:1 re-wrap carriage that no kernel charges (maintainer's original
+> pricing, confirmed). My earlier two-layer "nested decode proof" stacked
+> fully re-encoded layers — it paid carriage the kernel doesn't and dodged
+> the hard case. Consequences: masked lanes demote to `upper_bound`;
+> per-layer alphabet schedules demote to conditional; the affine-stride
+> epoch-inference architecture (maintainer's handoff v2) is un-demoted and
+> is now load-bearing for every refreshed lane. One new supporting lemma
+> fell out: **arity-1 replacements preserve sequence length (1→1), so the
+> permutation unwind needs only BUNDLE birth epochs** — exactly what the
+> affine-stride fingerprint provides, and exactly why the v2 design salts
+> bundles and leaves arity-1 unsalted. The v2 architecture is canonical.
+
 ## Headline table
 
-| result | class | rate (10-pass min) | final/raw 11 / 50 / 100 / 200 / 500 | payback pass | selector | oracle? | literals charged | side info charged | decode proven | format | carrying assumption |
-| --- | --- | ---: | --- | ---: | --- | --- | --- | --- | --- | --- | --- |
-| **v-next primary: grid_heavy φ=.5 S0=256k J2D1 layer-masked** | `math_candidate` | **+0.908%** | 1.386 / 1.096 / 0.958 / **0.810** / **0.541** | **81** | greedy | no (oracle bound +0.910%) | yes (runs+singles, headers exact) | zero metadata | primitives yes, full config no | v-next | uniform hash law; expectation-level recurrence |
-| audited BIT_LITERAL target (block 8, D96, perm+swaps, vars 4) | `math_candidate` (primitive wire-proven) | +0.1328% | 1.340 / 1.227 / 1.072 / 0.832 / 0.486 | 126 (effective) | greedy | no (greedy at oracle bound) | yes (3-bit BIT_LITERAL) | 3 bits/pass | BIT_LITERAL yes (`bit_literal_decode_proof.py`) | v-next (needs BIT_LITERAL) | uniform hash law |
-| canonical-v1 frontier (10-bit literal wrap, no new primitive) | `math_candidate` | +0.0430% | no crossover ≤ 500 | none | greedy | no | yes | 3 bits/pass | n/a (current wire format) | v1 | uniform hash law |
-| LITERAL_RUN ε-bloat bound (S0=1024 giant runs) | `math_candidate` | +0.0002% | pass-1 1.0027; ~0.99 @500 | 293 | greedy | no | yes | zero | yes (`literal_run_decode_proof.py`) | v-next | junction-starved: proves the bloat end of the frontier, not a viable lane alone |
-| layer-masked expansion (mechanism) | `wire_proven_candidate` (as primitive) | n/a (mechanism) | n/a | n/a | n/a | n/a | n/a | zero | yes (`position_salt_decode_proof.py`, nested) | v-next | fixed public mask schedule; law-validated with real SHA-256 dice |
-| k=2 XOR (MitM) records | `wire_proven_candidate` (as primitive); `math_candidate` configs ~9× slower at B=8 | +0.0225% (B=8) | dominated | none ≤ 500 | greedy | no | yes | zero | yes (`mitm_xor_decode_proof.py`, salted + unsalted) | v-next | extra Lotus field (~+6-9 bits/record) dominates at small spans; amortizes only at spans ≥ ~60 bits |
-| **position-ONLY salted expansion** | **`invalid` (as refresh)** | measured 0 accepts from pass 3 | n/a | n/a | n/a | n/a | n/a | zero | decode itself is sound; the REFRESH claim is dead | v-next | **deadlock**: pre-first-accept emission replicates the previous layer, so every (content, position) query repeats and re-misses |
-| old uncharged rechunk-4 (0.53%/pass headline) | `invalid` (`failed_audit_uncharged_passthrough`) | n/a | n/a | n/a | n/a | n/a | **no** | no | no | — | verbatim chunks carried no charged record/chunk discriminator |
-| charged rechunk, explicit flag | `invalid` (fails on cost) | −24.7%/pass | bloats | never | greedy | no | yes | yes | yes | v1 | 1 flag bit per element per pass exceeds all gain |
-| charged rechunk, implicit selector (decode-by-replay) | `invalid` (fails on cost; Kraft-dominated) | −1.67%/pass | bloats | never | greedy | no | yes | yes (stuffing escapes) | replay decode defined | v1 | escape mass `Σ cnt·2^g·2^-S` > gain mass `Σ cnt·g·2^-S` for all g ≥ 1 — analytic, format-independent within this family |
-| nested superposition | mechanism audit | +0.003 to +0.016 pp contribution | n/a | n/a | n/a | n/a | encoder-state only | zero wire | n/a (encoder-only; collapsed path serialized) | both | branching subcritical (~2^-7/generation); delta=8 cap=4 nesting=2 captures everything |
-| oracle rows (any config) | `upper_bound` | labeled per row in `vnext_sweep.json` | — | — | oracle | yes | — | — | — | — | selection upper bound only, never a config |
+| result | class | rate (10-pass min) | final/raw 11 / 50 / 100 / 200 / 500 | payback pass | kernel | decode dependency | why |
+| --- | --- | ---: | --- | ---: | --- | --- | --- |
+| **PRIMARY: constant single-cheap alphabet {sgl 2b, a2 3b} + J2D1 + permutation+swaps** | `math_candidate` | **+0.202%** | 1.207 / 1.079 / 0.935 / **0.742** / **0.478** | **76** | audited (`entry_state`) | bundle stride-inference induction (v2 obligation 1) + ~T/N escape ledger | 2-bit single pays for itself even charging a2 +1 forever; parse needs no epochs (one alphabet); arity-1 dice content-keyed |
+| J2D1 + canonical alphabet (singles 3b) | `math_candidate` | +0.199% | 1.321 / 1.195 / 1.054 / 0.853 / 0.560 | 123 | audited | same as primary | J2 alone: rate up, wrap unchanged |
+| audited BIT_LITERAL reference (J3, canonical, D96) | `math_candidate` | +0.1328% | 1.340 / 1.227 / 1.072 / 0.832 / 0.486 | 126 | audited | same as primary (the dependency was always there; previously unstated) | the conservative floor; deepest J3 lane |
+| CONDITIONAL: pass-1-only 2-bit single (alphabet schedule) | conditional `math_candidate` | +0.309% (J2) / +0.159% (J3) | J2: 0.631@200, 0.382@500 | 53 / 81 | audited | **needs a singles-epoch channel — none known** (surviving pass-1 singles parse ambiguously at top level; singles have no stride) | the upside if a singles channel is ever found |
+| UPPER BOUND: layer-masked expansion (fresh=1, zero metadata) | `upper_bound` | +0.397% (v-next kernel) | 0.817@200, 0.545@500 | 76 | v-next | **needs pass-varying dice keys for everything incl. arity-1 — no known zero-bit channel** (impossibility sketch: decode-derivable keys are frozen-attribute (no re-roll) or current-offset (deadlock/shift); pass-varying is neither) | the prize if a channel is found; law-validated as a LAW |
+| affine shuffle + epoch salts (maintainer handoff v2) | **the canonical refresh architecture** | ≈ permutation rows above (strides price ~T/N escapes) | as primary | as primary | — | IS the epoch channel (obligation 1 = its induction proof) | un-demoted; the arity-1 length-preservation lemma completes its shape |
+| φ<1 run-carriage lanes (corrected accounting) | `math_candidate` | +0.19–0.31% (v-next kernel) | ~0.85@200 | 104–155 | v-next | as primary | carriage cuts wrap at proportional rate cost |
+| LITERAL_RUN ε-bloat bound (giant runs) | `math_candidate` | +0.0002% | 1.0026 p1 | 283 | v-next | as primary | attack-starved; "single-digit crossover" does not survive |
+| FIXED-length runs (no Lotus length field) | sound negative | +0.24% | dominated | 130 | v-next | — | length field pays for itself; also: minting the codeword costs a split (see alphabet tax) |
+| k=2 XOR (MitM) records | `wire_proven_candidate` (primitive) | configs +0.0225% | dominated | none | v-next | — | extra Lotus field dominates at small spans |
+| position-ONLY salted expansion | `invalid` (as refresh) | 0 accepts from pass 3 | — | — | dice-validated | — | emission-replication deadlock |
+| old uncharged rechunk-4 / charged rechunk variants | `invalid` | — / −24.7% / −1.67% | — | — | — | — | uncharged passthrough; flag tax; Kraft dominance |
+| nested superposition | mechanism audit | +0.003–0.016 pp | — | — | both | — | subcritical |
+| oracle rows | `upper_bound` | per artifact | — | — | — | — | never configs |
 
-## The v-next primary, in words
+## Alphabet tax accounting (maintainer Q1)
 
-Configuration: block 8 bits; alphabet `grid_heavy` (entry arities 1–2 at
-{2,2} bits, grid arities 3–4 at {3,3} bits, BIT_LITERAL single `110`,
-LITERAL_RUN `111`); J2D1 seed fields (min record 6 bits, payload cap 28 →
-depth 28); pass-1 exposure φ=0.5 of blocks as singles, the rest in
-S0=262,144 literal runs (~15-bit average payload); layer-masked expansion
-(zero metadata); greedy selection; superposition delta 16 / cap 4 (earned,
-conservative discount).
+Minting a codeword is never free in a Kraft-complete alphabet; every variant
+below shows what was split and what it costs (audited kernel, J2D1, 500
+passes, `audited_primary.json`):
 
-Per `model_analysis/proof_kernel/vnext_best.json`: ten-effective-pass minimum
-**+0.908%/pass** (average +0.991%), pass-1 ratio 1.531, raw payback at pass
-**81**, final/raw **0.810 at 200** and **0.541 at 500**. Greedy sits at the
-oracle bound (+0.910%). All headers charged in their emitting layer; refresh
-metadata zero. Compute story (separate from size): shared unsalted prefix
-table of 2^28 expansions built once; ~O(1) masked lookups per window.
+| alphabet | what was split | per-record tax | wrap p1 | min %/pass | payback | @500 |
+| --- | --- | --- | ---: | ---: | ---: | ---: |
+| canonical {sgl 111=3b; a1,a2=2b} | — | — | 1.353 | 0.199 | 123 | 0.560 |
+| **const single-cheap {sgl 00=2b; a1 01=2b; a2 100=3b}** | a2 loses its 2-bit slot | **+1 bit on every arity-2 record, forever** | **1.237** | **0.202** | **76** | **0.478** |
+| fixed-run mint (3b FIX displacing a4/a5) | arity 4–5 dropped | high-arity channel lost | 1.23–1.28 | 0.21–0.25 | 111–141 | — |
+| fixed-run mint (4b split of 111: FIX=1110, VAR=1111) | variable runs +1 bit | +1 bit/var-run header | similar | dominated by attackability loss either way | — | — |
 
-Success bars (handoff): baseline ≥0.1% ✓, stretch ≥0.2% ✓, breakthrough
-≥0.5% fully-charged non-oracle ✓, crossover ≤200 ✓, ≤0.84@200 ✓, ≤0.60@500 ✓.
-**Crossover <50 not met** (best payback 81; the missing lever is pass-1
-bloat ~1.53 — see the frontier chart; sub-50 needs ~1.15 bloat at ≥0.7%/pass,
-which no swept config reaches yet).
+Verdict: the 2-bit single wins **net of its tax** (the wrap saving of ~1
+Mbit against ~a2-mass × 1 bit); the fixed-run mint loses regardless of how
+the slot is funded, because the attackability loss dominates the header
+saving.
 
-## Mechanism findings of this run
+## The corrected primary, in words
 
-1. **Layer-masked expansion** (`expand(seed) XOR mask(layer_index, offset)`)
-   is the corrected, viable form of position salting: zero metadata (both
-   mask inputs are decoder-known; the mask schedule is a fixed protocol
-   constant — an explicitly allowed "fixed-profile phase schedule" refresh),
-   fresh = 1 for every window every pass, and the seed table stays unsalted
-   and shared. Law-validated with real SHA-256 dice
-   (`freshness_law_validation.py`: sustained ~0.13–0.18%/pass measured at toy
-   scale with no decay; permutation ~0.05–0.08%; kernel conservative).
-   Decode-proven nested (`position_salt_decode_proof.py`).
-2. **Position-only salting is dead** — the validator measured zero accepts
-   from pass 3 and the cause is analytic (emission-replication deadlock).
-   This is a new hard gate: *a refresh keyed only to emission state that
-   reproduces itself on a no-accept pass refreshes nothing.*
-3. **J2D1 roughly doubles** the sustained rate vs J3D1 at block-8 budgets
-   (min record 6 vs 7; every budget count fattens). Depth cap 28 is not
-   binding below arity-5 spans at B=8.
-4. **LITERAL_RUN** delivers the ε-bloat end (pass-1 1.0027 measured in-model
-   at S0=1024) but is junction-starved alone. Its real role is **junction
-   density engineering**: the optimum exposes φ≈0.5–0.75 of mass as singles
-   and fragments the rest into ~2-block runs (S0 ≈ N/4). Re-segmentation is
-   the legal rechunk: boundaries are explicit charged headers.
-5. **Grid-mode records** (expansion = exactly a·B bits at any bit offset,
-   length decoder-known) price run-interior attack honestly via a walk DP
-   (clean / dirty / interior classes; clipping a record mid-bits forces the
-   remnant under a new charged header). An early revision laundered dirty
-   mass as clean through short runs; fixed, numbers re-evaluated (leaders
-   moved ~1.17 → ~1.01 %/pass).
-6. **k=2 XOR records decode and search as claimed** (square-root pair-space
-   demonstrated in the toy proof) but cost ~9× in rate at B=8 spans. With
-   masked targets making k=1 table-shared, MitM is no longer needed for
-   compute feasibility; it remains a niche option for spans ≥ ~60 bits.
+One constant alphabet for the whole file: single literal `00` (2 bits),
+arity-1 `01`, arities 2–5 at 3 bits (a2 pays +1 vs canonical — charged in
+the table above). J2D1 seed fields (per-FILE profile constant — no schedule,
+no epoch issue), depth 29 ≈ the J2 cap. Permutation + neutral swaps refresh
+(3 charged bits/pass), content-only expansion — dice need no pass key:
+arity-1 freshness is content-change (cascade/swaps), multi-entry freshness
+is new adjacency. Greedy; superposition delta 16 / cap 4.
+
+Results (`audited_primary.json`, audited kernel — harness reproduces
+`bit_literal_target.json` to five decimals): **+0.202 %/pass min** (avg
++0.247), wrap 1.237, **payback 76**, **0.742 @ 200**, **0.478 @ 500** —
+better than the previous audited target on every axis.
+
+Decode dependency (stated, not hidden): un-permuting the evolving stream
+requires identifying which BUNDLES were born each pass. Arity-1 records are
+length-preserving and need no epoch (lemma above). The affine-stride
+fingerprint (v2 obligation 1) is the zero-bit channel; its induction proof
+plus exact escape ledger (~T/N per bundle — structurally small, not
+Kraft-mass) is the single load-bearing open proof of the program.
+
+## Mechanism findings (cumulative, corrected)
+
+1. **Layer-masked expansion** — unchanged: zero metadata, fresh = 1, shared
+   tables; law-validated (sustained 0.13–0.18 %/pass toy-measured, no
+   decay); decode-proven nested. The compute story of the whole program
+   rides on this: build one table to D\*, every pass is lookups.
+2. **Position-only salting dead** (emission-replication deadlock) —
+   unchanged; the layer index in the mask is what breaks it.
+3. **J2D1 ≈ 2× J3D1** at B=8 budgets (clean φ=1 comparison: 0.366 vs
+   0.201). **Layer-indexed alphabet schedules are free and real**: the
+   2-bit-single pass-1 alphabet cuts wrap bloat 1.369 → 1.245 and lifts the
+   floor 0.366 → 0.397 with payback 130 → 76.
+4. **Depth ceiling D\***: a record replacing an s-bit span can spend at most
+   ~s bits on its seed field, so seeds past 2^(D\*) are never compressive —
+   D=48 ≡ D=96 at B=8 in the sweep. Under masking, "when to stop searching"
+   dissolves: the table is built once to D\*; compute converts to
+   compression through passes, not depth. D\* falls as records shorten.
+5. **Run/grid accounting corrections (this revision).** Two bugs found by
+   instrumented cross-checks, both inflating `segments > 0` lanes:
+   (a) the grid walk DP stepped by run *payload* length, crossing run
+   header wire bits for free; (b) the apply step subtracted full covered
+   wire from payload AND retired segments at the payload rate — a
+   triple-dip. Hand-derived channel arithmetic now matches the kernel
+   (0.124 vs 0.13 %/pass on the φ=0/S0=1M diagnostic). Corrected verdicts:
+   run carriage lowers pass-1 bloat at roughly proportional rate cost;
+   grid-mode arities are ~neutral at corrected pricing; the
+   "junction-density" optimum was an artifact. This is the third
+   accounting bug caught by the audit loop (after the walk-DP short-run
+   laundering, also disclosed here, and it is why every number carries an
+   evidence class.
+6. **Fixed-length runs are a sound negative result**: deleting the Lotus
+   length field (8–10 bits/run) starves whole-entry attackability — the
+   length field pays for itself. Metadata audit otherwise: refresh 0,
+   selector 0, superposition 0 (encoder-state), arity codewords
+   irreducible (Kraft-complete), termination out-of-band (no in-band
+   markers anywhere).
+7. **Affine shuffle + epoch salts (handoff v2)**: modeled as a comparison
+   lane — ties the masked lane to four decimals before its escape ledger
+   and stride-test decode compute. Under the layer-stack decode, records
+   never migrate between layers, so epoch *inference* is unnecessary:
+   `mask(layer, offset)` is always known. Dominated; kept as fallback.
+   Its open arity-1 problem is solved by masking.
+8. **k=2 XOR / MitM** — unchanged: wire-proven, square-root search
+   demonstrated, ~9× rate cost at B=8; superseded for compute by masking.
 
 ## Cost pinning status
 
-`cost_pin.py` / `cost_pin_report.json`: golden vectors for the reference
-J3D1 layout (jumpstarter stores tier_width−1; boundary bug at payload width
-≥254 fixed — widths unchanged) pass round-trip and width equality for all
-tier boundaries and dense sweeps. J2D1 min record 6 bits / cap 28; J3D1 min
-7 / cap 508. The 127-vs-508 payload-cap discrepancy resolves to **508** on
-repo-internal evidence (`max_width_for_config(3,1)` in
-`src/bin/v1_cost_table.rs`); a true 127 cap is inconsistent with the repo's
-own cost arithmetic. **Cargo was unavailable in this sandbox: costs are NOT
-newly Rust-validated** (`rust_probe: NOT_NEWLY_VALIDATED` in the report).
-Re-pin locally: `cargo run --quiet --bin v1_cost_table && python
-model_analysis/proof_kernel/cost_pin.py`. Final wire-layout pin against the
-sibling `../lotus` crate remains open (crate not in this checkout).
+Unchanged from the previous revision: golden vectors pass; J2D1 min 6 /
+J3D1 min 7; caps 28/508; 127-vs-508 resolves to 508 on repo evidence;
+**cargo unavailable in this sandbox — costs NOT newly Rust-validated**;
+final wire pin needs the sibling `../lotus` crate. See
+`cost_pin_report.json`.
 
 ## Reproduction
 
 ```powershell
-# v-next sweep (two-stage; artifacts: vnext_sweep.json, vnext_best.json, vnext_top_profiles.csv)
 python model_analysis/proof_kernel/vnext_search.py --stage rank
 python model_analysis/proof_kernel/vnext_search.py --stage final
-
-# decode proofs (wire bits == charged bits, exact round trips)
 python model_analysis/proof_kernel/bit_literal_decode_proof.py
 python model_analysis/proof_kernel/literal_run_decode_proof.py
 python model_analysis/proof_kernel/position_salt_decode_proof.py
 python model_analysis/proof_kernel/mitm_xor_decode_proof.py
-
-# freshness law with real SHA-256 dice (law validation, not viability)
-python model_analysis/proof_kernel/freshness_law_validation.py --runs 5 --passes 10
-
-# cost pin
-cargo run --quiet --bin v1_cost_table
-python model_analysis/proof_kernel/cost_pin.py
-
-# audited v1/BIT_LITERAL lane (unchanged reference kernel)
-python model_analysis/proof_kernel/viability_search.py --write-artifacts
+python model_analysis/proof_kernel/freshness_law_validation.py
+cargo run --quiet --bin v1_cost_table && python model_analysis/proof_kernel/cost_pin.py
 ```

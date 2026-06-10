@@ -1,65 +1,52 @@
 # Telomere Frontier Report
 
-What the current proof kernel does NOT yet reach, where the frontier sits,
-and the missing multipliers. Companion to `TELOMERE_VIABILITY_TARGET.md`
-(what is reached) and `TELOMERE_RESULT_LEDGER.md` (every result + class).
+What is not reached, and the dependency map that now organizes the program.
+Companion to `TELOMERE_VIABILITY_TARGET.md` and the ledger (two correction
+notices; the second restructured the architecture).
 
-## Open bar: raw crossover < 50 passes
+## The dependency map (the real frontier)
 
-Best fully-charged payback this revision: **pass 81**
-(`grid_heavy_phi0.5_S262144_J2`). The binding constraint is pass-1 bloat:
-the junction-dense states that sustain ~1 %/pass cost 1.44–1.59× at pass 1
-(headers for ~256k runs + 500–750k singles), and ~0.4–0.5 of that must be
-re-earned before crossover. The ε-bloat end exists (1.0027× at S0=1024,
-validated) but is junction-starved (+0.0002 %/pass — rate needs junctions).
+Every refreshed lane in the evolving-stream model needs per-record
+birth-epoch knowledge at decode, in increasing order of demand:
 
-Missing multiplier to <50: hold ≥0.7 %/pass at pass-1 bloat ≤ ~1.15 — i.e.
-**~3× better rate-per-header-bit** than the current frontier. Candidate
-levers, in order of expected value:
+| epoch channel needed | lanes unlocked | rate (audited kernel unless noted) | status |
+| --- | --- | ---: | --- |
+| none (content-only dice, no refresh) | none — staleness kills all | ~0 by pass 4 | dead (dice-validated) |
+| **bundles only** (affine-stride fingerprint; arity-1 length-preserving lemma) | **primary: const cheap-single + J2 + permutation** | **0.202 %/pass, pb 76, 0.478@500** | math_candidate pending the stride-induction proof (v2 obligation 1) |
+| bundles + singles (no channel known) | pass-1-only alphabet schedules | 0.309 %/pass, pb 53, 0.382@500 | conditional |
+| everything incl. arity-1 dice (no channel known; impossibility sketch in ledger) | layer-masked fresh=1 | 0.397 %/pass (v-next kernel), pb 76, 0.545@500 | upper_bound |
 
-1. **Adaptive segmentation schedules** (start ε-bloat, split runs only where
-   records land — re-segmentation is charged but only spent on demonstrated
-   hit neighborhoods; the kernel currently models static S0 only).
-2. **Cheaper junctions**: 2-bit run marker layers (`run_cheap` alphabet) on
-   early passes via layer-indexed alphabet schedules (zero metadata).
-3. **Trajectory optimization** over (φ, S0, depth, alphabet) per pass — the
-   500-pass recurrence is cheap to differentiate numerically; greedy
-   per-pass settings are probably not optimal (ledger: handoff priority 5,
-   still open).
+The distance between rows is the value of each missing channel — the
+frontier is now a channel-discovery problem, not a parameter search.
 
-## Frontier structure (151 fully-charged configs)
+## Open bars
 
-See `model_analysis/proof_kernel/charts/bloat_payback_frontier.png` and
-`vnext_top_profiles.csv`. Shape: payback is minimized at interior mixes
-(φ≈0.25–0.5, S0≈N/4..N/15, J2D1, masked) — 68–93 passes; rate is maximized
-at junction-saturated mixes (φ=0.75, S0=N/4) — ~1.0–1.02 %/pass; the pure
-ends (φ=1 BIT_LITERAL-only; φ=0 giant runs) are dominated.
+- Breakthrough ≥ 0.5 %/pass: not met (0.202 unconditional-architecture;
+  0.397 at the masked upper bound).
+- Crossover < 50: not met unconditionally (76; the conditional schedule
+  row reaches 53).
+- The stride-induction proof itself: THE milestone. Sketch status: the
+  unwind processes passes top-down; at each level, bundles born at that
+  level must be identified before inverting that pass's permutation;
+  candidate discriminator = child strides in base coordinates;
+  well-foundedness of the bottom-up coordinate recovery is the open part,
+  plus the exact escape ledger (~T/N per bundle, structurally small).
 
-## Dead and bounded lanes (do not relearn)
+## Dead, bounded, dominated (do not relearn)
 
-- Position-only salted refresh: **dead by deadlock** (measured zero accepts
-  from pass 3; analytic cause; layer-indexed masking is the fix).
-- Bit-rechunk with uncharged passthrough: `failed_audit`; with explicit
-  flags −24.7 %/pass; with replay escapes −1.67 %/pass and Kraft-dominated
-  at every point (`implicit_selector.py` ledger).
-- k=2 XOR records at B=8: ~9× rate cost; bounded niche at spans ≥ ~60 bits.
-- Naive grid windows without clean/dirty pricing: the walk DP exists because
-  short runs laundered dirty mass as clean (fixed this revision; leaders
-  re-priced 1.17 → 1.01 %/pass).
-
-## Theorem targets still open (handoff priority 6)
-
-- Format-independent upper bound on sustained %/pass given (literal floor,
-  gap structure). The implicit-selector dominance proof generalizes the
-  rechunk family only.
-- Monotone ε-bloat property of LITERAL_RUN profiles (model-validated;
-  needs a proof over all pass schedules).
-- Permutation pair-exhaustion boundary T ~ N (moot for masked lanes,
-  relevant if masking is ever restricted).
+- Strict layer-stack: decodes trivially, pays ~10:1 re-wrap carriage
+  (maintainer's pricing, confirmed independently). Dead.
+- Position-only salting: emission-replication deadlock (measured).
+- Junction-density grid states: accounting artifact (ledger notice 1).
+- Fixed-length runs: length field pays for itself; the codeword mint also
+  costs a split either way (alphabet-tax table).
+- Explicit epoch charging: ~Lotus(T) ≥ 5 bits/bundle vs ~2–4 bit gains —
+  negative; inference is the only path.
+- k=2 XOR at B=8, charged rechunk lanes, uncharged anything: as before.
 
 ## Reproduction
 
 ```powershell
-python model_analysis/proof_kernel/vnext_search.py --stage rank
-python model_analysis/proof_kernel/vnext_search.py --stage final
+python model_analysis/proof_kernel/_audited_chunk2.py 2 29 500 33
+python model_analysis/proof_kernel/_audited_chunk.py 2 29 2 500 33
 ```

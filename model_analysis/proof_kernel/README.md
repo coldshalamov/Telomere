@@ -12,10 +12,16 @@ not run broad seed searches. Two recurrence kernels live here:
 - **v-next lane** (`vnext_kernel.py` + `vnext_search.py`): LITERAL_RUN
   re-segmentation, BIT_LITERAL singles, layer-masked expansion (zero
   metadata, fresh = 1, shared tables — law-validated), k-XOR records,
-  J2D1/J3D1 jumpstarter profiles, dual window semantics (entry-aligned +
-  aB-bit grid with walk-DP clean/dirty pricing). Artifacts:
-  `vnext_best.json` (primary: +0.908 %/pass min, payback 81, 0.541 @ 500),
-  `vnext_sweep.json`, `vnext_top_profiles.csv`, `charts/`.
+  J2D1/J3D1 jumpstarter profiles, alphabet variants, dual window semantics.
+  Its position_salt rows are UPPER BOUNDS and its alphabet-schedule rows
+  CONDITIONAL after the decode-dependency audit (ledger correction notice
+  2). Artifacts: `vnext_sweep.json` (annotated), `vnext_best.json`,
+  `vnext_top_profiles.csv`, `charts/`.
+
+**Standing primary** lives on the audited kernel: `audited_primary.json`
+(constant cheap-single alphabet + J2D1 + permutation+swaps: +0.202 %/pass,
+payback 76, 0.478 @ 500; decode pending the bundle stride-induction proof —
+chunked runners `_audited_chunk.py` / `_audited_chunk2.py`).
 
 Single empirical assumption everywhere: uniform hash law P(match) = 2^-S.
 Costs are exact (`costs.py`, mirroring `src/bin/v1_cost_table.rs`); pin

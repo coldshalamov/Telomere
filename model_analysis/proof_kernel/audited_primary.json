@@ -1,0 +1,89 @@
+{
+  "kernel": "entry_state.py (audited reference kernel; exact reproduction of bit_literal_target verified to 5 decimals)",
+  "primary": "PRIMARY_J2_const_single_cheap",
+  "primary_config": {
+    "alphabet": "constant {single:00(2b), a1:01(2b), a2:100(3b), a3:101, a4:110, a5:111} \u2014 Kraft=1, one alphabet for all passes (no epoch dependence for parsing)",
+    "jumpstarter": "J2D1 (per-file profile constant; min record 6 bits; payload cap 28; depth 29)",
+    "block_bits": 8,
+    "refresh": "permutation_plus_neutral_swaps (3 charged bits/pass)",
+    "expansion": "content-only (unsalted) \u2014 dice need no pass key",
+    "superposition": "delta 16, cap 4, earned",
+    "selector": "greedy"
+  },
+  "decode_dependency": {
+    "needs": "bundle birth-epoch inference via affine-stride fingerprint (handoff-v2 obligation 1) + charged escape ledger ~T/N per bundle",
+    "does_not_need": "arity-1 epochs: arity-1 replacements preserve sequence length (1->1), so the permutation unwind is insensitive to their birth pass; their dice are content-keyed (no salt)",
+    "singles_epoch_channel": "unknown \u2014 this is why the scheduled-alphabet rows are CONDITIONAL"
+  },
+  "evidence_class": "math_candidate (decode pending the stride-induction proof; primitives BIT_LITERAL/LITERAL_RUN wire-proven; 2-bit single is BIT_LITERAL with a different codeword spend)",
+  "rows": {
+    "reference_J3_canonical": {
+      "passes_done": 495,
+      "ten_pass_min_pct": 0.13283,
+      "ten_pass_avg_pct": 0.16226,
+      "pass1_ratio": 1.36235,
+      "payback_pass": 126,
+      "raw_curve": {
+        "11": 1.3404,
+        "50": 1.22667,
+        "100": 1.07191,
+        "200": 0.83223
+      }
+    },
+    "J2_canonical": {
+      "passes_done": 500,
+      "ten_pass_min_pct": 0.19946,
+      "ten_pass_avg_pct": 0.23905,
+      "pass1_ratio": 1.35263,
+      "payback_pass": 123,
+      "raw_curve": {
+        "11": 1.32064,
+        "50": 1.19501,
+        "100": 1.05353,
+        "200": 0.85343,
+        "500": 0.55962
+      }
+    },
+    "J3_sched_CONDITIONAL": {
+      "passes_done": 246,
+      "ten_pass_min_pct": 0.15904,
+      "ten_pass_avg_pct": 0.18663,
+      "pass1_ratio": 1.24069,
+      "payback_pass": 81,
+      "raw_curve": {
+        "11": 1.21773,
+        "50": 1.09705,
+        "100": 0.94324,
+        "200": 0.7175
+      }
+    },
+    "J2_sched_CONDITIONAL": {
+      "passes_done": 500,
+      "ten_pass_min_pct": 0.30927,
+      "ten_pass_avg_pct": 0.36833,
+      "pass1_ratio": 1.23327,
+      "payback_pass": 53,
+      "raw_curve": {
+        "11": 1.18858,
+        "50": 1.00905,
+        "100": 0.83632,
+        "200": 0.63087,
+        "500": 0.38199
+      }
+    },
+    "PRIMARY_J2_const_single_cheap": {
+      "passes_done": 500,
+      "ten_pass_min_pct": 0.20231,
+      "ten_pass_avg_pct": 0.24703,
+      "pass1_ratio": 1.23687,
+      "payback_pass": 76,
+      "raw_curve": {
+        "11": 1.20665,
+        "50": 1.07869,
+        "100": 0.93531,
+        "200": 0.74204,
+        "500": 0.47845
+      }
+    }
+  }
+}

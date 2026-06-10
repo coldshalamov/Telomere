@@ -1,9 +1,9 @@
 # Telomere R&D Roadmap — 30 / 60 / 90 days
 
-Baseline: June 2026 proof-kernel revision. Primary target:
-`grid_heavy_phi0.5_S262144_J2` (math_candidate, +0.908 %/pass min, payback
-81, 0.541 @ 500, zero-metadata layer-masked refresh, shared-table compute).
-Reference floor: audited BIT_LITERAL config (0.1328 %/pass, payback 126).
+Baseline: June 2026 proof-kernel revision 4 (two correction notices; see
+ledger). Primary: constant cheap-single alphabet + J2D1 + permutation+swaps
+on the audited kernel — +0.202 %/pass min, payback 76, 0.478 @ 500
+(`audited_primary.json`), decode pending the bundle stride-induction proof.
 
 ## 30 days — freeze the truth surface, finish the pins
 
@@ -13,6 +13,7 @@ Reference floor: audited BIT_LITERAL config (0.1328 %/pass, payback 126).
 | Rust cost re-pin | `cargo run --quiet --bin v1_cost_table` + `cost_pin.py` report `status: validated` | CI job |
 | Long-horizon dice test | layer-masked lane sustains ≥ 0.8× its pass-2 rate over 50 toy passes (kills risk 5 or the primary) | `freshness_law_validation.py --passes 50 --runs 10` |
 | Walk-DP stress | 2-bucket run-length mix changes leader rates < 2×; Monte-Carlo toy layer vs DP | new `walk_dp_validation.py` |
+| **Stride-induction toy proof (THE cornerstone; maintainer-demanded test)** | three passes, affine permutations with distinct strides, a pass-2 bundle nested inside a pass-3 bundle, REAL seed matches (no planting of expansions); decoder identifies each level's bundle births by stride inference with explicit shift bookkeeping (bundles change sequence length, so the induction must thread cumulative index-shift maps — this is the subtle part); 1-bit escapes charged on ambiguity; wire bits == charged bits asserted at every level; exact round trip | new `stride_induction_proof.py` |
 | Reviewer packet | a third party reproduces ledger numbers from the repro commands alone | `INVESTOR_RESEARCH_BRIEF.md` |
 
 ## 60 days — implement one model-equivalent pass for real
