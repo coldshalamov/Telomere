@@ -4,6 +4,35 @@
 evidence class, and why it stands or fails. Where any other report disagrees
 with this ledger, the other report is stale.
 
+**June 2026 update (current headline).** Multi-pass decode with zero
+stored metadata is now PROVEN BY CONSTRUCTION at toy scale:
+`model_analysis/proof_kernel/v1_roundtrip_proof.py` — 36/36 exact round
+trips (N∈{10,13,16}, T∈{2..5}, 134 salted bundles, real SHA-256), decoder
+inputs = wire + N + B + output hash only. The normative state model is now
+constant-N block-state (`SPEC_V1.md` §3, `STATE_MODEL_COMPARISON.md`
+Design B). Evolving-stream rows below (including every J2D1-primary
+number) remain as history with their labels; they are superseded as
+headline claims. Open analytic items: Q1 ambiguity bound at scale, Q2
+layer-stack carriage pricing (`SPEC_V1.md` §9).
+
+**Golden Config study (June 2026, same day).** Full parameter sweep with
+exact format arithmetic + real-draw MC + honest birth-information
+charging: the unaided chance engine is net-negative at every (B,
+profile, arity, T) — naive positives were unpriced birth entropy
+(pigeonhole-confirmed). Distance to viability quantified: **48× hit
+density at B8/canonical/a2/T≈16–64** (vs legacy 824×–6144×). Full
+report: `docs/GOLDEN_CONFIG.md`; solvers: `golden_format_arithmetic.py`,
+`golden_mc.py`, `golden_break_even.py`.
+
+**Opening-rules race (June 2026, latest).** The maintainer's decode rule
+("the one that decodes is the answer" — trial openings, checksum
+referee) demonstrated in his exact architecture (in-place replacement,
+position salts, +1-shifted shuffle): **12/12 exact round trips**;
+fixed mechanical rules (open-everything / carry-to-end) 0/12 each.
+`robins_opening_rules.py`. The +1 shuffle shift (every item moves every
+pass) is adopted into SPEC_V1 §1. Earlier 11/12 was a harness search
+cap, corrected to 12/12 uncapped.
+
 Evidence classes: `invalid` | `upper_bound` | `math_candidate` |
 `wire_proven_candidate` | `implemented_codec_result`.
 
@@ -39,11 +68,37 @@ Everything else is exact counting against canonical costs
 > affine-stride fingerprint provides, and exactly why the v2 design salts
 > bundles and leaves arity-1 unsalted. The v2 architecture is canonical.
 
+> **Correction notice 3 (Monte Carlo + maintainer review).** A real-draw
+> Monte Carlo (`monte_carlo_v1.py` — Bernoulli hits at exact per-window
+> probabilities, sampled record costs, integer bits, no expected values
+> anywhere) falsified the expectation kernels' sustained/rising rates: they
+> credit far-tail windows with fractional hits and large gains, compounding
+> mass that essentially never realizes. An interim "total gains ≤ 2
+> bits/block" bound drawn from this was itself WRONG — the maintainer
+> caught the flawed premise (arity-1 replacements consume no supply, so
+> the re-grinding channel is unbounded). Corrected, MC-verified dichotomy:
+>
+> | dice | result (real draws, all charged) |
+> | --- | --- |
+> | content-only (unsalted; = bundle-tuple freshness + content-gated arity-1) | **never crosses 1.0** — stalls ≈ 1.13; total gains ≈ 2 bits/block ≈ the wrap refund (supply-bound) |
+> | fully salted (per-epoch salts on every record) | **crosses 1.0 ≈ pass 1000**, then unbounded slow compounding (0.9886 @ 1100, log-grind) — the supply-neutral arity-1 grinding channel |
+>
+> Consequently every fixed-depth expectation-kernel viability number above
+> (0.1328 / 0.202 / 0.309 / 0.397 %/pass and their payback/500-pass curves)
+> is **demoted to expectation-artifact status** for the long horizon; early
+> -pass rates (validated separately with real SHA dice) remain accurate.
+> **Viability now reduces to exactly one open problem: the singles-epoch
+> channel** — salted records need their birth pass at decode; bundles get
+> it from the affine-stride fingerprint; arity-1 records (the unbounded
+> channel) have no known zero-bit channel (maintainer handoff v2, open
+> problem 2). Solve it ⇒ unbounded compounding under the stated rules;
+> prove it impossible ⇒ the content-blind family caps at wrap-refund.
+
 ## Headline table
 
 | result | class | rate (10-pass min) | final/raw 11 / 50 / 100 / 200 / 500 | payback pass | kernel | decode dependency | why |
 | --- | --- | ---: | --- | ---: | --- | --- | --- |
-| **PRIMARY: constant single-cheap alphabet {sgl 2b, a2 3b} + J2D1 + permutation+swaps** | `math_candidate` | **+0.202%** | 1.207 / 1.079 / 0.935 / **0.742** / **0.478** | **76** | audited (`entry_state`) | bundle stride-inference induction (v2 obligation 1) + ~T/N escape ledger | 2-bit single pays for itself even charging a2 +1 forever; parse needs no epochs (one alphabet); arity-1 dice content-keyed |
+| **FORMER PRIMARY (superseded — see June 2026 update above): constant single-cheap alphabet {sgl 2b, a2 3b} + J2D1 + permutation+swaps** | `math_candidate` | **+0.202%** | 1.207 / 1.079 / 0.935 / **0.742** / **0.478** | **76** | audited (`entry_state`) | bundle stride-inference induction (v2 obligation 1) + ~T/N escape ledger | 2-bit single pays for itself even charging a2 +1 forever; parse needs no epochs (one alphabet); arity-1 dice content-keyed |
 | J2D1 + canonical alphabet (singles 3b) | `math_candidate` | +0.199% | 1.321 / 1.195 / 1.054 / 0.853 / 0.560 | 123 | audited | same as primary | J2 alone: rate up, wrap unchanged |
 | audited BIT_LITERAL reference (J3, canonical, D96) | `math_candidate` | +0.1328% | 1.340 / 1.227 / 1.072 / 0.832 / 0.486 | 126 | audited | same as primary (the dependency was always there; previously unstated) | the conservative floor; deepest J3 lane |
 | CONDITIONAL: pass-1-only 2-bit single (alphabet schedule) | conditional `math_candidate` | +0.309% (J2) / +0.159% (J3) | J2: 0.631@200, 0.382@500 | 53 / 81 | audited | **needs a singles-epoch channel — none known** (surviving pass-1 singles parse ambiguously at top level; singles have no stride) | the upside if a singles channel is ever found |
@@ -96,7 +151,7 @@ requires identifying which BUNDLES were born each pass. Arity-1 records are
 length-preserving and need no epoch (lemma above). The affine-stride
 fingerprint (v2 obligation 1) is the zero-bit channel; its induction proof
 plus exact escape ledger (~T/N per bundle — structurally small, not
-Kraft-mass) is the single load-bearing open proof of the program.
+Kraft-mass) was the single load-bearing open proof of the program. RESOLVED June 2026 by construction in the constant-N model (`v1_roundtrip_proof.py`, 36/36); the residual analytic item is Q1 in `SPEC_V1.md` §9.
 
 ## Mechanism findings (cumulative, corrected)
 

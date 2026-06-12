@@ -1,3 +1,13 @@
+# NOTICE (June 2026): the truth surface moved
+
+The binding documents are now `docs/SPEC_V1.md` (the only spec; its
+metadata contract is law), `docs/GOLDEN_CONFIG.md`, and `CLAUDE.md`.
+Everything below this notice describes the LEGACY `.tlmr` v1/v2 wire
+formats and the old research program — kept as historical operating
+context only. Where it conflicts with SPEC_V1.md, SPEC_V1.md wins.
+
+---
+
 # Telomere - Agent Conventions
 
 ## Project Overview
