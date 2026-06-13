@@ -60,3 +60,84 @@ Settled and proven: shuffle reversibility (x5+1, exact inverse), Lotus
 self-delimiting decode, arity reads, dangling-bit chopping, in-place
 expansion, remainder run, derived pass count, literal skip-and-unwrap
 termination, the metadata contract. None of these are in question.
+
+## Adjacent fields surveyed (June 2026 — so the search isn't repeated)
+
+The missing quantity is per-record birth information (~log2(passes) bits)
+through a write-once channel. Known tricks from the literature, checked:
+
+- **Bits-back coding**: lets recoverable choices carry payload for free.
+  Requires recoverability first — exactly what's missing. NOTE: if any
+  partial birth-inference is ever found, bits-back converts it directly
+  into reclaimed payload. The multiplier exists; the key doesn't.
+- **ANS / arithmetic coding**: efficient channels; information still
+  paid at full entropy. No discount.
+- **Sequence CRDTs** (stable addresses under insertion): confirms the
+  address result — identity inferable for free, history not.
+- **Reversible computing (Bennett)**: needs the forward input (the
+  original file). Circular for decoding.
+- **Trellis/convolutional codes**: timing from structure, paid in
+  deliberate redundancy (= tags by another name).
+
+**Closure**: the births ARE the dice outcomes. A good (uniform) hash
+makes them independent and uniform, hence incompressible (Shannon).
+The engine requires fair dice; fair dice outcomes cannot be conveyed
+below their entropy; the "which pass" half of each outcome is the
+unpayable remainder after the seed field pays the "which seed" half.
+Conservation holds in every currency tested: stored bits, hit density,
+match supply, carriage, structure (~2.5 free bits/record from the
+explosion check — the only free source found; good for tens of passes).
+
+## THE REQUIREMENTS CARD (attack this — June 2026)
+
+Any mechanism claiming to solve stateless deep decode must deliver, for
+every record: WHICH PASS made it, at a total cost under 2 bits per
+record (the average win), subject to:
+
+1. The file is written once — no per-pass rewriting reaches the decoder.
+2. No content-awareness — the mechanism must work identically on random
+   bytes (maintainer's content-blindness rule).
+3. Deterministic decode — no search whose size grows with the file.
+4. Costs count in EVERY currency: stored bits, hit density, match
+   supply, wrap/carriage, or compute that scales with 2^bits.
+
+Known no-go results it must evade (each priced this session):
+- Stored tags/toggles: cost log2(passes) >= 2 bits beyond pass ~6.
+- Global pass counter: 16 bits total cannot carry per-record answers.
+- Depth/explosion inference: supplies ~2.5 bits/record (measured), the
+  only free source found; insufficient alone beyond tens of passes.
+- Digest verifier prefixes: density falls 2x per bit gained.
+- Conventions (seed-pass agreement, freshness chains, pass-1-only):
+  supply falls ~2x per bit gained (geometric starvation measured).
+- Address/tree shuffles: make out-of-order opening harmless to
+  positions; cannot carry the pass-varying salt component.
+- Bits-back, ANS, CRDTs, reversible computing, trellis codes: each
+  requires recoverability, pays full entropy, or is circular (surveyed).
+- Core obstruction: births are dice outcomes; a uniform hash makes them
+  independent and incompressible; deduction requires coupling and
+  uniformity certifies there is none (singles are isolated unknowns).
+
+The maintainer has overturned one impossibility claim in this project
+before (the 2-bits-per-block total cap — wrong; the grinding channel
+was real). This card exists so the next overturning, if it comes, takes
+minutes to verify instead of nights.
+
+## Cryptography sweep (complete, June 2026)
+
+Checked in spirit against the requirements card: nonces/counter modes
+(ship the nonce or ride transmission order - our order channel carries
+placement); Signal ratchets (handle out-of-order by SHIPPING message
+numbers); Merkle/accumulators (authenticate claims, cannot teach them);
+trapdoors/RSA (gate access, create nothing); secret sharing/commitments
+(reveal costs bits); steganography (needs slack; compression removes
+it); syndrome coding (optimal sparse-pattern transmission: ~8 bits per
+match at our density vs 2-bit wins - the priced floor, named);
+time-lock/PoW (compute recovers only the derivable; births are not);
+TMTO/rainbow tables (helps encoder search - already in spec); Diffie-
+Hellman (needs two-way traffic; one-way DH does not exist).
+
+Field-level conclusion: every crypto system that handles out-of-order
+data ships sequence metadata; every one that avoids shipping enforces
+strict order. Tagged or frozen - the same two machines. The empty cell
+(out-of-order + no metadata + deterministic) is empty across their
+field too.
