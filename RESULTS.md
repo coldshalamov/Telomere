@@ -8,26 +8,120 @@ keeping decode stateless except for a fixed/root/end header. It does not run
 corpus compression or large seed searches. It uses counting, entropy ledgers,
 and small deterministic Python kernels.
 
-## Current Winner
+## Reopened Status
 
-The strongest working construction is **BBL: Bounded Bundle Layer**, specified
-in `BEST_SPEC.md` and exercised by
-`model_analysis/birth_channel_research/bounded_bundle_codec.py`.
+There is **no completed arbitrary-content winner**. The previous TST/STF/BBL
+stack is useful evidence, but it does not satisfy the reopened success bar:
 
-BBL is not an unbounded miracle channel. It is a bounded, statelessly decodable
-bundle-only layer:
+- TST/STF are generated/reachable positive controls with stateless decode.
+- BBL is a finite bundle-only ledge that prices wrong-pass ambiguity.
+- None proves that arbitrary or unshaped content keeps matching at useful
+  density under the uniform hash law.
+
+The active kernel for the reopened search is:
+
+```text
+model_analysis/birth_channel_research/arbitrary_freshness_kernels.py
+```
+
+It attacks the three requested families directly:
+
+### Family 1: Decoder-known nonce channels
+
+Visible nonce bits are known to the decoder before expansion, so the toy
+round-trips statelessly. But the nonce is stored in the record and is therefore
+paid as address width:
+
+```text
+k nonce  record   gross      hit p  E win/window  random hits
+      0      12       4    0.01562       0.06250     2/256
+      1      13       3    0.03125       0.09375     7/256
+      2      14       2    0.06250       0.12500    15/256
+      3      15       1    0.12500       0.12500    34/256
+      4      16       0    0.25000       0.00000     0/256
+      5      17      -1    0.50000       0.00000     0/256
+```
+
+Result: visible nonces are a paid seed-depth tradeoff, not a free
+birth/freshness channel.
+
+### Family 2: Target-refresh without salt-refresh
+
+The fixed-universe composition codec has exact encode/decode and needs no pass
+salt, birth tag, or final-position note. Records recursively open in place.
+On 200 unshaped random 96-block trials:
+
+```text
+pass  avg windows  avg matches  hit/window   avg gain
+   1        95.00        2.720     0.02863      8.160
+   2        92.06        0.065     0.00070      0.324
+   3        89.25        0.000     0.00000      0.000
+mean final wrapped-bit gain=8.460 bits
+mean final original-payload gain=-87.540 bits
+```
+
+Result: target churn alone did not maintain match supply. It also showed an
+important accounting trap: gaining against literal-wrapped working state is
+still bloat against original payload.
+
+### Family 3: Self-dating grammar / wrong-pass explosion
+
+Residue-valid grammar bits make wrong openings fail structurally, but true
+targets must carry those bits too. At `P = 1,000,000`, the best toy row was:
+
+```text
+arity=2 residue=6 span=30 gross=15 hit_p=7.629e-06 ambiguity=7.112
+expected_net_per_arbitrary_window=6.018e-05 bits
+```
+
+Result: this is a real finite ambiguity lever, but not yet an
+arbitrary-content density solution. The current mutation target is to make the
+self-dating validity check derive from already-present item bits instead of
+carrying extra residue bits.
+
+## Prior Positive Controls
+
+The strongest prior control stack is **TST + STF + BBL**, specified in
+`BEST_SPEC.md` and exercised by:
+
+```text
+model_analysis/birth_channel_research/typed_scheduled_tree_codec.py
+model_analysis/birth_channel_research/scheduled_tree_codec.py
+model_analysis/birth_channel_research/bounded_bundle_codec.py
+```
+
+TST removes internal marker entropy by making child type public from the
+schedule. Verified generated forests:
+
+```text
+depth=4, roots=4, leaves=64
+raw_bits=512
+charged_bits=503
+net_bits=+9
+
+depth=6, roots=2, leaves=128
+raw_bits=1024
+charged_bits=917
+net_bits=+107
+```
+
+This is not arbitrary-content match maintenance. At depth 6, each root stores
+415 seed bits plus a 2-bit marker to regenerate 512 raw bits. Under a uniform
+output law, full seed-space coverage for one 512-bit root slab is:
+
+```text
+2^415 / 2^512 = 2^-97
+```
+
+That is the bill: reachable-set sparsity, not hidden metadata.
+
+STF is the first fully charged-positive scheduled-tree toy. BBL remains the
+bounded trial-decode extension path:
 
 - It uses fresh SHA-256 dice keyed by `(pass, packed_position, seed)`.
 - It avoids arity-1 singles as the deep engine.
 - It opens/carries by reverse trial decode and a fixed root checksum/referee.
 - It prices that referee as `R * c_a(P)` ambiguity bits, not as free metadata.
-- It is net-positive in the dense reachable-bundle regime where accepted bundle
-  savings exceed literal carriage, fixed header, and ambiguity cost.
-
-The previous no-go results are still load-bearing, but now they define the
-candidate's guardrails: do not use singles for deep freshness, do not store
-growing final positions, and cap the bundle pass window before the finite
-structural subsidy is exhausted.
 
 ## Conservation Boundary
 
@@ -134,7 +228,9 @@ the board lanes, the missing cost reappears as match-supply loss.
 | Biased seed grammars | Make seed class imply birth pass | Decoder reads class from seed | Birth bits carried by seed class | Fewer eligible seeds per pass | Match supply | `I` conveyed bits cost at least `I` supply bits; residual stored | No sub-1x channel |
 | Value/count separation | Try to spend rare high-value seed classes for birth labels | Seed class labels birth | Same as biased grammar | Yes but supply tiny | Seed population skew | Count and value co-located; jackpot classes have near-zero supply | Refuted at Golden Config |
 | Recursion / layer stacking | Re-run output as a new file, resetting epoch | Layer boundary is known | Birth free only within short layer | Yes per layer | Layer carriage | Base-rate net/bit `-0.35` to `-0.37`; flip requires about 48x density | Not content-blind net-positive |
-| Bounded Bundle Layer | Use only arity>=2 length-pinned bundle records inside a capped pass window | Reverse DFS opens/carries records; structural parse prunes wrong opens; checksum/root picks survivor | Salt is `(pass, packed position, seed)` and is tested during reverse pass | Yes across the bounded pass window | No birth tags; ambiguity is charged as checksum/referee bits | `R*c_a(P)` plus fixed/root fields; selected-record net positive while `gross_win > c_a(P)` | **Current winner** in dense reachable-bundle regime |
+| Bounded Bundle Layer | Use only arity>=2 length-pinned bundle records inside a capped pass window | Reverse DFS opens/carries records; structural parse prunes wrong opens; checksum/root picks survivor | Salt is `(pass, packed position, seed)` and is tested during reverse pass | Yes across the bounded pass window | No birth tags; ambiguity is charged as checksum/referee bits | `R*c_a(P)` plus fixed/root fields; selected-record net positive while `gross_win > c_a(P)` | Finite residual/extension path; useful while bundle ambiguity stays below selected-record savings |
+| Scheduled Forest | Accept only complete public binary bundle trees; every node opens at its public depth | No carry ambiguity inside tree mode; raw fallback otherwise | Salt is `(depth, tree position, seed)` | Yes across tree depths | Root seeds plus mode/depth/count/checksum; no birth tags | Verified toy: depth-2 forest +41 bits, depth-3 forest +1 bit | **Fully charged-positive positive-control**; depth/search reach is bottleneck |
+| Typed Scheduled Tree | Public tree depth gives child type; internal expansions emit child seeds directly | No carry ambiguity; every node opens at public depth | Salt is `(node kind, seed, depth, tree position)` | Yes across depths and positions | Root seeds plus mode/depth/count/checksum; schedule supplies type | Verified toy: depth-4 +9 bits, depth-6 +107 bits fully charged | Reachable-set control only; not arbitrary-content supply maintenance |
 
 ## Bundle Entropy Ledger
 
@@ -148,7 +244,8 @@ wrong-salt parse survival probability. The tested/derived values are:
 | 4 | 14.97 | 32094 | 96282 | 0.003 |
 | 5 | 18.20 | 301124 | 903374 | 0.000 |
 
-This is the best surviving finite mechanism. It should be read carefully:
+This is the best surviving finite open/carry-ambiguity mechanism for BBL. It
+should be read carefully:
 higher arity moves the intercept by making wrong parses rarer, but it does not
 remove the asymptotic slope. At large `P`, the residual grows as:
 
@@ -160,10 +257,36 @@ The pass caps above price only the birth/open channel, not whole-file
 compression. Content-blind hit density and literal carriage still decide
 whether a layer should be kept.
 
-## Winner Ledger
+## Prior Control And Residual Ledgers
 
-BBL wins in a selected-bundle dense regime, not on random data. The honest
-selected-record ledger is:
+TST is charged-positive in a generated reachable scheduled-tree regime, not on
+random data. The honest whole-slab toy ledger is:
+
+```text
+charged_bits = mode + depth + root_count + fixed_width_root_seeds + checksum
+net_bits = raw_bits - charged_bits
+```
+
+The verified charged-positive cases are:
+
+```text
+depth=4 roots=4 leaves=64  raw_bits=512  charged_bits=503  net_bits=+9
+depth=6 roots=2 leaves=128 raw_bits=1024 charged_bits=917  net_bits=+107
+```
+
+The price is reachability density and encoder search. If the input group is not
+in the recursive image of any searched root seed, typed-tree mode falls back to
+raw. The current positive fixture is generated from reachable roots and stores
+those roots at full fixed width; it is a codec/accounting proof for the
+mechanism, not a natural-corpus prevalence claim.
+
+This means TST did not move bloat into unpriced metadata. It moved the bill into
+match supply. That may still be useful for a shaped, public-preset, or generated
+subspace, but it is not a solved content-blind arbitrary-input match-rate
+maintenance theorem.
+
+BBL remains the best residual finite-pass mechanism for dense selected bundles.
+The honest selected-record ledger is:
 
 ```text
 net_per_bundle = replaced_bits - record_bits - c_a(P)
@@ -179,10 +302,10 @@ accepted bundles and few leftovers:
 net ~= R * 2.038 - fixed_header - literal_carriage
 ```
 
-So the candidate is net-positive for large dense generated/reachable inputs
-where accepted bundle density is high. The remaining work is to supply or
-discover that dense class without violating the content-blind premise, or to
-explicitly classify the mode as a dense-class/hybrid mode.
+So BBL is net-positive for large dense generated/reachable inputs where
+accepted bundle density is high. The remaining work is to supply or discover
+that dense class without violating the content-blind premise, or to explicitly
+classify the mode as a dense-class/hybrid mode.
 
 Concrete toy evidence now exists for the generated dense class:
 
@@ -195,9 +318,28 @@ charged_delta=-54.082 bits after the 66-bit toy header
 ```
 
 So the fixture is positive before fixed-header amortization and negative after
-the tiny-instance fixed root cost. That is movement, not completion: the next
-mutation must make the dense regime fully charged-positive by amortizing or
-pricing chunk/root data honestly.
+the tiny-instance fixed root cost. BBL is therefore not the top winner; it is the
+bounded residual lane that can be combined with TST/STF when dense bundle
+matches remain after scheduled-tree extraction.
+
+Scheduled Forest supplies that mutation for a stricter generated class:
+
+```text
+scheduled_tree_codec.py forest fixture
+depth=2, roots=8, leaves=32
+charged_delta=+41 bits after mode/depth/root-count/checksum
+depth=3, roots=2, leaves=16
+charged_delta=+1 bit after mode/depth/root-count/checksum
+```
+
+The fixed-width version failed at depth 3. The tiered-width mutation uses a
+larger internal-node seed budget and reaches a charged-positive depth-3 forest,
+but only barely.
+
+Typed Scheduled Tree supersedes that bottleneck by removing internal marker
+entropy. Its public type schedule makes every seed decodable at every internal
+node, so reachability no longer collapses with depth in the toy generated
+regime. The new bottleneck is witness search on non-generated inputs.
 
 ## Impossibility Statement
 
@@ -224,20 +366,27 @@ compute/checksum search.
 Fast consolidation:
 
 ```powershell
+python model_analysis\birth_channel_research\arbitrary_freshness_kernels.py
 python model_analysis\birth_channel_research\quick_birth_channel_kernels.py
+python model_analysis\birth_channel_research\typed_scheduled_tree_codec.py
 python model_analysis\birth_channel_research\bounded_bundle_codec.py
+python model_analysis\birth_channel_research\scheduled_tree_codec.py
+python -c "import sys; sys.path.insert(0, r'model_analysis\birth_channel_research'); import scheduled_tree_codec as s; s.forest_demo(depth=3, roots=2)"
 ```
 
 Representative audited lane kernels:
 
 ```powershell
+python model_analysis\birth_channel_research\arbitrary_freshness_kernels.py
 python model_analysis\birth_channel_research\A-modular-orbit_invariance.py
 python model_analysis\birth_channel_research\C-crt-clock_odometer.py
 python model_analysis\birth_channel_research\C-crt-clock_frozen_coord.py
 python model_analysis\birth_channel_research\P2-recursion-ledger.py
 python model_analysis\proof_kernel\pctb_ledger.py
 python model_analysis\birth_channel_research\P2-biased-hash_coupling_ledger.py
+python model_analysis\birth_channel_research\typed_scheduled_tree_codec.py
 python model_analysis\birth_channel_research\bounded_bundle_codec.py
+python model_analysis\birth_channel_research\scheduled_tree_codec.py
 ```
 
 The default `B-ambiguity-bound_survivor_count.py` and `P2-bundle_survivor.py`
@@ -246,16 +395,55 @@ or reduce their demo parameters when quick reproduction is the goal.
 
 ## Verification Performed
 
+Most recent local verification in this checkout:
+
+```text
+python model_analysis\birth_channel_research\arbitrary_freshness_kernels.py
+  ok: visible nonces paid as address bits; fixed-universe target-churn
+  round-trips but decays by pass 3 and loses -87.540 bits vs original payload;
+  self-dating grammar best toy row is arity 2 residue 6 at 6.018e-05
+  expected net bits/window
+python model_analysis\birth_channel_research\typed_scheduled_tree_codec.py
+  ok: depth-4 net_bits=+9; depth-6 net_bits=+107; raw fallback sanity ok
+python model_analysis\birth_channel_research\scheduled_tree_codec.py
+  ok: depth-2 forest net_bits=+41; raw fallback sanity ok
+python model_analysis\birth_channel_research\bounded_bundle_codec.py
+  ok: random and generated-dense fixtures round trip; dense asymptotic delta +11.918 bits
+python model_analysis\birth_channel_research\quick_birth_channel_kernels.py
+  ok: final-board, PCTB, singles, bundle, biased-seed, and recursion ledgers
+python -m py_compile model_analysis\birth_channel_research\arbitrary_freshness_kernels.py model_analysis\birth_channel_research\typed_scheduled_tree_codec.py model_analysis\birth_channel_research\scheduled_tree_codec.py model_analysis\birth_channel_research\bounded_bundle_codec.py model_analysis\birth_channel_research\quick_birth_channel_kernels.py
+  ok
+cargo clippy --all-targets -- -D warnings
+  ok
+cargo check --features gpu --all-targets
+  ok
+```
+
+Known verification blockers not introduced by this report:
+
+```text
+cargo fmt --all -- --check
+  fails on pre-existing formatting in src/bin/v2_cost_probe.rs
+python scripts\doc_lint.py
+  fails: missing required file docs/ARCHITECTURE.md
+cargo test --all-targets
+  Rust/unit/integration tests pass until tests\doc_lint.rs, which fails on the
+  same docs/ARCHITECTURE.md requirement
+```
+
 Executed successfully in this checkout:
 
 ```text
+python model_analysis\birth_channel_research\arbitrary_freshness_kernels.py
 python model_analysis\birth_channel_research\A-modular-orbit_invariance.py
 python model_analysis\birth_channel_research\C-crt-clock_odometer.py
 python model_analysis\birth_channel_research\C-crt-clock_frozen_coord.py
 python model_analysis\birth_channel_research\P2-recursion-ledger.py
 python model_analysis\proof_kernel\pctb_ledger.py
 python model_analysis\birth_channel_research\P2-biased-hash_coupling_ledger.py
+python model_analysis\birth_channel_research\typed_scheduled_tree_codec.py
 python model_analysis\birth_channel_research\bounded_bundle_codec.py
+python model_analysis\birth_channel_research\scheduled_tree_codec.py
 ```
 
 Two heavier default demonstrations were started and then stopped because they
