@@ -45,6 +45,22 @@ k nonce  record   gross      hit p  E win/window  random hits
 Result: visible nonces are a paid seed-depth tradeoff, not a free
 birth/freshness channel.
 
+The public-lane mutation stores no lane id. The encoder tries `K` public lanes;
+the decoder tries them all and pays for surviving readings:
+
+```text
+lanes final items  records payload bits   candidates  ambig bits orig in set   net vs raw
+    1          23        1          117            1       0.000        True      -21.000
+    2          23        1          117            1       0.000        True      -21.000
+    4          22        2          114            3       1.585        True      -19.585
+    8          19        5          105      200000+      17.610     unknown    <=-26.610
+```
+
+Result: public lanes increase search supply without stored metadata, but wrong
+lanes often parse. The bill reappears as surviving decode ambiguity unless a
+stronger self-dating grammar can reject wrong lanes without thinning true
+arbitrary targets.
+
 ### Family 2: Target-refresh without salt-refresh
 
 The fixed-universe composition codec has exact encode/decode and needs no pass
@@ -64,6 +80,21 @@ Result: target churn alone did not maintain match supply. It also showed an
 important accounting trap: gaining against literal-wrapped working state is
 still bloat against original payload.
 
+The arity-flex mutation allowed fixed unsalted records of arity 2-5, so later
+targets could include record/literal and record/record spans:
+
+```text
+valid fixed-universe spans by arity: a2=136, a3=114, a4=92, a5=65
+pass  avg windows  avg matches  hit/window   avg gain       a2/a3/a4/a5
+   1       374.00        1.010     0.00270      3.105 0.00/0.99/0.01/0.00
+   2       361.48        0.000     0.00000      0.000 0.00/0.00/0.00/0.00
+mean final wrapped-bit gain=3.105 bits
+mean final original-payload gain=-92.895 bits
+```
+
+Result: effective-length migration did not stabilize match supply in this
+unshaped toy.
+
 ### Family 3: Self-dating grammar / wrong-pass explosion
 
 Residue-valid grammar bits make wrong openings fail structurally, but true
@@ -78,6 +109,17 @@ Result: this is a real finite ambiguity lever, but not yet an
 arbitrary-content density solution. The current mutation target is to make the
 self-dating validity check derive from already-present item bits instead of
 carrying extra residue bits.
+
+Derived validity from visible seed classes avoids adding residue bits to the
+record, but restricts the eligible seed class by the same amount:
+
+```text
+best toy expected net/window=5.137e-05 at arity=3 class=6
+```
+
+Result: seed-class, checksum-residue, lane-constrained codeword, and
+neighbor-state validity checks must be priced as match-supply loss unless they
+reject wrong lanes more often than they reject true arbitrary targets.
 
 ## Prior Positive Controls
 

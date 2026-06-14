@@ -311,7 +311,7 @@ def public_lane_ensemble_demo() -> None:
     rng = Random(789)
     values = tuple(rng.randrange(1 << CHURN_B) for _ in range(24))
     print(f"{'lanes':>6} {'final items':>11} {'records':>8} {'payload bits':>12} "
-          f"{'candidates':>12} {'ambig bits':>11} {'orig in set':>11} {'net vs raw':>11}")
+          f"{'candidates':>12} {'ambig bits':>11} {'orig in set':>11} {'net vs raw':>12}")
     raw_payload_bits = len(values) * CHURN_B
     for lanes in [1, 2, 4, 8]:
         encoded = encode_public_lane_stream(values, lanes, passes=4)
@@ -321,11 +321,13 @@ def public_lane_ensemble_demo() -> None:
         candidate_count = len(candidates)
         ambiguity_bits = log2(candidate_count) if candidate_count else 0.0
         original_present = values in candidates
+        original_text = "unknown" if capped and not original_present else str(original_present)
         net_vs_raw = raw_payload_bits - payload_bits - ambiguity_bits
         suffix = "+" if capped else ""
+        net_text = f"<={net_vs_raw:.3f}" if capped else f"{net_vs_raw:.3f}"
         print(f"{lanes:6d} {len(encoded):11d} {records:8d} {payload_bits:12d} "
               f"{str(candidate_count) + suffix:>12} {ambiguity_bits:11.3f} "
-              f"{str(original_present):>11} {net_vs_raw:11.3f}")
+              f"{original_text:>11} {net_text:>12}")
     print()
     print("Reading: public lanes increase search supply without storing a")
     print("lane id, but the decoder's candidate set grows because wrong")

@@ -68,21 +68,31 @@ useful constraints:
    bits are paid as stored address width. In the toy, `k=3` raises hit
    probability to `0.125` but leaves only 1 gross bit per hit; `k>=4` reaches
    zero or negative gross savings.
-2. Fixed-universe target refresh round-trips without pass salt or birth tags.
+2. Public nonce lanes avoid storing the lane id, but the decoder must try the
+   lanes. In the exact toy, `K=8` lanes produced 5 records but at least
+   `200000` surviving decode candidates, so the charged net was `<= -26.610`
+   bits against raw payload.
+3. Fixed-universe target refresh round-trips without pass salt or birth tags.
    On 200 random 96-block trials, pass-1 hit rate averaged `0.02863`, pass-2
    fell to `0.00070`, and pass-3 hit rate was zero. It gained `+8.460` bits
    against literal-wrapped working state but lost `-87.540` bits against the
    original payload, so wrapper accounting cannot be counted as compression.
-3. Self-dating grammar residues reduce wrong-pass ambiguity, but they also
+4. Arity-flex target refresh with arities 2-5 created a few longer-span hits
+   but still stalled by pass 2 and lost `-92.895` bits against original
+   payload.
+5. Self-dating grammar residues reduce wrong-pass ambiguity, but they also
    lengthen every true target and shrink arbitrary hit supply. In the toy
    sweep at `P=1,000,000`, the best expected net per arbitrary window was only
    `6.018e-05` bits at arity 2 with 6 residue bits.
+6. Derived validity from visible seed classes avoids extra residue bits, but
+   the same information reappears as seed-supply loss. Best toy row:
+   `5.137e-05` expected net bits/window at arity 3 with 6 class bits.
 
 The next mutation should not add a bigger generated positive control. It should
-combine a decoder-visible nonce that is already present in the final stream with
-a target-refresh rule that does not expand the target language, or find a
-self-dating grammar whose validity check is derived from existing item bits
-rather than carried as extra residue.
+look for a public-lane or context-lane grammar where wrong lanes fail
+structurally at much higher probability than true arbitrary targets are thinned.
+So far, every tested lane/check either becomes stored address bits, surviving
+decode ambiguity, wrapper bloat, or seed-supply loss.
 
 ## Candidate A: Typed Scheduled Tree
 
