@@ -5,6 +5,9 @@ Date: 2026-06-14
 Status: reopened after anti-reward-hack review. No candidate currently satisfies
 the arbitrary/unshaped content bar. The previous TST/STF/BBL stack remains a
 set of controls and finite ledges, not a completed solution.
+Under the updated finish condition, completion would require a configuration
+that can maintain compression over many passes and theoretically reach about
+50% compression on arbitrary/random data. No current candidate meets that bar.
 
 - **Typed Scheduled Tree (TST)** is a reachable-set positive control. It is deterministic,
   lossless, statelessly decodable, deep, and fully charged-positive in a
@@ -61,7 +64,7 @@ Runnable kernel:
 python model_analysis\birth_channel_research\arbitrary_freshness_kernels.py
 ```
 
-Current result: no arbitrary-content solution yet. The kernel produced three
+Current result: no arbitrary-content solution yet. The kernel produced these
 useful constraints:
 
 1. Decoder-known visible nonces decode statelessly and refresh dice, but their
@@ -72,27 +75,405 @@ useful constraints:
    lanes. In the exact toy, `K=8` lanes produced 5 records but at least
    `200000` surviving decode candidates, so the charged net was `<= -26.610`
    bits against raw payload.
-3. Fixed-universe target refresh round-trips without pass salt or birth tags.
+3. Left-neighbor/packed-position context salts are genuinely decoder-visible
+   without stored nonce bits. The exact toy round-tripped all sampled streams,
+   but supply died after pass 1: pass-1 hit/window `0.01316`, pass 2 zero,
+   mean payload gain `-19.250` bits. A full left/right-neighbor version was
+   rejected because the right neighbor can change when later adjacent spans are
+   replaced, so the decoder cannot derive the same nonce.
+4. Fixed-universe target refresh round-trips without pass salt or birth tags.
    On 200 random 96-block trials, pass-1 hit rate averaged `0.02863`, pass-2
    fell to `0.00070`, and pass-3 hit rate was zero. It gained `+8.460` bits
    against literal-wrapped working state but lost `-87.540` bits against the
    original payload, so wrapper accounting cannot be counted as compression.
-4. Arity-flex target refresh with arities 2-5 created a few longer-span hits
+5. Arity-flex target refresh with arities 2-5 created a few longer-span hits
    but still stalled by pass 2 and lost `-92.895` bits against original
    payload.
-5. Self-dating grammar residues reduce wrong-pass ambiguity, but they also
+6. Full-cover bundle lattice takes the "replace every block" idea literally:
+   every output unit is a seed record, so the decoder needs no birth pass or
+   open/carry bitmap. The exact toy searches every interval up to arity 6 and
+   runs an optimal shortest-path cover. Rows that can cover require bloat:
+   `net/record=-2` covers `0.880` of trials while losing `-30.148` bits, and
+   `net/record=-1` covers `0.085` while losing `-17.647` bits. The first
+   non-bloating row (`net/record=0`) produced no full covers in 200 trials
+   with expected cover count `8.716e-04`; positive rows were far smaller.
+   A fixed 3-byte seed table over 3-byte base blocks gives arity-5 hit/window
+   probability only `1.262e-29`. Full replacement solves ordering, but
+   profitable full-cover tilings are too sparse under the uniform hash law.
+7. Adaptive smallest-replacement cover lets every interval use the smallest
+   seed width found, then chooses the cheapest all-record tiling. This matches
+   the "bloating singles can later be beaten by bundles" intuition. In the
+   exact toy, the invalid free-width oracle is positive (`+12.955` bits on
+   144 raw bits), proving the order-statistic effect exists. The valid
+   width-paid ledger stores the variable seed-width class and flips to
+   `-50.640` bits. The missing channel is the seed-width/rank boundary.
+   The recursive adaptive-cover churn variant applies this all-record cover to
+   its own serialized record stream. It round-trips `80/80` with no open/carry
+   map and no birth-pass salt, so decode mechanics are not the failure. But
+   144 random bits grow to `881.663` payload bits plus a `15`-bit charged
+   pad-count/layer header after six passes, about `1.35x` growth per layer.
+   Target churn alone amplifies the paid address-width margin instead of
+   flipping it.
+8. Overlapping-option seed-rank crossover models the 1+2+3+4+5 choices per
+   interior block directly at 3-byte block scale with unlimited compute. Under
+   an invalid `log2(first_rank)` oracle, max arity 5 gives `15` options/block,
+   `+0.279` bits/block at 3 overhead bits, and a crossover near `3.876`
+   overhead bits/record. The finite-depth version corrects the "must search
+   15 bytes" intuition: with 3-byte blocks and max arity 5, the invalid oracle
+   crosses earlier, around 92-96 search bits, because 3-block intervals are
+   saturated and 4-block intervals begin to overlap enough; the 120-bit/15-byte
+   row is near the asymptotic oracle (`+0.279` bits/block). But the parseable
+   fixed-width ledger at 120 bits is negative (`-2.604` bits/block), and the
+   selected-rank entropy lower bound is still negative (`-0.423`, or `-1.477`
+   with 3 marker bits). The overlap crossover is real only if seed-rank
+   length/termination is free.
+   A block-local restatement confirms the intended "15 options touching each
+   block" model rather than the naive one-5-block-bundle framing: at 120 search
+   bits, each block sees about `13.106` finite matching options and `1.754`
+   individually compressive options; a legal non-overlapping cover still has
+   oracle gain `+0.283` bits/block. The failure is not the crossover intuition.
+   The failure is still the paid witness boundary (`-0.430`, or `-1.496` with
+   marker bits).
+9. Collective selected-rank entropy coding gives the rank-witness idea a
+   stronger paid lower bound: let the oracle DP choose the best tiling, then
+   entropy-code selected `(arity, floor(log2 rank))` symbols under a public
+   selected distribution and emit raw lower rank bits inside each bin. It still
+   loses: max arity 5 has oracle `+0.297` bits/block but selected-rank entropy
+   lower bound `-0.423`, or `-1.489` with a 3-bit marker. The selected witness
+   distribution helps, but exact rank values still cost too much.
+10. Recursive full-cover overlap dynamics projects the all-block replacement
+   scheme over many passes. Since every parser unit is a seed record, open/carry
+   and birth pass are genuinely irrelevant; under uniform hashes, the
+   reserialized next pass is just another random target stream. The invalid
+   oracle ledger shrinks from 14,400 bits to 6,845.9 bits after 64 passes and
+   crosses half-size after about 59.7 passes. The paid ledgers immediately
+   grow: ideal geometric rank reaches 103,230.8 bits by pass 64,
+   selected-rank entropy lower bound reaches 44,358.3 bits, and
+   selected+marker reaches 687,614.0 bits. Target churn amplifies the honest
+   one-pass margin; it does not change its sign.
+11. Whole-cover ordinal language encodes the selected cover as one ordinal in a
+   public cover language, removing local rank terminators entirely. Exact toy:
+   with 18 raw bits, `maxA=3, rank=2` has `log desc=13.579`, covers only
+   `1.062%` of outputs, and saves `0.04697` expected bits before fallback
+   tags; `maxA=3, rank=3` covers `22.074%` but has `log desc=18.844`, already
+   larger than raw. The ordinal is just a generated codebook; coverage grows
+   only as ordinal entropy grows.
+12. Whole-cover referee-as-codeword replaces the ordinal with checksum bits and
+   asks the decoder to enumerate the cover language. In the exact toy
+   (`2785` generated outputs, `1.062%` coverage), short referees remain
+   ambiguous (`ref=8` leaves `12.055` survivors), and nearly unique referees
+   approach raw (`ref=16` has `1.040` survivors, saves only `2` bits/hit, and
+   gives `-0.97875` expected bits with a raw fallback tag). A referee is just
+   another codeword for the generated output.
+   The global-referee interval-cover mutation scales that idea to the overlap
+   language and stores only one end checksum/referee. It does not rescue the
+   15-option crossover: with 600 3-byte blocks, arity-5-only 120-bit search has
+   `0.63212` coverage but a half-size 7200-bit referee leaves about
+   `2^7199.3` survivors; arity-5-only 48-bit search makes the half referee
+   unique, but coverage is only `2^-8640`. Global end notes are the same
+   witness entropy in another location.
+   A canonical-minimum-cover rule can deduplicate multiple descriptions for the
+   same output, but still must identify which canonical output is meant. In the
+   exact 18-bit toy, `maxA=3, rank=2` drops from `13.579` description bits to
+   `11.443` unique-output bits, but a half-size 9-bit code covers only
+   `0.00195` of raw inputs. In the 600-block asymptotic counter, broad
+   overlap languages still have best half-size canonical coverage `2^-7200`;
+   narrow arity-5/48-bit coverage is `2^-8640`.
+13. Global fixed-depth rank cover stores one decoder-known rank width in the
+   root/header schedule, so per-record seed-width terminators disappear. This
+   also fails: low widths cover with bloating short records, while high widths
+   make longer bundles available but charge that width to every selected
+   record. In the optimistic raw-fallback ledger with 3-byte blocks, max arity
+   5, and 3 overhead bits, tested widths 24-120 all stayed non-positive; the
+   best shown rows were `rank_bits=100` at `-1.750` bits/block and
+   `rank_bits=120` at `-2.627`.
+14. Homophonic literal recoding gives each payload block multiple reversible
+   surface encodings, so the encoder can choose synonym bits that match a seed
+   while the decoder strips them. Exact toy: value bits 4, scheduled pairs,
+   6-bit seeds. Synonym widths 0-4 all had the same theoretical hit/pair
+   probability `0.22158`; measured hit/pair stayed around `0.21-0.22`, while
+   net worsened from `-22.658` at synonym 0 to `-424.810` at synonym 4.
+   Surface-choice multiplicity cancels against the extra synonym bits; misses
+   become longer.
+15. Global public transform selection is the optimistic target-refresh version:
+   choose one reversible public transform for a whole layer, store its index
+   once, then encode scheduled slots under the fixed seed universe. It raised
+   hit rate from `0.06232` at `K=1` to `0.08750` at `K=256`, but charged net
+   worsened from `-26.445` to `-28.113` bits on 3072-bit random layers. The
+   ideal large-deviation ledger stays negative after transform-index and
+   bitmap entropy are priced, so per-window transform choice would only add a
+   larger coordinate bill.
+16. Whole-layer rechunk/superposition target refresh gives the idea its clean
+   stateless form: fixed unsalted universe, known layer count, prefix tokens,
+   and greedy matching at every bit position. It round-tripped `200/200`, but
+   boundary visibility moved into literal tokens. On random 192-bit inputs,
+   pass 1 averaged `6.105` matches yet bloated to `280.21` bits (`-88.215`
+   versus original), and six passes averaged `4756.83` final bits
+   (`-4564.830` versus original).
+   The adaptive-length version lets each layer choose public chunk length
+   `(10,12,14)` with only a 2-bit layer index. It always chose the least-bad
+   14-bit mode in the focused run, bloating 512 random bits by `-183.125`
+   final visible bits over five passes; tight nets stayed around `-6.7`
+   bits/layer. Closed-form options all lose after bitmap entropy (`-0.31128`,
+   `-0.08729`, `-0.02237` bits/slot), so effective-length migration is not a
+   fixed-universe compression attractor.
+17. Public-shuffle scheduled target refresh changes adjacency without salt:
+   each pass applies a decoder-known bit permutation, then encodes fixed
+   scheduled chunks. The exact toy round-tripped `200/200` and maintained
+   hit/chunk near the fixed universe rate over eight passes (`0.06292`,
+   `0.06315`, `0.06160`, `0.05990`, `0.05901`, `0.06423`, `0.05695`,
+   `0.05454`). It still lost: visible chunk tokens grew 512 random bits to
+   `777.50` bits after eight passes (`-265.495` versus original), and the
+   tighter scheduled-bitmap ledger was negative on every layer, ending at
+   `-7.540` bits versus that layer input. Adjacency refresh works, but
+   open/carry remains a paid bitmap.
+18. Decoded-left-context nonce refresh uses the previous decoded chunk as the
+   salt for the next chunk in public-shuffled order. The encoder knows that
+   left neighbor while matching, and the decoder knows it before opening the
+   current chunk. This is a stable neighbor-identity nonce, unlike a future
+   right neighbor. The exact toy round-tripped `60/60`; hit/chunk stayed near
+   the 9-bit seed context rate across four passes (`0.02963`, `0.03962`,
+   `0.03298`, `0.02878`). It still lost: visible tokens grew 512 random bits
+   to `643.82` after four passes (`-131.817`), and the tight bitmap ledger
+   stayed around `-4.6` to `-5.3` bits/layer. One active neighbor context does
+   not multiply arbitrary hit supply.
+   The context-lane validity hybrid derives lane bits from that same causal
+   neighbor before opening and stores only local seed bits. It round-tripped
+   all tested lanes (`0,2,4,6,8,10`) over 3 passes, but each lane bit simply
+   halves eligible seed supply. The closed uniform ledger stays negative
+   (`lane 0: -0.08729`, `lane 4: -0.00562`, `lane 10: -0.00009` bits/slot),
+   and the exact toy still bloats visibly and under tight bitmap accounting.
+   Checkerboard two-neighbor context makes the right neighbor stable by
+   carrying the opposite parity as literal guard chunks. This gives a genuine
+   decoder-known left/right nonce before active expansion and round-trips
+   (`20/20` over four passes), but half the slots are forced guards and the
+   active half still has only one context per slot. With 14-bit chunks and
+   9-bit seeds, the closed active-slot ledger is `-0.04437` bits and the
+   all-slot ledger is `-0.02219`; the exact toy loses `-28.750` visible bits
+   after four passes and `-2.2` to `-2.9` tight bits per layer.
+19. Selected public-shuffle hitmap shaping lets the encoder try `K` public
+   shuffles and pick the best lower-bound hitmap ledger, then stores the
+   shuffle index once. It round-trips exactly and does increase hits: pass-1
+   hit/chunk rose from `0.06134` at `K=1` to `0.16644` at `K=64`. But the
+   shuffle index and remaining bitmap entropy consume the gain. The favorable
+   lower-bound ledger worsened from `-5.896` bits at `K=1` to `-7.333` at
+   `K=64`; visible-token net improved but remained negative (`-27.167` to
+   `-12.033`). Choosing nicer public coordinates is still a paid channel.
+20. Prefix-parse-state nonces are a real decoder-known salt channel. The
+   decoder knows the prefix token state before opening each record, and the toy
+   round-tripped `200/200` without nonce fields or birth tags. It maintained
+   hit/window across six passes (`0.03444`, `0.03533`, `0.03476`, `0.03554`,
+   `0.03398`, `0.03295`) but still bloated random 192-bit inputs to `1661.38`
+   bits after six passes. State refresh solved freshness better than fixed
+   rechunking, but literal carriage still defeated net compression.
+21. Sparse-map prefix-state accounting removes the bad literal-token overhead.
+   It stores only miss bits, seeds, and an optimistic non-overlap map
+   `log2 C(n-(L-1)m,m)` plus the match-count class. It still lost:
+   on 512-bit random inputs, `16.950` matches saved `67.800` gross seed-span
+   bits, but the map+count cost averaged `94.521` bits, for `538.721`
+   charged bits and `-26.721` net. The remaining bill is selected-span
+   entropy, not token syntax.
+22. Scheduled-slot prefix-state accounting removes the selected-position map by
+   using public non-overlapping slots. It nearly breaks even but still loses:
+   on 512-bit random inputs, `2.240` slot hits produced `517.828` charged bits
+   (`-5.828` net) once the hit-count class is charged. The closed-form
+   scheduled-slot ledger `p*d - H(p)` is negative for all tested positive gaps
+   `d=L-r`; the hit bitmap is the open/carry channel.
+   The parent-summary variant stores a small group summary before child slots
+   and salts each child by `(summary, local_slot)`. This is a real
+   decoder-known salt and verifies after child decode, but each child has only
+   one active parent state. At 14-bit spans, 10-bit seeds, and 1024-bit random
+   inputs, summary widths 0, 2, 4, and 6 all lost; the best sampled row was
+   summary 0/group 16 at `-8.706` bits, while summary 2/group 16 worsened to
+   `-16.630`. Parent summaries are metadata, not extra arbitrary coverage.
+23. Scheduled-edge exclusion rules use a public `(pass, slot)` class as a
+   decoder-known salt and omit those class bits from the stored local seed. The
+   exact toy round-tripped across three public passes, so freshness is real,
+   but every omitted class bit halves eligible seed supply. On 1024-bit random
+   layers, edge bits 0-4 all lost (`-9.590` to about `-5.466` bits in the
+   best sampled row), and the closed form `p*gross - H(p)` stayed negative.
+   The schedule is a valid free salt, not a compression subsidy.
+24. Seed-length class as nonce uses the record class to select seed length and
+   salt the expansion. The decoder knows the class before expanding, and the
+   exact toy round-tripped across three public passes. Multiple classes raised
+   hit rate (`9/10` reached about `0.092` hit/slot versus `0.064` for `10`
+   alone), but fixed class IDs and longer addresses made charged net worse:
+   the closed form moved from `-8.729e-02` bits/slot for `10` to
+   `-1.358e-01` for `9/10` and stayed negative for all tested class sets.
+   Seed length is a valid parser-known salt, but not a free match-rate subsidy.
+   Arity-header-known nonce gives the same question a span-length version:
+   arity is parsed before expansion and can salt the seed. The exact layered
+   toy round-tripped `120/120` and kept finding arity-3/4 records over four
+   fixed-universe passes, but visible tokens grew 256 random bits to `546.33`
+   bits (`-290.333` final delta), and the lower-bound parse-map ledger lost
+   `-15.144` to `-20.058` bits per layer. Closed form stayed negative for
+   compressive arities (`a3=-0.13812`, `a4=-0.00867` bits/window). The arity
+   header is a real nonce, but it is also the paid parse/open channel.
+   The value/count separation variant stores only class histograms, not per-hit
+   class IDs. Count-only ledgers look positive (`d4` count net `+0.17417`),
+   but the missing assignment entropy flips feasible rows negative (`d4`
+   full net `-0.08729`, `d8` `-0.00562`, `d4+d8+d12` `-0.09288`). Positive
+   full-net jackpot rows require impossible density, e.g. saving 16 bits with
+   hit probability `2^-8`.
+25. Grouped scheduled bundles try to amortize the bitmap by accepting only
+   all-hit public slot groups. This removes the flattering finite near-miss
+   only if the group hit count is silently free; once charged, 4096-bit random
+   trials lose `-29.620`, `-6.558`, `-6.399`, and `-6.160` bits for group
+   sizes 1-4. The closed form `p^g*g*d - H(p^g)` stays negative: grouping
+   thins hit supply by the same exponent that it saves bitmap frequency.
+   Bundle-geometry partition selector lets the group shape itself be the
+   decoder-known nonce and open/carry template. The exact toy round-tripped
+   `160/160` and found shape-specific records across four reserialized passes,
+   but visible mode bits grew 512 random bits to `858.62` (`-346.625` final
+   delta), and the optimistic enumerative mode-map ledger lost `-23.505` to
+   `-28.687` bits per layer. Even the closed all-shape union estimate stayed
+   negative (`-0.47256` bits/group). Geometry can salt, but selecting geometry
+   is the paid group-scale map.
+26. Bucket-directory one-hit hit map stores a public bucket directory and at
+   most one local hit per non-empty bucket. It is a middle ground between a
+   per-slot bitmap and all-hit groups. The exact toy round-tripped but lost
+   for bucket sizes 2, 4, 8, and 16 (`-28.022`, `-25.641`, `-22.442`,
+   `-18.260` bits on 4096-bit random layers). The closed form stays negative:
+   for group 4, bucket hit probability `0.22752` gives expected one-hit saving
+   `0.45505` bits but directory entropy `0.77367` plus a 2-bit local index.
+   Coarsening the bitmap buys a local coordinate bill and discards extra hits.
+27. Bitmap-free all-or-raw block mode removes mixed open/carry positions
+   inside each block. A block compresses only when every scheduled slot hits;
+   otherwise it is raw. The exact toy round-tripped, but one mode bit per
+   block dominated: 4096-bit random layers lost `-221.580`, `-142.440`,
+   `-96.880`, `-73.000`, `-36.000`, and `-18.000` bits for group sizes
+   1, 2, 3, 4, 8, and 16. The closed form `p^g*g*d - 1` is negative for all
+   tested groups, and a whole-layer all-hit mode has essentially zero random
+   hit probability. The hole-run bundle occupancy variant is the clean
+   egg-carton check: a 4-chunk bundle leaves three holes that identify
+   open/carry if the board remains visible. It round-tripped `120/120`; the
+   impossible packed-hole oracle was `+23.800` bits, but visible mode bits were
+   `-232.200`, explicit cell occupancy was `-1000.200`, and the tight
+   enumerative hole map was `-11.712`. Holes are therefore a valid signal only
+   in the representation that pays for the hole pattern.
+28. Greedy score-order count-only hit map omits the bitmap and stores only
+   seed/literal streams. A public slot order says every matchable chunk must
+   be opened; carried literals are valid only when they are outside that slot's
+   seed image. The exact toy round-tripped `400/400`, but the decoder still
+   saw `17.302` valid maps on average and unique decode only `44.3%` of the
+   time. The rule avoided `2.504` bitmap bits but left `2.175` ambiguity bits;
+   charged net was `-2.776` bits on a 96-bit block. Structural local validity
+   prunes maps but does not derive open/carry for free.
+29. Prefix-stop count-free hit map removes both bitmap and per-block hit count
+   by opening consecutive matchable slots in a public order until the first
+   miss. The exact toy round-tripped `120/120`; it had `2.200` bits of free
+   saving and `1.333` ambiguity bits, leaving an apparent `+0.867` bits. But
+   the total compressed length is the hidden stop-count/savings class. Charging
+   that `5.615`-bit class gives `-4.748` bits. The finite positive row was a
+   length-channel artifact, not recursive compression.
+30. Checksum-pruned hit-map search omits the hit bitmap and lets the decoder
+   enumerate all `C(slots,hits)` ordered seed/literal assignments, keeping
+   only those whose block checksum agrees. This is a real nonlocal coupling,
+   but a short checksum is ambiguous and a long checksum becomes the bitmap:
+   in the 12-slot exact toy, checksum 0 leaves `26.390` survivors on average
+   and only `0.410` unique decodes, while checksum 12 reaches `1.000` survivor
+   but loses `-12.760` bits on a 96-bit block. The hit count is also a
+   channel unless stream lengths expose it and are charged.
+31. Tagless value-code open/carry derivation removes the bitmap entirely.
+   For each decoder-known state, seed-image chunks get short prefix codewords
+   and non-image chunks get long complement codewords, so the decoder derives
+   open/carry from the parsed value class. This maintained fresh hits across
+   passes and round-tripped exactly, but Kraft conservation moved the bill to
+   misses: 512-bit random inputs bloated to `738.14` bits after four passes at
+   short length 5, to `756.05` bits at short length 6, and stayed exactly raw
+   at short length 8. The ideal one-chunk ledger is minimized at the no-saving
+   point where short codewords are as long as raw chunks.
+32. Finite-class local grammar bound generalizes visible nonces, seed-length
+   classes, tagless value codes, and local lane salts when open/carry is
+   decided by a local prefix grammar. Under the optimistic model with disjoint
+   seed images and ideal fallback coding, every tested design had expected
+   length at least raw. The brute-force sweep's best short-code designs only
+   reached `14.00011` expected bits for 14-bit chunks (`-0.00011` save), and
+   the tempting local `9/10` seed-length code is invalid because it consumes
+   the whole Kraft tree while leaving misses. This is a scoped impossibility
+   for local parser-known nonce tricks, not for nonlocal channels or shaped
+   sources.
+33. BBL random-density surface separates the finite wrong-pass ambiguity ledge
+   from arbitrary/random density. High arity makes `c_a(P)` tiny (`arity=5`,
+   `P=1,000,000` has `c=2.111` bits), but random scheduled windows still need
+   the open/carry hit map. The best sparse row at that setting has no-map
+   expected gain `1.476e-02` bits/window but map-priced net `-5.116e-02`;
+   a dense 50% layer would require a 63-bit gap whose uniform hit probability
+   is only `1.355e-20`. BBL remains a real dense selected-bundle ledge, not a
+   random-density solution.
+34. Self-dating grammar residues reduce wrong-pass ambiguity, but they also
    lengthen every true target and shrink arbitrary hit supply. In the toy
    sweep at `P=1,000,000`, the best expected net per arbitrary window was only
    `6.018e-05` bits at arity 2 with 6 residue bits.
-6. Derived validity from visible seed classes avoids extra residue bits, but
+   The residue/syndrome trilemma makes the conservation explicit. With
+   `data=8`, `seed=6`, `chunks=64`, and `P=1,000,000`, raw-filter residue
+   pruning at 6 bits lowers wrong-pass survival to about `0.01621`, but
+   hit/chunk falls to `0.0000` in the exact sample and the closed ledger is
+   `-0.001`. Constraining the expander to valid strings gives wrong-pass
+   survival `1.00000`; storing a syndrome restores arbitrary data hit/chunk
+   around `0.23` but pays the residue in the record and still has closed
+   ledger `-5.294`. Residue bits can prune, repair arbitrary targets, or stay
+   unpaid, but not all three.
+35. Derived validity from visible seed classes avoids extra residue bits, but
    the same information reappears as seed-supply loss. Best toy row:
    `5.137e-05` expected net bits/window at arity 3 with 6 class bits.
+36. Nested referee checks make wrong-pass openings die at recursive internal
+   nodes, and the exact toy wrapper round-tripped `5000/5000` arbitrary
+   payloads with `21/5000` random wrong streams surviving versus `19.53`
+   expected. But the anti-reward-hack ledger splits the result: the best
+   fantasy free-validity row was `7.273e-04` expected bits/window, while the
+   same row fell to `4.335e-11` when the referee bits were stored in the target
+   or derived from seed classes. The best charged row was only `1.274e-07`,
+   and it was shallow (`arity=5`, `depth=1`, `check=1`), so nesting itself did
+   not create a cheap birth/salt channel.
+37. Self-consistent output-derived nonces are stateless: the decoder tries nonce
+   values and keeps only expansions whose output hashes back to that nonce.
+   But the finite book stayed around one output per seed (`958` to `1057`
+   outputs for `1024` seeds across nonce widths 0-6), so nonce bits did not
+   multiply arbitrary target coverage.
+38. Final-position/egg-carton boards are not rejected by assumption; they now
+   have an optimized entropy gate. Shrinking `R` lowers the total final note,
+   but the best possible per-survivor pass-label lower bound remains
+   `log2(P)`: `P=4` is already break-even against a 2-bit match win, and
+   `P=64` is `-4` bits/survivor before slot/order overhead. A universal lane
+   board with `R=100`, `P=64`, `Q=P*R` costs `7.385` occupied-cell bits per
+   survivor. Histogram/count separation is not free: for `R=32`, `P=4`,
+   `H(hist)=9.616` and expected assignment entropy is `54.384`, totaling
+   exactly `2.000` bits/survivor.
+   The affine-orbit/final-coordinate toy makes the same point mechanically:
+   final-coordinate salt is stateless but stale, with hit/chunk near `0.031`
+   and closed net `-0.044` for `P=1..32`; birth-coordinate salt refreshes
+   supply (`0.6411` hit/chunk at `P=32`) but owes about `log2(P)` phase bits
+   or ambiguity, and the tight ledger worsens to `-62.220` bits. Public orbit
+   phase reads total motion, not birth.
+39. The 50% arbitrary/random finish condition has a counting gate. For `n=128`,
+   all outputs of length `<= n/2` cover only about `1.084e-19` of `n`-bit
+   inputs, leaving about `63` missing bits per input. Any future candidate must
+   locate those bits as paid side information, exceptions, non-injectivity, or
+   a distributional restriction.
+40. Exception fallback does not evade the 50% gate. Even with optimistic
+    n-bit raw exceptions and no per-block tag, the maximum fraction of `n=128`
+   inputs that can fit in `<=64` bits is only `1.084e-19`, giving a best
+   average saving of about `7.047e-18` bits/input. With a one-bit raw tag, the
+   average is effectively `129` bits.
+41. Window/placement multiplicity buys coverage only by creating a coordinate.
+    In the toy `L=32, r=16` ledger, `45426` trials give 50% hit coverage and
+    an apparent free expected gain of `8.000` bits/chunk, but the coordinate is
+   `15.471` bits, leaving only `0.264` priced expected bits/chunk. At full
+   `65536` trials, the coordinate consumes the entire 16-bit nominal saving.
+42. Repeated public-salt compute does not evade the bill by itself. For
+    half-size records (`r = L/2`), making half of random spans hit requires
+    about `2^(L-r)` trials. The implicit trial coordinate is about `L-r` bits,
+    leaving only about `0.529` bits saved per hit after pricing in the toy
+    ledger.
 
 The next mutation should not add a bigger generated positive control. It should
-look for a public-lane or context-lane grammar where wrong lanes fail
-structurally at much higher probability than true arbitrary targets are thinned.
-So far, every tested lane/check either becomes stored address bits, surviving
-decode ambiguity, wrapper bloat, or seed-supply loss.
+look for a context-lane grammar whose nonce changes across passes without
+depending on future neighbors, and whose wrong-lane structural failure is much
+stronger than the loss in true arbitrary target supply. So far, every tested
+lane/check either becomes stored address bits, surviving decode ambiguity,
+wrapper bloat, unstable context, output-self-consistency without added supply,
+seed-supply loss, or an implicit compute/trial coordinate.
 
 ## Candidate A: Typed Scheduled Tree
 
