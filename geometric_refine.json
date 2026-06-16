@@ -1,0 +1,178 @@
+{
+  "config": {
+    "atoms": 256,
+    "trials": 48,
+    "coverage_threshold": 0.95,
+    "seed": 20260615,
+    "block_bits": [
+      24
+    ],
+    "max_arity": [
+      8
+    ],
+    "modes": [
+      "markov1_arith_width_lotus_payload",
+      "markov1_geometric_rank"
+    ]
+  },
+  "results": [
+    {
+      "B": 24,
+      "K": 8,
+      "mode": "markov1_arith_width_lotus_payload",
+      "first_positive": {
+        "mode": "markov1_arith_width_lotus_payload",
+        "B": 24,
+        "K": 8,
+        "D": 68,
+        "max_span_bytes": 24.0,
+        "cover_rate": 1.0,
+        "gain_per_atom": 0.05422385319768138,
+        "gain_per_byte": 0.018074617732560458,
+        "records_per_atom": 0.7012532552083334,
+        "avg_selected_arity": 1.4260183358477427,
+        "avg_lotus_payload_width": 31.43309736567251,
+        "avg_local_payload_bits": 32.43309736567251,
+        "arity_bits_per_record": 3,
+        "witness_bits_per_record": 31.174373541011576,
+        "total_bits_per_record": 34.174373541011576,
+        "missing_bits_per_record": 0.0
+      },
+      "nearest": {
+        "mode": "markov1_arith_width_lotus_payload",
+        "B": 24,
+        "K": 8,
+        "D": 68,
+        "max_span_bytes": 24.0,
+        "cover_rate": 1.0,
+        "gain_per_atom": 0.05422385319768138,
+        "gain_per_byte": 0.018074617732560458,
+        "records_per_atom": 0.7012532552083334,
+        "avg_selected_arity": 1.4260183358477427,
+        "avg_lotus_payload_width": 31.43309736567251,
+        "avg_local_payload_bits": 32.43309736567251,
+        "arity_bits_per_record": 3,
+        "witness_bits_per_record": 31.174373541011576,
+        "total_bits_per_record": 34.174373541011576,
+        "missing_bits_per_record": 0.0
+      }
+    },
+    {
+      "B": 24,
+      "K": 8,
+      "mode": "markov1_geometric_rank",
+      "first_positive": {
+        "mode": "markov1_geometric_rank",
+        "B": 24,
+        "K": 8,
+        "D": 68,
+        "max_span_bytes": 24.0,
+        "cover_rate": 1.0,
+        "gain_per_atom": 0.8472222690411335,
+        "gain_per_byte": 0.28240742301371113,
+        "records_per_atom": 0.7012532552083334,
+        "avg_selected_arity": 1.4260183358477427,
+        "avg_lotus_payload_width": 31.43309736567251,
+        "avg_local_payload_bits": 32.43309736567251,
+        "arity_bits_per_record": 3,
+        "witness_bits_per_record": 30.02915571186317,
+        "total_bits_per_record": 33.02915571186317,
+        "missing_bits_per_record": 0.0
+      },
+      "nearest": {
+        "mode": "markov1_geometric_rank",
+        "B": 24,
+        "K": 8,
+        "D": 68,
+        "max_span_bytes": 24.0,
+        "cover_rate": 1.0,
+        "gain_per_atom": 0.8472222690411335,
+        "gain_per_byte": 0.28240742301371113,
+        "records_per_atom": 0.7012532552083334,
+        "avg_selected_arity": 1.4260183358477427,
+        "avg_lotus_payload_width": 31.43309736567251,
+        "avg_local_payload_bits": 32.43309736567251,
+        "arity_bits_per_record": 3,
+        "witness_bits_per_record": 30.02915571186317,
+        "total_bits_per_record": 33.02915571186317,
+        "missing_bits_per_record": 0.0
+      }
+    }
+  ],
+  "first_rows": [
+    {
+      "mode": "markov1_arith_width_lotus_payload",
+      "B": 24,
+      "K": 8,
+      "D": 68,
+      "max_span_bytes": 24.0,
+      "cover_rate": 1.0,
+      "gain_per_atom": 0.05422385319768138,
+      "gain_per_byte": 0.018074617732560458,
+      "records_per_atom": 0.7012532552083334,
+      "avg_selected_arity": 1.4260183358477427,
+      "avg_lotus_payload_width": 31.43309736567251,
+      "avg_local_payload_bits": 32.43309736567251,
+      "arity_bits_per_record": 3,
+      "witness_bits_per_record": 31.174373541011576,
+      "total_bits_per_record": 34.174373541011576,
+      "missing_bits_per_record": 0.0
+    },
+    {
+      "mode": "markov1_geometric_rank",
+      "B": 24,
+      "K": 8,
+      "D": 68,
+      "max_span_bytes": 24.0,
+      "cover_rate": 1.0,
+      "gain_per_atom": 0.8472222690411335,
+      "gain_per_byte": 0.28240742301371113,
+      "records_per_atom": 0.7012532552083334,
+      "avg_selected_arity": 1.4260183358477427,
+      "avg_lotus_payload_width": 31.43309736567251,
+      "avg_local_payload_bits": 32.43309736567251,
+      "arity_bits_per_record": 3,
+      "witness_bits_per_record": 30.02915571186317,
+      "total_bits_per_record": 33.02915571186317,
+      "missing_bits_per_record": 0.0
+    }
+  ],
+  "nearest_rows": [
+    {
+      "mode": "markov1_arith_width_lotus_payload",
+      "B": 24,
+      "K": 8,
+      "D": 68,
+      "max_span_bytes": 24.0,
+      "cover_rate": 1.0,
+      "gain_per_atom": 0.05422385319768138,
+      "gain_per_byte": 0.018074617732560458,
+      "records_per_atom": 0.7012532552083334,
+      "avg_selected_arity": 1.4260183358477427,
+      "avg_lotus_payload_width": 31.43309736567251,
+      "avg_local_payload_bits": 32.43309736567251,
+      "arity_bits_per_record": 3,
+      "witness_bits_per_record": 31.174373541011576,
+      "total_bits_per_record": 34.174373541011576,
+      "missing_bits_per_record": 0.0
+    },
+    {
+      "mode": "markov1_geometric_rank",
+      "B": 24,
+      "K": 8,
+      "D": 68,
+      "max_span_bytes": 24.0,
+      "cover_rate": 1.0,
+      "gain_per_atom": 0.8472222690411335,
+      "gain_per_byte": 0.28240742301371113,
+      "records_per_atom": 0.7012532552083334,
+      "avg_selected_arity": 1.4260183358477427,
+      "avg_lotus_payload_width": 31.43309736567251,
+      "avg_local_payload_bits": 32.43309736567251,
+      "arity_bits_per_record": 3,
+      "witness_bits_per_record": 30.02915571186317,
+      "total_bits_per_record": 33.02915571186317,
+      "missing_bits_per_record": 0.0
+    }
+  ]
+}

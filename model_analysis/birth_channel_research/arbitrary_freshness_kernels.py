@@ -25,9 +25,22 @@ from functools import lru_cache
 from hashlib import sha256
 from itertools import combinations
 from math import ceil, expm1, lgamma, log, log1p, log2
+from pathlib import Path
 from random import Random
 from statistics import mean
+import sys
 from typing import Iterable
+
+
+ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from model_analysis.proof_kernel.costs import (  # noqa: E402
+    MAX_PAYLOAD_WIDTH_BITS as J3D1_MAX_PAYLOAD_WIDTH_BITS,
+    j3d1_cost_for_payload_width,
+    lotus_width_for_value,
+)
 
 
 DOMAIN = b"TELOMERE-ARBITRARY-FRESHNESS-TOY"
@@ -1912,6 +1925,85 @@ def block_option_coupling_crossover_demo(trials: int = 80, blocks: int = 600) ->
     print()
 
 
+def expected_containing_interval_counts(
+    max_arity: int,
+    search_bits: float,
+    block_bits: int,
+    overhead_bits: float,
+) -> tuple[float, float]:
+    """Closed-form interior-block option counts for the finite-depth model."""
+    finite_options = 0.0
+    positive_options = 0.0
+    for arity in range(1, max_arity + 1):
+        target_bits = arity * block_bits
+        finite_options += arity * search_hit_probability(search_bits, target_bits)
+        positive_threshold = min(search_bits, target_bits - overhead_bits)
+        if positive_threshold >= 0.0:
+            positive_options += arity * search_hit_probability(positive_threshold, target_bits)
+    return finite_options, positive_options
+
+
+def direct_15_option_crossover_demo(trials: int = 80, blocks: int = 600) -> None:
+    print("== family 2e4: direct 15-option crossover calculation ==")
+    print("This is the crossover question in the user's block-centered terms.")
+    print("A 3-byte block has 15 containing intervals when max arity is 5:")
+    print("one single, two pairs, three triples, four quads, and five quints.")
+    print("For an N-bit search cap, an arity-a interval exists with probability")
+    print("1-exp(-2^(N-24a)). A compressive oracle interval additionally needs")
+    print("log2(rank) < 24a-h. The DP column is the legal non-overlapping cover.")
+    print()
+    block_bits = 24
+    max_arity = 5
+    overhead_bits = 3.0
+    print(
+        f"finite search calculation: block={block_bits} bits, maxA={max_arity}, "
+        f"opts/block=15, blocks={blocks}, trials={trials}, h={overhead_bits:g}"
+    )
+    print(
+        f"{'search':>7} {'E finite':>9} {'E pos':>8} {'local UB':>9} "
+        f"{'DP oracle':>9} {'sel LB':>9} {'sel+h':>9} {'rec/bl':>8}"
+    )
+    for search_bits in [72, 88, 92, 96, 104, 116, 120, 122, 128]:
+        expected_finite, expected_positive = expected_containing_interval_counts(
+            max_arity,
+            float(search_bits),
+            block_bits,
+            overhead_bits,
+        )
+        (
+            _hit_options,
+            _positive_options,
+            local_upper,
+            legal_oracle,
+            lower_gain,
+            marker_gain,
+            rec_per_block,
+            _cover,
+        ) = finite_block_option_coupling_stats(
+            max_arity,
+            float(search_bits),
+            trials,
+            blocks,
+            block_bits,
+            overhead_bits,
+        )
+        print(
+            f"{search_bits:7d} {expected_finite:9.3f} {expected_positive:8.3f} "
+            f"{local_upper:9.3f} {legal_oracle:9.3f} {lower_gain:9.3f} "
+            f"{marker_gain:9.3f} {rec_per_block:8.3f}"
+        )
+    print()
+    print("Reading: this is the calculation the fixed-bundle argument misses.")
+    print("At 120 search bits, an interior block expects about 13 finite")
+    print("matching containing intervals and about 1.76 individually")
+    print("compressive containing intervals. The legal cover is still positive")
+    print("under the free log-rank oracle, so the best-of-overlaps crossover is")
+    print("real. It is not yet a stateless codec, because the negative selected")
+    print("rank lower-bound columns are the bill for telling the decoder which")
+    print("exact seed witness was chosen.")
+    print()
+
+
 def selected_rank_entropy_stats(
     max_arity: int,
     trials: int,
@@ -2115,6 +2207,419 @@ def recursive_overlap_dynamics_demo(trials: int = 50, blocks: int = 600) -> None
     print("selected seed-rank witness length is missing. The paid rows grow")
     print("or stay negative from pass 1 onward, so all-block recursion does")
     print("not by itself create a compression attractor for random targets.")
+    print()
+
+
+def half_pass_count(gain_per_block: float, block_bits: int) -> float | None:
+    if gain_per_block <= 0.0 or gain_per_block >= block_bits:
+        return None
+    return log(0.5) / log(1.0 - (gain_per_block / block_bits))
+
+
+def high_arity_recursive_cover_surface_demo(trials: int = 30, blocks: int = 300) -> None:
+    print("== family 2f3: high-arity recursive full-cover surface ==")
+    print("This extends the all-block replacement projection beyond arity 5.")
+    print("Every pass is still a full interval cover, so birth/open tags are")
+    print("irrelevant. The question is whether longer arity alone makes target")
+    print("refresh stay compressive after the selected seed-rank witness is paid.")
+    print()
+    block_bits = 24
+    overhead_bits = 3.0
+    passes = 64
+    print(f"asymptotic simulation: block={block_bits} bits blocks={blocks} "
+          f"trials={trials} overhead={overhead_bits:g} projected_passes={passes}")
+    print(f"{'maxA':>5} {'opts/bl':>8} {'oracle':>8} {'half p':>8} "
+          f"{'sel LB':>8} {'sel x64':>8} {'+mark':>8} {'mark x64':>9} "
+          f"{'rec/bl':>7} {'bits/rec':>9}")
+    for max_arity in [5, 8, 12, 16, 24, 32, 48, 64]:
+        oracle_gain, lower_bound_gain, marker_gain, records_per_block, bits_per_record = (
+            selected_rank_entropy_stats(
+                max_arity,
+                trials,
+                blocks,
+                block_bits,
+                overhead_bits,
+            )
+        )
+        oracle_half = half_pass_count(oracle_gain, block_bits)
+        oracle_half_text = "none" if oracle_half is None else f"{oracle_half:8.1f}"
+        selected_ratio = projected_recursive_lengths(
+            blocks * block_bits,
+            block_bits,
+            lower_bound_gain,
+            passes,
+        )[-1] / (blocks * block_bits)
+        marker_ratio = projected_recursive_lengths(
+            blocks * block_bits,
+            block_bits,
+            marker_gain,
+            passes,
+        )[-1] / (blocks * block_bits)
+        options_per_block = max_arity * (max_arity + 1) // 2
+        print(f"{max_arity:5d} {options_per_block:8d} {oracle_gain:8.3f} "
+              f"{oracle_half_text:>8} {lower_bound_gain:8.3f} "
+              f"{selected_ratio:8.3f} {marker_gain:8.3f} {marker_ratio:9.3f} "
+              f"{records_per_block:7.3f} {bits_per_record:9.3f}")
+    print()
+    print("Reading: higher arity strengthens the free oracle and reduces the")
+    print("number of records per block. It also biases selected witnesses toward")
+    print("cheaper ranks. But the exact lower rank bits inside each selected")
+    print("bucket remain a real codeword cost; the paid lower bound plateaus")
+    print("below zero in this sweep. Target refresh over full covers keeps")
+    print("working only in the unpaid witness oracle.")
+    print()
+
+
+def lotus_jd_cost_for_payload_width(payload_width: int, j_bits: int, tiers: int) -> int:
+    """Exact Lotus JxDy bit length for a seed with the given payload width."""
+    if payload_width < 1:
+        raise ValueError("payload_width must be positive")
+    if not 1 <= j_bits <= 8:
+        raise ValueError("j_bits must be in 1..=8")
+    if tiers < 1:
+        raise ValueError("tiers must be positive")
+    current_width = payload_width
+    total_tier_width = 0
+    for _ in range(tiers):
+        tier_width = lotus_width_for_value(current_width)
+        total_tier_width += tier_width
+        current_width = tier_width
+    if current_width == 0 or current_width > (1 << j_bits):
+        raise ValueError("payload_width exceeds Lotus jumpstarter capacity")
+    return j_bits + total_tier_width + payload_width
+
+
+def sampled_first_hit_payload_width(rng: Random, target_bits: int) -> int:
+    # First hit rank is geometric with p=2^-target_bits. The exponential race
+    # approximation samples log2(rank) without enumerating astronomical seeds.
+    return max(1, ceil(target_bits + log2(rng.expovariate(1.0))))
+
+
+def extended_arity_bits(max_arity: int, arity: int) -> int:
+    if max_arity <= 5:
+        if arity <= 2:
+            return 2
+        return 3
+    return ceil(log2(max_arity))
+
+
+def exact_lotus_rank_cost(payload_width: int, profile: tuple[int, int]) -> float:
+    j_bits, tiers = profile
+    if profile == (3, 1):
+        if payload_width > J3D1_MAX_PAYLOAD_WIDTH_BITS:
+            return float("inf")
+        return float(j3d1_cost_for_payload_width(payload_width))
+    try:
+        return float(lotus_jd_cost_for_payload_width(payload_width, j_bits, tiers))
+    except ValueError:
+        return float("inf")
+
+
+def sample_exact_lotus_all_block_cover(
+    block_bits: int,
+    max_arity: int,
+    blocks: int,
+    rng: Random,
+    profile: tuple[int, int],
+) -> tuple[float, float, int]:
+    dp = [float("inf")] * (blocks + 1)
+    records = [0] * (blocks + 1)
+    dp[0] = 0.0
+    for index in range(blocks):
+        prefix = dp[index]
+        if prefix == float("inf"):
+            continue
+        for arity in range(1, min(max_arity, blocks - index) + 1):
+            payload_width = sampled_first_hit_payload_width(rng, arity * block_bits)
+            seed_bits = exact_lotus_rank_cost(payload_width, profile)
+            if seed_bits == float("inf"):
+                continue
+            record_bits = extended_arity_bits(max_arity, arity) + seed_bits
+            candidate = prefix + record_bits
+            if candidate < dp[index + arity]:
+                dp[index + arity] = candidate
+                records[index + arity] = records[index] + 1
+    if dp[blocks] == float("inf"):
+        return float("-inf"), 0.0, 0
+    net_bits = (blocks * block_bits) - dp[blocks]
+    record_count = records[blocks]
+    avg_arity = blocks / record_count if record_count else 0.0
+    return net_bits / blocks, avg_arity, record_count
+
+
+def all_block_exact_lotus_landscape_demo(
+    trials: int = 12,
+    blocks: int = 512,
+) -> None:
+    print("== family 2f4: all-block exact-Lotus high-arity landscape ==")
+    print("This is the clarified target: every block is replaced, so open/carry")
+    print("entropy is zero. No salt or shuffle is needed in this surface. The")
+    print("only per-record costs are arity code bits plus the exact Lotus seed")
+    print("rank witness. A>5 is a format extension using fixed arity bits.")
+    print()
+    profiles = [(3, 1), (1, 2), (2, 2), (3, 2), (1, 3), (2, 3), (3, 3)]
+    print(f"trials={trials} blocks={blocks} profiles="
+          f"{','.join(f'J{j}D{d}' for j, d in profiles)}")
+    print("Best exact-Lotus rows by block size:")
+    for block_bits in [8, 12, 16, 24]:
+        rows: list[tuple[float, float, int, int, tuple[int, int], str]] = []
+        for max_arity in [5, 8, 16, 32, 64, 128, 256]:
+            for profile in profiles:
+                rng = Random(880000 + block_bits * 1000 + max_arity * 10 + len(profile))
+                nets: list[float] = []
+                arities: list[float] = []
+                record_counts: list[int] = []
+                for _ in range(trials):
+                    net, avg_arity, record_count = sample_exact_lotus_all_block_cover(
+                        block_bits,
+                        max_arity,
+                        blocks,
+                        rng,
+                        profile,
+                    )
+                    if net != float("-inf"):
+                        nets.append(net)
+                        arities.append(avg_arity)
+                        record_counts.append(record_count)
+                arity_cost = ceil(log2(max_arity)) if max_arity > 5 else -1
+                arity_text = (
+                    "v1"
+                    if max_arity <= 5
+                    else str(arity_cost)
+                )
+                if nets:
+                    rows.append((
+                        mean(nets),
+                        mean(arities),
+                        mean(record_counts),
+                        max_arity,
+                        profile,
+                        arity_text,
+                    ))
+        print(f"b={block_bits}")
+        print(f"{'net/block':>10} {'avg arity':>10} {'records':>9} "
+              f"{'A':>5} {'aritybits':>9} {'profile':>7}")
+        for net, avg_arity, record_count, max_arity, profile, arity_text in sorted(rows, reverse=True)[:12]:
+            j_bits, tiers = profile
+            print(f"{net:10.4f} {avg_arity:10.3f} {record_count:9.2f} "
+                  f"{max_arity:5d} {arity_text:>9} {f'J{j_bits}D{tiers}':>7}")
+        print()
+    print("Reading: this exact-cost surface is the right one for the all-block")
+    print("hypothesis. Current J3D1 record seeds are capped at 508 payload bits;")
+    print("J3D2 is the natural Lotus extension for larger ranks. Positive rows")
+    print("would not be sparse hit-map wins; they would be full-cover all-record")
+    print("tilings. In the sampled rows above the best cases are still slightly")
+    print("negative. The remaining caveat is that this samples rank witnesses")
+    print("under the uniform hash law; a production proof needs an integer")
+    print("cover-language proof and a concrete A>5 arity alphabet.")
+    print()
+
+
+def counter_entropy(counter: Counter[object]) -> float:
+    total = sum(counter.values())
+    if total <= 0:
+        return 0.0
+    return -sum((count / total) * log2(count / total) for count in counter.values())
+
+
+def sample_oracle_cover_width_symbols(
+    block_bits: int,
+    max_arity: int,
+    blocks: int,
+    trials: int,
+    seed: int,
+) -> tuple[float, float, float, float, float, float]:
+    rng = Random(seed)
+    arity_header = ceil(log2(max_arity)) if max_arity > 5 else 3
+    arity_counts: Counter[int] = Counter()
+    delta_counts: Counter[int] = Counter()
+    arity_delta_counts: Counter[tuple[int, int]] = Counter()
+    nets: list[float] = []
+    record_rates: list[float] = []
+    for _ in range(trials):
+        dp = [float("inf")] * (blocks + 1)
+        previous: list[tuple[int, int, int] | None] = [None] * (blocks + 1)
+        dp[0] = 0.0
+        for index in range(blocks):
+            prefix = dp[index]
+            if prefix == float("inf"):
+                continue
+            for arity in range(1, min(max_arity, blocks - index) + 1):
+                payload_width = sampled_first_hit_payload_width(rng, arity * block_bits)
+                cost = arity_header + payload_width
+                candidate = prefix + cost
+                if candidate < dp[index + arity]:
+                    dp[index + arity] = candidate
+                    previous[index + arity] = (index, arity, payload_width)
+        if dp[blocks] == float("inf"):
+            continue
+        nets.append((blocks * block_bits - dp[blocks]) / blocks)
+        cursor = blocks
+        records = 0
+        while cursor > 0:
+            entry = previous[cursor]
+            if entry is None:
+                raise AssertionError("missing oracle predecessor")
+            prior, arity, payload_width = entry
+            delta = payload_width - (arity * block_bits)
+            arity_counts[arity] += 1
+            delta_counts[delta] += 1
+            arity_delta_counts[(arity, delta)] += 1
+            records += 1
+            cursor = prior
+        record_rates.append(records / blocks)
+    conditional = 0.0
+    total_records = sum(arity_counts.values())
+    if total_records:
+        for arity, count in arity_counts.items():
+            local = Counter({
+                delta: hits
+                for (candidate_arity, delta), hits in arity_delta_counts.items()
+                if candidate_arity == arity
+            })
+            conditional += (count / total_records) * counter_entropy(local)
+    net_per_block = mean(nets) if nets else float("-inf")
+    records_per_block = mean(record_rates) if record_rates else 0.0
+    budget_per_record = net_per_block / records_per_block if records_per_block else float("-inf")
+    return (
+        net_per_block,
+        records_per_block,
+        counter_entropy(arity_counts),
+        counter_entropy(delta_counts),
+        conditional,
+        budget_per_record,
+    )
+
+
+def selected_width_residual_entropy_demo(trials: int = 180, blocks: int = 256) -> None:
+    print("== family 2f5: selected width residual entropy ==")
+    print("This prices the proposed free-width cure for all-block replacement.")
+    print("The oracle can choose each interval's first-hit payload width, but")
+    print("the stateless decoder still needs to know the seed boundary. If")
+    print("arity almost determines width, a public width-by-arity schedule might")
+    print("be enough. The conditional entropy below is the minimum remaining")
+    print("width channel after the arity is already visible.")
+    print()
+    print(f"trials={trials} blocks={blocks}")
+    print(f"{'b':>4} {'A':>5} {'oracle':>9} {'rec/bl':>8} {'budget/rec':>10} "
+          f"{'H(a)':>7} {'H(dw)':>7} {'H(dw|a)':>9}")
+    for block_bits, max_arity in [(8, 5), (8, 8), (8, 16), (8, 32), (12, 16), (24, 64)]:
+        net, record_rate, arity_h, width_h, residual_h, budget = (
+            sample_oracle_cover_width_symbols(
+                block_bits,
+                max_arity,
+                blocks,
+                trials,
+                991000 + block_bits * 1000 + max_arity,
+            )
+        )
+        print(f"{block_bits:4d} {max_arity:5d} {net:9.3f} {record_rate:8.3f} "
+              f"{budget:10.3f} {arity_h:7.3f} {width_h:7.3f} {residual_h:9.3f}")
+    print()
+    print("Reading: the oracle's whole gain per selected record is around one")
+    print("bit in the best 8-bit rows, while the residual seed-width class")
+    print("after arity remains about three bits. So arity does not secretly")
+    print("carry the width channel; a real fix must derive width from a stronger")
+    print("invariant or stop needing variable seed boundaries.")
+    print()
+
+
+def sample_public_saving_schedule_cover(
+    block_bits: int,
+    max_arity: int,
+    gains: list[int],
+    blocks: int,
+    trials: int,
+    seed: int,
+) -> tuple[float, float, float]:
+    arity_header = ceil(log2(max_arity)) if max_arity > 5 else 3
+    hit_probabilities = [
+        0.0,
+        *[-expm1(-(2 ** (-arity_header - gain))) for gain in gains[1:]],
+    ]
+    rng = Random(seed)
+    net_per_block: list[float] = []
+    record_rates: list[float] = []
+    covers = 0
+    for _ in range(trials):
+        dp = [float("-inf")] * (blocks + 1)
+        records = [0] * (blocks + 1)
+        dp[0] = 0.0
+        for index in range(blocks):
+            prefix = dp[index]
+            if prefix == float("-inf"):
+                continue
+            for arity in range(1, min(max_arity, blocks - index) + 1):
+                if rng.random() >= hit_probabilities[arity]:
+                    continue
+                candidate = prefix + gains[arity]
+                if candidate > dp[index + arity]:
+                    dp[index + arity] = candidate
+                    records[index + arity] = records[index] + 1
+        if dp[blocks] == float("-inf"):
+            net_per_block.append(-float(block_bits))
+            continue
+        covers += 1
+        net_per_block.append(dp[blocks] / blocks)
+        record_rates.append(records[blocks] / blocks)
+    return (
+        mean(net_per_block),
+        covers / trials,
+        mean(record_rates) if record_rates else 0.0,
+    )
+
+
+def public_width_schedule_cover_demo(trials: int = 160, blocks: int = 384) -> None:
+    print("== family 2f6: public width-schedule all-block cover ==")
+    print("This removes the per-record seed-width field entirely. A public")
+    print("schedule assigns each arity a fixed net saving g after arity bits;")
+    print("negative g is controlled bloat. The decoder reads arity, then a")
+    print("fixed seed width for that arity. No open/carry or width metadata is")
+    print("charged per record.")
+    print()
+    print(f"trials={trials} blocks={blocks}")
+    print(f"{'b':>4} {'A':>5} {'schedule':>18} {'net/bl':>9} "
+          f"{'cover':>8} {'rec/bl':>8}")
+    surfaces = [
+        (8, 8),
+        (8, 16),
+        (8, 32),
+        (12, 16),
+        (24, 32),
+    ]
+    for block_bits, max_arity in surfaces:
+        schedules: list[tuple[str, list[int]]] = [
+            ("all -2", [0] + [-2] * max_arity),
+            ("all -1", [0] + [-1] * max_arity),
+            ("all 0", [0] + [0] * max_arity),
+            ("top half +1", [0] + [
+                1 if arity > max_arity // 2 else 0
+                for arity in range(1, max_arity + 1)
+            ]),
+            ("log ramp", [0] + [
+                max(-2, round(-2 + log2(arity)))
+                for arity in range(1, max_arity + 1)
+            ]),
+        ]
+        rows = []
+        for label, gains in schedules:
+            net, cover, record_rate = sample_public_saving_schedule_cover(
+                block_bits,
+                max_arity,
+                gains,
+                blocks,
+                trials,
+                772000 + block_bits * 1000 + max_arity * 10 + len(label),
+            )
+            rows.append((net, cover, record_rate, label))
+        for net, cover, record_rate, label in sorted(rows, reverse=True)[:4]:
+            print(f"{block_bits:4d} {max_arity:5d} {label:>18} "
+                  f"{net:9.3f} {cover:8.3f} {record_rate:8.3f}")
+    print()
+    print("Reading: a public arity-to-width schedule is stateless and honest,")
+    print("but it loses the order-statistic advantage. Bloating schedules cover")
+    print("and stay slightly negative; non-bloating or positive schedules leave")
+    print("holes. The missing piece is not merely a global width table.")
     print()
 
 
@@ -4744,6 +5249,894 @@ def scheduled_slot_bitmap_demo(trials: int = 200, n_bits: int = 512) -> None:
 
 
 @dataclass(frozen=True)
+class PhaseSlotLayerStat:
+    pass_index: int
+    before_bits: int
+    after_bits: int
+    phase: int
+    phase_bits: int
+    slots: int
+    hits: int
+    prefix_bits: int
+    tail_bits: int
+    literal_bits: int
+    seed_bits: int
+    bitmap_bits: float
+    count_bits: float
+    tight_bits: float
+
+
+@dataclass(frozen=True)
+class PhaseSlotEncoded:
+    final_bits: str
+    stats: tuple[PhaseSlotLayerStat, ...]
+    original_bits: str
+
+
+def encode_phase_slot_layer_for_phase(
+    bits: str,
+    pass_index: int,
+    phase: int,
+) -> tuple[str, PhaseSlotLayerStat]:
+    phase_bits = ceil(log2(RECHUNK_L))
+    if phase < 0 or phase >= RECHUNK_L or phase > len(bits):
+        raise ValueError("invalid phase-selected slot phase")
+    prefix = bits[:phase]
+    body = bits[phase:]
+    slots = len(body) // RECHUNK_L
+    tail = body[slots * RECHUNK_L:]
+    state = step_token_state(0, prefix)
+    out: list[str] = [format(phase, f"0{phase_bits}b"), prefix]
+    hits: list[bool] = []
+    seeds: list[int] = []
+    literals: list[str] = []
+    for slot in range(slots):
+        start = phase + slot * RECHUNK_L
+        chunk = bits[start:start + RECHUNK_L]
+        seed = STATE_RECHUNK_BOOKS[state].get(chunk)
+        if seed is not None:
+            out.append("1" + format(seed, f"0{RECHUNK_SEED_BITS}b"))
+            hits.append(True)
+            seeds.append(seed)
+        else:
+            out.append("0" + chunk)
+            hits.append(False)
+            literals.append(chunk)
+        state = step_token_state(state, chunk)
+    out.append(tail)
+    literal_bits = len(prefix) + sum(len(chunk) for chunk in literals) + len(tail)
+    seed_bits = len(seeds) * RECHUNK_SEED_BITS
+    bitmap_bits = log2_choose(slots, len(seeds))
+    count_bits = count_class_bits(slots + 1)
+    tight_bits = phase_bits + literal_bits + seed_bits + bitmap_bits + count_bits
+    encoded = "".join(out)
+    return (
+        encoded,
+        PhaseSlotLayerStat(
+            pass_index,
+            len(bits),
+            len(encoded),
+            phase,
+            phase_bits,
+            slots,
+            len(seeds),
+            len(prefix),
+            len(tail),
+            literal_bits,
+            seed_bits,
+            bitmap_bits,
+            count_bits,
+            tight_bits,
+        ),
+    )
+
+
+def encode_phase_slot_layer(bits: str, pass_index: int) -> tuple[str, PhaseSlotLayerStat]:
+    max_phase = min(RECHUNK_L - 1, len(bits))
+    candidates = [
+        encode_phase_slot_layer_for_phase(bits, pass_index, phase)
+        for phase in range(max_phase + 1)
+    ]
+    return min(
+        candidates,
+        key=lambda item: (item[1].tight_bits, item[1].after_bits, item[1].phase),
+    )
+
+
+def decode_phase_slot_layer(encoded: str, stat: PhaseSlotLayerStat) -> str:
+    offset = 0
+    if len(encoded) < stat.phase_bits:
+        raise ValueError("truncated phase-selected phase")
+    phase = int(encoded[offset:offset + stat.phase_bits], 2)
+    if phase != stat.phase:
+        raise ValueError("wrong phase-selected phase")
+    offset += stat.phase_bits
+    prefix = encoded[offset:offset + stat.prefix_bits]
+    if len(prefix) != stat.prefix_bits:
+        raise ValueError("truncated phase-selected prefix")
+    offset += stat.prefix_bits
+    state = step_token_state(0, prefix)
+    out: list[str] = [prefix]
+    for _ in range(stat.slots):
+        if offset >= len(encoded):
+            raise ValueError("truncated phase-selected slot tag")
+        tag = encoded[offset]
+        offset += 1
+        if tag == "1":
+            end = offset + RECHUNK_SEED_BITS
+            if end > len(encoded):
+                raise ValueError("truncated phase-selected seed")
+            seed = int(encoded[offset:end], 2)
+            offset = end
+            chunk = expand_state_rechunk_seed(state, seed)
+        elif tag == "0":
+            end = offset + RECHUNK_L
+            if end > len(encoded):
+                raise ValueError("truncated phase-selected literal")
+            chunk = encoded[offset:end]
+            offset = end
+        else:
+            raise ValueError("invalid phase-selected slot tag")
+        out.append(chunk)
+        state = step_token_state(state, chunk)
+    tail = encoded[offset:offset + stat.tail_bits]
+    if len(tail) != stat.tail_bits:
+        raise ValueError("truncated phase-selected tail")
+    offset += stat.tail_bits
+    if offset != len(encoded):
+        raise ValueError("extra bits after phase-selected layer")
+    out.append(tail)
+    decoded = "".join(out)
+    if len(decoded) != stat.before_bits:
+        raise ValueError("phase-selected decoded length mismatch")
+    return decoded
+
+
+def encode_phase_slot_layers(bits: str, passes: int) -> PhaseSlotEncoded:
+    current = bits
+    stats: list[PhaseSlotLayerStat] = []
+    for pass_index in range(1, passes + 1):
+        current, stat = encode_phase_slot_layer(current, pass_index)
+        stats.append(stat)
+    return PhaseSlotEncoded(current, tuple(stats), bits)
+
+
+def decode_phase_slot_layers(encoded: PhaseSlotEncoded) -> str:
+    current = encoded.final_bits
+    for stat in reversed(encoded.stats):
+        current = decode_phase_slot_layer(current, stat)
+    return current
+
+
+def try_decode_phase_slot_without_phase(
+    body: str,
+    before_bits: int,
+    phase: int,
+) -> str | None:
+    if phase < 0 or phase >= RECHUNK_L or phase > before_bits:
+        return None
+    offset = 0
+    prefix = body[offset:offset + phase]
+    if len(prefix) != phase:
+        return None
+    offset += phase
+    state = step_token_state(0, prefix)
+    out: list[str] = [prefix]
+    remaining = before_bits - phase
+    slots = remaining // RECHUNK_L
+    tail_bits = remaining - slots * RECHUNK_L
+    for _ in range(slots):
+        if offset >= len(body):
+            return None
+        tag = body[offset]
+        offset += 1
+        if tag == "1":
+            end = offset + RECHUNK_SEED_BITS
+            if end > len(body):
+                return None
+            seed = int(body[offset:end], 2)
+            offset = end
+            chunk = expand_state_rechunk_seed(state, seed)
+        elif tag == "0":
+            end = offset + RECHUNK_L
+            if end > len(body):
+                return None
+            chunk = body[offset:end]
+            offset = end
+        else:
+            return None
+        out.append(chunk)
+        state = step_token_state(state, chunk)
+    tail = body[offset:offset + tail_bits]
+    if len(tail) != tail_bits:
+        return None
+    offset += tail_bits
+    if offset != len(body):
+        return None
+    decoded = "".join(out + [tail])
+    if len(decoded) != before_bits:
+        return None
+    return decoded
+
+
+def phase_slot_omitted_phase_candidates(
+    encoded: str,
+    stat: PhaseSlotLayerStat,
+) -> tuple[int, bool]:
+    body = encoded[stat.phase_bits:]
+    candidates = {
+        decoded
+        for phase in range(min(RECHUNK_L - 1, stat.before_bits) + 1)
+        for decoded in [try_decode_phase_slot_without_phase(body, stat.before_bits, phase)]
+        if decoded is not None
+    }
+    original = decode_phase_slot_layer(encoded, stat)
+    return len(candidates), original in candidates
+
+
+def phase_selected_slot_refresh_demo(
+    trials: int = 160,
+    n_bits: int = 512,
+    passes: int = 5,
+    ambiguity_trials: int = 80,
+    ambiguity_bits: int = 84,
+) -> None:
+    print("== family 1g2/2s: phase-selected scheduled slots ==")
+    print("The encoder chooses one public slot phase for the whole layer and")
+    print("stores that phase once. The phase changes which windows are tested,")
+    print("while the hit bitmap/count still carries open vs carry.")
+    print()
+    rng = Random(121212)
+    rows: dict[int, list[PhaseSlotLayerStat]] = {p: [] for p in range(1, passes + 1)}
+    final_visible_delta: list[int] = []
+    for _ in range(trials):
+        bits = format(rng.getrandbits(n_bits), f"0{n_bits}b")
+        encoded = encode_phase_slot_layers(bits, passes)
+        assert decode_phase_slot_layers(encoded) == bits
+        final_visible_delta.append(len(bits) - len(encoded.final_bits))
+        for stat in encoded.stats:
+            rows[stat.pass_index].append(stat)
+
+    print(f"toy grammar: span={RECHUNK_L} seed={RECHUNK_SEED_BITS} "
+          f"phase_bits={ceil(log2(RECHUNK_L))} passes={passes} n_bits={n_bits}")
+    print(f"round_trips={trials}/{trials}")
+    print(f"{'pass':>4} {'avg in':>9} {'avg out':>9} {'phase':>7} "
+          f"{'slots':>7} {'hits':>7} {'hit/slot':>9} {'vis net':>9} "
+          f"{'tight net':>10}")
+    for pass_index in range(1, passes + 1):
+        stats = rows[pass_index]
+        if not stats:
+            continue
+        avg_in = mean(stat.before_bits for stat in stats)
+        avg_out = mean(stat.after_bits for stat in stats)
+        avg_slots = mean(stat.slots for stat in stats)
+        avg_hits = mean(stat.hits for stat in stats)
+        hit_rate = avg_hits / avg_slots if avg_slots else 0.0
+        avg_phase = mean(stat.phase for stat in stats)
+        visible_net = mean(stat.before_bits - stat.after_bits for stat in stats)
+        tight_net = mean(stat.before_bits - stat.tight_bits for stat in stats)
+        print(f"{pass_index:4d} {avg_in:9.2f} {avg_out:9.2f} {avg_phase:7.2f} "
+              f"{avg_slots:7.2f} {avg_hits:7.3f} {hit_rate:9.5f} "
+              f"{visible_net:9.3f} {tight_net:10.3f}")
+    print(f"mean final visible delta vs original={mean(final_visible_delta):.3f} bits")
+
+    ambiguity_counts: list[int] = []
+    ambiguity_bits_list: list[float] = []
+    present = 0
+    for _ in range(ambiguity_trials):
+        bits = format(rng.getrandbits(ambiguity_bits), f"0{ambiguity_bits}b")
+        encoded_bits, stat = encode_phase_slot_layer(bits, 1)
+        count, original_present = phase_slot_omitted_phase_candidates(encoded_bits, stat)
+        ambiguity_counts.append(count)
+        ambiguity_bits_list.append(log2(count) if count else 0.0)
+        present += int(original_present)
+    print()
+    print("Omitted-phase ambiguity on small one-layer encodings:")
+    print(f"layers={ambiguity_trials} before_bits={ambiguity_bits} "
+          f"avg_candidates={mean(ambiguity_counts):.3f} "
+          f"avg_log2={mean(ambiguity_bits_list):.3f} present={present}/{ambiguity_trials}")
+    print()
+    print("Reading: selecting the best phase does refresh target coordinates")
+    print("and raises hit density versus one fixed scheduled alignment. The")
+    print("phase itself is cheap but not free, and the bitmap/count bill remains")
+    print("larger than the seed-span savings. Omitting the phase only converts")
+    print("that field into finite trial-decode ambiguity.")
+    print()
+
+
+ROLL_LANE_L = 12
+ROLL_LANE_SEED_BITS = 8
+
+
+def expand_rolling_lane_seed(state: int, lane: int, seed: int) -> str:
+    return hash_bits("rolling-state-lane-ensemble", state, lane, seed, n_bits=ROLL_LANE_L)
+
+
+@lru_cache(maxsize=16)
+def rolling_lane_books(lanes: int) -> tuple[dict[str, tuple[int, int]], ...]:
+    books: list[dict[str, tuple[int, int]]] = []
+    for state in range(STATE_RECHUNK_STATE_COUNT):
+        book: dict[str, tuple[int, int]] = {}
+        for lane in range(lanes):
+            for seed in range(1 << ROLL_LANE_SEED_BITS):
+                book.setdefault(expand_rolling_lane_seed(state, lane, seed), (lane, seed))
+        books.append(book)
+    return tuple(books)
+
+
+@dataclass(frozen=True)
+class RollingLaneEncoded:
+    length: int
+    lanes: int
+    slots: int
+    hits: tuple[bool, ...]
+    chosen_lanes: tuple[int, ...]
+    seeds: tuple[int, ...]
+    literals: str
+    tail: str
+
+
+@dataclass(frozen=True)
+class RollingLaneStat:
+    lanes: int
+    slots: int
+    hits: int
+    unique_outputs_per_state: float
+    literal_bits: int
+    seed_bits: int
+    bitmap_bits: float
+    count_bits: float
+    lane_bits: int
+    free_lane_bits: float
+    stored_lane_bits: float
+    ambiguity_lower_bits: float
+
+
+def encode_rolling_lane_layer(bits: str, lanes: int) -> tuple[RollingLaneEncoded, RollingLaneStat]:
+    books = rolling_lane_books(lanes)
+    slots = len(bits) // ROLL_LANE_L
+    tail = bits[slots * ROLL_LANE_L:]
+    state = 0
+    hits: list[bool] = []
+    chosen_lanes: list[int] = []
+    seeds: list[int] = []
+    literals: list[str] = []
+    for slot in range(slots):
+        start = slot * ROLL_LANE_L
+        chunk = bits[start:start + ROLL_LANE_L]
+        witness = books[state].get(chunk)
+        if witness is None:
+            hits.append(False)
+            literals.append(chunk)
+        else:
+            lane, seed = witness
+            hits.append(True)
+            chosen_lanes.append(lane)
+            seeds.append(seed)
+        state = step_token_state(state, chunk)
+    hit_count = len(seeds)
+    literal_bits = sum(len(chunk) for chunk in literals) + len(tail)
+    seed_bits = hit_count * ROLL_LANE_SEED_BITS
+    bitmap_bits = log2_choose(slots, hit_count)
+    count_bits = count_class_bits(slots + 1)
+    lane_bits_per_hit = 0 if lanes <= 1 else ceil(log2(lanes))
+    lane_bits = hit_count * lane_bits_per_hit
+    free_lane_bits = literal_bits + seed_bits + bitmap_bits + count_bits
+    stored_lane_bits = free_lane_bits + lane_bits
+    ambiguity_lower_bits = free_lane_bits + hit_count * log2(lanes)
+    unique_outputs = mean(len(book) for book in books)
+    return (
+        RollingLaneEncoded(
+            len(bits),
+            lanes,
+            slots,
+            tuple(hits),
+            tuple(chosen_lanes),
+            tuple(seeds),
+            "".join(literals),
+            tail,
+        ),
+        RollingLaneStat(
+            lanes,
+            slots,
+            hit_count,
+            unique_outputs,
+            literal_bits,
+            seed_bits,
+            bitmap_bits,
+            count_bits,
+            lane_bits,
+            free_lane_bits,
+            stored_lane_bits,
+            ambiguity_lower_bits,
+        ),
+    )
+
+
+def decode_rolling_lane_layer(encoded: RollingLaneEncoded) -> str:
+    state = 0
+    seed_index = 0
+    lane_index = 0
+    literal_index = 0
+    out: list[str] = []
+    for hit in encoded.hits:
+        if hit:
+            seed = encoded.seeds[seed_index]
+            lane = encoded.chosen_lanes[lane_index]
+            seed_index += 1
+            lane_index += 1
+            chunk = expand_rolling_lane_seed(state, lane, seed)
+        else:
+            chunk = encoded.literals[literal_index:literal_index + ROLL_LANE_L]
+            if len(chunk) != ROLL_LANE_L:
+                raise ValueError("rolling-lane literal stream exhausted")
+            literal_index += ROLL_LANE_L
+        out.append(chunk)
+        state = step_token_state(state, chunk)
+    if seed_index != len(encoded.seeds):
+        raise ValueError("unused rolling-lane seeds")
+    if lane_index != len(encoded.chosen_lanes):
+        raise ValueError("unused rolling-lane lanes")
+    if literal_index != len(encoded.literals):
+        raise ValueError("unused rolling-lane literals")
+    out.append(encoded.tail)
+    return "".join(out)
+
+
+def rolling_lane_candidate_count(
+    encoded: RollingLaneEncoded,
+    cap: int = 200_000,
+) -> tuple[int, bool, bool]:
+    candidates: set[tuple[int, str]] = {(0, "")}
+    capped = False
+    seed_index = 0
+    literal_index = 0
+    for hit in encoded.hits:
+        next_candidates: set[tuple[int, str]] = set()
+        if hit:
+            seed = encoded.seeds[seed_index]
+            seed_index += 1
+            for state, prefix in candidates:
+                for lane in range(encoded.lanes):
+                    chunk = expand_rolling_lane_seed(state, lane, seed)
+                    next_candidates.add((step_token_state(state, chunk), prefix + chunk))
+                    if len(next_candidates) >= cap:
+                        capped = True
+                        break
+                if capped:
+                    break
+        else:
+            chunk = encoded.literals[literal_index:literal_index + ROLL_LANE_L]
+            literal_index += ROLL_LANE_L
+            for state, prefix in candidates:
+                next_candidates.add((step_token_state(state, chunk), prefix + chunk))
+        candidates = next_candidates
+        if capped:
+            break
+    if not capped:
+        candidates = {(state, prefix + encoded.tail) for state, prefix in candidates}
+    original = decode_rolling_lane_layer(encoded)
+    original_present = any(bits == original for _, bits in candidates)
+    return len(candidates), capped, original_present
+
+
+def rolling_state_lane_ensemble_demo(
+    trials: int = 160,
+    n_bits: int = 480,
+    ambiguity_trials: int = 40,
+    ambiguity_bits: int = 72,
+) -> None:
+    print("== family 1q: rolling-state public lane ensemble ==")
+    print("The decoder-known rolling state selects a state-specific seed")
+    print("universe. This mutation adds K public lanes per state but does not")
+    print("store the lane in the free ledger. Stored-lane and ambiguity ledgers")
+    print("price the missing lane selector.")
+    print()
+    rng = Random(646464)
+    print(f"toy grammar: span={ROLL_LANE_L} seed={ROLL_LANE_SEED_BITS} "
+          f"state_bits={STATE_RECHUNK_STATE_BITS} n_bits={n_bits}")
+    print(f"{'K':>3} {'uniq/state':>10} {'hit/slot':>9} {'free net':>10} "
+          f"{'stored net':>11} {'ambig LB':>10} {'lane bits':>10}")
+    for lanes in [1, 2, 4, 8]:
+        stats: list[RollingLaneStat] = []
+        for _ in range(trials):
+            bits = format(rng.getrandbits(n_bits), f"0{n_bits}b")
+            encoded, stat = encode_rolling_lane_layer(bits, lanes)
+            assert decode_rolling_lane_layer(encoded) == bits
+            stats.append(stat)
+        avg_slots = mean(stat.slots for stat in stats)
+        avg_hits = mean(stat.hits for stat in stats)
+        avg_unique = mean(stat.unique_outputs_per_state for stat in stats)
+        hit_rate = avg_hits / avg_slots if avg_slots else 0.0
+        free_net = n_bits - mean(stat.free_lane_bits for stat in stats)
+        stored_net = n_bits - mean(stat.stored_lane_bits for stat in stats)
+        ambiguity_net = n_bits - mean(stat.ambiguity_lower_bits for stat in stats)
+        avg_lane_bits = mean(stat.lane_bits for stat in stats)
+        print(f"{lanes:3d} {avg_unique:10.1f} {hit_rate:9.5f} {free_net:10.3f} "
+              f"{stored_net:11.3f} {ambiguity_net:10.3f} {avg_lane_bits:10.3f}")
+
+    print()
+    print("Exact omitted-lane ambiguity on smaller layers:")
+    print(f"{'K':>3} {'hits':>8} {'candidates':>11} {'ambig':>9} "
+          f"{'present':>8} {'ambig net':>11}")
+    for lanes in [2, 4, 8]:
+        counts: list[int] = []
+        hits: list[int] = []
+        present = 0
+        capped = 0
+        ambig_nets: list[float] = []
+        for _ in range(ambiguity_trials):
+            bits = format(rng.getrandbits(ambiguity_bits), f"0{ambiguity_bits}b")
+            encoded, stat = encode_rolling_lane_layer(bits, lanes)
+            count, was_capped, original_present = rolling_lane_candidate_count(encoded)
+            counts.append(count)
+            hits.append(stat.hits)
+            present += int(original_present)
+            capped += int(was_capped)
+            ambiguity = log2(count) if count else 0.0
+            ambig_nets.append(ambiguity_bits - stat.free_lane_bits - ambiguity)
+        suffix = "+" if capped else ""
+        print(f"{lanes:3d} {mean(hits):8.3f} {mean(counts):11.2f}{suffix:1s} "
+              f"{mean(log2(count) if count else 0.0 for count in counts):9.3f} "
+              f"{present:3d}/{ambiguity_trials:<4d} {mean(ambig_nets):11.3f}")
+
+    print()
+    print("Closed-form lane expectation, ignoring collisions:")
+    print(f"{'K':>3} {'p~K2^-d':>10} {'free':>10} {'stored/amb':>12}")
+    gap = ROLL_LANE_L - ROLL_LANE_SEED_BITS
+    base_p = 2.0 ** (-gap)
+    for lanes in [1, 2, 4, 8, 16]:
+        p = min(1.0, lanes * base_p)
+        entropy = binary_entropy(p)
+        free = p * gap - entropy
+        stored = p * (gap - log2(lanes)) - entropy
+        print(f"{lanes:3d} {p:10.5f} {free:10.5f} {stored:12.5f}")
+    print()
+    print("Reading: K lanes are real fresh dice because the rolling state is")
+    print("known before expansion. The tempting positive rows are precisely the")
+    print("rows where the lane selector is free. Once the lane is stored, or an")
+    print("end checksum/referee must distinguish K lane readings per hit, the")
+    print("gain flips negative under the uniform hash law.")
+    print()
+
+
+def lane_sequence_entropy_bits(lanes: tuple[int, ...], lane_count: int) -> tuple[float, float, float]:
+    """Return histogram, assignment, and total enumerative bits for lane labels."""
+    if not lanes:
+        return 0.0, 0.0, 0.0
+    counts = Counter(lanes)
+    hist_bits = log2_choose(len(lanes) + lane_count - 1, lane_count - 1)
+    assignment_bits = log2_factorial(len(lanes)) - sum(
+        log2_factorial(counts.get(lane, 0)) for lane in range(lane_count)
+    )
+    return hist_bits, assignment_bits, hist_bits + assignment_bits
+
+
+def rolling_lane_collective_selector_demo(trials: int = 160, n_bits: int = 480) -> None:
+    print("== family 1q3: collective rolling-lane selector entropy ==")
+    print("This re-prices the positive rolling-lane row without assuming a")
+    print("fixed lane header per record. The encoder stores lane counts plus")
+    print("an enumerative assignment of selected lanes to hit records. The")
+    print("count-only ledger is shown as an invalid histogram-only oracle.")
+    print()
+    rng = Random(686868)
+    print(f"toy grammar: span={ROLL_LANE_L} seed={ROLL_LANE_SEED_BITS} n_bits={n_bits}")
+    print(f"{'K':>3} {'hits':>8} {'free':>9} {'hist':>8} {'assign':>9} "
+          f"{'count net':>10} {'enum net':>10} {'fixed net':>10}")
+    for lanes in [2, 4, 8]:
+        hits: list[int] = []
+        free_nets: list[float] = []
+        hist_bits: list[float] = []
+        assignment_bits: list[float] = []
+        count_only_nets: list[float] = []
+        enum_nets: list[float] = []
+        fixed_nets: list[float] = []
+        for _ in range(trials):
+            bits = format(rng.getrandbits(n_bits), f"0{n_bits}b")
+            encoded, stat = encode_rolling_lane_layer(bits, lanes)
+            assert decode_rolling_lane_layer(encoded) == bits
+            hist, assignment, total = lane_sequence_entropy_bits(encoded.chosen_lanes, lanes)
+            hits.append(stat.hits)
+            free_nets.append(n_bits - stat.free_lane_bits)
+            hist_bits.append(hist)
+            assignment_bits.append(assignment)
+            count_only_nets.append(n_bits - stat.free_lane_bits - hist)
+            enum_nets.append(n_bits - stat.free_lane_bits - total)
+            fixed_nets.append(n_bits - stat.stored_lane_bits)
+        print(f"{lanes:3d} {mean(hits):8.3f} {mean(free_nets):9.3f} "
+              f"{mean(hist_bits):8.3f} {mean(assignment_bits):9.3f} "
+              f"{mean(count_only_nets):10.3f} {mean(enum_nets):10.3f} "
+              f"{mean(fixed_nets):10.3f}")
+
+    print()
+    print("Reading: collective coding is cheaper than fixed ceil(log K) lane")
+    print("headers when selected lanes are slightly skewed, but the assignment")
+    print("of lane labels to ordered hit records is still the selector channel.")
+    print("Count histograms alone can look positive; histogram plus assignment")
+    print("flips the free-lane rows negative again.")
+    print()
+
+
+def partition_lane_for_seed(seed: int, lanes: int) -> int:
+    return 0 if lanes <= 1 else seed % lanes
+
+
+def expand_partition_lane_seed(state: int, lanes: int, seed: int) -> str:
+    lane = partition_lane_for_seed(seed, lanes)
+    return hash_bits("rolling-state-partition-lane", state, lanes, lane, seed, n_bits=ROLL_LANE_L)
+
+
+@lru_cache(maxsize=16)
+def partition_lane_books(lanes: int) -> tuple[dict[str, int], ...]:
+    books: list[dict[str, int]] = []
+    for state in range(STATE_RECHUNK_STATE_COUNT):
+        book: dict[str, int] = {}
+        for seed in range(1 << ROLL_LANE_SEED_BITS):
+            book.setdefault(expand_partition_lane_seed(state, lanes, seed), seed)
+        books.append(book)
+    return tuple(books)
+
+
+def output_lane(bits: str, lanes: int) -> int:
+    if lanes <= 1:
+        return 0
+    lane_bits = ceil(log2(lanes))
+    return int(hash_bits("rolling-output-derived-lane", bits, n_bits=lane_bits), 2) % lanes
+
+
+def expand_output_lane_seed(state: int, lane: int, seed: int) -> str:
+    return hash_bits("rolling-state-output-lane", state, lane, seed, n_bits=ROLL_LANE_L)
+
+
+def output_consistent_chunks(state: int, lanes: int, seed: int) -> tuple[str, ...]:
+    chunks: list[str] = []
+    for lane in range(lanes):
+        chunk = expand_output_lane_seed(state, lane, seed)
+        if output_lane(chunk, lanes) == lane:
+            chunks.append(chunk)
+    return tuple(chunks)
+
+
+@lru_cache(maxsize=16)
+def output_consistent_lane_books(lanes: int) -> tuple[dict[str, int], ...]:
+    books: list[dict[str, int]] = []
+    for state in range(STATE_RECHUNK_STATE_COUNT):
+        book: dict[str, int] = {}
+        for seed in range(1 << ROLL_LANE_SEED_BITS):
+            for chunk in output_consistent_chunks(state, lanes, seed):
+                book.setdefault(chunk, seed)
+        books.append(book)
+    return tuple(books)
+
+
+@dataclass(frozen=True)
+class DerivableLaneEncoded:
+    length: int
+    lanes: int
+    mode: str
+    slots: int
+    hits: tuple[bool, ...]
+    seeds: tuple[int, ...]
+    literals: str
+    tail: str
+
+
+@dataclass(frozen=True)
+class DerivableLaneStat:
+    lanes: int
+    mode: str
+    slots: int
+    hits: int
+    unique_outputs_per_state: float
+    literal_bits: int
+    seed_bits: int
+    bitmap_bits: float
+    count_bits: float
+    charged_bits: float
+
+
+def encode_derivable_lane_layer(
+    bits: str,
+    lanes: int,
+    mode: str,
+) -> tuple[DerivableLaneEncoded, DerivableLaneStat]:
+    if mode == "seed-partition":
+        books = partition_lane_books(lanes)
+    elif mode == "output-consistent":
+        books = output_consistent_lane_books(lanes)
+    else:
+        raise ValueError(f"unknown derivable lane mode {mode!r}")
+    slots = len(bits) // ROLL_LANE_L
+    tail = bits[slots * ROLL_LANE_L:]
+    state = 0
+    hits: list[bool] = []
+    seeds: list[int] = []
+    literals: list[str] = []
+    for slot in range(slots):
+        start = slot * ROLL_LANE_L
+        chunk = bits[start:start + ROLL_LANE_L]
+        seed = books[state].get(chunk)
+        if seed is None:
+            hits.append(False)
+            literals.append(chunk)
+        else:
+            hits.append(True)
+            seeds.append(seed)
+        state = step_token_state(state, chunk)
+    hit_count = len(seeds)
+    literal_bits = sum(len(chunk) for chunk in literals) + len(tail)
+    seed_bits = hit_count * ROLL_LANE_SEED_BITS
+    bitmap_bits = log2_choose(slots, hit_count)
+    count_bits = count_class_bits(slots + 1)
+    charged_bits = literal_bits + seed_bits + bitmap_bits + count_bits
+    unique_outputs = mean(len(book) for book in books)
+    return (
+        DerivableLaneEncoded(len(bits), lanes, mode, slots, tuple(hits), tuple(seeds), "".join(literals), tail),
+        DerivableLaneStat(
+            lanes,
+            mode,
+            slots,
+            hit_count,
+            unique_outputs,
+            literal_bits,
+            seed_bits,
+            bitmap_bits,
+            count_bits,
+            charged_bits,
+        ),
+    )
+
+
+def decode_seed_partition_lane_layer(encoded: DerivableLaneEncoded) -> str:
+    if encoded.mode != "seed-partition":
+        raise ValueError("deterministic lane decode requires seed-partition mode")
+    state = 0
+    seed_index = 0
+    literal_index = 0
+    out: list[str] = []
+    for hit in encoded.hits:
+        if hit:
+            seed = encoded.seeds[seed_index]
+            seed_index += 1
+            chunk = expand_partition_lane_seed(state, encoded.lanes, seed)
+        else:
+            chunk = encoded.literals[literal_index:literal_index + ROLL_LANE_L]
+            if len(chunk) != ROLL_LANE_L:
+                raise ValueError("seed-partition literal stream exhausted")
+            literal_index += ROLL_LANE_L
+        out.append(chunk)
+        state = step_token_state(state, chunk)
+    if seed_index != len(encoded.seeds):
+        raise ValueError("unused seed-partition seeds")
+    if literal_index != len(encoded.literals):
+        raise ValueError("unused seed-partition literals")
+    out.append(encoded.tail)
+    return "".join(out)
+
+
+def output_consistent_lane_candidates(
+    encoded: DerivableLaneEncoded,
+    cap: int = 200_000,
+) -> tuple[set[str], bool]:
+    if encoded.mode != "output-consistent":
+        raise ValueError("candidate lane decode requires output-consistent mode")
+    candidates: set[tuple[int, str]] = {(0, "")}
+    seed_index = 0
+    literal_index = 0
+    capped = False
+    for hit in encoded.hits:
+        next_candidates: set[tuple[int, str]] = set()
+        if hit:
+            seed = encoded.seeds[seed_index]
+            seed_index += 1
+            for state, prefix in candidates:
+                for chunk in output_consistent_chunks(state, encoded.lanes, seed):
+                    next_candidates.add((step_token_state(state, chunk), prefix + chunk))
+                    if len(next_candidates) >= cap:
+                        capped = True
+                        break
+                if capped:
+                    break
+        else:
+            chunk = encoded.literals[literal_index:literal_index + ROLL_LANE_L]
+            if len(chunk) != ROLL_LANE_L:
+                raise ValueError("output-consistent literal stream exhausted")
+            literal_index += ROLL_LANE_L
+            for state, prefix in candidates:
+                next_candidates.add((step_token_state(state, chunk), prefix + chunk))
+        candidates = next_candidates
+        if capped:
+            break
+    if capped:
+        return {bits for _, bits in candidates}, True
+    return {prefix + encoded.tail for _, prefix in candidates}, False
+
+
+def derivable_lane_variants_demo(
+    trials: int = 160,
+    n_bits: int = 480,
+    ambiguity_trials: int = 80,
+    ambiguity_bits: int = 120,
+) -> None:
+    print("== family 1q2: derivable rolling-lane selectors ==")
+    print("This mutates the positive free-lane result by making the lane")
+    print("decoder-derivable. In seed-partition mode, the stored seed names")
+    print("one public lane. In output-consistent mode, the expanded output must")
+    print("hash back to its lane, so the decoder can trial lanes without a")
+    print("stored lane id.")
+    print()
+    rng = Random(676767)
+    print(f"toy grammar: span={ROLL_LANE_L} seed={ROLL_LANE_SEED_BITS} n_bits={n_bits}")
+    print(f"{'mode':>18} {'K':>3} {'uniq/state':>10} {'hit/slot':>9} "
+          f"{'charged':>10} {'net':>10}")
+    for mode in ["seed-partition", "output-consistent"]:
+        for lanes in [1, 2, 4, 8]:
+            stats: list[DerivableLaneStat] = []
+            for _ in range(trials):
+                bits = format(rng.getrandbits(n_bits), f"0{n_bits}b")
+                encoded, stat = encode_derivable_lane_layer(bits, lanes, mode)
+                if mode == "seed-partition":
+                    assert decode_seed_partition_lane_layer(encoded) == bits
+                else:
+                    # The full ambiguity set is measured below on smaller layers.
+                    assert bits in output_consistent_lane_candidates(encoded, cap=1_000_000)[0]
+                stats.append(stat)
+            avg_slots = mean(stat.slots for stat in stats)
+            avg_hits = mean(stat.hits for stat in stats)
+            hit_rate = avg_hits / avg_slots if avg_slots else 0.0
+            avg_unique = mean(stat.unique_outputs_per_state for stat in stats)
+            avg_charged = mean(stat.charged_bits for stat in stats)
+            print(f"{mode:>18} {lanes:3d} {avg_unique:10.1f} {hit_rate:9.5f} "
+                  f"{avg_charged:10.3f} {n_bits - avg_charged:10.3f}")
+        print()
+
+    print("Output-consistent omitted-lane ambiguity on smaller layers:")
+    print(f"{'K':>3} {'hits':>8} {'candidates':>11} {'ambig':>9} "
+          f"{'present':>8} {'charged net':>12}")
+    for lanes in [2, 4, 8]:
+        counts: list[int] = []
+        hits: list[int] = []
+        present = 0
+        capped = 0
+        nets: list[float] = []
+        for _ in range(ambiguity_trials):
+            bits = format(rng.getrandbits(ambiguity_bits), f"0{ambiguity_bits}b")
+            encoded, stat = encode_derivable_lane_layer(bits, lanes, "output-consistent")
+            candidates, was_capped = output_consistent_lane_candidates(encoded)
+            counts.append(len(candidates))
+            hits.append(stat.hits)
+            present += int(bits in candidates)
+            capped += int(was_capped)
+            ambiguity = log2(len(candidates)) if candidates else 0.0
+            nets.append(ambiguity_bits - stat.charged_bits - ambiguity)
+        suffix = "+" if capped else ""
+        print(f"{lanes:3d} {mean(hits):8.3f} {mean(counts):11.2f}{suffix:1s} "
+              f"{mean(log2(count) if count else 0.0 for count in counts):9.3f} "
+              f"{present:3d}/{ambiguity_trials:<4d} {mean(nets):12.3f}")
+
+    print()
+    print("Closed-form expectation:")
+    print(f"{'mode':>18} {'K':>3} {'p':>10} {'net/slot':>11}")
+    gap = ROLL_LANE_L - ROLL_LANE_SEED_BITS
+    p = 2.0 ** (-gap)
+    for lanes in [1, 2, 4, 8, 16]:
+        print(f"{'seed-partition':>18} {lanes:3d} {p:10.5f} "
+              f"{p * gap - binary_entropy(p):11.5f}")
+    for lanes in [1, 2, 4, 8, 16]:
+        # K lanes each survive the output-lane check with probability 1/K.
+        print(f"{'output-consistent':>18} {lanes:3d} {p:10.5f} "
+              f"{p * gap - binary_entropy(p):11.5f}")
+    print()
+    print("Reading: deriving the lane removes the stored lane field, but it")
+    print("also removes the K-fold coverage that made the free-lane ledger")
+    print("positive. Seed partitioning gives one lane per seed; output")
+    print("consistency gives roughly one self-consistent lane per seed. The")
+    print("remaining hit bitmap/count and occasional candidate ambiguity keep")
+    print("the uniform ledger negative.")
+    print()
+
+
+@dataclass(frozen=True)
 class ParentSummaryEncoded:
     length: int
     summary_bits: int
@@ -5347,6 +6740,318 @@ def variable_seed_length_class_demo(trials: int = 80, n_bits: int = 1024, passes
     print("longer seed addresses are paid inside each hit, while the bitmap")
     print("still carries open/carry. Under the uniform law the extra classes")
     print("do not overcome their own class/address and bitmap entropy.")
+    print()
+
+
+def seed_prefix_nonce_expand(
+    pass_index: int,
+    prefix_bits: int,
+    total_seed_bits: int,
+    prefix: int,
+    suffix: int,
+) -> str:
+    return hash_bits(
+        "seed-prefix-nonce-split",
+        pass_index,
+        prefix_bits,
+        total_seed_bits,
+        prefix,
+        suffix,
+        n_bits=RECHUNK_L,
+    )
+
+
+def fixed_width_bits(value: int, width: int) -> str:
+    if width == 0:
+        return ""
+    return format(value, f"0{width}b")
+
+
+@lru_cache(maxsize=512)
+def seed_prefix_nonce_book(
+    pass_index: int,
+    prefix_bits: int,
+    total_seed_bits: int,
+) -> dict[str, tuple[int, int]]:
+    suffix_bits = total_seed_bits - prefix_bits
+    if suffix_bits < 0:
+        raise ValueError("prefix bits exceed total seed bits")
+    book: dict[str, tuple[int, int]] = {}
+    for prefix in range(1 << prefix_bits):
+        for suffix in range(1 << suffix_bits):
+            book.setdefault(
+                seed_prefix_nonce_expand(
+                    pass_index,
+                    prefix_bits,
+                    total_seed_bits,
+                    prefix,
+                    suffix,
+                ),
+                (prefix, suffix),
+            )
+    return book
+
+
+@lru_cache(maxsize=4096)
+def seed_prefix_omitted_choices(
+    pass_index: int,
+    prefix_bits: int,
+    total_seed_bits: int,
+    suffix: int,
+) -> int:
+    outputs = {
+        seed_prefix_nonce_expand(
+            pass_index,
+            prefix_bits,
+            total_seed_bits,
+            prefix,
+            suffix,
+        )
+        for prefix in range(1 << prefix_bits)
+    }
+    return len(outputs)
+
+
+@dataclass(frozen=True)
+class SeedPrefixNonceLayerStat:
+    pass_index: int
+    prefix_bits: int
+    suffix_bits: int
+    before_bits: int
+    after_bits: int
+    slots: int
+    hits: int
+    literal_bits: int
+    bitmap_bits: float
+    count_bits: float
+    tight_bits: float
+    fantasy_bits: float
+    omitted_prefix_ambiguity: float
+
+
+@dataclass(frozen=True)
+class SeedPrefixNonceEncoded:
+    final_bits: str
+    stats: tuple[SeedPrefixNonceLayerStat, ...]
+    original_bits: str
+    total_seed_bits: int
+
+
+def encode_seed_prefix_nonce_layer(
+    bits: str,
+    pass_index: int,
+    prefix_bits: int,
+    total_seed_bits: int,
+) -> tuple[str, SeedPrefixNonceLayerStat]:
+    suffix_bits = total_seed_bits - prefix_bits
+    if suffix_bits < 0:
+        raise ValueError("prefix bits exceed total seed bits")
+    slots = len(bits) // RECHUNK_L
+    tail = bits[slots * RECHUNK_L:]
+    book = seed_prefix_nonce_book(pass_index, prefix_bits, total_seed_bits)
+    out: list[str] = []
+    hits = 0
+    literals: list[str] = []
+    omitted_ambiguity = 0.0
+    for slot in range(slots):
+        chunk = bits[slot * RECHUNK_L:(slot + 1) * RECHUNK_L]
+        witness = book.get(chunk)
+        if witness is None:
+            out.append("0" + chunk)
+            literals.append(chunk)
+            continue
+        prefix, suffix = witness
+        out.append(
+            "1"
+            + fixed_width_bits(prefix, prefix_bits)
+            + fixed_width_bits(suffix, suffix_bits)
+        )
+        hits += 1
+        choices = seed_prefix_omitted_choices(
+            pass_index,
+            prefix_bits,
+            total_seed_bits,
+            suffix,
+        )
+        omitted_ambiguity += log2(choices) if choices else 0.0
+    out.append(tail)
+    literal_bits = sum(len(chunk) for chunk in literals) + len(tail)
+    bitmap_bits = log2_choose(slots, hits)
+    count_bits = count_class_bits(slots + 1)
+    tight_bits = literal_bits + hits * total_seed_bits + bitmap_bits + count_bits
+    fantasy_bits = literal_bits + hits * suffix_bits + bitmap_bits + count_bits
+    encoded = "".join(out)
+    return (
+        encoded,
+        SeedPrefixNonceLayerStat(
+            pass_index,
+            prefix_bits,
+            suffix_bits,
+            len(bits),
+            len(encoded),
+            slots,
+            hits,
+            literal_bits,
+            bitmap_bits,
+            count_bits,
+            tight_bits,
+            fantasy_bits,
+            omitted_ambiguity,
+        ),
+    )
+
+
+def decode_seed_prefix_nonce_layer(
+    encoded: str,
+    stat: SeedPrefixNonceLayerStat,
+    total_seed_bits: int,
+) -> str:
+    offset = 0
+    chunks: list[str] = []
+    for _ in range(stat.slots):
+        if offset >= len(encoded):
+            raise ValueError("truncated seed-prefix tag")
+        tag = encoded[offset]
+        offset += 1
+        if tag == "0":
+            end = offset + RECHUNK_L
+            if end > len(encoded):
+                raise ValueError("truncated seed-prefix literal")
+            chunks.append(encoded[offset:end])
+            offset = end
+        elif tag == "1":
+            prefix_end = offset + stat.prefix_bits
+            suffix_end = prefix_end + stat.suffix_bits
+            if suffix_end > len(encoded):
+                raise ValueError("truncated seed-prefix record")
+            prefix_bits_value = encoded[offset:prefix_end]
+            suffix_bits_value = encoded[prefix_end:suffix_end]
+            prefix = int(prefix_bits_value, 2) if prefix_bits_value else 0
+            suffix = int(suffix_bits_value, 2) if suffix_bits_value else 0
+            chunks.append(
+                seed_prefix_nonce_expand(
+                    stat.pass_index,
+                    stat.prefix_bits,
+                    total_seed_bits,
+                    prefix,
+                    suffix,
+                )
+            )
+            offset = suffix_end
+        else:
+            raise ValueError(f"invalid seed-prefix tag {tag!r}")
+    tail = encoded[offset:]
+    decoded = "".join(chunks) + tail
+    if len(decoded) != stat.before_bits:
+        raise ValueError("seed-prefix decoded length mismatch")
+    return decoded
+
+
+def encode_seed_prefix_nonce_layers(
+    bits: str,
+    passes: int,
+    prefix_bits: int,
+    total_seed_bits: int,
+) -> SeedPrefixNonceEncoded:
+    current = bits
+    stats: list[SeedPrefixNonceLayerStat] = []
+    for pass_index in range(1, passes + 1):
+        current, stat = encode_seed_prefix_nonce_layer(
+            current,
+            pass_index,
+            prefix_bits,
+            total_seed_bits,
+        )
+        stats.append(stat)
+    return SeedPrefixNonceEncoded(current, tuple(stats), bits, total_seed_bits)
+
+
+def decode_seed_prefix_nonce_layers(encoded: SeedPrefixNonceEncoded) -> str:
+    current = encoded.final_bits
+    for stat in reversed(encoded.stats):
+        current = decode_seed_prefix_nonce_layer(current, stat, encoded.total_seed_bits)
+    return current
+
+
+def seed_prefix_nonce_split_demo(
+    trials: int = 120,
+    n_bits: int = 512,
+    passes: int = 4,
+    total_seed_bits: int = RECHUNK_SEED_BITS,
+) -> None:
+    print("== family 1k2: visible seed-prefix nonce split ==")
+    print("The high bits of a fixed-width seed field are read before expansion")
+    print("and used as a public nonce. No separate class field is added. The")
+    print("charged ledger stores prefix+suffix; the fantasy ledger stores only")
+    print("the suffix and pays omitted-prefix ambiguity separately.")
+    print()
+    rng = Random(616161)
+    print(f"toy grammar: span={RECHUNK_L} total_seed={total_seed_bits} "
+          f"passes={passes} n_bits={n_bits}")
+    print(f"{'prefix':>6} {'suffix':>6} {'hit1':>8} {'hitN':>8} "
+          f"{'visible':>9} {'tight':>9} {'fantasy':>9} "
+          f"{'fant+amb':>10} {'amb/hit':>8}")
+    for prefix_bits in [0, 2, 4, 6, 8]:
+        if prefix_bits > total_seed_bits:
+            continue
+        stats_by_pass: dict[int, list[SeedPrefixNonceLayerStat]] = {
+            pass_index: [] for pass_index in range(1, passes + 1)
+        }
+        final_visible: list[int] = []
+        for _ in range(trials):
+            bits = format(rng.getrandbits(n_bits), f"0{n_bits}b")
+            encoded = encode_seed_prefix_nonce_layers(
+                bits,
+                passes,
+                prefix_bits,
+                total_seed_bits,
+            )
+            assert decode_seed_prefix_nonce_layers(encoded) == bits
+            final_visible.append(n_bits - len(encoded.final_bits))
+            for stat in encoded.stats:
+                stats_by_pass[stat.pass_index].append(stat)
+        all_stats = [stat for stats in stats_by_pass.values() for stat in stats]
+        first_stats = stats_by_pass[1]
+        last_stats = stats_by_pass[passes]
+        first_hit_rate = (
+            mean(stat.hits for stat in first_stats) / mean(stat.slots for stat in first_stats)
+        )
+        last_hit_rate = (
+            mean(stat.hits for stat in last_stats) / mean(stat.slots for stat in last_stats)
+        )
+        avg_tight = mean(stat.before_bits - stat.tight_bits for stat in all_stats)
+        avg_fantasy = mean(stat.before_bits - stat.fantasy_bits for stat in all_stats)
+        avg_fantasy_amb = mean(
+            stat.before_bits - stat.fantasy_bits - stat.omitted_prefix_ambiguity
+            for stat in all_stats
+        )
+        hits_total = sum(stat.hits for stat in all_stats)
+        amb_total = sum(stat.omitted_prefix_ambiguity for stat in all_stats)
+        amb_per_hit = amb_total / hits_total if hits_total else 0.0
+        print(f"{prefix_bits:6d} {total_seed_bits - prefix_bits:6d} "
+              f"{first_hit_rate:8.5f} {last_hit_rate:8.5f} "
+              f"{mean(final_visible):9.3f} {avg_tight:9.3f} "
+              f"{avg_fantasy:9.3f} {avg_fantasy_amb:10.3f} "
+              f"{amb_per_hit:8.3f}")
+    p = 1.0 - ((1.0 - (2.0 ** -RECHUNK_L)) ** (1 << total_seed_bits))
+    charged = p * (RECHUNK_L - total_seed_bits) - binary_entropy(p)
+    print()
+    print("Closed form, ignoring collisions:")
+    print(f"hit_p={p:.5f} charged_net/slot={charged:.5f}")
+    for prefix_bits in [0, 2, 4, 6, 8]:
+        if prefix_bits > total_seed_bits:
+            continue
+        suffix_bits = total_seed_bits - prefix_bits
+        fantasy = p * (RECHUNK_L - suffix_bits) - binary_entropy(p)
+        fantasy_amb = p * (RECHUNK_L - suffix_bits - prefix_bits) - binary_entropy(p)
+        print(f"prefix={prefix_bits:2d} suffix={suffix_bits:2d} "
+              f"fantasy={fantasy:.5f} fantasy+amb={fantasy_amb:.5f}")
+    print()
+    print("Reading: seed-prefix bits are genuinely decoder-known before the")
+    print("hash expands, but they are already part of the seed address. Splitting")
+    print("a fixed seed field into nonce+suffix keeps total hit supply roughly")
+    print("constant. If the prefix is omitted, the same bits return as candidate")
+    print("ambiguity. Visible seed prefixes are not a free freshness channel.")
     print()
 
 
@@ -7907,6 +9612,598 @@ def residue_syndrome_trilemma_demo(
     print()
 
 
+def oob_check_payload(pass_index: int, seed: int, data_bits: int) -> str:
+    return hash_bits("out-of-band-check-payload", pass_index, seed, n_bits=data_bits)
+
+
+def oob_fixed_check(seed: int, check_bits: int) -> str:
+    return hash_bits("out-of-band-check-fixed", seed, n_bits=check_bits)
+
+
+def oob_expected_check(pass_index: int, data: str, check_bits: int) -> str:
+    return hash_bits("out-of-band-check-expected", pass_index, data, n_bits=check_bits)
+
+
+def xor_bits(left: str, right: str) -> str:
+    return "".join("1" if a != b else "0" for a, b in zip(left, right))
+
+
+@lru_cache(maxsize=4096)
+def oob_check_book(
+    mode: str,
+    pass_index: int,
+    seed_bits: int,
+    data_bits: int,
+    check_bits: int,
+) -> dict[str, int]:
+    book: dict[str, int] = {}
+    for seed in range(1 << seed_bits):
+        data = oob_check_payload(pass_index, seed, data_bits)
+        if mode == "fixed-filter":
+            if oob_fixed_check(seed, check_bits) != oob_expected_check(pass_index, data, check_bits):
+                continue
+        book.setdefault(data, seed)
+    return book
+
+
+@dataclass(frozen=True)
+class OutOfBandCheckStat:
+    mode: str
+    check_bits: int
+    chunks: int
+    hits: int
+    after_bits: int
+    tight_bits: float
+    tight_with_ambiguity: float
+    wrong_q: float
+
+
+@dataclass(frozen=True)
+class OutOfBandCheckEncoded:
+    mode: str
+    pass_index: int
+    chunks: int
+    hits: tuple[bool, ...]
+    seeds: tuple[int, ...]
+    syndromes: tuple[str, ...]
+    literals: str
+    check_bits: int
+
+
+def oob_check_wrong_survival(
+    mode: str,
+    true_pass: int,
+    wrong_pass: int,
+    seed: int,
+    syndrome: str,
+    data_bits: int,
+    check_bits: int,
+) -> bool:
+    if mode == "self-consistent":
+        return True
+    data = oob_check_payload(wrong_pass, seed, data_bits)
+    expected = oob_expected_check(wrong_pass, data, check_bits)
+    if mode == "fixed-filter":
+        return oob_fixed_check(seed, check_bits) == expected
+    if mode == "syndrome-validated":
+        repaired = xor_bits(oob_fixed_check(seed, check_bits), syndrome)
+        return repaired == expected
+    raise ValueError(f"unknown out-of-band check mode {mode!r}")
+
+
+def encode_oob_check_layer(
+    bits: str,
+    mode: str,
+    pass_index: int,
+    seed_bits: int,
+    data_bits: int,
+    check_bits: int,
+    pass_window: int,
+) -> tuple[OutOfBandCheckEncoded, OutOfBandCheckStat]:
+    chunks = len(bits) // data_bits
+    tail = bits[chunks * data_bits:]
+    hits: list[bool] = []
+    seeds: list[int] = []
+    syndromes: list[str] = []
+    literals: list[str] = []
+    out_bits = 0
+    wrong_trials = 0
+    wrong_survivors = 0
+    book = oob_check_book(mode, pass_index, seed_bits, data_bits, check_bits)
+    for chunk_index in range(chunks):
+        chunk = bits[chunk_index * data_bits:(chunk_index + 1) * data_bits]
+        seed = book.get(chunk)
+        if seed is None:
+            hits.append(False)
+            literals.append(chunk)
+            out_bits += 1 + data_bits
+            continue
+        hits.append(True)
+        seeds.append(seed)
+        syndrome = ""
+        if mode == "syndrome-validated":
+            syndrome = xor_bits(
+                oob_fixed_check(seed, check_bits),
+                oob_expected_check(pass_index, chunk, check_bits),
+            )
+            syndromes.append(syndrome)
+        out_bits += 1 + seed_bits + len(syndrome)
+        for delta in range(1, min(pass_window, 64)):
+            wrong_trials += 1
+            wrong_survivors += int(
+                oob_check_wrong_survival(
+                    mode,
+                    pass_index,
+                    pass_index + delta,
+                    seed,
+                    syndrome,
+                    data_bits,
+                    check_bits,
+                )
+            )
+    out_bits += len(tail)
+    hit_count = len(seeds)
+    wrong_q = (wrong_survivors / wrong_trials) if wrong_trials else (
+        1.0 if mode == "self-consistent" else 2.0 ** (-check_bits)
+    )
+    ambiguity_per_hit = log2(1 + (pass_window - 1) * max(wrong_q, 1e-12))
+    bitmap_bits = log2_choose(chunks, hit_count)
+    count_bits = count_class_bits(chunks + 1)
+    syndrome_bits = hit_count * check_bits if mode == "syndrome-validated" else 0
+    tight_bits = (
+        (chunks - hit_count) * data_bits
+        + hit_count * seed_bits
+        + syndrome_bits
+        + len(tail)
+        + bitmap_bits
+        + count_bits
+    )
+    tight_with_ambiguity = tight_bits + hit_count * ambiguity_per_hit
+    return (
+        OutOfBandCheckEncoded(
+            mode,
+            pass_index,
+            chunks,
+            tuple(hits),
+            tuple(seeds),
+            tuple(syndromes),
+            "".join(literals),
+            check_bits,
+        ),
+        OutOfBandCheckStat(
+            mode,
+            check_bits,
+            chunks,
+            hit_count,
+            out_bits,
+            tight_bits,
+            tight_with_ambiguity,
+            wrong_q,
+        ),
+    )
+
+
+def decode_oob_check_layer(
+    encoded: OutOfBandCheckEncoded,
+    seed_bits: int,
+    data_bits: int,
+) -> str:
+    out: list[str] = []
+    seed_index = 0
+    syndrome_index = 0
+    literal_index = 0
+    for hit in encoded.hits:
+        if hit:
+            seed = encoded.seeds[seed_index]
+            seed_index += 1
+            data = oob_check_payload(encoded.pass_index, seed, data_bits)
+            if encoded.mode == "fixed-filter":
+                if oob_fixed_check(seed, encoded.check_bits) != oob_expected_check(
+                    encoded.pass_index, data, encoded.check_bits,
+                ):
+                    raise ValueError("out-of-band fixed check failed")
+            elif encoded.mode == "syndrome-validated":
+                syndrome = encoded.syndromes[syndrome_index]
+                syndrome_index += 1
+                repaired = xor_bits(oob_fixed_check(seed, encoded.check_bits), syndrome)
+                if repaired != oob_expected_check(encoded.pass_index, data, encoded.check_bits):
+                    raise ValueError("out-of-band syndrome check failed")
+            out.append(data)
+        else:
+            chunk = encoded.literals[literal_index:literal_index + data_bits]
+            if len(chunk) != data_bits:
+                raise ValueError("out-of-band literal stream exhausted")
+            literal_index += data_bits
+            out.append(chunk)
+    if seed_index != len(encoded.seeds):
+        raise ValueError("unused out-of-band seeds")
+    if syndrome_index != len(encoded.syndromes):
+        raise ValueError("unused out-of-band syndromes")
+    if literal_index != len(encoded.literals):
+        raise ValueError("unused out-of-band literals")
+    return "".join(out)
+
+
+def out_of_band_check_trilemma_demo(
+    trials: int = 80,
+    chunks: int = 192,
+    data_bits: int = 14,
+    seed_bits: int = 10,
+    pass_window: int = 64,
+) -> None:
+    print("== family 3h: out-of-band check-bit trilemma ==")
+    print("Check bits are generated inside the record but are not decoded")
+    print("payload. Self-consistent checks preserve hit supply but reject no")
+    print("wrong passes. Fixed checks reject wrong passes but thin the true seed")
+    print("book. Syndrome-validated checks preserve arbitrary payload reach but")
+    print("store the check repair bits in the record.")
+    print()
+    rng = Random(313131)
+    print(f"toy grammar: data={data_bits} seed={seed_bits} chunks={chunks} "
+          f"trials={trials} pass_window={pass_window}")
+    print(f"{'chk':>4} {'mode':>20} {'hit/ch':>8} {'wrong q':>9} "
+          f"{'amb/hit':>8} {'visible':>9} {'tight':>9} "
+          f"{'tight+amb':>10} {'closed':>9}")
+    for check_bits in [0, 2, 4, 6, 8]:
+        for mode in ["self-consistent", "fixed-filter", "syndrome-validated"]:
+            stats: list[OutOfBandCheckStat] = []
+            for trial in range(trials):
+                bits = format(rng.getrandbits(chunks * data_bits), f"0{chunks * data_bits}b")
+                encoded, stat = encode_oob_check_layer(
+                    bits,
+                    mode,
+                    pass_index=1,
+                    seed_bits=seed_bits,
+                    data_bits=data_bits,
+                    check_bits=check_bits,
+                    pass_window=pass_window,
+                )
+                assert decode_oob_check_layer(encoded, seed_bits, data_bits) == bits
+                stats.append(stat)
+            hit_rate = mean(stat.hits for stat in stats) / chunks
+            wrong_q = mean(stat.wrong_q for stat in stats)
+            amb = log2(1 + (pass_window - 1) * max(wrong_q, 1e-12))
+            visible_net = mean((chunks * data_bits) - stat.after_bits for stat in stats)
+            tight_net = mean((chunks * data_bits) - stat.tight_bits for stat in stats)
+            tight_amb_net = mean((chunks * data_bits) - stat.tight_with_ambiguity for stat in stats)
+            if mode == "fixed-filter":
+                p = min(1.0, 2.0 ** (seed_bits - data_bits - check_bits))
+                record_bits = seed_bits
+                q = 2.0 ** (-check_bits)
+            elif mode == "syndrome-validated":
+                p = min(1.0, 2.0 ** (seed_bits - data_bits))
+                record_bits = seed_bits + check_bits
+                q = 2.0 ** (-check_bits)
+            else:
+                p = min(1.0, 2.0 ** (seed_bits - data_bits))
+                record_bits = seed_bits
+                q = 1.0
+            closed_amb = log2(1 + (pass_window - 1) * q)
+            closed = p * (data_bits - record_bits - closed_amb) - binary_entropy(p)
+            print(f"{check_bits:4d} {mode:>20} {hit_rate:8.4f} {wrong_q:9.5f} "
+                  f"{amb:8.3f} {visible_net:9.3f} {tight_net:9.3f} "
+                  f"{tight_amb_net:10.3f} {closed:9.3f}")
+        print()
+    print("Paid check+ambiguity lower bound per hit:")
+    print(f"{'chk':>4} {'chk+log(1+(P-1)2^-chk)':>28} {'log2(P)':>9}")
+    for check_bits in [0, 2, 4, 6, 8, 10, 12]:
+        paid = check_bits + log2(1 + (pass_window - 1) * (2.0 ** -check_bits))
+        print(f"{check_bits:4d} {paid:28.3f} {log2(pass_window):9.3f}")
+    print()
+    print("Reading: out-of-band checks are useful for finite wrong-pass pruning")
+    print("only when their bits are either paid as a syndrome or paid as seed")
+    print("supply loss. The combined check-plus-ambiguity bill is never below")
+    print("the pass label in this independent model; it just moves the channel.")
+    print()
+
+
+GUARDED_DATA_BITS = 4
+GUARDED_SEED_BITS = 8
+GUARDED_PASSES = 1_000_000
+
+
+@dataclass(frozen=True)
+class GuardedBundleLayerStat:
+    mode: str
+    arity: int
+    guard_bits: int
+    before_bits: int
+    after_bits: int
+    windows: int
+    hits: int
+    valid_targets: int
+    record_bits: int
+    tight_bits: float
+    wrong_q: float
+    ambiguity_bits: float
+
+
+def guarded_item_check(data: str, pass_index: int, arity: int, child_index: int, guard_bits: int) -> str:
+    if guard_bits == 0:
+        return ""
+    return hash_bits(
+        "guarded-bundle-item-check",
+        pass_index,
+        arity,
+        child_index,
+        data,
+        n_bits=guard_bits,
+    )
+
+
+def guarded_split_items(chunk: str, arity: int, guard_bits: int) -> tuple[tuple[str, str], ...]:
+    item_bits = GUARDED_DATA_BITS + guard_bits
+    if len(chunk) != arity * item_bits:
+        raise ValueError("guarded chunk has wrong length")
+    items: list[tuple[str, str]] = []
+    for child_index in range(arity):
+        start = child_index * item_bits
+        data = chunk[start:start + GUARDED_DATA_BITS]
+        guard = chunk[start + GUARDED_DATA_BITS:start + item_bits]
+        items.append((data, guard))
+    return tuple(items)
+
+
+def guarded_is_valid(chunk: str, pass_index: int, arity: int, guard_bits: int) -> bool:
+    for child_index, (data, guard) in enumerate(guarded_split_items(chunk, arity, guard_bits)):
+        if guard != guarded_item_check(data, pass_index, arity, child_index, guard_bits):
+            return False
+    return True
+
+
+def guarded_raw_filter_expand(pass_index: int, arity: int, guard_bits: int, seed: int) -> str:
+    span_bits = arity * (GUARDED_DATA_BITS + guard_bits)
+    return hash_bits("guarded-bundle-raw-filter", pass_index, arity, guard_bits, seed, n_bits=span_bits)
+
+
+def guarded_data_expand(pass_index: int, arity: int, seed: int) -> str:
+    return hash_bits("guarded-bundle-data", pass_index, arity, seed, n_bits=arity * GUARDED_DATA_BITS)
+
+
+def guarded_constrained_expand(pass_index: int, arity: int, guard_bits: int, seed: int) -> str:
+    data_stream = guarded_data_expand(pass_index, arity, seed)
+    chunks: list[str] = []
+    for child_index in range(arity):
+        data = data_stream[child_index * GUARDED_DATA_BITS:(child_index + 1) * GUARDED_DATA_BITS]
+        chunks.append(data + guarded_item_check(data, pass_index, arity, child_index, guard_bits))
+    return "".join(chunks)
+
+
+def guarded_syndrome_expand(
+    pass_index: int,
+    arity: int,
+    guard_bits: int,
+    seed: int,
+    syndrome: str,
+) -> str:
+    data_stream = guarded_data_expand(pass_index, arity, seed)
+    chunks: list[str] = []
+    offset = 0
+    for child_index in range(arity):
+        data = data_stream[child_index * GUARDED_DATA_BITS:(child_index + 1) * GUARDED_DATA_BITS]
+        expected = guarded_item_check(data, pass_index, arity, child_index, guard_bits)
+        repair = syndrome[offset:offset + guard_bits]
+        if len(repair) != guard_bits:
+            raise ValueError("truncated guarded syndrome")
+        guard = "".join("1" if a != b else "0" for a, b in zip(expected, repair))
+        chunks.append(data + guard)
+        offset += guard_bits
+    return "".join(chunks)
+
+
+@lru_cache(maxsize=4096)
+def guarded_raw_filter_book(pass_index: int, arity: int, guard_bits: int) -> dict[str, int]:
+    book: dict[str, int] = {}
+    for seed in range(1 << GUARDED_SEED_BITS):
+        chunk = guarded_raw_filter_expand(pass_index, arity, guard_bits, seed)
+        if guarded_is_valid(chunk, pass_index, arity, guard_bits):
+            book.setdefault(chunk, seed)
+    return book
+
+
+@lru_cache(maxsize=4096)
+def guarded_constrained_book(pass_index: int, arity: int, guard_bits: int) -> dict[str, int]:
+    book: dict[str, int] = {}
+    for seed in range(1 << GUARDED_SEED_BITS):
+        book.setdefault(guarded_constrained_expand(pass_index, arity, guard_bits, seed), seed)
+    return book
+
+
+@lru_cache(maxsize=4096)
+def guarded_data_book(pass_index: int, arity: int) -> dict[str, int]:
+    book: dict[str, int] = {}
+    for seed in range(1 << GUARDED_SEED_BITS):
+        book.setdefault(guarded_data_expand(pass_index, arity, seed), seed)
+    return book
+
+
+def encode_guarded_bundle_layer(
+    bits: str,
+    mode: str,
+    pass_index: int,
+    arity: int,
+    guard_bits: int,
+) -> tuple[str, GuardedBundleLayerStat]:
+    span_bits = arity * (GUARDED_DATA_BITS + guard_bits)
+    windows = len(bits) // span_bits
+    tail = bits[windows * span_bits:]
+    out: list[str] = []
+    hits = 0
+    valid_targets = 0
+    record_bits = 1 + GUARDED_SEED_BITS
+    if mode == "syndrome":
+        record_bits += arity * guard_bits
+    raw_literal_bits = 0
+    for window in range(windows):
+        chunk = bits[window * span_bits:(window + 1) * span_bits]
+        valid_targets += int(guarded_is_valid(chunk, pass_index, arity, guard_bits))
+        if mode == "raw-filter":
+            seed = guarded_raw_filter_book(pass_index, arity, guard_bits).get(chunk)
+            if seed is not None:
+                out.append("1" + format(seed, f"0{GUARDED_SEED_BITS}b"))
+                hits += 1
+                continue
+        elif mode == "constrained":
+            seed = guarded_constrained_book(pass_index, arity, guard_bits).get(chunk)
+            if seed is not None:
+                out.append("1" + format(seed, f"0{GUARDED_SEED_BITS}b"))
+                hits += 1
+                continue
+        elif mode == "syndrome":
+            data = "".join(data for data, _ in guarded_split_items(chunk, arity, guard_bits))
+            seed = guarded_data_book(pass_index, arity).get(data)
+            if seed is not None:
+                expected_items = guarded_split_items(
+                    guarded_constrained_expand(pass_index, arity, guard_bits, seed),
+                    arity,
+                    guard_bits,
+                )
+                target_items = guarded_split_items(chunk, arity, guard_bits)
+                syndrome_bits: list[str] = []
+                for (_, expected_guard), (_, target_guard) in zip(expected_items, target_items):
+                    syndrome_bits.append(
+                        "".join("1" if a != b else "0" for a, b in zip(expected_guard, target_guard))
+                    )
+                out.append("1" + format(seed, f"0{GUARDED_SEED_BITS}b") + "".join(syndrome_bits))
+                hits += 1
+                continue
+        else:
+            raise ValueError(f"unknown guarded bundle mode {mode!r}")
+        out.append("0" + chunk)
+        raw_literal_bits += span_bits
+
+    if mode == "raw-filter":
+        wrong_q = 2.0 ** (-(arity * guard_bits))
+    elif mode in {"constrained", "syndrome"}:
+        wrong_q = 1.0
+    else:
+        raise ValueError(f"unknown guarded bundle mode {mode!r}")
+    ambiguity = log2(1.0 + (GUARDED_PASSES - 1) * wrong_q)
+    tight_bits = (
+        raw_literal_bits
+        + hits * (record_bits - 1)
+        + len(tail)
+        + log2_choose(windows, hits)
+        + ceil(log2(windows + 1))
+    )
+    return (
+        "".join(out),
+        GuardedBundleLayerStat(
+            mode=mode,
+            arity=arity,
+            guard_bits=guard_bits,
+            before_bits=len(bits),
+            after_bits=sum(len(part) for part in out),
+            windows=windows,
+            hits=hits,
+            valid_targets=valid_targets,
+            record_bits=record_bits,
+            tight_bits=tight_bits,
+            wrong_q=wrong_q,
+            ambiguity_bits=ambiguity,
+        ),
+    )
+
+
+def decode_guarded_bundle_layer(
+    encoded: str,
+    stat: GuardedBundleLayerStat,
+    pass_index: int,
+) -> str:
+    span_bits = stat.arity * (GUARDED_DATA_BITS + stat.guard_bits)
+    offset = 0
+    out: list[str] = []
+    for _ in range(stat.windows):
+        tag = encoded[offset]
+        if tag == "0":
+            end = offset + 1 + span_bits
+            if end > len(encoded):
+                raise ValueError("truncated guarded literal")
+            out.append(encoded[offset + 1:end])
+            offset = end
+        elif tag == "1":
+            end = offset + stat.record_bits
+            if end > len(encoded):
+                raise ValueError("truncated guarded record")
+            seed = int(encoded[offset + 1:offset + 1 + GUARDED_SEED_BITS], 2)
+            if stat.mode == "raw-filter":
+                out.append(guarded_raw_filter_expand(pass_index, stat.arity, stat.guard_bits, seed))
+            elif stat.mode == "constrained":
+                out.append(guarded_constrained_expand(pass_index, stat.arity, stat.guard_bits, seed))
+            elif stat.mode == "syndrome":
+                syndrome = encoded[offset + 1 + GUARDED_SEED_BITS:end]
+                out.append(guarded_syndrome_expand(pass_index, stat.arity, stat.guard_bits, seed, syndrome))
+            else:
+                raise ValueError(f"unknown guarded bundle mode {stat.mode!r}")
+            offset = end
+        else:
+            raise ValueError(f"invalid guarded tag {tag!r}")
+    out.append(encoded[offset:])
+    decoded = "".join(out)
+    if len(decoded) != stat.before_bits:
+        raise ValueError("guarded decoded length mismatch")
+    return decoded
+
+
+def guarded_multi_arity_trilemma_demo(trials: int = 80, windows: int = 256) -> None:
+    print("== family 3g: guarded multi-arity bundle trilemma ==")
+    print("This mutation gives wrong-pass explosion the larger arities BBL")
+    print("wants, but keeps the arbitrary-target accounting visible. Guard bits")
+    print("may filter raw hash outputs, be baked into constrained outputs, or")
+    print("be repaired by a stored syndrome.")
+    print()
+    rng = Random(737373)
+    print(
+        f"toy grammar: data={GUARDED_DATA_BITS} seed={GUARDED_SEED_BITS} "
+        f"P={GUARDED_PASSES} windows={windows}"
+    )
+    print(f"{'mode':>12} {'a':>2} {'g':>2} {'valid%':>8} {'hit/w':>9} "
+          f"{'wrong q':>9} {'ambig':>8} {'visible':>9} {'tight':>9} {'closed':>9}")
+    for guard_bits in [0, 2, 4]:
+        for arity in [2, 3, 4, 5]:
+            span_bits = arity * (GUARDED_DATA_BITS + guard_bits)
+            for mode in ["raw-filter", "constrained", "syndrome"]:
+                stats: list[GuardedBundleLayerStat] = []
+                for _ in range(trials):
+                    bits = format(rng.getrandbits(windows * span_bits), f"0{windows * span_bits}b")
+                    encoded, stat = encode_guarded_bundle_layer(bits, mode, 1, arity, guard_bits)
+                    assert decode_guarded_bundle_layer(encoded, stat, 1) == bits
+                    stats.append(stat)
+                avg_valid = mean(stat.valid_targets / stat.windows if stat.windows else 0.0 for stat in stats)
+                avg_hit = mean(stat.hits / stat.windows if stat.windows else 0.0 for stat in stats)
+                avg_visible = mean(stat.before_bits - stat.after_bits for stat in stats)
+                avg_tight = mean(stat.before_bits - stat.tight_bits for stat in stats)
+                ambiguity = stats[0].ambiguity_bits
+                if mode == "raw-filter":
+                    closed_hit = 2.0 ** (GUARDED_SEED_BITS - span_bits - arity * guard_bits)
+                    closed_record = GUARDED_SEED_BITS
+                    closed_wrong = 2.0 ** (-(arity * guard_bits))
+                elif mode == "constrained":
+                    closed_hit = (2.0 ** (-(arity * guard_bits))) * min(
+                        1.0, 2.0 ** (GUARDED_SEED_BITS - arity * GUARDED_DATA_BITS)
+                    )
+                    closed_record = GUARDED_SEED_BITS
+                    closed_wrong = 1.0
+                else:
+                    closed_hit = min(1.0, 2.0 ** (GUARDED_SEED_BITS - arity * GUARDED_DATA_BITS))
+                    closed_record = GUARDED_SEED_BITS + arity * guard_bits
+                    closed_wrong = 1.0
+                closed_ambiguity = log2(1.0 + (GUARDED_PASSES - 1) * closed_wrong)
+                closed_gross = span_bits - closed_record
+                closed_net = closed_hit * max(0.0, closed_gross - closed_ambiguity)
+                print(f"{mode:>12} {arity:2d} {guard_bits:2d} {100.0 * avg_valid:8.3f} "
+                      f"{avg_hit:9.5f} {stats[0].wrong_q:9.3e} {ambiguity:8.3f} "
+                      f"{avg_visible:9.3f} {avg_tight:9.3f} {closed_net:9.3e}")
+            print()
+        print()
+    print("Reading: larger guarded bundles can make wrong-pass survival tiny")
+    print("only in the raw-filter ledger, where arbitrary targets must already")
+    print("carry all guard bits and true-hit supply collapses. Constraining the")
+    print("expander or storing syndromes restores reachability but makes wrong")
+    print("passes structurally plausible or pays the guard bits in each record.")
+    print()
+
+
 def derived_validity_sweep() -> None:
     print("== family 3b: derived validity from existing seed classes ==")
     print("Here validity is not stored as extra residue bits. Instead, the")
@@ -8267,6 +10564,715 @@ def histogram_entropy_and_assignment(records: int, passes: int) -> tuple[float, 
     return hist_entropy, expected_assignment
 
 
+# ---------------------------------------------------------------------------
+# Family 4: biology-inspired public interpreters.
+
+
+DEVELOPMENTAL_CELL_BITS = 24
+DEVELOPMENTAL_RULE_BITS = 8
+DEVELOPMENTAL_INIT_BITS = 8
+DEVELOPMENTAL_STEPS = 12
+
+
+def developmental_expand(
+    program: int,
+    cells: int = DEVELOPMENTAL_CELL_BITS,
+    steps: int = DEVELOPMENTAL_STEPS,
+    init_bits: int = DEVELOPMENTAL_INIT_BITS,
+) -> str:
+    """Tiny public "developmental" interpreter: elementary CA from a genome."""
+    init_mask = (1 << init_bits) - 1
+    rule = program >> init_bits
+    init = program & init_mask
+    zygote = hash_bits("developmental-zygote", rule, init, cells, n_bits=cells)
+    state = [int(bit) for bit in zygote]
+    for _ in range(steps):
+        next_state: list[int] = []
+        for index in range(cells):
+            left = state[(index - 1) % cells]
+            center = state[index]
+            right = state[(index + 1) % cells]
+            neighborhood = (left << 2) | (center << 1) | right
+            next_state.append((rule >> neighborhood) & 1)
+        state = next_state
+    return "".join(str(bit) for bit in state)
+
+
+@lru_cache(maxsize=16)
+def developmental_book(
+    cells: int = DEVELOPMENTAL_CELL_BITS,
+    steps: int = DEVELOPMENTAL_STEPS,
+    rule_bits: int = DEVELOPMENTAL_RULE_BITS,
+    init_bits: int = DEVELOPMENTAL_INIT_BITS,
+) -> dict[str, int]:
+    book: dict[str, int] = {}
+    program_bits = rule_bits + init_bits
+    for program in range(1 << program_bits):
+        book.setdefault(developmental_expand(program, cells, steps, init_bits), program)
+    return book
+
+
+@dataclass
+class DevelopmentalEncoded:
+    original_bits: str
+    final_bits: str
+    cells: int
+    steps: int
+    program_bits: int
+    chunks: int
+    tail: str
+    bitmap: tuple[int, ...]
+    programs: tuple[int, ...]
+    literals: tuple[str, ...]
+    visible_bits: str
+    tight_bits: float
+    all_generated_bits: float | None
+
+
+def encode_developmental_interpreter(
+    bits: str,
+    cells: int = DEVELOPMENTAL_CELL_BITS,
+    steps: int = DEVELOPMENTAL_STEPS,
+    rule_bits: int = DEVELOPMENTAL_RULE_BITS,
+    init_bits: int = DEVELOPMENTAL_INIT_BITS,
+) -> DevelopmentalEncoded:
+    book = developmental_book(cells, steps, rule_bits, init_bits)
+    program_bits = rule_bits + init_bits
+    chunks = len(bits) // cells
+    tail = bits[chunks * cells:]
+    bitmap: list[int] = []
+    programs: list[int] = []
+    literals: list[str] = []
+    visible_parts: list[str] = []
+    for chunk_index in range(chunks):
+        chunk = bits[chunk_index * cells:(chunk_index + 1) * cells]
+        program = book.get(chunk)
+        if program is None:
+            bitmap.append(0)
+            literals.append(chunk)
+            visible_parts.append("0" + chunk)
+        else:
+            bitmap.append(1)
+            programs.append(program)
+            visible_parts.append("1" + fixed_width_bits(program, program_bits))
+    visible_bits = "".join(visible_parts) + tail
+    hits = sum(bitmap)
+    tight_bits = (
+        count_class_bits(chunks + 1)
+        + log2_choose(chunks, hits)
+        + hits * program_bits
+        + (chunks - hits) * cells
+        + len(tail)
+    )
+    all_generated_bits = None
+    if hits == chunks:
+        all_generated_bits = chunks * program_bits + len(tail)
+    return DevelopmentalEncoded(
+        original_bits=bits,
+        final_bits=visible_bits,
+        cells=cells,
+        steps=steps,
+        program_bits=program_bits,
+        chunks=chunks,
+        tail=tail,
+        bitmap=tuple(bitmap),
+        programs=tuple(programs),
+        literals=tuple(literals),
+        visible_bits=visible_bits,
+        tight_bits=tight_bits,
+        all_generated_bits=all_generated_bits,
+    )
+
+
+def decode_developmental_interpreter(encoded: DevelopmentalEncoded) -> str:
+    program_index = 0
+    literal_index = 0
+    chunks: list[str] = []
+    for flag in encoded.bitmap:
+        if flag:
+            program = encoded.programs[program_index]
+            program_index += 1
+            chunks.append(developmental_expand(program, encoded.cells, encoded.steps))
+        else:
+            chunks.append(encoded.literals[literal_index])
+            literal_index += 1
+    if program_index != len(encoded.programs) or literal_index != len(encoded.literals):
+        raise ValueError("developmental stream has unused payload")
+    return "".join(chunks) + encoded.tail
+
+
+def developmental_generated_bits(
+    rng: Random,
+    chunks: int,
+    rule_bits: int = DEVELOPMENTAL_RULE_BITS,
+    init_bits: int = DEVELOPMENTAL_INIT_BITS,
+) -> str:
+    program_bits = rule_bits + init_bits
+    return "".join(
+        developmental_expand(rng.randrange(1 << program_bits))
+        for _ in range(chunks)
+    )
+
+
+def biological_developmental_interpreter_demo(
+    trials: int = 120,
+    chunks: int = 128,
+    cells: int = DEVELOPMENTAL_CELL_BITS,
+    steps: int = DEVELOPMENTAL_STEPS,
+    rule_bits: int = DEVELOPMENTAL_RULE_BITS,
+    init_bits: int = DEVELOPMENTAL_INIT_BITS,
+) -> None:
+    print("== family 4a: biological developmental interpreter ==")
+    print("Biology suggests a different missing piece: a compact genome is")
+    print("interpreted by a large public machine (cellular chemistry, folding")
+    print("physics, regulatory state). This toy replaces a blind hash universe")
+    print("with a public developmental interpreter and prices what changes.")
+    print()
+    book = developmental_book(cells, steps, rule_bits, init_bits)
+    program_bits = rule_bits + init_bits
+    output_space_bits = cells
+    coverage = len(book) / (1 << output_space_bits)
+    rng = Random(424242)
+    random_rows: list[DevelopmentalEncoded] = []
+    shaped_rows: list[DevelopmentalEncoded] = []
+    for _ in range(trials):
+        random_bits = fixed_width_bits(rng.getrandbits(chunks * cells), chunks * cells)
+        random_encoded = encode_developmental_interpreter(
+            random_bits, cells, steps, rule_bits, init_bits
+        )
+        assert decode_developmental_interpreter(random_encoded) == random_bits
+        random_rows.append(random_encoded)
+        shaped_bits = developmental_generated_bits(rng, chunks, rule_bits, init_bits)
+        shaped_encoded = encode_developmental_interpreter(
+            shaped_bits, cells, steps, rule_bits, init_bits
+        )
+        assert decode_developmental_interpreter(shaped_encoded) == shaped_bits
+        shaped_rows.append(shaped_encoded)
+
+    def summarize(rows: list[DevelopmentalEncoded]) -> tuple[float, float, float, float | None]:
+        raw_bits = mean(len(row.original_bits) for row in rows)
+        hit_rate = mean(sum(row.bitmap) / row.chunks for row in rows)
+        visible_net = mean(len(row.original_bits) - len(row.visible_bits) for row in rows)
+        tight_net = mean(len(row.original_bits) - row.tight_bits for row in rows)
+        all_generated = [
+            len(row.original_bits) - row.all_generated_bits
+            for row in rows
+            if row.all_generated_bits is not None
+        ]
+        all_generated_net = mean(all_generated) if len(all_generated) == len(rows) else None
+        return raw_bits, hit_rate, visible_net, tight_net, all_generated_net
+
+    print(f"toy interpreter: rule={rule_bits} bits init={init_bits} bits "
+          f"program={program_bits} bits cells={cells} steps={steps}")
+    print(f"unique reachable outputs={len(book)} of 2^{output_space_bits} "
+          f"(coverage={coverage:.6f}, max={2 ** (program_bits - output_space_bits):.6f})")
+    print()
+    print(f"{'source':>10} {'raw':>8} {'hit/ch':>8} {'visible':>10} "
+          f"{'tight':>10} {'all-gen':>10}")
+    for label, rows in [("generated", shaped_rows), ("uniform", random_rows)]:
+        raw_bits, hit_rate, visible_net, tight_net, all_generated_net = summarize(rows)
+        all_generated_text = (
+            f"{all_generated_net:10.3f}" if all_generated_net is not None else f"{'n/a':>10}"
+        )
+        print(f"{label:>10} {raw_bits:8.1f} {hit_rate:8.5f} "
+              f"{visible_net:10.3f} {tight_net:10.3f} {all_generated_text}")
+    print()
+    print("Interpreter/config accounting:")
+    print(f"- Generated file mode saves {cells - program_bits} bits/chunk before")
+    print("  fixed/root metadata because open-vs-carry is an invariant.")
+    print("- Mixed arbitrary mode must store a map; sparse hits do not pay for it.")
+    for interpreter_bits in [0, 256, 4096, 1_048_576]:
+        if interpreter_bits == 0:
+            print("- Public inherited interpreter: 0 extra bits.")
+            continue
+        chunk_win = cells - program_bits
+        break_even = ceil(interpreter_bits / chunk_win) if chunk_win > 0 else float("inf")
+        print(f"- Private interpreter/config {interpreter_bits} bits needs "
+              f"{break_even} generated chunks just to amortize it.")
+    print()
+    print("Scale gate:")
+    for phenotype_bits in [24, 64, 128, 1024]:
+        reachable_fraction_log = min(0, program_bits - phenotype_bits)
+        print(f"- {program_bits}-bit genome to {phenotype_bits}-bit phenotype: "
+              f"reachable fraction <= 2^{reachable_fraction_log}.")
+    print()
+    print("Reading: this is the biology-shaped positive path. It is stateless")
+    print("and compressive when the target is already in the interpreter's")
+    print("reachable language, exactly like a genome unfolding through public")
+    print("cellular machinery. It does not make uniform arbitrary targets dense;")
+    print("for those, the interpreter is a source-family/preset channel that")
+    print("must be public, inherited, or paid and amortized.")
+    print()
+
+
+CASCADE_ROOT_BITS = 12
+CASCADE_LEAF_BITS = 8
+
+
+@lru_cache(maxsize=131072)
+def recursive_cascade_expand(
+    root: int,
+    depth: int,
+    path: int = 1,
+    root_bits: int = CASCADE_ROOT_BITS,
+    leaf_bits: int = CASCADE_LEAF_BITS,
+) -> str:
+    if depth == 0:
+        return hash_bits("bio-cascade-leaf", root, path, n_bits=leaf_bits)
+    child_bits = hash_bits(
+        "bio-cascade-children",
+        root,
+        depth,
+        path,
+        n_bits=2 * root_bits,
+    )
+    left = int(child_bits[:root_bits], 2)
+    right = int(child_bits[root_bits:], 2)
+    return (
+        recursive_cascade_expand(left, depth - 1, path * 2, root_bits, leaf_bits)
+        + recursive_cascade_expand(right, depth - 1, path * 2 + 1, root_bits, leaf_bits)
+    )
+
+
+@lru_cache(maxsize=32)
+def recursive_cascade_book(
+    depth: int,
+    root_bits: int = CASCADE_ROOT_BITS,
+    leaf_bits: int = CASCADE_LEAF_BITS,
+) -> dict[str, int]:
+    book: dict[str, int] = {}
+    for root in range(1 << root_bits):
+        book.setdefault(recursive_cascade_expand(root, depth, 1, root_bits, leaf_bits), root)
+    return book
+
+
+@dataclass
+class RecursiveCascadeEncoded:
+    original_bits: str
+    final_bits: str
+    depth: int
+    root_bits: int
+    leaf_bits: int
+    phenotype_bits: int
+    chunks: int
+    tail: str
+    bitmap: tuple[int, ...]
+    roots: tuple[int, ...]
+    literals: tuple[str, ...]
+    visible_bits: str
+    tight_bits: float
+    all_generated_bits: float | None
+
+
+def encode_recursive_cascade(
+    bits: str,
+    depth: int,
+    root_bits: int = CASCADE_ROOT_BITS,
+    leaf_bits: int = CASCADE_LEAF_BITS,
+) -> RecursiveCascadeEncoded:
+    phenotype_bits = (1 << depth) * leaf_bits
+    book = recursive_cascade_book(depth, root_bits, leaf_bits)
+    chunks = len(bits) // phenotype_bits
+    tail = bits[chunks * phenotype_bits:]
+    bitmap: list[int] = []
+    roots: list[int] = []
+    literals: list[str] = []
+    visible_parts: list[str] = []
+    for chunk_index in range(chunks):
+        chunk = bits[chunk_index * phenotype_bits:(chunk_index + 1) * phenotype_bits]
+        root = book.get(chunk)
+        if root is None:
+            bitmap.append(0)
+            literals.append(chunk)
+            visible_parts.append("0" + chunk)
+        else:
+            bitmap.append(1)
+            roots.append(root)
+            visible_parts.append("1" + fixed_width_bits(root, root_bits))
+    visible_bits = "".join(visible_parts) + tail
+    hits = sum(bitmap)
+    tight_bits = (
+        count_class_bits(chunks + 1)
+        + log2_choose(chunks, hits)
+        + hits * root_bits
+        + (chunks - hits) * phenotype_bits
+        + len(tail)
+    )
+    all_generated_bits = None
+    if hits == chunks:
+        all_generated_bits = chunks * root_bits + len(tail)
+    return RecursiveCascadeEncoded(
+        original_bits=bits,
+        final_bits=visible_bits,
+        depth=depth,
+        root_bits=root_bits,
+        leaf_bits=leaf_bits,
+        phenotype_bits=phenotype_bits,
+        chunks=chunks,
+        tail=tail,
+        bitmap=tuple(bitmap),
+        roots=tuple(roots),
+        literals=tuple(literals),
+        visible_bits=visible_bits,
+        tight_bits=tight_bits,
+        all_generated_bits=all_generated_bits,
+    )
+
+
+def decode_recursive_cascade(encoded: RecursiveCascadeEncoded) -> str:
+    root_index = 0
+    literal_index = 0
+    chunks: list[str] = []
+    for flag in encoded.bitmap:
+        if flag:
+            root = encoded.roots[root_index]
+            root_index += 1
+            chunks.append(
+                recursive_cascade_expand(
+                    root,
+                    encoded.depth,
+                    1,
+                    encoded.root_bits,
+                    encoded.leaf_bits,
+                )
+            )
+        else:
+            chunks.append(encoded.literals[literal_index])
+            literal_index += 1
+    if root_index != len(encoded.roots) or literal_index != len(encoded.literals):
+        raise ValueError("recursive cascade stream has unused payload")
+    return "".join(chunks) + encoded.tail
+
+
+def recursive_cascade_generated_bits(
+    rng: Random,
+    chunks: int,
+    depth: int,
+    root_bits: int = CASCADE_ROOT_BITS,
+    leaf_bits: int = CASCADE_LEAF_BITS,
+) -> str:
+    return "".join(
+        recursive_cascade_expand(rng.randrange(1 << root_bits), depth, 1, root_bits, leaf_bits)
+        for _ in range(chunks)
+    )
+
+
+def recursive_biological_cascade_demo(
+    trials: int = 80,
+    chunks: int = 64,
+    test_depth: int = 4,
+    root_bits: int = CASCADE_ROOT_BITS,
+    leaf_bits: int = CASCADE_LEAF_BITS,
+) -> None:
+    print("== family 4b: recursive biological unfold cascade ==")
+    print("A root seed emits child regulatory seeds; child seeds emit more")
+    print("children; only leaves become phenotype bits. Depth/path are public")
+    print("developmental coordinates, so the decoder needs no birth-pass state.")
+    print()
+    rng = Random(777331)
+    print(f"root={root_bits} bits leaf={leaf_bits} bits chunks={chunks} "
+          f"test_depth={test_depth}")
+    print(f"{'depth':>5} {'leaves':>7} {'out/root':>9} {'unique':>7} "
+          f"{'log2 cov':>9} {'save/root':>10}")
+    for depth in [0, 1, 2, 3, 4, 5, 6]:
+        phenotype_bits = (1 << depth) * leaf_bits
+        book = recursive_cascade_book(depth, root_bits, leaf_bits)
+        log_coverage = log2(len(book)) - phenotype_bits
+        save_per_root = phenotype_bits - root_bits
+        print(f"{depth:5d} {1 << depth:7d} {phenotype_bits:9d} "
+              f"{len(book):7d} {log_coverage:9.3f} {save_per_root:10d}")
+    print()
+
+    phenotype_bits = (1 << test_depth) * leaf_bits
+    random_rows: list[RecursiveCascadeEncoded] = []
+    generated_rows: list[RecursiveCascadeEncoded] = []
+    for _ in range(trials):
+        random_bits = fixed_width_bits(rng.getrandbits(chunks * phenotype_bits),
+                                       chunks * phenotype_bits)
+        random_encoded = encode_recursive_cascade(
+            random_bits, test_depth, root_bits, leaf_bits
+        )
+        assert decode_recursive_cascade(random_encoded) == random_bits
+        random_rows.append(random_encoded)
+
+        generated_bits = recursive_cascade_generated_bits(
+            rng, chunks, test_depth, root_bits, leaf_bits
+        )
+        generated_encoded = encode_recursive_cascade(
+            generated_bits, test_depth, root_bits, leaf_bits
+        )
+        assert decode_recursive_cascade(generated_encoded) == generated_bits
+        generated_rows.append(generated_encoded)
+
+    def summarize(rows: list[RecursiveCascadeEncoded]) -> tuple[float, float, float, float | None]:
+        hit_rate = mean(sum(row.bitmap) / row.chunks for row in rows)
+        visible_net = mean(len(row.original_bits) - len(row.visible_bits) for row in rows)
+        tight_net = mean(len(row.original_bits) - row.tight_bits for row in rows)
+        all_generated = [
+            len(row.original_bits) - row.all_generated_bits
+            for row in rows
+            if row.all_generated_bits is not None
+        ]
+        all_generated_net = mean(all_generated) if len(all_generated) == len(rows) else None
+        return hit_rate, visible_net, tight_net, all_generated_net
+
+    print(f"exact encode/decode at depth={test_depth}, phenotype={phenotype_bits} bits")
+    print(f"{'source':>10} {'raw':>8} {'hit/ch':>8} {'visible':>10} "
+          f"{'tight':>10} {'all-gen':>10}")
+    for label, rows in [("generated", generated_rows), ("uniform", random_rows)]:
+        hit_rate, visible_net, tight_net, all_generated_net = summarize(rows)
+        all_generated_text = (
+            f"{all_generated_net:10.3f}" if all_generated_net is not None else f"{'n/a':>10}"
+        )
+        raw_bits = mean(len(row.original_bits) for row in rows)
+        print(f"{label:>10} {raw_bits:8.1f} {hit_rate:8.5f} "
+              f"{visible_net:10.3f} {tight_net:10.3f} {all_generated_text}")
+    print()
+    print("Reading: recursion is the DNA-like multiplier. A single root address")
+    print("can unfold exponentially many phenotype bits with stateless decode")
+    print("because every internal open is scheduled by the public developmental")
+    print("tree. But the reachable set under uniform targets is only about")
+    print("2^(root_bits - phenotype_bits) per chunk. Recursion solves how to")
+    print("unfold compact generated information; it does not by itself solve how")
+    print("to make arbitrary files belong to that generated language.")
+    print()
+
+
+def neutral_synonym_payload(genotype: int, phenotype_bits: int) -> str:
+    return hash_bits("neutral-synonym-payload", genotype, n_bits=phenotype_bits)
+
+
+def neutral_next_pass_target(seed: int, target_bits: int) -> str:
+    return hash_bits("neutral-next-pass-target", seed, n_bits=target_bits)
+
+
+@lru_cache(maxsize=64)
+def neutral_preimage_sets(genotype_bits: int, phenotype_bits: int) -> dict[str, tuple[int, ...]]:
+    preimages: dict[str, list[int]] = {}
+    for genotype in range(1 << genotype_bits):
+        payload = neutral_synonym_payload(genotype, phenotype_bits)
+        preimages.setdefault(payload, []).append(genotype)
+    return {payload: tuple(values) for payload, values in preimages.items()}
+
+
+@lru_cache(maxsize=64)
+def neutral_next_compressible_set(target_bits: int, seed_bits: int) -> frozenset[str]:
+    outputs = {
+        neutral_next_pass_target(seed, target_bits)
+        for seed in range(1 << seed_bits)
+    }
+    return frozenset(outputs)
+
+
+def expected_log_poisson_nonzero(lam: float, cap: int = 256) -> float:
+    if lam <= 0:
+        return 0.0
+    p0 = expm1(-lam) + 1.0
+    nonzero = 1.0 - p0
+    if nonzero <= 0:
+        return 0.0
+    probability = p0
+    total = 0.0
+    for count in range(1, cap + 1):
+        probability *= lam / count
+        total += probability * log2(count)
+    return total / nonzero
+
+
+def neutral_synonym_reservoir_demo(
+    phenotype_bits: int = 12,
+    next_saving_bits: int = 2,
+) -> None:
+    print("== family 4c: neutral synonymous seed reservoir ==")
+    print("Biology's codon degeneracy suggests a non-obvious Telomere channel:")
+    print("if one decoded payload has several same-cost seed preimages, the")
+    print("encoder can choose the preimage that is friendliest to the next pass.")
+    print("The decoder needs no extra metadata; the chosen seed is the record.")
+    print()
+    print(f"exact map: phenotype={phenotype_bits} bits, next pass saves "
+          f"{next_saving_bits} bits when a chosen genotype is itself matchable")
+    print(f"{'geno':>5} {'gap':>5} {'lambda':>8} {'cover':>8} "
+          f"{'ElogM':>8} {'next base':>9} {'next syn':>9} "
+          f"{'mixed net':>10} {'syn-bloat':>10}")
+    for genotype_bits in [8, 9, 10, 11, 12, 13, 14, 15, 16]:
+        preimages = neutral_preimage_sets(genotype_bits, phenotype_bits)
+        coverage = len(preimages) / (1 << phenotype_bits)
+        lam = 2 ** (genotype_bits - phenotype_bits)
+        elogm = mean(log2(len(values)) for values in preimages.values())
+        next_seed_bits = max(0, genotype_bits - next_saving_bits)
+        next_set = neutral_next_compressible_set(genotype_bits, next_seed_bits)
+        next_base = len(next_set) / (1 << genotype_bits)
+        synonym_success = mean(
+            1.0 if any(fixed_width_bits(value, genotype_bits) in next_set for value in values)
+            else 0.0
+            for values in preimages.values()
+        )
+        gap = phenotype_bits - genotype_bits
+        mixed_net = (
+            coverage * gap - binary_entropy(coverage)
+            if 0.0 < coverage < 1.0
+            else coverage * gap
+        )
+        synonym_minus_bloat = elogm + gap
+        print(f"{genotype_bits:5d} {gap:5d} {lam:8.3f} {coverage:8.5f} "
+              f"{elogm:8.3f} {next_base:9.5f} {synonym_success:9.5f} "
+              f"{mixed_net:10.3f} {synonym_minus_bloat:10.3f}")
+    print()
+    print("Poisson preimage law for larger spans:")
+    print(f"{'gap P-G':>8} {'lambda':>10} {'coverage':>10} "
+          f"{'E logM|hit':>12}")
+    for gap in [6, 4, 3, 2, 1, 0, -1, -2, -3, -4]:
+        lam = 2 ** (-gap)
+        coverage = 1.0 - expm1(-lam) - 1.0
+        print(f"{gap:8d} {lam:10.5f} {coverage:10.5f} "
+              f"{expected_log_poisson_nonzero(lam):12.5f}")
+    print()
+    print("Reading: neutral synonyms are the closest genetics-like salt channel.")
+    print("They are real and stateless: choosing one valid seed among many can")
+    print("raise next-pass matchability without recording a lane. But the amount")
+    print("of free choice is exactly the preimage multiplicity. In compressive")
+    print("rows, multiplicity is tiny; in high-multiplicity rows, the genotype is")
+    print("longer than the phenotype and the choice entropy has been bought as")
+    print("bloat. This may be useful as a controlled all-block replacement fuel,")
+    print("but it is not a free arbitrary-content rate-maintenance channel by")
+    print("itself.")
+    print()
+
+
+def sparse_map_zero_threshold(gross_saving: int) -> float:
+    if gross_saving <= 0:
+        return 1.0
+    lo = 0.0
+    hi = 1.0
+    for _ in range(80):
+        mid = (lo + hi) / 2.0
+        value = mid * gross_saving - binary_entropy(mid)
+        if value >= 0:
+            hi = mid
+        else:
+            lo = mid
+    return hi
+
+
+def poisson_synonym_selected_hit(lambda_value: float, base_hit: float) -> float:
+    nonzero = -expm1(-lambda_value)
+    if nonzero <= 0:
+        return 0.0
+    all_miss = ((expm1(-lambda_value * base_hit) + 1.0)
+                - (expm1(-lambda_value) + 1.0)) / nonzero
+    return 1.0 - all_miss
+
+
+def neutral_breakthrough_requirement_demo() -> None:
+    print("== family 4d: neutral synonym breakthrough requirement ==")
+    print("For a sparse mixed pass, the lower-bound ledger is p*d-H(p).")
+    print("This surface asks how many same-payload seed synonyms would be")
+    print("needed to raise next-pass hit probability to the non-negative")
+    print("threshold, compared with the natural preimage multiplicity.")
+    print()
+    print(f"{'gap':>4} {'base p':>10} {'p*':>10} {'M req':>10} "
+          f"{'bits req':>9} {'E M|hit':>9} {'ElogM':>9} {'p syn':>10}")
+    for gap in range(1, 9):
+        lambda_value = 2 ** (-gap)
+        base_hit = -expm1(-lambda_value)
+        threshold = sparse_map_zero_threshold(gap)
+        m_required = log(1.0 - threshold) / log(1.0 - base_hit)
+        bits_required = log2(m_required)
+        nonzero = -expm1(-lambda_value)
+        expected_m = lambda_value / nonzero
+        expected_log_m = expected_log_poisson_nonzero(lambda_value)
+        synonym_hit = poisson_synonym_selected_hit(lambda_value, base_hit)
+        print(f"{gap:4d} {base_hit:10.5f} {threshold:10.5f} "
+              f"{m_required:10.3f} {bits_required:9.3f} "
+              f"{expected_m:9.3f} {expected_log_m:9.3f} {synonym_hit:10.5f}")
+    print()
+    print("Reading: synonyms move the rate in the right direction, but natural")
+    print("multiplicity in the compressive rows is far below the threshold")
+    print("needed to erase the sparse hit map. That does not kill the idea; it")
+    print("says synonyms need an amplifier: all-block replacement, bundle")
+    print("selection, recursive trees, or a neutral reservoir created by a")
+    print("temporary controlled bloat that later gets spent.")
+    print()
+
+
+def neutral_bundle_amplifier_surface_demo(
+    max_arity: int = 64,
+    max_gross_saving: int = 96,
+) -> None:
+    print("== family 4e: neutral reservoir bundle amplifier ==")
+    print("If each carried block has B neutral synonym bits, an arity-a bundle")
+    print("has about 2^(aB) surface combinations. This prices the tempting")
+    print("two-pass strategy: first buy a neutral reservoir, then spend it to")
+    print("make later bundle matches denser without storing a lane map.")
+    print()
+    print(f"surface: arity<= {max_arity}, gross<= {max_gross_saving}, "
+          "B in 0.1-bit steps up to 6.0")
+    print()
+    rows: list[tuple[float, float, int, int, float, float, float]] = []
+    for reservoir_bits_tenths in range(0, 61):
+        reservoir_bits = reservoir_bits_tenths / 10.0
+        variants_per_block = 2 ** reservoir_bits
+        for arity in range(1, max_arity + 1):
+            variants = variants_per_block ** arity
+            for gross_saving in range(1, max_gross_saving + 1):
+                base_hit = -expm1(-(2 ** (-gross_saving)))
+                amplified_hit = 1.0 - ((1.0 - base_hit) ** variants)
+                sparse_bundle_net = amplified_hit * gross_saving - binary_entropy(amplified_hit)
+                net_per_block = (sparse_bundle_net / arity) - reservoir_bits
+                rows.append((
+                    net_per_block,
+                    reservoir_bits,
+                    arity,
+                    gross_saving,
+                    base_hit,
+                    amplified_hit,
+                    sparse_bundle_net,
+                ))
+    nonzero = [row for row in rows if row[1] > 0]
+    positive_bundle = [row for row in nonzero if row[6] > 0]
+    best = sorted(positive_bundle, reverse=True)[:14]
+    print("Best net rows with a positive bundle ledger:")
+    print(f"{'net/block':>10} {'B':>5} {'arity':>5} {'gross':>6} "
+          f"{'base p':>10} {'amp p':>10} {'bundle net':>11}")
+    for net_per_block, reservoir_bits, arity, gross_saving, base_hit, amplified_hit, bundle_net in best:
+        print(f"{net_per_block:10.4f} {reservoir_bits:5.2f} {arity:5d} "
+              f"{gross_saving:6d} {base_hit:10.5f} {amplified_hit:10.5f} "
+              f"{bundle_net:11.4f}")
+    print()
+    print("Best active rows with amplified hit probability at least 1%:")
+    active = [row for row in positive_bundle if row[5] >= 0.01]
+    for net_per_block, reservoir_bits, arity, gross_saving, base_hit, amplified_hit, bundle_net in sorted(active, reverse=True)[:10]:
+        spent = reservoir_bits * arity
+        recovered = bundle_net / spent if spent else 0.0
+        print(f"B={reservoir_bits:.2f} a={arity} gross={gross_saving} "
+              f"base={base_hit:.5f} amp={amplified_hit:.5f} "
+              f"bundle={bundle_net:.4f} spent={spent:.3f} "
+              f"return={recovered:.3f} net/block={net_per_block:.4f}")
+    print()
+    print("Best return ratio where the bundle ledger is positive:")
+    for net_per_block, reservoir_bits, arity, gross_saving, base_hit, amplified_hit, bundle_net in sorted(
+        positive_bundle,
+        key=lambda row: row[6] / (row[1] * row[2]),
+        reverse=True,
+    )[:10]:
+        spent = reservoir_bits * arity
+        recovered = bundle_net / spent if spent else 0.0
+        print(f"B={reservoir_bits:.2f} a={arity} gross={gross_saving} "
+              f"amp={amplified_hit:.5f} bundle={bundle_net:.4f} "
+              f"spent={spent:.3f} return={recovered:.3f} "
+              f"net/block={net_per_block:.4f}")
+    print()
+    print("Reading: neutral choices do compound across bundles, which is the")
+    print("right biological shape. But under the uniform random law, the best")
+    print("two-pass exchange does not beat the reservoir bits it spends: the")
+    print("top nonzero-reservoir rows remain slightly negative. This is still")
+    print("useful because it identifies the missing amplifier precisely: a")
+    print("finite structural subsidy, cheaper open maps, or unavoidable neutral")
+    print("bloat from all-block replacement would only need to cover a small")
+    print("residual, not an exponential gap.")
+    print()
+
+
 ORBIT_PHASE_SPAN_BITS = 14
 ORBIT_PHASE_SEED_BITS = 9
 
@@ -8606,6 +11612,112 @@ def final_board_entropy_gate() -> None:
     print()
 
 
+@dataclass(frozen=True)
+class GroupedFinalBoardEncoded:
+    passes: int
+    survivors: int
+    positions: tuple[int, ...]
+
+
+def encode_grouped_final_board(labels: tuple[int, ...], passes: int) -> GroupedFinalBoardEncoded:
+    if passes <= 0:
+        raise ValueError("passes must be positive")
+    for label in labels:
+        if label < 0 or label >= passes:
+            raise ValueError("invalid final-board label")
+    positions = tuple(index * passes + label for index, label in enumerate(labels))
+    return GroupedFinalBoardEncoded(passes, len(labels), positions)
+
+
+def decode_grouped_final_board(encoded: GroupedFinalBoardEncoded) -> tuple[int, ...]:
+    labels = [-1] * encoded.survivors
+    for position in encoded.positions:
+        group, label = divmod(position, encoded.passes)
+        if group < 0 or group >= encoded.survivors:
+            raise ValueError("final-board position outside survivor groups")
+        if labels[group] != -1:
+            raise ValueError("duplicate final-board group")
+        labels[group] = label
+    if any(label < 0 for label in labels):
+        raise ValueError("missing final-board group")
+    return tuple(labels)
+
+
+def shrinking_final_board_surface_demo(
+    trials: int = 120,
+    survivors: int = 64,
+    original_blocks: int = 1024,
+) -> None:
+    print("== final-position board with shrinking survivor count ==")
+    print("This exact toy encodes a birth/open label by placing each final")
+    print("survivor in one of P cells inside its public survivor group. It is")
+    print("the most favorable final-board form: group order is free from the")
+    print("payload order, and the valid arrangement count is exactly P^R.")
+    print()
+    rng = Random(454545)
+    print(f"exact grouped-board toy: survivors={survivors} trials={trials}")
+    print(f"{'P':>5} {'round trips':>12} {'log2 V/R':>10} "
+          f"{'net@2b/R':>10} {'Q/R':>7}")
+    for passes in [2, 3, 4, 8, 16, 64]:
+        ok = 0
+        for _ in range(trials):
+            labels = tuple(rng.randrange(passes) for _ in range(survivors))
+            encoded = encode_grouped_final_board(labels, passes)
+            ok += int(decode_grouped_final_board(encoded) == labels)
+        bits_per_survivor = log2(passes)
+        print(f"{passes:5d} {ok:5d}/{trials:<6d} {bits_per_survivor:10.3f} "
+              f"{2.0 - bits_per_survivor:10.3f} {passes:7.1f}")
+
+    print()
+    print("Shrink surface for a 2-bit gross match win. R/M changes total")
+    print("bits, not the per-survivor sign:")
+    print(f"{'R/M':>7} {'P':>5} {'board/M':>10} {'gross/M':>10} "
+          f"{'net/M':>10} {'note bits':>11}")
+    for ratio in [1.0, 0.5, 0.25, 0.125]:
+        records = max(1, round(original_blocks * ratio))
+        for passes in [2, 4, 8, 64]:
+            board_bits = records * log2(passes)
+            gross_bits = records * 2.0
+            print(f"{ratio:7.3f} {passes:5d} {board_bits / original_blocks:10.3f} "
+                  f"{gross_bits / original_blocks:10.3f} "
+                  f"{(gross_bits - board_bits) / original_blocks:10.3f} "
+                  f"{board_bits:11.1f}")
+        print()
+
+    raw_block_bits = 24
+    print("Gross win per survivor required for 50% compression of 3-byte")
+    print("source blocks, after paying only the ideal grouped-board note:")
+    print(f"{'R/M':>7} {'P':>5} {'board/R':>9} {'required g/R':>14}")
+    for ratio in [1.0, 0.5, 0.25, 0.125]:
+        for passes in [2, 4, 8, 64]:
+            board_per = log2(passes)
+            required_gross = board_per + raw_block_bits / (2.0 * ratio)
+            print(f"{ratio:7.3f} {passes:5d} {board_per:9.3f} "
+                  f"{required_gross:14.3f}")
+        print()
+
+    print("Unordered cell-board slack surface. This is less favorable than the")
+    print("grouped board because extra cells add arrangement entropy:")
+    print(f"{'R':>5} {'P':>5} {'Q/R':>7} {'log2C/R':>10} "
+          f"{'vs logP':>9} {'net@2b/R':>10}")
+    for records, passes in [(32, 4), (64, 4), (64, 8), (64, 64)]:
+        for slack in [1.0, 1.5, 2.0, 4.0]:
+            cells = ceil(records * passes * slack)
+            cell_bits_per = log2_choose(cells, records) / records
+            print(f"{records:5d} {passes:5d} {cells / records:7.2f} "
+                  f"{cell_bits_per:10.3f} {cell_bits_per - log2(passes):9.3f} "
+                  f"{2.0 - cell_bits_per:10.3f}")
+        print()
+
+    print("Reading: the grouped board proves the best possible shrinking-R")
+    print("case exactly. It decodes statelessly and stores final positions once,")
+    print("but those positions are the pass/open labels at R log2(P) bits. When")
+    print("R shrinks, the note and the number of gross wins shrink together. For")
+    print("a 50% target, smaller R actually requires larger gross savings per")
+    print("survivor.")
+    print()
+
+
 def fifty_percent_counting_gate() -> None:
     print("== 50% arbitrary/random compression counting gate ==")
     print("A lossless code that maps every n-bit input to at most n/2 bits")
@@ -8779,8 +11891,13 @@ def main() -> None:
     overlap_option_crossover_demo()
     finite_search_depth_crossover_demo()
     block_option_coupling_crossover_demo()
+    direct_15_option_crossover_demo()
     collective_selected_rank_entropy_demo()
     recursive_overlap_dynamics_demo()
+    high_arity_recursive_cover_surface_demo()
+    all_block_exact_lotus_landscape_demo()
+    selected_width_residual_entropy_demo()
+    public_width_schedule_cover_demo()
     whole_cover_ordinal_language_demo()
     whole_cover_referee_code_demo()
     global_referee_interval_language_demo()
@@ -8798,9 +11915,14 @@ def main() -> None:
     prefix_state_nonce_demo()
     sparse_prefix_state_accounting_demo()
     scheduled_slot_bitmap_demo()
+    phase_selected_slot_refresh_demo()
+    rolling_state_lane_ensemble_demo()
+    rolling_lane_collective_selector_demo()
+    derivable_lane_variants_demo()
     parent_summary_nonce_demo()
     scheduled_edge_exclusion_demo()
     variable_seed_length_class_demo()
+    seed_prefix_nonce_split_demo()
     arity_header_nonce_demo()
     bundle_geometry_partition_demo()
     seed_value_count_separation_demo()
@@ -8816,11 +11938,19 @@ def main() -> None:
     bbl_random_bundle_density_surface_demo()
     self_dating_grammar_sweep()
     residue_syndrome_trilemma_demo()
+    out_of_band_check_trilemma_demo()
+    guarded_multi_arity_trilemma_demo()
     derived_validity_sweep()
     nested_referee_wrong_pass_demo()
+    biological_developmental_interpreter_demo()
+    recursive_biological_cascade_demo()
+    neutral_synonym_reservoir_demo()
+    neutral_breakthrough_requirement_demo()
+    neutral_bundle_amplifier_surface_demo()
     self_consistent_output_nonce_demo()
     orbit_phase_nonce_demo()
     final_board_entropy_gate()
+    shrinking_final_board_surface_demo()
     fifty_percent_counting_gate()
     exception_burden_gate()
     window_multiplicity_gate()

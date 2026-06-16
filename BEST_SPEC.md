@@ -1,6 +1,6 @@
 # BEST_SPEC: No Arbitrary-Content Winner Yet
 
-Date: 2026-06-14
+Date: 2026-06-15
 
 Status: reopened after anti-reward-hack review. No candidate currently satisfies
 the arbitrary/unshaped content bar. The previous TST/STF/BBL stack remains a
@@ -21,10 +21,48 @@ that can maintain compression over many passes and theoretically reach about
   opportunities across a bounded pass window and prices open/carry ambiguity as
   `R*c_a(P)`, but the current toy fixture is positive only before fixed-header
   amortization.
+- **Biology-inspired public interpreter mode** is the best new missing-piece
+  lead. Treat the genome analogy literally as a compact program interpreted by
+  a large public/inherited machine. A 16-bit program to 24-bit phenotype toy
+  saves `+1024` bits over 128 generated chunks in all-generated mode and
+  decodes statelessly because every item is a program by invariant. The same
+  interpreter loses on uniform arbitrary chunks (`-6.544` tight bits), so this
+  is a shaped-source/preset path, not an arbitrary-random solution.
+- **Recursive biological unfold cascade** is the sharper DNA-like form of that
+  lead. A root seed emits child regulatory seeds recursively; leaves become
+  phenotype bits. Depth/path are public coordinates, so internal opens need no
+  birth tags. In the toy, a 12-bit root expands to a 128-bit phenotype at depth
+  4 and saves `+7424` bits over 64 generated chunks, while uniform chunks hit
+  zero and lose `-6.022` tight bits.
+- **Neutral synonymous seed reservoir** is the closest genetics-like salt
+  channel. If several same-cost seeds decode to the same payload, the encoder
+  can choose the seed that is friendliest to the next pass and the decoder needs
+  no extra metadata. At a 2-bit compressive gap the toy has only `0.126`
+  neutral bits per hit; multi-bit neutral choice appears when the genotype is
+  as long as or longer than the phenotype. This may fuel all-block replacement,
+  but it is not free by itself.
+- **Neutral reservoir bundle amplifier** is the closest uniform-hash
+  mechanism, but the no-double-counting bound keeps it negative. Neutral
+  choices compound across arity, yet a reservoir bought by oversampling has
+  usable choice `B(E) < E` in the robust range; the same bits cannot both be
+  saved and retained as future synonym entropy. Optimistic huge-arity rows
+  approach zero from below, for example about `-0.00293` bits per 8-bit block
+  at `A=4096,E=10,K=8192`, before real Lotus overhead. This defines a sharp
+  finite gap, not a solved compressor.
+- **All-block high-arity exact-Lotus extension** is the corrected version of
+  the user's "replace every block" lane. It charges no open/carry entropy and
+  no salt/birth entropy. It charges only arity plus exact Lotus seed-rank
+  witness. In the sampled exact-cost surface, the best tested row was close but
+  still negative: 8-bit blocks, `A=256`, `J2D2`, about `-0.091` bits/block.
+  The selected-width residual entropy test explains why: the oracle has only
+  about `1.1` bits/selected-record of budget, while the remaining width class
+  after arity costs about `3.25` bits/selected-record.
 
 Together they define useful mechanics, but not the requested answer. The active
-research target is now arbitrary/unshaped match-supply maintenance without a
-birth-pass channel.
+research target is now narrower: either a non-uniform/public interpreter whose
+reachable language actually contains the source family, or a genuinely free
+decoder invariant that removes seed-boundary/layout/header entropy without
+thinning the match supply by the same amount.
 
 ## Anti-Reward-Hack Boundary
 
@@ -134,6 +172,11 @@ useful constraints:
    oracle gain `+0.283` bits/block. The failure is not the crossover intuition.
    The failure is still the paid witness boundary (`-0.430`, or `-1.496` with
    marker bits).
+   The direct formula is `sum_a a*(1-exp(-2^(N-24a)))` finite containing
+   intervals per interior block, with compressive oracle options capped by
+   `log2(rank) < 24a-h`. For `h=3`, the expected positive containing options
+   saturate at `15*(1-exp(-1/8)) = 1.763`; the legal DP crosses positive
+   around `N=92` bits and is near asymptote by `N=120`.
 9. Collective selected-rank entropy coding gives the rank-witness idea a
    stronger paid lower bound: let the oracle DP choose the best tiling, then
    entropy-code selected `(arity, floor(log2 rank))` symbols under a public
@@ -151,6 +194,12 @@ useful constraints:
    selected-rank entropy lower bound reaches 44,358.3 bits, and
    selected+marker reaches 687,614.0 bits. Target churn amplifies the honest
    one-pass margin; it does not change its sign.
+   The high-arity surface extends the same model to arity 64. It confirms the
+   user's "let bundles grow" instinct helps materially: the free oracle reaches
+   `+0.490` bits/block and half-size in about `33.6` passes. But the paid
+   selected-rank lower bound only improves to `-0.237` bits/block and still
+   grows to `1.876x` after 64 passes. Higher arity reduces record count and
+   biases witnesses cheaper; it does not remove the exact lower rank bits.
 11. Whole-cover ordinal language encodes the selected cover as one ordinal in a
    public cover language, removing local rank terminators entirely. Exact toy:
    with 18 raw bits, `maxA=3, rank=2` has `log desc=13.579`, covers only
@@ -279,6 +328,32 @@ useful constraints:
    (`-5.828` net) once the hit-count class is charged. The closed-form
    scheduled-slot ledger `p*d - H(p)` is negative for all tested positive gaps
    `d=L-r`; the hit bitmap is the open/carry channel.
+   Phase-selected scheduled slots choose one public slot offset per layer and
+   store that offset once. This is a cheap coordinate selector and it does
+   refresh windows: first-pass hit/slot rose to `0.12750` from the fixed
+   scheduled baseline `0.06222`. But the 4-bit phase plus bitmap/count still
+   lost `-7.650` tight bits on 512-bit random layers, and a tiny omitted-phase
+   ambiguity check left `3.350` candidate readings on average (`1.578` bits).
+   The coordinate choice is real, but it is paid.
+   Rolling-state public lanes show the best version of "more fresh dice from
+   decoder-known state." With 12-bit spans, 8-bit seeds, and K=8 lanes, the
+   hit/slot rate rose to `0.39906` and the free-lane ledger became `+23.250`
+   bits on 480 random bits. But the exact same row is `-24.637` once lane IDs
+   are stored or charged as omitted-lane ambiguity; the small exact ambiguity
+   decoder found K=8 candidate sets averaging `5665+` readings with `-3.957`
+   ambiguity net. Lanes work as dice, not as a free stateless selector.
+   Collective lane coding improves on fixed per-record lane headers, but not
+   enough. At K=8, the same random layers had free net `+22.923`; storing only
+   lane counts still looked positive (`+5.199`) but omitted the ordered
+   assignment. Histogram plus assignment flipped to `-26.584` versus `-24.683`
+   for fixed lane headers. The selected-lane histogram is not decode
+   information by itself.
+   Derivable lane selectors close the obvious loophole. If the stored seed
+   partitions itself into a lane, K=8 has hit/slot `0.05875` and net `-6.281`;
+   if the output must hash back to its lane, K=8 has hit/slot `0.06266`, net
+   `-6.269`, and exact small-layer ambiguity net `-3.395`. The lane is then
+   decodable, but each seed again supplies roughly one effective lane, so the
+   K-fold match supply is gone.
    The parent-summary variant stores a small group summary before child slots
    and salts each child by `(summary, local_slot)`. This is a real
    decoder-known salt and verifies after child decode, but each child has only
@@ -315,6 +390,30 @@ useful constraints:
    full net `-0.08729`, `d8` `-0.00562`, `d4+d8+d12` `-0.09288`). Positive
    full-net jackpot rows require impossible density, e.g. saving 16 bits with
    hit probability `2^-8`.
+
+Biology lead: the developmental-interpreter mutation is a constructive shaped
+mode, not a nonce trick. A public inherited interpreter makes open-vs-carry free
+only when the file declares an all-generated language; mixed arbitrary mode
+must still store a hit map and literals. In the toy, generated chunks save
+`+1024` bits before fixed metadata, while uniform chunks lose `-6.544` tight
+bits. If the interpreter/config is file-private, it must be amortized like any
+other side channel.
+The recursive cascade variant adds the missing DNA-like expansion: one root
+causes a public tree of child regulatory seeds, and only leaves are payload.
+At depth 4, a 12-bit root unfolds to 128 bits; 64 generated chunks save
+`+7424` bits with stateless decode. The same mode has uniform coverage
+`2^(12-128)`, so arbitrary target membership is the unsolved channel.
+The neutral-synonym variant directly targets salt maintenance: multiple seeds
+for the same decoded payload act like codon degeneracy. It is a real stateless
+freshness budget, but the budget is exactly preimage multiplicity. At a 2-bit
+compressive gap the free budget is only `0.126` bits/hit; at 2-bit bloat it
+becomes `1.835` bits but the bloat has already paid almost that much. The next
+serious hybrid is therefore neutral-reservoir all-block replacement plus
+recursive/bundle amplification. The first amplifier surface is close:
+high-arity neutral bundle selection recovers up to about `95%` of reservoir
+cost and leaves best rows around `-0.03` to `-0.08` bits/block. A BBL-style
+structural ambiguity subsidy, a true all-block/tree parse invariant, or better
+real Lotus high-arity economics could plausibly be the missing finite piece.
 25. Grouped scheduled bundles try to amortize the bitmap by accepting only
    all-hit public slot groups. This removes the flattering finite near-miss
    only if the group hit count is silently free; once charged, 4096-bit random
@@ -414,6 +513,22 @@ useful constraints:
    around `0.23` but pays the residue in the record and still has closed
    ledger `-5.294`. Residue bits can prune, repair arbitrary targets, or stay
    unpaid, but not all three.
+   The out-of-band check-bit variant tests the stronger objection where check
+   bits are internal record validity, not decoded payload. It round-trips exact
+   scheduled codecs and shows the same conservation: self-consistent checks
+   preserve hit supply but reject no wrong passes; fixed checks lower wrong
+   survival but thin the true seed book; syndrome-validated checks preserve
+   arbitrary hit/chunk (`~0.060`) and lower wrong `q` to `0.00398` at 8 check
+   bits, but the repair bits are stored and tight+ambiguity is `-115.555`.
+   For `P=64`, `check_bits + log2(1+(P-1)2^-check_bits)` is never below the
+   6-bit pass label. Non-payload validity still moves the channel.
+   The guarded multi-arity variant extends this to arities 2-5 with per-child
+   guard bits. It round-trips exact codecs, but the same conservation holds:
+   raw-filter `a=5,g=4` lowers wrong-pass survival to `9.537e-07` while
+   measured hit/window is `0.00000`; syndrome `a=2,g=4` restores hit/window to
+   `0.63286`, but wrong-pass survival returns to `1` and the tight ledger is
+   `-246.687`. Higher arity strengthens structural pruning, not arbitrary
+   target density.
 35. Derived validity from visible seed classes avoids extra residue bits, but
    the same information reappears as seed-supply loss. Best toy row:
    `5.137e-05` expected net bits/window at arity 3 with 6 class bits.
@@ -440,6 +555,16 @@ useful constraints:
    survivor. Histogram/count separation is not free: for `R=32`, `P=4`,
    `H(hist)=9.616` and expected assignment entropy is `54.384`, totaling
    exactly `2.000` bits/survivor.
+   The shrinking-survivor grouped-board toy gives the idea its most favorable
+   exact codec: one public group per survivor, one of `P` cells occupied per
+   group, and payload order supplying group order. It round-tripped `120/120`
+   for `R=64` and proves the best valid arrangement count is `P^R`. Thus
+   `P=4` is exactly `0.000` net bits/survivor at a 2-bit gross win before
+   any overhead. Shrinking `R/M` lowers both board cost and gross wins; for
+   3-byte source blocks, the 50% target would require gross win/survivor
+   `14.000` at `R/M=1`, `26.000` at `R/M=0.5`, and `50.000` at `R/M=0.25`
+   even under this ideal grouped board. Unordered slack boards are worse:
+   `R=64`, `P=4`, `Q/R=4` costs `3.181` bits/survivor.
    The affine-orbit/final-coordinate toy makes the same point mechanically:
    final-coordinate salt is stateless but stale, with hit/chunk near `0.031`
    and closed net `-0.044` for `P=1..32`; birth-coordinate salt refreshes

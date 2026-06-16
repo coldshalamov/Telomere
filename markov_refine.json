@@ -1,0 +1,186 @@
+{
+  "config": {
+    "atoms": 256,
+    "trials": 48,
+    "coverage_threshold": 0.95,
+    "seed": 20260615,
+    "block_bits": [
+      24
+    ],
+    "max_arity": [
+      8
+    ],
+    "modes": [
+      "arith_arity_width_lotus_payload",
+      "markov1_arith_width_lotus_payload",
+      "markov2_arith_width_lotus_payload"
+    ]
+  },
+  "results": [
+    {
+      "B": 24,
+      "K": 8,
+      "mode": "arith_arity_width_lotus_payload",
+      "first_positive": null,
+      "nearest": {
+        "mode": "arith_arity_width_lotus_payload",
+        "B": 24,
+        "K": 8,
+        "D": 168,
+        "max_span_bytes": 24.0,
+        "cover_rate": 1.0,
+        "gain_per_atom": -0.4074585222396631,
+        "gain_per_byte": -0.13581950741322102,
+        "records_per_atom": 0.6346028645833334,
+        "avg_selected_arity": 1.5757886637599385,
+        "avg_lotus_payload_width": 34.65055142344191,
+        "avg_local_payload_bits": 35.65055142344191,
+        "arity_bits_per_record": 3,
+        "witness_bits_per_record": 35.551295131724444,
+        "total_bits_per_record": 38.551295131724444,
+        "missing_bits_per_record": 0.6420685202976378
+      }
+    },
+    {
+      "B": 24,
+      "K": 8,
+      "mode": "markov1_arith_width_lotus_payload",
+      "first_positive": null,
+      "nearest": {
+        "mode": "markov1_arith_width_lotus_payload",
+        "B": 24,
+        "K": 8,
+        "D": 168,
+        "max_span_bytes": 24.0,
+        "cover_rate": 1.0,
+        "gain_per_atom": -2.22834696517792,
+        "gain_per_byte": -0.7427823217259732,
+        "records_per_atom": 0.6346028645833334,
+        "avg_selected_arity": 1.5757886637599385,
+        "avg_lotus_payload_width": 34.65055142344191,
+        "avg_local_payload_bits": 35.65055142344191,
+        "arity_bits_per_record": 3,
+        "witness_bits_per_record": 38.41839042527453,
+        "total_bits_per_record": 41.41839042527453,
+        "missing_bits_per_record": 3.5114038866512285
+      }
+    },
+    {
+      "B": 24,
+      "K": 8,
+      "mode": "markov2_arith_width_lotus_payload",
+      "first_positive": {
+        "mode": "markov2_arith_width_lotus_payload",
+        "B": 24,
+        "K": 8,
+        "D": 43,
+        "max_span_bytes": 24.0,
+        "cover_rate": 1.0,
+        "gain_per_atom": 0.07145424792089321,
+        "gain_per_byte": 0.023818082640297736,
+        "records_per_atom": 0.9461263020833334,
+        "avg_selected_arity": 1.0569413383794943,
+        "avg_lotus_payload_width": 23.71727163254774,
+        "avg_local_payload_bits": 24.71727163254774,
+        "arity_bits_per_record": 3,
+        "witness_bits_per_record": 22.29593184755958,
+        "total_bits_per_record": 25.29593184755958,
+        "missing_bits_per_record": 0.0
+      },
+      "nearest": {
+        "mode": "markov2_arith_width_lotus_payload",
+        "B": 24,
+        "K": 8,
+        "D": 43,
+        "max_span_bytes": 24.0,
+        "cover_rate": 1.0,
+        "gain_per_atom": 0.07145424792089321,
+        "gain_per_byte": 0.023818082640297736,
+        "records_per_atom": 0.9461263020833334,
+        "avg_selected_arity": 1.0569413383794943,
+        "avg_lotus_payload_width": 23.71727163254774,
+        "avg_local_payload_bits": 24.71727163254774,
+        "arity_bits_per_record": 3,
+        "witness_bits_per_record": 22.29593184755958,
+        "total_bits_per_record": 25.29593184755958,
+        "missing_bits_per_record": 0.0
+      }
+    }
+  ],
+  "first_rows": [
+    {
+      "mode": "markov2_arith_width_lotus_payload",
+      "B": 24,
+      "K": 8,
+      "D": 43,
+      "max_span_bytes": 24.0,
+      "cover_rate": 1.0,
+      "gain_per_atom": 0.07145424792089321,
+      "gain_per_byte": 0.023818082640297736,
+      "records_per_atom": 0.9461263020833334,
+      "avg_selected_arity": 1.0569413383794943,
+      "avg_lotus_payload_width": 23.71727163254774,
+      "avg_local_payload_bits": 24.71727163254774,
+      "arity_bits_per_record": 3,
+      "witness_bits_per_record": 22.29593184755958,
+      "total_bits_per_record": 25.29593184755958,
+      "missing_bits_per_record": 0.0
+    }
+  ],
+  "nearest_rows": [
+    {
+      "mode": "arith_arity_width_lotus_payload",
+      "B": 24,
+      "K": 8,
+      "D": 168,
+      "max_span_bytes": 24.0,
+      "cover_rate": 1.0,
+      "gain_per_atom": -0.4074585222396631,
+      "gain_per_byte": -0.13581950741322102,
+      "records_per_atom": 0.6346028645833334,
+      "avg_selected_arity": 1.5757886637599385,
+      "avg_lotus_payload_width": 34.65055142344191,
+      "avg_local_payload_bits": 35.65055142344191,
+      "arity_bits_per_record": 3,
+      "witness_bits_per_record": 35.551295131724444,
+      "total_bits_per_record": 38.551295131724444,
+      "missing_bits_per_record": 0.6420685202976378
+    },
+    {
+      "mode": "markov1_arith_width_lotus_payload",
+      "B": 24,
+      "K": 8,
+      "D": 168,
+      "max_span_bytes": 24.0,
+      "cover_rate": 1.0,
+      "gain_per_atom": -2.22834696517792,
+      "gain_per_byte": -0.7427823217259732,
+      "records_per_atom": 0.6346028645833334,
+      "avg_selected_arity": 1.5757886637599385,
+      "avg_lotus_payload_width": 34.65055142344191,
+      "avg_local_payload_bits": 35.65055142344191,
+      "arity_bits_per_record": 3,
+      "witness_bits_per_record": 38.41839042527453,
+      "total_bits_per_record": 41.41839042527453,
+      "missing_bits_per_record": 3.5114038866512285
+    },
+    {
+      "mode": "markov2_arith_width_lotus_payload",
+      "B": 24,
+      "K": 8,
+      "D": 43,
+      "max_span_bytes": 24.0,
+      "cover_rate": 1.0,
+      "gain_per_atom": 0.07145424792089321,
+      "gain_per_byte": 0.023818082640297736,
+      "records_per_atom": 0.9461263020833334,
+      "avg_selected_arity": 1.0569413383794943,
+      "avg_lotus_payload_width": 23.71727163254774,
+      "avg_local_payload_bits": 24.71727163254774,
+      "arity_bits_per_record": 3,
+      "witness_bits_per_record": 22.29593184755958,
+      "total_bits_per_record": 25.29593184755958,
+      "missing_bits_per_record": 0.0
+    }
+  ]
+}

@@ -1,0 +1,186 @@
+{
+  "config": {
+    "atoms": 128,
+    "trials": 24,
+    "coverage_threshold": 0.95,
+    "seed": 20260615,
+    "block_bits": [
+      24
+    ],
+    "max_arity": [
+      8
+    ],
+    "modes": [
+      "arith_arity_width_lotus_payload",
+      "markov1_arith_width_lotus_payload",
+      "markov1_joint_dp"
+    ]
+  },
+  "results": [
+    {
+      "B": 24,
+      "K": 8,
+      "mode": "arith_arity_width_lotus_payload",
+      "first_positive": null,
+      "nearest": {
+        "mode": "arith_arity_width_lotus_payload",
+        "B": 24,
+        "K": 8,
+        "D": 192,
+        "max_span_bytes": 24.0,
+        "cover_rate": 1.0,
+        "gain_per_atom": -0.1961448650740203,
+        "gain_per_byte": -0.0653816216913401,
+        "records_per_atom": 0.6474609375,
+        "avg_selected_arity": 1.5444947209653093,
+        "avg_lotus_payload_width": 33.8974358974359,
+        "avg_local_payload_bits": 34.8974358974359,
+        "arity_bits_per_record": 3,
+        "witness_bits_per_record": 34.553508389286286,
+        "total_bits_per_record": 37.553508389286286,
+        "missing_bits_per_record": 0.3029447086512772
+      }
+    },
+    {
+      "B": 24,
+      "K": 8,
+      "mode": "markov1_arith_width_lotus_payload",
+      "first_positive": {
+        "mode": "markov1_arith_width_lotus_payload",
+        "B": 24,
+        "K": 8,
+        "D": 47,
+        "max_span_bytes": 24.0,
+        "cover_rate": 1.0,
+        "gain_per_atom": 0.02690211368971962,
+        "gain_per_byte": 0.00896737122990654,
+        "records_per_atom": 0.7861328125,
+        "avg_selected_arity": 1.2720496894409938,
+        "avg_lotus_payload_width": 28.11511387163561,
+        "avg_local_payload_bits": 29.11511387163561,
+        "arity_bits_per_record": 3,
+        "witness_bits_per_record": 27.520223030502727,
+        "total_bits_per_record": 30.520223030502727,
+        "missing_bits_per_record": 0.0
+      },
+      "nearest": {
+        "mode": "markov1_arith_width_lotus_payload",
+        "B": 24,
+        "K": 8,
+        "D": 49,
+        "max_span_bytes": 24.0,
+        "cover_rate": 1.0,
+        "gain_per_atom": 0.12080822771814237,
+        "gain_per_byte": 0.040269409239380785,
+        "records_per_atom": 0.7679036458333334,
+        "avg_selected_arity": 1.3022467147096228,
+        "avg_lotus_payload_width": 28.767698177193726,
+        "avg_local_payload_bits": 29.767698177193726,
+        "arity_bits_per_record": 3,
+        "witness_bits_per_record": 28.138034390571498,
+        "total_bits_per_record": 31.138034390571498,
+        "missing_bits_per_record": 0.0
+      }
+    },
+    {
+      "B": 24,
+      "K": 8,
+      "mode": "markov1_joint_dp",
+      "first_positive": null,
+      "nearest": {
+        "mode": "markov1_joint_dp",
+        "B": 24,
+        "K": 8,
+        "D": 192,
+        "max_span_bytes": 24.0,
+        "cover_rate": 1.0,
+        "gain_per_atom": -1.7745968443244673,
+        "gain_per_byte": -0.5915322814414891,
+        "records_per_atom": 0.64453125,
+        "avg_selected_arity": 1.5515151515151515,
+        "avg_lotus_payload_width": 34.06060606060606,
+        "avg_local_payload_bits": 35.06060606060606,
+        "arity_bits_per_record": 3,
+        "witness_bits_per_record": 37.16102064735834,
+        "total_bits_per_record": 40.16102064735834,
+        "missing_bits_per_record": 2.7533138918003854
+      }
+    }
+  ],
+  "first_rows": [
+    {
+      "mode": "markov1_arith_width_lotus_payload",
+      "B": 24,
+      "K": 8,
+      "D": 47,
+      "max_span_bytes": 24.0,
+      "cover_rate": 1.0,
+      "gain_per_atom": 0.02690211368971962,
+      "gain_per_byte": 0.00896737122990654,
+      "records_per_atom": 0.7861328125,
+      "avg_selected_arity": 1.2720496894409938,
+      "avg_lotus_payload_width": 28.11511387163561,
+      "avg_local_payload_bits": 29.11511387163561,
+      "arity_bits_per_record": 3,
+      "witness_bits_per_record": 27.520223030502727,
+      "total_bits_per_record": 30.520223030502727,
+      "missing_bits_per_record": 0.0
+    }
+  ],
+  "nearest_rows": [
+    {
+      "mode": "arith_arity_width_lotus_payload",
+      "B": 24,
+      "K": 8,
+      "D": 192,
+      "max_span_bytes": 24.0,
+      "cover_rate": 1.0,
+      "gain_per_atom": -0.1961448650740203,
+      "gain_per_byte": -0.0653816216913401,
+      "records_per_atom": 0.6474609375,
+      "avg_selected_arity": 1.5444947209653093,
+      "avg_lotus_payload_width": 33.8974358974359,
+      "avg_local_payload_bits": 34.8974358974359,
+      "arity_bits_per_record": 3,
+      "witness_bits_per_record": 34.553508389286286,
+      "total_bits_per_record": 37.553508389286286,
+      "missing_bits_per_record": 0.3029447086512772
+    },
+    {
+      "mode": "markov1_arith_width_lotus_payload",
+      "B": 24,
+      "K": 8,
+      "D": 49,
+      "max_span_bytes": 24.0,
+      "cover_rate": 1.0,
+      "gain_per_atom": 0.12080822771814237,
+      "gain_per_byte": 0.040269409239380785,
+      "records_per_atom": 0.7679036458333334,
+      "avg_selected_arity": 1.3022467147096228,
+      "avg_lotus_payload_width": 28.767698177193726,
+      "avg_local_payload_bits": 29.767698177193726,
+      "arity_bits_per_record": 3,
+      "witness_bits_per_record": 28.138034390571498,
+      "total_bits_per_record": 31.138034390571498,
+      "missing_bits_per_record": 0.0
+    },
+    {
+      "mode": "markov1_joint_dp",
+      "B": 24,
+      "K": 8,
+      "D": 192,
+      "max_span_bytes": 24.0,
+      "cover_rate": 1.0,
+      "gain_per_atom": -1.7745968443244673,
+      "gain_per_byte": -0.5915322814414891,
+      "records_per_atom": 0.64453125,
+      "avg_selected_arity": 1.5515151515151515,
+      "avg_lotus_payload_width": 34.06060606060606,
+      "avg_local_payload_bits": 35.06060606060606,
+      "arity_bits_per_record": 3,
+      "witness_bits_per_record": 37.16102064735834,
+      "total_bits_per_record": 40.16102064735834,
+      "missing_bits_per_record": 2.7533138918003854
+    }
+  ]
+}
