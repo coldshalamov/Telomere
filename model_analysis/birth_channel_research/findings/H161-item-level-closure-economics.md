@@ -118,7 +118,7 @@ compression proof.
 ## Verdict
 
 Item-level closure is alive as a target, unlike the H96 bit-level closed core.
-The next required kernel is a full-cover item-stream DP:
+The required next kernel was a full-cover item-stream DP:
 
 ```text
 given a current item stream from the public item grammar,
@@ -127,5 +127,5 @@ charge exact record costs,
 measure whether expected per-item drift is negative
 ```
 
-That will distinguish a sparse local opportunity from a maintained recursive
-compression lattice.
+H162 runs that test and finds that the sparse local opportunity does not become
+a maintained recursive compression lattice under current exact V1/J3D1 costs.

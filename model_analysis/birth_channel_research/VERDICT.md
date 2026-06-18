@@ -4327,6 +4327,7 @@ P3-skeptic3-arity-refutation), and runnable toys (`B-ambiguity-bound_survivor_co
 `findings/H158-opening-referee-scaling.md`,
 `findings/H159-seed-bearing-closed-core.md`,
 `findings/H160-seed-closure-transfer-matrix.md`,
-`findings/H161-item-level-closure-economics.md`).
+`findings/H161-item-level-closure-economics.md`,
+`findings/H162-item-stream-cover-dp.md`).
 Singles wall:
 `A/C/D/G-*.py`. PCTB position-tax dead end: `../proof_kernel/pctb_ledger.py`.
