@@ -57,19 +57,32 @@ def log2_factorial(n: int) -> float:
     return math.lgamma(n + 1) / math.log(2.0)
 
 
+def log2_binomial(n: int, k: int) -> float:
+    if k < 0 or k > n:
+        return float("inf")
+    return log2_factorial(n) - log2_factorial(k) - log2_factorial(n - k)
+
+
 def multinomial_bits(counts: Counter[object]) -> float:
     total = sum(counts.values())
     return log2_factorial(total) - sum(log2_factorial(count) for count in counts.values())
 
 
 def sample_first_rank(target_bits: int, rng: random.Random) -> int:
-    """Sample first matching seed rank under the uniform hash law."""
+    """Sample first matching seed rank under the uniform hash law.
+
+    For large targets this returns a representative integer from the
+    exponential-race approximation. Width-sensitive callers should prefer
+    ``sample_log2_first_rank`` plus ``lotus_payload_width_from_log_rank`` so
+    they do not round the rank up before computing the payload width.
+    """
 
     q = 2.0 ** (-target_bits)
     u = rng.random()
     if target_bits <= 48:
         return math.ceil(math.log1p(-u) / math.log1p(-q))
-    return math.ceil(2.0 ** (target_bits + math.log2(rng.expovariate(1.0))))
+    log2_rank = target_bits + math.log2(rng.expovariate(1.0))
+    return 1 << max(0, int(math.floor(log2_rank)))
 
 
 def sample_log2_first_rank(target_bits: int, rng: random.Random) -> float:
@@ -79,16 +92,30 @@ def sample_log2_first_rank(target_bits: int, rng: random.Random) -> float:
     exponential race approximation: rank / 2^target_bits -> Exp(1).
     """
 
-    return math.log2(sample_first_rank(target_bits, rng))
+    if target_bits <= 48:
+        return math.log2(sample_first_rank(target_bits, rng))
+    return target_bits + math.log2(rng.expovariate(1.0))
+
+
+def lotus_payload_width_from_rank(rank: int) -> int:
+    """Smallest J3D1 payload width whose <=width seed set can include rank.
+
+    costs.payload_width_count_le(p) = 2^(p+1)-3, so exact width is the
+    smallest ``p`` with ``2^(p+1)-3 >= rank``. Equivalently:
+    ``p = ceil(log2(rank+3)) - 1``.
+    """
+
+    if rank <= 1:
+        return 1
+    return max(1, (rank + 2).bit_length() - 1)
 
 
 def lotus_payload_width_from_log_rank(log2_rank: float) -> int:
-    """Smallest J3D1 payload width whose <=width seed set can include rank.
+    """Conservative fallback when only log2(rank) is available."""
 
-    costs.payload_width_count_le(p) = 2^(p+1)-3, so p ~= ceil(log2(rank)-1).
-    """
-
-    return max(1, math.ceil(log2_rank - 1.0))
+    if log2_rank > 40.0:
+        return max(1, math.ceil(log2_rank) - 1)
+    return max(1, math.ceil(math.log2((2.0 ** log2_rank) + 3.0) - 1.0))
 
 
 def local_payload_bits_from_log_rank(log2_rank: float) -> int:
@@ -192,6 +219,24 @@ def make_modes() -> list[Mode]:
         symbols = Counter((record.arity, record.lotus_payload_width) for record in records)
         return sum(record.lotus_payload_width for record in records) + multinomial_bits(symbols)
 
+    def paid_iid_lotus_post(records: tuple[SelectedRecord, ...], max_arity: int, frontier: int) -> float:
+        """Enumerative iid stream with finite-file symbol identity/count costs.
+
+        The optimistic entropy mode charges only the arrangement inside the
+        selected (arity,width) type. Stateless decode also needs to know which
+        symbols are present and their positive counts before it can enumerate
+        the stream, so those costs are charged here.
+        """
+
+        symbols = Counter((record.arity, record.lotus_payload_width) for record in records)
+        record_count = sum(symbols.values())
+        if record_count == 0:
+            return 0.0
+        alphabet_size = max_arity * frontier
+        used = len(symbols)
+        type_bits = log2_binomial(alphabet_size, used) + log2_binomial(record_count - 1, used - 1)
+        return sum(record.lotus_payload_width for record in records) + type_bits + multinomial_bits(symbols)
+
     def entropy_local_select(edge: EdgeSample, arity: int, max_arity: int, frontier: int) -> float | None:
         if edge.local_payload_bits > frontier:
             return None
@@ -241,6 +286,37 @@ def make_modes() -> list[Mode]:
                 h = -sum((c / sub_total) * math.log2(c / sub_total) for c in sub.values())
                 cond_bits += p * h
             bits += (total - 1) * cond_bits
+        return sum(record.lotus_payload_width for record in records) + bits
+
+    def paid_markov1_lotus_post(records: tuple[SelectedRecord, ...], max_arity: int, frontier: int) -> float:
+        """Enumerative first-order Markov stream with paid transition types.
+
+        This is an honest finite-stream upper bound: the decoder receives the
+        first symbol, the set of previous states with outgoing transitions, and
+        for each such state the used next-symbol subset plus positive counts.
+        Given those counts, each per-state outgoing transition sequence is
+        enumerated. The original symbol sequence is reconstructed by starting at
+        the first symbol and consuming the next transition from the current
+        state's enumerated outgoing sequence.
+        """
+
+        symbols = [(record.arity, record.lotus_payload_width) for record in records]
+        total = len(symbols)
+        if total == 0:
+            return 0.0
+        alphabet_size = max_arity * frontier
+        bits = math.log2(alphabet_size)
+        transitions: dict[tuple[int, int], Counter[tuple[int, int]]] = {}
+        for prev, curr in zip(symbols, symbols[1:]):
+            transitions.setdefault(prev, Counter())[curr] += 1
+        prev_states = len(transitions)
+        bits += log2_binomial(alphabet_size, prev_states)
+        for next_counts in transitions.values():
+            out_total = sum(next_counts.values())
+            used_next = len(next_counts)
+            bits += log2_binomial(alphabet_size, used_next)
+            bits += log2_binomial(out_total - 1, used_next - 1)
+            bits += multinomial_bits(next_counts)
         return sum(record.lotus_payload_width for record in records) + bits
 
     def markov2_lotus_post(records: tuple[SelectedRecord, ...], max_arity: int, frontier: int) -> float:
@@ -323,8 +399,13 @@ def make_modes() -> list[Mode]:
             if width < 1:
                 return 0.0
             q = 2.0 ** (-target_bits)
-            lo = 1 << (width - 1)
-            hi = (1 << width) - 1
+            # J3D1 width buckets follow payload_width_count_le(p) =
+            # 2^(p+1)-3, not binary integer bit-length buckets.
+            if width == 1:
+                lo = hi = 1
+            else:
+                lo = (1 << width) - 2
+                hi = (1 << (width + 1)) - 3
             if lo > hi:
                 return 0.0
             # Z = P(lo <= r <= hi)
@@ -368,6 +449,12 @@ def make_modes() -> list[Mode]:
             entropy_lotus_post,
         ),
         Mode(
+            "paid_iid_counts_lotus_payload",
+            "paid iid enumerative arity/width subset+counts + local Lotus payload",
+            entropy_select,
+            paid_iid_lotus_post,
+        ),
+        Mode(
             "whole_cover_local_payload_stream",
             "whole-cover arity/width stream + first-2^w local payloads",
             entropy_local_select,
@@ -382,13 +469,19 @@ def make_modes() -> list[Mode]:
         ),
         Mode(
             "markov1_arith_width_lotus_payload",
-            "first-order Markov (arity,width) entropy + local Lotus payload",
+            "optimistic first-order Markov (arity,width) entropy + local Lotus payload",
             entropy_select,
             markov1_lotus_post,
         ),
         Mode(
+            "paid_markov1_counts_lotus_payload",
+            "paid first-order Markov transition subset+counts + local Lotus payload",
+            entropy_select,
+            paid_markov1_lotus_post,
+        ),
+        Mode(
             "markov2_arith_width_lotus_payload",
-            "second-order Markov (arity,width) entropy + local Lotus payload",
+            "optimistic second-order Markov (arity,width) entropy + local Lotus payload",
             entropy_select,
             markov2_lotus_post,
         ),
@@ -504,13 +597,23 @@ def generate_samples(
             row: list[EdgeSample] = []
             for arity in range(1, min(max_arity, atoms - index) + 1):
                 target_bits = arity * block_bits
-                rank = sample_first_rank(target_bits, rng)
-                log2_rank = math.log2(rank)
+                if target_bits <= 48:
+                    rank = sample_first_rank(target_bits, rng)
+                    log2_rank = math.log2(rank)
+                    lotus_width = lotus_payload_width_from_rank(rank)
+                else:
+                    # Keep the exponential-race sample in log space. Rounding
+                    # to an integer seed rank before computing the width would
+                    # systematically overcharge high-span payload widths by up
+                    # to one bit.
+                    log2_rank = sample_log2_first_rank(target_bits, rng)
+                    rank = 1 << max(0, int(math.floor(log2_rank)))
+                    lotus_width = lotus_payload_width_from_log_rank(log2_rank)
                 row.append(
                     EdgeSample(
                         rank=rank,
                         log2_rank=log2_rank,
-                        lotus_payload_width=lotus_payload_width_from_log_rank(log2_rank),
+                        lotus_payload_width=lotus_width,
                         local_payload_bits=local_payload_bits_from_log_rank(log2_rank),
                         target_bits=target_bits,
                     )
@@ -1049,7 +1152,10 @@ def render_report(data: dict) -> str:
         "- `global_fixed_seed_width` uses one fixed first-2^D seed field per layer.",
         "- `width_classes*` modes use a small public global width set plus a per-record class id.",
         "- `arith_arity_width_lotus_payload` front-codes selected `(arity,width)` bins and then stores local Lotus payload bits.",
+        "- `paid_iid_counts_lotus_payload` adds finite-stream symbol subset and count costs to the arity/width stream.",
         "- `whole_cover_local_payload_stream` front-codes selected `(arity,width)` bins and uses first-2^w local payloads.",
+        "- `markov*_arith_width_lotus_payload` rows are optimistic diagnostics unless paired with a paid transition/count mode.",
+        "- `paid_markov1_counts_lotus_payload` charges first-symbol, transition-state subset, next-symbol subset, count, and transition-order costs.",
         "",
         "## Next Target",
         "",
@@ -1062,7 +1168,9 @@ def render_report(data: dict) -> str:
         "width_classes8_log",
         "width_classes4_uniform",
         "arith_arity_width_lotus_payload",
+        "paid_iid_counts_lotus_payload",
         "whole_cover_local_payload_stream",
+        "paid_markov1_counts_lotus_payload",
     }
     positive_custom = [
         row for row in first_sorted
