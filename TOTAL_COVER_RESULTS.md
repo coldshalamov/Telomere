@@ -14,6 +14,43 @@ The decoder reads records in order, reads arity, reads the witness, expands the
 seed, and reconstructs the previous layer. Pass salt is allowed because every
 record is born in the current pass, but the runs below do not need it.
 
+## June 18 State-Carrying Salt Update
+
+`model_analysis/birth_channel_research/H175-state_carrying_transducer.py`
+tests the strongest decoder-derived salt variant:
+
+```text
+z = H(q_i, arity_i, seed_i)
+x_i = z[:arity_i*B]
+q_{i+1} = z[arity_i*B : arity_i*B+r]
+```
+
+This is compatible with total-cover because every record opens in order and
+the decoder knows `q_i` before reading record `i`. Observing `q_{i+1}` from the
+digest tail does not reduce match supply; conditioning a chosen tail class
+does. The kernel measured `D=10,r=4` conditioned-tail ratio `0.064047`, close
+to `2^-4 = 0.0625`.
+
+This solves the salt-metadata part of total-cover, but not the witness-cost
+crossover. Exact V1/J3D1 still expands in the tested powered toy rows
+(`B4,K5,D12,atoms8` best `out/in=1.438`). The live total-cover target is now:
+
+```text
+state-carrying salt
++ bounded-slack surface lookahead
++ public width/rank language or custom witness mode
+```
+
+The first encouraging signal is that bounded-slack lookahead improves exact
+two-pass cost in tiny rows without a selector (`B4,K5,D8,atoms8`, slack+4:
+`2p delta=15.750` bits in `3/4` trials).
+
+The sampled H175 trellis extension also shows why this is not solved yet:
+`B4,K5,D12,items16` has pass-one support `1.0`, but the best `r=4,slack:4`
+row completes only `0.05` of two-pass trials and `0.0` of three-pass trials
+under exact V1/J3D1. The emitted record surface needs a better recursive
+witness/width language.
+
 ## Method
 
 The runnable model is [total_cover_lotus_crossover.py](./total_cover_lotus_crossover.py).
@@ -176,6 +213,22 @@ Terminology:
 | seed closure transfer matrix | Product-parser closure mass | H160: matches H159 closed counts (`K5,D3,cap28 -> 283`) and prices closure at `clFrac=0.000258`, `clTax=11.918435` bits, with `0` compressive closed paths and `bestG=-11` | H96 bit-level closure is both tiny and non-compressive; next viable closed-core test must be item-level, where records emit self-delimiting items rather than raw bits |
 | item-level closure economics | SPEC-style item targets | H161: strict `seed_only` arity-2 rows show real local opportunity; `B8,K5,D80` has `hitMass=0.179325`, `accMass=0.000276`, `saveMass=0.000577`, `seqK=0.245625`; `mixed_all D40` reaches `saveMass=0.000991` but includes literals | Item-level closure is alive as a target, but accepted compressive mass is tiny and conditioned item syntax is not yet maintained full-cover compression |
 | item-stream full-cover DP | Non-greedy exact current V1/J3D1 cover | H162: strict `seed_only K5,D80,N32` has support `0.310` and `gain/item=-4.110081`; `mixed_all K5,D80,N32` has support `0.384` and `gain/item=-3.472168` but spends literals | H161's local opportunity does not survive full-cover DP under current V1/J3D1 costs; the miss is several bits per item plus a support gap |
+| extended-arity item DP | Paid higher-K record-only grammar | H163: `fixed` arity K8/K16/K32 worsens D80; `escape5 K16,D512,N32` reaches support `0.833` and `gain/item=-3.266563` | Higher K narrows support only at huge D and does not cross; the arity channel thickens the item grammar or pushes the DP back toward K5 behavior |
+| fertility-selected superposition threshold | Non-greedy future-value target | H164: smallest strict miss is H162 `K5,D80,N32` at `8.361777` bits/selected-record; the equivalent ideal best-of-M count is `M ~= 329`; D512 narrows bits/item but raises the per-record bar above `11` bits | Fertility selection is the best remaining non-greedy value knob, but it must supply `8-11+` bits/record of measured future value or a public fertility score |
+| fertility option DP | Same-cost neutral multiplicity upper bound | H165: optimistic same-cost option credit is only `0.20-0.25` bits/selected-record, equivalent to ideal best-of-M `M ~= 1.15-1.19`, while strict misses are `8.3-11.1` bits/record | Ordinary neutral seed multiplicity cannot pay H164; fertility selection needs a real public recurrent fertility law, not just same-cost alternatives |
+| visible-selected conservation | Same-budget random control ledger | H166: same-class selected witnesses have zero expected lift over same-budget random; after H165 option credit the easiest strict row still has `8.112500` bits/record remaining; a 10% public class would need `11.683705` gross future bits/record | Fertility cannot live in untransmitted alternatives; it must be a public class/law or emitted-stream recurrence strong enough to beat the supply tax |
+| emitted-stream recurrence | Selected visible stream versus same-budget controls | H167: content lift is `0` by exchangeability once visible class/cost is fixed; selected length/order control is nonpositive in tested rows (`B8,K5,D512` exact has `pass2|pass1=0.430556`, `final/i=-6.129032`, `orderLift/i=-0.173387`) | Pass-2 support can be bought with depth, but it does not create positive drift; the remaining target must be a public recurrent fertility law for the emitted record language |
+| public fertility-law threshold | Class restriction versus population recurrence | H168: if `f=0.10` is enforced as a witness class, the easiest row needs `11.434428` future bits/record after H165 credit, or `11.683705` conservatively; if no restriction tax is paid and uniform start has `c0=f`, immediate positivity needs `a >= r/f = 81.125` bits/record, or a closed attractor with startup bloat | The remaining public-law route is precise: either pay class supply tax and prove large actual witness lift, or measure a real recurrent source/output population law; closed fertile outputs without supply tax are a hidden selector |
+| visible-class savings scan | Public visible class paid-saving microscope | H169: in the exact H89 domain, best allowed public bit-shape class is `max_run<=5` with `net_after_tax=-4.955644` bits/word; even the disallowed post-hoc oracle ceiling is only `-3.041992` bits/word | Easy public visible classes do not provide the missing fertility law; next test must use native emitted-record classes or a new closed record language |
+| native record-class scan | Public emitted-record class microscope | H170: in the H96 record-string domain, best allowed native class `bits_suffix3=101` has `net_after_tax=-43.208690` bits/record-string; even the disallowed future-saving oracle ceiling is `-41.091462` | Existing H96 emitted-record classes have visible fertility differences but remain far from positive after witness-mass tax; the record language itself would need to change |
+| designed fertile sublanguage bound | Public fertile class by construction | H171: any boost `a` for a public fraction `f` spends Kraft mass `f*2^a`; restriction mode can at best repay `tax=-log2(f)`, leaving the `8.112500`-bit easiest gap unpaid; beating it needs `2^8.1125 = 276.761605` Kraft mass from F alone | Catalyst/fertility bits are not free recursive fuel; only a real no-tax population recurrence can use a rare fertile class |
+| designed closed item-language bound | Fixed public closed grammar recurrence | H172: for item weights `W_a`, `F_n=sum W_a F_{n-a}` and positive drift requires `lambda>1`, which implies `sum W_a>1`; valid grammars with `sumW<=1` break even or lose | Public closure solves parseability but not uniform capacity; positive all-data drift in a fixed closed grammar is overfull hidden capacity |
+| population concentration bound | No-tax population mode versus KL concentration cost | H173: for public class fraction `f`, values `a,b`, and population `c`, `c*a+(1-c)*b-D(c||f)=log2 Z-D(c||c_eq)`; Kraft-balanced laws have best net `0`, leaving the easiest post-H165 gap `-8.112500`; positive margin needs `Z>=2^r` | Population recurrence is not a free third channel for roughly-all data; biased `c_t` is paid as source KL unless it is genuine source bias |
+| finite-state mixed-radix width | Public total-cover width/rank grammar | H176: strict depth-clamped bucket accounting finds no positive maintained row; nearest high-arity miss `B4,K128,D520,N128,r4,union:-1,2,P2` has `supportP=0.033333` and `packed gain/atom=-0.050781` | Public width grammar removes delimiter overhead but not the prefix/Kraft supply wall; bloat buys support and expands |
+| Kraft cover bound | Total-cover prefix-code theorem | H177: `E_out <= 2^-s * sum_a 2^-ell(a)`; V1 arity Kraft is `0.875`, fixed complete arity is only critical at `s=0`, and strict paid savings are subcritical | More arity/search alone cannot maintain arbitrary-content total-cover compression; the next live route needs a real supply boost or source restriction |
+| neutral option capacity | Near-equal witness lookahead | H178: V1 `K5,N128,s=-1` has `fantasy_net=-0.119706`; fixed `K8,N128,s=-1` has only `+0.000389` fantasy bits/record with support `0.709`, while support-repaired `s=-2` is `-0.161204` | Same-cost choice is real but conserved; it cannot by itself repay the slack/bloat needed for maintained support |
+| reachable regime tax | Public developmental/generated surfaces | H179: `G=12,P=128,N=64` gives generated gain `8180` bits and reachable tax `8180` bits, uniform net `0` before headers | Developmental interpreters are valid source-shaped Telomere, not roughly-all-data compression unless source membership is free |
+| cocycle canonical placement | Public coordinate/out-of-order decode geometry | H180: fixed `K8,N128,s=-1` baseline support `0.676`, observed `g=4` support `0.668`; `edge_zero g=4` support `0.000`; `paid_routes s=0,d=4` support `0.969` but paid gain/record `-2.000` | Zero-holonomy solves decode order, not match supply; conditioned coordinates and selected routes restore the H177 bill |
 | forced two-epoch parity lane | Stateless readiness target | H100: with max record lifetime `<=1`, parity residual is `0`; current H7/H9/H12 parity nets are `-0.020716/-0.022079/-0.019183` bits/atom; hypothetical `+2` bits/record at H9 density gives `+0.009765` bits/atom | Real decode geometry, not current compression; needs `>1` paid bit/record base margin and mandatory old-cohort refresh |
 | neutral parity discount | Seed-class cost refinement | H101: best discounted parity row `slack=1` has class loss `0.830905` bits/record but net `-0.027835` bits/atom; cheapest class row `slack=-12` has class loss `0.260736` but base margin `-5.346307` bits/record | Neutral multiplicity can discount readiness, but current slack width buys the discount at greater cost than it returns |
 | public lane local class grammar | Stateless readiness without visible parity tax | H102: public lane + local class grammar crosses iff base margin `>0`; H9 still `-0.012314` bits/atom, but a hypothetical `+0.28` bits/record gives `+0.002800` bits/atom while visible one-bit parity remains negative | Best surviving spec shape: position/lane carries readiness, class-local rank carries fresh salt, separate witness mechanism must supply positive forced-rewrite margin |
@@ -830,5 +883,146 @@ trick. It is one of:
   non-greedy full-cover item-stream DP under current exact V1/J3D1 costs and
   still expands (`seed_only K5,D80,N32`: support 0.310, gain/item -4.110081;
   `mixed_all K5,D80,N32`: support 0.384, gain/item -3.472168, with literals);
+  H163 tests paid higher arity in the same DP and finds no crossover (`fixed`
+  K8/K16/K32 worsens at D80; `escape5 K16,D512,N32` reaches support 0.833 but
+  still has gain/item -3.266563); H164 prices the remaining fertility-selected
+  superposition knob and shows the smallest strict current miss is 8.361777
+  bits/selected-record, equivalent to ideal best-of-M M~=329, while deeper D raises
+  the per-record bar above 11 bits; H165 measures the actual same-cost neutral
+  multiplicity available to that knob and finds only 0.20-0.25 option
+  bits/record, equivalent to ideal best-of-M M~=1.15-1.19, far below the H164
+  bar; H166 shows same-class visible selection has zero expected lift over
+  same-budget random and the easiest row still has 8.112500 bits/record
+  remaining after the H165 option credit; H167 then tests the emitted record
+  stream itself and finds content lift is 0 by exchangeability, while visible
+  length/order controls are nonpositive (`B8,K5,D512` exact has pass2|pass1
+  0.430556, final/i -6.129032, orderLift/i -0.173387); H168 splits the
+  remaining public-law target into two paid contracts: class restriction at
+  f=0.10 needs 11.434428 bits/record after H165 option credit
+  (11.683705 conservatively), while
+  no-restriction population mode needs 81.125 bits/record for immediate
+  uniform-start positivity at f=0.10 or must account for closed-attractor
+  startup bloat; H169 tests simple public visible classes against actual H89
+  paid witness savings and finds the best allowed net after class tax is still
+  negative (`max_run<=5`: -4.955644 bits/word), while even the disallowed
+  post-hoc oracle ceiling is only -3.041992 bits/word; H170 moves the same
+  scan to native H96 emitted record strings and witness-mass tax, where the
+  best allowed row is still `bits_suffix3=101` at -43.208690 bits/record-string
+  and the disallowed future-saving oracle ceiling is -41.091462; H171 prices
+  designed fertile sublanguages and shows restriction mode can at best repay
+  its own class tax, with the easiest gap requiring 276.761605 Kraft mass from
+  the fertile class alone; H172 tests the explicit fixed closed item-language
+  recurrence `F_n=sum W_a F_{n-a}` and shows positive drift requires
+  `sum W_a>1`, i.e. an overfull grammar; H173 applies the variational bound to
+  no-tax population mode and shows concentration `c_t` costs `D(c||f)`, so
+  Kraft-balanced laws have best net 0 and still miss by 8.112500 bits/record;
+  H176 implements the public finite-state width/mixed-radix total-cover branch
+  with corrected depth-clamped Lotus bucket counts and finds no maintained
+  positive row, with the nearest high-arity miss at
+  `B4,K128,D520,N128,r4,union:-1,2,P2` (`supportP=0.033333`,
+  `packed gain/atom=-0.050781`); H177 extracts the exact Kraft cover bound
+  `E_out <= 2^-s * sum_a 2^-ell(a)`, explaining why V1 flat cover is already
+  subcritical (`Kraft=0.875`) and complete fixed-arity cover is only critical
+  at zero savings; H178 prices the near-equal neutral-option escape hatch and
+  finds only a tiny fixed-code fantasy surplus at `s=-1` (`+0.000389`
+  bits/record) with poor support, while support-repaired rows remain negative;
+  H179 prices generated/developmental reachable regimes and shows the
+  reachable-set source tax cancels root-vs-phenotype savings for arbitrary
+  uniform data; H180 tests cocycle/canonical placement and confirms the split:
+  public zero-holonomy coordinates can make decode path-independent, but
+  observed coordinates do not lift support, conditioned coordinates thin supply,
+  and selected routes only repair support by paying route bits; H181 tests
+  finite checksum/referee survivor pruning and shows reliable unique stateless
+  decode needs `c ~= log2(M)` referee bits plus safety, while an `E=9.36`
+  structural filter only buys a finite knee (`T=65536` still leaves
+  `6.654372` bits/record); H182 tests public recurrent population laws as
+  weighted transfer matrices and finds all honest row-mass `<=1` laws have
+  `rho<=1`, while positive rows are explicitly overfull or source/reachable
+  restricted; H183 implements the generated/reachable positive control:
+  stateless root unfolding gives strong inside-class savings (`G=16,P=6`
+  pays 34 bits for a 4096-bit phenotype), but arbitrary uniform data pays the
+  reachable-set tax and nets `-18` bits in that row; H184 shows quotient/coset
+  witnesses either lose hidden member bits as supply, pay them as selector
+  entropy, or become public width packing with no row-mass lift; H185 shows
+  survivor coalescence is conserved by preimage residual or source membership
+  and can maintain `90%` coverage for only `Pmax=1.520031` passes at
+  `0.1 bits/pass`; H186 shows digest-tail/bits-back state is decode geometry
+  unless a separate `gamma>1` fertility/source law is supplied; H187 shows
+  shared macro-witnesses can amortize record/tier overhead but target-tuple
+  supply remains bounded by the stored rank width (`m=16,T_i=32,W_i=16` saves
+  131 record bits but has coverage log2 `-256`); H188 shows syndrome/residual
+  witnesses either pay the omitted ambiguity for arbitrary data or become
+  source-shaped low-volume residual classes (`n=256,c=128` has paid net 0;
+  low-weight `n=256,t=8` still misses by `0.411656` bits); H189 shows
+  non-prefix uniquely decodable grammars are parser engineering, not row-mass
+  escapes, because Sardinas-Patterson-valid scans still obey Kraft `<=1` while
+  overfull grammars are ambiguous and spend referee/checksum bits; H190 tests
+  whole-layer canonical-minimum selection directly and finds the free-boundary
+  oracle can gain tiny fractions of a bit (`N=16,Wmax=16`: `+0.008347`) only by
+  omitting the raw-vs-witness syntax choice, while the paid one-bit parse mode
+  is `-0.991653` bits; H191 tightens that bill with leftover Kraft raw fallback
+  and finds the best nontrivial default miss at only `-0.007365` bits/layer but
+  still negative; H192 tests the normalized arithmetic/bits-back mixture and
+  shows the exact leftover point (`N=16,Wmax=16,lambda=q=0.076172`) has
+  `gain=-0.063559`, while nonzero mixture weight approaches a tie only as the
+  witness effect vanishes; H193 tests syntax-derived ready states and closed
+  canonical partitions, finding public DFA state remains negative on arbitrary
+  uniform targets (`N=16,Wmax=16,short,raw/canonpart`: `gainU=-0.000198`) and
+  the closest closed-partition row (`N=16,Wmax=8,t=1`) reaches `gainU=-0.000113`
+  only after support collapses to `9/65536`; H194 tests public finite-state
+  language transforms and separates apparent syntax gain from real input gain:
+  `maxrun2,N=8,m=11,W=4,semantic_reclaim` has `realGain=-0.000721` despite
+  `appGain=2.999279`, while bounded balanced `primdyck4,N=8,m=18,W=16` reaches
+  only `realGain=-0.000000013` by nearly turning witness mass off; H195 tests
+  public paid salt-lane smoothing and reaches the sharp nonzero-witness miss
+  `N=8,Wmax=8,lanes=4096,all` with `q=0.050781`, full support, and
+  `gain=-0.000005239`, confirming that public lanes can flatten witness mass
+  toward a tie but not below `N + D(U||Q)`; H196 tests recursive source-law
+  resonance and shows the best case `P=Q` ties exactly (`N8,W8,L4096,beta1`
+  apparent gain `+0.000005242`, source tax `+0.000005242`, paid net `0`);
+  H197 tests hidden-lane/referee overfullness and finds the selector/referee
+  bill dominates (`W8,L32` surplus `0.700440`, lane selector `5`, exact net
+  `-4.299560`); H198 makes the generated positive branch Telomere-native:
+  `G16,C8,B32,A5,P6` has inside generated gain `499965`, min per-pass step gain
+  `59`, and optimistic arbitrary-uniform net `-19` (`-11` when pass count is a
+  fixed public preset); H199 tests direct residual attachment to that generated
+  tree and finds pair-count cancellation (`N16,G4,r8` full coverage but
+  `ideal_net=-16.258676`; large H198 bound remains `G-paid=-11`); H200 tests
+  high-coverage nearest-generated residuals and finds even the paid-index lower
+  bound expands at 99% coverage (`+2.184448` Kraft-fallback delta), while native
+  H198 fixed expands by `+13.070864`; H201 tests multi-root XOR generated
+  residuals and finds sparse support ties only under paid selected-root rank
+  while native records lose (`k4,N16` native net `-57.170277`), and full spans
+  leave source gaps (`N500000,m16` rank bound `65536`, gap `434464`); H202
+  tests H198 recombination/crossover and finds the same rank conservation:
+  crossover points add reachable support and decoder rank together, leaving the
+  large fixed H198 bound at `native_fixed_net=-21` for two parents and `-41`
+  for four parents; H203 makes the crossover schedule decoder-derived, which
+  removes the rank bill but also removes the support boost (`support_bound=32`
+  for two H198 roots and `64` for four), leaving the same native losses; H204
+  shows public orbit selection either thins support or pays an accepted-index
+  rank; H205 gives a strong visible-population generated lineage
+  (`M32,G16,A5,P6` pays 833 bits for 16,000,000 generated bits) but arbitrary
+  uniform net remains `-321`; H206 optimizes that family and finds the best
+  scanned arbitrary-uniform miss is `-7` bits overall, or `-8` for the
+  high-growth `A=5` branch; H207 ideal packed roots close that miss only to
+  a generated-only tie (`uniform_net=0` with no mode/fallback), while any
+  parseable mode or raw fallback restores Kraft expansion; H208 converts the
+  visible-population branch into a normalized prior with near-zero uniform
+  overhead but source-shaped gains cancel after the `D(P||Q)` tax; H209 turns
+  that visible-population branch into an explicit exact codec with raw escape:
+  the tiny `N=8` row round-trips all outputs and the large
+  `M32,G16,A5,P6,N16000000` row still gains `15999167` bits inside the
+  generated class while arbitrary-uniform membership leaves `-321`; H210 prices
+  final-board/position channels directly (`R1000,Q1111,rho0.9` occupancy is
+  only `0.516089` bits/record, but `P64` birth labels need `6` bits/record and
+  leave `5483.911082` residual bits); H211 enumerates the actual emitted stream
+  law and shows self-induced bias can at best tie (`N8,W8` has
+  `H_emit=8`, `mean=8.996094`, oracle `Q=P_emit` paid net `0`); H212 finds a
+  legal non-greedy steering primitive because the stored seed carries its own
+  digest tail (`B8,A1,W8,S2,credit2` zero-slack lookahead lifts tail success
+  `0.512528 -> 0.578588`, while `slack=1` lifts to `0.637813` and pays
+  `0.059226` bits), but the future fertility credit is still an external
+  priced law;
 - otherwise, under the original uniform/content-blind roughly-all-data premise,
   the recursive stateless branch is closed by H15/H16.

@@ -569,6 +569,56 @@ axis CV: seed-bearing closed core: recurrent seed-stream SCCs versus closure mas
 axis CW: seed closure transfer matrix: product-parser closure mass versus compressive path absence
 axis CX: item-level closure economics: self-delimiting item targets versus accepted mass and sparse uniform saving mass
 axis CY: item-stream cover DP: non-greedy full-cover support versus successful-cover drift
+axis CZ: extended-arity item DP: paid higher-K option space versus arity-code thickening
+axis DA: fertility-selection threshold: future-value bits per selected witness versus ideal best-of-M conversion
+axis DB: fertility option DP: same-cost neutral multiplicity versus H164 future-value requirement
+axis DC: visible-selected conservation: public-class fertility lift versus same-budget random controls
+axis DD: emitted-stream recurrence: selected visible length/order versus same-budget controls
+axis DE: public recurrent fertility law: class restriction tax versus source-population recurrence
+axis DF: visible-class paid savings: public visible features versus actual paid witness savings and class tax
+axis DG: native record-class scan: emitted record features versus witness-mass tax and future paid saving
+axis DH: designed fertile sublanguage: constructed boost versus Kraft mass and class tax
+axis DI: designed closed item language: public closure recurrence versus overfull grammar capacity
+axis DJ: population concentration: no-tax public population mode versus KL source/output concentration cost
+axis DK: final-board salt capacity: survivor shrink versus end-state entropy and public-lane supply loss
+axis DL: state-carrying transducer: free observed digest-tail state versus exact witness and width drift
+axis DM: finite-state mixed-radix width: public width inventory versus recursive support
+axis DN: Kraft cover bound: per-record savings versus prefix arity criticality
+axis DO: neutral option capacity: same-cost seed choice versus slack/bloat bill and support tails
+axis DP: reachable regime tax: developmental generated gain versus source restriction entropy
+axis DQ: cocycle canonical placement: path-independent decode geometry versus witness supply
+axis DR: finite referee survivor capacity: checksum pruning versus hidden reading entropy
+axis DS: transfer-matrix population law: visible recurrent fertility versus paid row-mass bound
+axis DT: generated reachable codec: inside-class recursive gain versus source membership tax
+axis DU: quotient witness language: coset supply boost versus hidden member entropy
+axis DV: coalescence capacity: survivor shrink versus preimage residual/source tax
+axis DW: state-tail conservation: decoder-derived state versus supply/selector/settlement cost
+axis DX: shared macro-witness: batch overhead amortization versus target-tuple supply
+axis DY: syndrome residual ledger: algebraic repair versus residual ambiguity/source tax
+axis DZ: non-prefix UD grammar: self-synchronization versus Kraft-McMillan bound
+axis EA: whole-layer minimum description: canonical shortest witness versus parse/fallback mode bit
+axis EB: Kraft-reserved raw fallback: implicit mode mass versus fallback alphabet length
+axis EC: normalized bits-back mixture: selected short files versus uniform KL tail
+axis ED: syntax-derived ready states: public DFA geometry versus state-conditioned KL/source tax
+axis EE: finite-state language transform: parseable syntax surface versus reversible transform tax
+axis EF: public witness-mass smoothing: paid salt lanes versus uniform KL lower bound
+axis EG: recursive output law: self-induced source bias versus residual entropy tax
+axis EH: bounded referee overfullness: hidden candidate surplus versus selector/checksum entropy
+axis EI: native developmental tree: maintained generated recursion versus reachable-set tax
+axis EJ: generated residual attachment: arbitrary residual coverage versus preimage rank cancellation
+axis EK: nearest generated cover: high-coverage residual volume versus selected-root entropy
+axis EL: multi-root superposition: generated residual support versus selected-root/bitmask rank
+axis EM: recombination crossover: parent/crossover support versus decoder rank entropy
+axis EN: derived crossover schedule: free deterministic schedule versus lost support rank
+axis EO: public orbit selection: visible accept/reject versus thinning or accepted-index entropy
+axis EP: visible population law: generated lineage gain versus reachable-set membership tax
+axis EQ: visible population overhead: exact root-record cost versus support rank
+axis ER: packed root population: ideal root-rank packing versus mode/fallback Kraft mass
+axis ES: visible population prior: generated-lineage upside versus source KL tax
+axis ET: developmental macro codec: exact generated round trip versus membership/raw escape
+axis EU: position channel converse: final arrangement capacity versus birth/salt labels
+axis EV: honest induced prior: emitted-stream shape versus KL/source-tax conservation
+axis EW: bounded-slack lookahead: legal stored-seed steering versus real future fertility
 ```
 
 Candidate mechanisms should only be promoted if they move one of these axes

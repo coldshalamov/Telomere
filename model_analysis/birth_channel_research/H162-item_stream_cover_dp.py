@@ -14,6 +14,10 @@ each sampled target interval, a source record either has no matching seed in the
 first 2^D candidates or has a best matching record cost sampled from the exact
 order statistic over J3D1 record costs.
 
+By default, `--arity-code exact` uses the current V1/J3D1 arity costs and only
+supports K<=5. H163 uses this same harness with explicitly labeled hypothetical
+arity grammars (`fixed`, `escape5`) so higher-K tests pay a visible arity cost.
+
 Failure means no complete record cover exists for that sampled item stream.
 That is fatal for strict total-cover recursion unless another paid repair
 channel is added.
@@ -48,6 +52,7 @@ class Inventory:
     block_bits: int
     max_arity: int
     depth_bits: int
+    arity_code: str
     literal_len: int
     literal_count: int
     item_lengths_by_count: dict[str, Counter[int]]
@@ -59,6 +64,7 @@ class Summary:
     block_bits: int
     max_arity: int
     depth_bits: int
+    arity_code: str
     mode: str
     item_count: int
     trials: int
@@ -125,14 +131,36 @@ def exact_payload_counts_for_depth(depth_bits: int) -> Counter[int]:
     return result
 
 
-def build_inventory(block_bits: int, max_arity: int, depth_bits: int) -> Inventory:
+def ceil_log2(value: int) -> int:
+    if value <= 1:
+        return 0
+    return (value - 1).bit_length()
+
+
+def record_arity_cost(arity: int, max_arity: int, arity_code: str) -> int:
+    if arity_code == "exact":
+        return arity_cost(arity)
+    if arity_code == "fixed":
+        return ceil_log2(max_arity)
+    if arity_code == "escape5":
+        if arity <= 5:
+            return arity_cost(arity)
+        return 3 + ceil_log2(max_arity - 5)
+    raise ValueError(arity_code)
+
+
+def build_inventory(
+    block_bits: int, max_arity: int, depth_bits: int, arity_code: str
+) -> Inventory:
+    if arity_code == "exact" and max_arity > 5:
+        raise ValueError("exact V1/J3D1 arity coding only supports K<=5")
     payload_counts = exact_payload_counts_for_depth(depth_bits)
     source_costs_by_arity: dict[int, Counter[int]] = {}
     record_items_by_len: Counter[int] = Counter()
     for arity in range(1, max_arity + 1):
         costs: Counter[int] = Counter()
         for width, count in payload_counts.items():
-            cost = arity_cost(arity) + j3d1_cost_for_payload_width(width)
+            cost = record_arity_cost(arity, max_arity, arity_code) + j3d1_cost_for_payload_width(width)
             costs[cost] += count
             record_items_by_len[cost] += count
         source_costs_by_arity[arity] = costs
@@ -145,6 +173,7 @@ def build_inventory(block_bits: int, max_arity: int, depth_bits: int) -> Invento
         block_bits=block_bits,
         max_arity=max_arity,
         depth_bits=depth_bits,
+        arity_code=arity_code,
         literal_len=literal_len,
         literal_count=1 << block_bits,
         item_lengths_by_count={
@@ -260,13 +289,14 @@ def run_row(
     block_bits: int,
     max_arity: int,
     depth_bits: int,
+    arity_code: str,
     mode: str,
     item_count: int,
     trials: int,
 ) -> Summary:
-    inv = build_inventory(block_bits, max_arity, depth_bits)
+    inv = build_inventory(block_bits, max_arity, depth_bits, arity_code)
     length_dist = mass_distribution(inv.item_lengths_by_count[mode])
-    summary = Summary(block_bits, max_arity, depth_bits, mode, item_count, trials)
+    summary = Summary(block_bits, max_arity, depth_bits, arity_code, mode, item_count, trials)
     for _ in range(trials):
         input_len, output_len, arities, sampled_edges, hit_edges = cover_once(
             rng, inv, mode, item_count, length_dist
@@ -290,13 +320,14 @@ def print_summaries(rows: list[Summary]) -> None:
     print("Rows are strict: failed cover means this pass cannot be decoded without a repair channel.")
     print(
         f"{'B':>2} {'K':>2} {'D':>3} {'mode':<12} {'N':>4} {'trials':>6} "
-        f"{'support':>8} {'edgeHit':>8} {'inBits':>8} {'outBits':>8} "
+        f"{'code':<7} {'support':>8} {'edgeHit':>8} {'inBits':>8} {'outBits':>8} "
         f"{'gain':>9} {'gain/item':>9} {'rec/item':>8} {'avgA':>7}"
     )
     for row in rows:
         print(
             f"{row.block_bits:2d} {row.max_arity:2d} {row.depth_bits:3d} "
             f"{row.mode:<12} {row.item_count:4d} {row.trials:6d} "
+            f"{row.arity_code:<7} "
             f"{fmt(row.support):>8} {fmt(row.edge_hit_rate):>8} "
             f"{fmt(row.avg_input_bits):>8} {fmt(row.avg_output_bits):>8} "
             f"{fmt(row.gain_bits):>9} {fmt(row.gain_per_item):>9} "
@@ -313,7 +344,8 @@ def print_reading(rows: list[Summary]) -> None:
         print(
             f"Best successful row: mode={best_overall.mode},B={best_overall.block_bits},"
             f"K={best_overall.max_arity},D={best_overall.depth_bits},"
-            f"N={best_overall.item_count}; support={fmt(best_overall.support)}, "
+            f"N={best_overall.item_count},code={best_overall.arity_code}; "
+            f"support={fmt(best_overall.support)}, "
             f"gain/item={fmt(best_overall.gain_per_item)}."
         )
     strict = [row for row in rows if row.mode == "seed_only"]
@@ -323,12 +355,12 @@ def print_reading(rows: list[Summary]) -> None:
         best_support = max(strict, key=lambda row: row.support)
         print(
             f"Best strict gain row: B={best_gain.block_bits},K={best_gain.max_arity},"
-            f"D={best_gain.depth_bits},N={best_gain.item_count}; "
+            f"D={best_gain.depth_bits},N={best_gain.item_count},code={best_gain.arity_code}; "
             f"support={fmt(best_gain.support)}, gain/item={fmt(best_gain.gain_per_item)}."
         )
         print(
             f"Best strict support row: B={best_support.block_bits},K={best_support.max_arity},"
-            f"D={best_support.depth_bits},N={best_support.item_count}; "
+            f"D={best_support.depth_bits},N={best_support.item_count},code={best_support.arity_code}; "
             f"support={fmt(best_support.support)}, gain/item={fmt(best_support.gain_per_item)}."
         )
     elif strict:
@@ -336,7 +368,7 @@ def print_reading(rows: list[Summary]) -> None:
         print(
             f"No strict seed-only row produced a successful full cover. Best support row: "
             f"B={best_support.block_bits},K={best_support.max_arity},"
-            f"D={best_support.depth_bits},N={best_support.item_count}; "
+            f"D={best_support.depth_bits},N={best_support.item_count},code={best_support.arity_code}; "
             f"support={fmt(best_support.support)}."
         )
     print(
@@ -361,6 +393,7 @@ def main() -> None:
     parser.add_argument("--depth", action="append", default=[])
     parser.add_argument("--mode", action="append", default=[])
     parser.add_argument("--items", action="append", default=[])
+    parser.add_argument("--arity-code", choices=["exact", "fixed", "escape5"], default="exact")
     parser.add_argument("--trials", type=int, default=1000)
     parser.add_argument("--seed", type=int, default=162)
     args = parser.parse_args()
@@ -382,6 +415,7 @@ def main() -> None:
                             block_bits=block_bits,
                             max_arity=args.max_arity,
                             depth_bits=depth_bits,
+                            arity_code=args.arity_code,
                             mode=mode,
                             item_count=item_count,
                             trials=args.trials,

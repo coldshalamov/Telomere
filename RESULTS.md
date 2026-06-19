@@ -28,6 +28,62 @@ The active kernel for the reopened search is:
 model_analysis/birth_channel_research/arbitrary_freshness_kernels.py
 ```
 
+## June 18 Continuation: State-Derived Salt Branch
+
+New living log:
+
+```text
+model_analysis/birth_channel_research/CONJECTURE_TEST_MUTATION_LOG.md
+```
+
+New kernels:
+
+```text
+model_analysis/birth_channel_research/H174-final_board_salt_capacity.py
+model_analysis/birth_channel_research/H175-state_carrying_transducer.py
+model_analysis/birth_channel_research/H175-state_carrying_transducer_dp.py
+```
+
+H174 reopens final-board / egg-carton / position-as-salt under optimal
+end-state entropy. Shrinking `R` can make a final-position note cheap per
+original atom, but not free: the exact bill is `log2(valid final arrangements)`.
+In `Q=N=1,000,000`, occupancy cost is below a 2-bit per-survivor budget only
+for dense boards around `R/Q >= 0.5`; sparse boards are cheap per file but
+expensive per surviving record.
+
+H175 implements the strongest new salt idea from the attached request:
+
+```text
+z = H(q_i, arity_i, seed_i)
+x_i = z[:arity_i*B]
+q_{i+1} = z[arity_i*B : arity_i*B+r]
+```
+
+The decoder observes `q_{i+1}` from the successful witness tail, so no
+per-record salt field or birth-pass tag is needed in total-cover. The kernel
+validates the accounting: with `D=10,r=4`, conditioning `q_next==0` occurs at
+`0.064047` of unconstrained matches, close to the expected `2^-4=0.0625`, while
+merely observing `q_next` costs nothing.
+
+H175 is not a positive construction yet. Exact V1/J3D1 still expands in the
+powered toy rows (`B4,K5,D12,atoms8` best tested `out/in=1.438`). But bounded
+slack surface choice gives a real two-pass steering signal: in the tiny
+`B4,K5,D8,atoms8` lookahead, slack+4 improved exact two-pass cost in `3/4`
+trials with `2p delta=15.750` bits. The next target is therefore:
+
+```text
+state-carrying transducer
++ bounded-slack surface lookahead
++ public finite-state width grammar / mixed-radix rank packing
++ higher-arity or custom total-cover witness language
+```
+
+The sampled H175 trellis extension makes the next bill sharper: with
+`B4,K5,D12,items16`, pass-one support is `1.0`, but the best `r=4,slack:4`
+row has only `0.05` complete support at two passes and `0.0` by three passes.
+So the next mutation must make emitted record surfaces recursively fertile,
+not merely salted.
+
 It attacks the three requested families directly:
 
 ### Family 1: Decoder-known nonce channels
@@ -2505,6 +2561,13 @@ so survivor shrinkage is not by itself a way to hide the final-board channel.
 | Recursive biological unfold cascade | Root seed emits child regulatory seeds recursively; leaves become phenotype bits | Generated tree mode has no carry; mixed mode stores a hit map | No birth pass; depth/path are public developmental coordinates | Yes across recursive depths and node positions | Root seed plus public interpreter; arbitrary mode needs map/literals or an ordinal/root-search witness | Depth 4: 12-bit root to 128-bit phenotype saves `7424` bits over 64 generated chunks; uniform chunks hit `0` and lose `-6.022` tight bits; depth 6 coverage is about `2^-500` | DNA-like recursive multiplier works for generated roots, not arbitrary target membership |
 | Neutral synonymous seed reservoir | Choose among multiple same-cost seeds that decode to the same payload, like synonymous genotypes | The chosen seed is the record; no extra lane/birth tag | No birth pass; synonym choice is visible as the seed value | Yes; chosen genotype can be friendlier to the next pass | Free choice equals log preimage multiplicity; high multiplicity requires longer genotype/seed space | At 2-bit local gap, `E logM|hit=0.126`; next-pass matchability rises from `0.21680` to `0.23716`; at 2-bit bloat, `E logM=1.835` and coverage `0.98486` | Closest biology-like salt fuel, but multiplicity is bought at near fair entropy price |
 | Neutral reservoir bundle amplifier | Spend synonym choices jointly across high-arity bundles, so `B` neutral bits/block become `aB` bundle choices | Bundle map still needed in sparse mode; all-block/tree mode would make positions invariant | No birth pass; synonym choice is carried by seed values | Yes; bundle hit probability is amplified by neutral combinations | Reservoir bits are paid as prior bloat or foregone compression; the same bits cannot both be saved and retained | Ideal one-spend rows recover up to `95.1%`; no-double-counting bound gives best optimistic huge row `A=4096,E=10,K=8192` at `-0.002930` bits per 8-bit block before real Lotus overhead | Closest biology-like uniform mechanism, but approaches zero from below |
+| Emitted selected-stream recurrence | Feed the actual selected record stream into a fresh full-cover pass and compare to same-budget controls | No carry in total-cover rows; each pass emits only records | No birth tag; each emitted record opens in the current pass | Fresh hash draws are available on pass 2 | Selected content is visible, but same-cost content has no future advantage under uniform hashes; only length/order can help | H167: `contentLift=0` by exchangeability; `B8,K5,D512` exact has `pass2|pass1=0.430556`, `final/i=-6.129032`, `orderLift/i=-0.173387` | Pass-2 support can be bought with depth, but emitted selected streams do not show positive recurrence without a public fertility law |
+| Public recurrent fertility law | Predeclare a high-fertility class and either restrict witnesses to it or prove the emitted/source population enters it | Depends on total-cover/restriction mode; no open/carry map if every emitted item is a record | No birth tag if class is decoder-visible/public | Yes only if the class law is recurrent | Restriction mode pays `-log2(f)` supply tax; population mode pays no tax only if `c_t` is real, measured public state | H168: `f=0.10` restriction needs `11.434428` actual future bits/record after H165, or `11.683705` conservatively; no-tax uniform-start population needs `a >= r/f = 81.125` bits/record or closed-attractor startup accounting | Live target, not a solution; closed fertile outputs without supply tax are a hidden selector/profile |
+| Visible-class paid-saving scan | Test predeclared public bit/syntax classes against actual future witness savings | Total-cover microscope; no carry map | No birth tag; class is read from visible bits | Only if class has recurrent future value | Class restriction pays `-log2(f)`; post-hoc paid-saving oracle is labeled forbidden | H169: best allowed class `max_run<=5` has `net_after_tax=-4.955644` bits/word; best disallowed oracle ceiling is `-3.041992` bits/word | Easy public visible classes do not supply the fertility law; move to native emitted-record classes or a new closed record-language construction |
+| Native record-class scan | Test public classes over emitted record strings: arity, record count, width/cost buckets, suffix/prefix bits | Total-cover record-string microscope; no carry map | No birth tag; class is visible in the emitted record or native parse | Only if class recurs across passes | Class tax is current witness-mass tax `-log2(f_mass)`; post-hoc future-saving oracle is forbidden | H170: best allowed class `bits_suffix3=101` has `net_after_tax=-43.208690` bits/record-string; best disallowed oracle ceiling is `-41.091462` | Existing H96 record classes show visible differences but not positive drift; the record language itself must change |
+| Designed fertile sublanguage | Make a public class fertile by construction | Total-cover class restriction or population recurrence | No birth tag if class is public/visible | Yes only if the class recurrence is real | Boost `a` for fraction `f` consumes Kraft mass `f*2^a`; restriction mode pays `-log2(f)` | H171: restriction mode can at best repay class tax, so the easiest `8.112500`-bit gap remains; beating it needs `276.761605` Kraft mass from F alone | Fertile/catalyst bits are not free; only no-tax population recurrence remains live |
+| Designed closed item-language | Fixed public grammar emits item streams that are valid inputs to the same grammar | Decoder uses the fixed prefix-safe grammar; no carry map | No birth tag; all units open in total-cover grammar | Freshness only if the recurrence has positive drift | Valid grammar requires `sum W_a <= 1`; positive drift requires `lambda>1`, hence `sum W_a>1` | H172: all valid sample grammars break even or lose; overfull grammars cross only when invalid (`slightly_overfull_K5` has `sumW=1.2`, `log2lambda=0.089529`) | Public closure solves parseability but not uniform compression capacity |
+| Population concentration bound | Let the emitted population, not witness restriction, concentrate in public fertile class `F` | Decoder can observe class only after emission; no carry map | No birth tag; class is public | Yes only if recurrence is real | Concentration `c` costs `D(c||f)` under roughly uniform data; best net is `log2(f*2^a+(1-f)*2^b)` | H173: Kraft-balanced laws have best no-tax population net `0`; rare row `f=0.003,alpha=.99,c=.985168` has raw value `8.1125` but KL `8.145231`, so net remains negative | No-tax population mode works only as real source bias or honest overfull witness mass, not as arbitrary-data fuel |
 | Effective-arity graph / final-board geometry | Use scheduled hyperedges, CRT clocks, modular boards, placement lanes, or final positions to give more candidate bundles than encoded arity | Chosen cover/positions tell the parse if stored; otherwise there is only one derived cover | Birth/salt can be a function of stored cover coordinates | Yes if the chosen cover is known | The chosen matching/board/edge set is arrangement entropy | For `R` records in `Q` cells, unordered final positions cost `log2 C(Q,R)`; for `M` valid covers, layout cost is `log2 M`, giving exactly the same bits as the effective-choice boost | Geometry can reduce constants, but not asymptotic uniform cost |
 | Biased seed grammars | Make seed class imply birth pass | Decoder reads class from seed | Birth bits carried by seed class | Fewer eligible seeds per pass | Match supply | `I` conveyed bits cost at least `I` supply bits; residual stored | No sub-1x channel |
 | Value/count separation | Store only high-value seed-class counts/histogram, not per-slot class assignments | Counts do not tell open/class positions | Same as biased grammar if used for birth labels | Yes only for classes with enough supply | Count histogram is cheap; assignment map is hidden unless charged | Exact 32-slot counter: `d4` count net `+0.17417` but full net `-0.08729`; positive full-net jackpot rows are infeasible (`d16/p8`) | Histogram alone is not decode information |
@@ -2890,6 +2953,265 @@ cargo check --features gpu --all-targets
   ok
 ```
 
+June 18 continued total-cover recursion work:
+
+- `H176-finite_state_mixed_radix_width.py` corrected the public-width inventory
+  for depth-clamped Lotus buckets and swept custom total-cover witness modes
+  with whole-layer mixed-radix rank packing.
+- Strict public width/rank rows did not cross. The nearest high-arity miss in
+  this sweep was `B4,K128,D520,N128,r4,union_arity_margin:-1,2,P2` under a paid
+  fixed arity code: pass-one support `0.133333`, two-pass support `0.033333`,
+  inline gain/atom `-0.074219`, packed gain/atom `-0.050781`.
+- Bloat rows such as V1 `B4,K5,D32,N32,r4,union_arity_margin:-2,2` bought real
+  support (`supportP=0.383333` for two passes) but still expanded
+  (`packed gain/atom=-0.521013`) and thinned to `supportP=0.075000` by three
+  passes.
+- `H177-kraft_cover_bound.py` extracted the general total-cover bound:
+  for prefix arity lengths `ell(a)`, saving `s` bits gives
+  `E_out <= 2^-s * sum_a 2^-ell(a)`. V1 has arity Kraft sum `0.875`, so even
+  flat all-block replacement is below critical; a complete fixed code is only
+  critical at `s=0`; strict paid savings are subcritical unless another honest
+  channel supplies witness mass.
+- `H178-neutral_option_capacity.py` tested the best near-equal witness
+  lookahead escape hatch. Same-cost seed choice is real, but its free future
+  steering is bounded by `E[log2(H)|H>0]`. V1 `K5,N128,s=-1` remains negative
+  even under perfect option-to-future conversion (`fantasy_net=-0.119706`,
+  support `0.307`). A complete fixed code has a tiny `s=-1` fantasy surplus
+  (`+0.000389` bits/record) but poor support (`0.709` for `K8,N128`, `0.106`
+  for `K128,N128`), while support-repaired rows are negative.
+- `H179-reachable_regime_tax.py` keeps generated/developmental positives honest:
+  a public `G`-bit root producing `N*P` phenotype bits can save `N*P-G` bits
+  inside the generated class, but that class has fraction at most
+  `2^(G-NP)`. For arbitrary uniform data, the reachable-set tax cancels the
+  saving, leaving only header/framing cost.
+- `H180-cocycle_canonical_placement.py` tested position/cocycle state and
+  canonical route accounting. Public observed coordinates preserve stateless
+  decode geometry but do not lift support (`fixed K8,N128,s=-1` baseline
+  support `0.676`, observed `g=4` support `0.668`). Conditioning 4 coordinate
+  bits kills support (`edge_zero` support `0.000`), and route choices repair
+  support only by paying selector bits (`fixed K8,N128,s=0,d=4` support
+  `0.969`, paid gain/record `-2.000`). Public potential diamonds have zero
+  holonomy by construction; random edge labels passed at `0.067` for `g=4`
+  versus expected `0.0625`.
+- `H181-finite_referee_survivor_capacity.py` tested checksum/trial-decode
+  survivor pruning under the favorable one-true-candidate model. For `M` hidden
+  readings and `c` referee bits, expected false survivors are about `M/2^c`,
+  so reliable stateless uniqueness requires
+  `c >= log2(M) - log2(-ln(target_unique))`. A tiny exact check with `4096`
+  candidates and `20` referee bits measured `p_unique=0.996000` versus the
+  `0.996101` prediction. At 99% uniqueness, `b=2,R=32,P=16` needs `519`
+  referee bits (`1.013672 bits/step`) to prune a `1 bit/step` hidden branch;
+  `b=4,R=32,P=16` needs `1031` bits (`2.013672 bits/step`). Finite referees
+  are therefore audit guards or bounded-regime tools, not a free hidden channel
+  for maintained recursion. Adding an `E=9.36`-bit structural filter buys a
+  finite knee: `T=64` leaves `0.132082 bits/record`, but `T=65536` still leaves
+  `6.654372 bits/record`.
+- `H182-transfer_matrix_population_law.py` tested the strongest no-tax public
+  recurrent-population shape. The paid visible-class transfer matrix `W` has
+  asymptotic margin `log2 rho(W)`, and if every row has paid mass `<=1`, then
+  `rho(W)<=1`. Exact rows matched the bound: V1 flat has `rho=0.875000`
+  (`log2rho=-0.192645`), complete fixed `K8` flat is only critical
+  (`rho=1`), strict `s=1` saving is negative (`rho=0.5`), and balanced rare
+  fertility has zero net after KL (`KL=value=1.966015`). Positive rows crossed
+  only when explicitly overfull: `overfull_rare_rank_one` has
+  `log2rho=0.765535` with row mass `1.7`; `closed_fertile_overfull` has
+  `log2rho=0.111031` with row mass `1.08`. Generated roots still work inside
+  their class, but the reachable-set tax cancels arbitrary-uniform gain.
+- `H183-generated_reachable_codec.py` implemented that generated/reachable
+  branch as an exact positive control. The toy wire record is
+  `[mode][arity=1 root witness][optional Lotus pass count]`, with the root
+  witness charged using exact V1/J3D1 cost and stateless public recursive
+  BLAKE2b-counter expansion. Inside the generated class, rows are strongly
+  negative paid drift: `G=12,P=4,out=512` pays `28` bits and saves `484` bits;
+  `G=16,P=6,out=4096` pays `34` bits and saves `4062` bits. All tested roots
+  were unique and round-tripped (`65536/65536` for `G=16`). For arbitrary
+  uniform data, the reachable-set tax cancels the root-vs-phenotype saving,
+  leaving `uniform_net=-16` to `-18` bits in the reported rows.
+- `H184-quotient_witness_language.py` tested coset/quotient witnesses. A
+  deterministic representative loses the hidden member bits as seed supply; a
+  noncanonical member needs those bits as selector/referee entropy. Example:
+  `W=128,q=64,R=128` changes a direct `140`-bit record into a `75`-bit
+  quotient plus `64` selector bits, saving only `1` Lotus tier bit locally; the
+  checksum/referee variant hides `2^8192` low-bit assignments. Public
+  width/layer-rank packing is real (`W=128,R=128` saves `9.898438 bits/record`
+  versus V1), but it is only Lotus overhead removal and does not lift witness
+  supply.
+- `H185-coalescence_capacity.py` tested variable-to-one survivor collapse.
+  Collapse is conserved by preimage entropy or source tax: `N=12,L=8` has mean
+  preimage `16`, residual lower bound `4`, apparent gain `4`, paid net `0`.
+  For maintained roughly-all coverage, saving `s` for `P` passes covers at most
+  `2^(-P*s)` inputs without paying the missing branch; `s/pass=0.1` can keep
+  `90%` coverage for only `Pmax=1.520031` passes.
+- `H186-state_tail_conservation_certificate.py` consolidated digest-tail,
+  syndrome, selected-tail, and bits-back state. Observed tail state is a free
+  coordinate but does not lift row mass; conditioning state thins supply; state
+  selection pays selector entropy; bits-back is conserved at `gamma=1`.
+  Representative V1 rows: `s=0 observe` has rowMass `0.875000`,
+  `s=0 condition r=8` has rowMass `0.003418`, and `s=0 selected d=16` reaches
+  rowMass `1.000000` only with paid gain `-4 bits/record`. Positive bits-back
+  rows require an external `gamma>1` fertility/source law.
+- `H187-shared_macro_witness.py` tested shared macro witnesses and batch seeds.
+  A joint witness can save parse/tier overhead but its target-tuple coverage
+  remains `2^(W_total-T_total)`. Example: `m=4,T_i=16,W_i=8` changes
+  independent V1 `64` bits into a joint `42`-bit witness, saving `22` bits of
+  overhead, but coverage log2 is still `-32`. `m=16,T_i=32,W_i=16` saves `131`
+  bits versus independent records while coverage log2 is `-256`. Macro
+  witnesses are therefore overhead amortization or generated-regime geometry,
+  not a row-mass boost.
+- `H188-syndrome_residual_ledger.py` tested algebraic residuals and syndrome
+  repair. For arbitrary data, `target xor expand(seed)` is uniform, so a
+  `c`-bit syndrome leaves `n-c` residual bits. Rows such as
+  `n=256,seed=0,c=128` store `128` bits, leave `128` ambiguous bits, and return
+  to `256` paid bits when unique. Low-weight residuals compress only inside the
+  residual class: `n=256,t=8` has inside gain `207`, class tax `207.411656`,
+  and uniform net `-0.411656`.
+- `H189-nonprefix_ud_kraft.py` tested whether non-prefix/self-synchronizing
+  grammars can exceed prefix Kraft mass. Exhaustive Sardinas-Patterson scans of
+  binary codebooks with length `<=4` and sizes `2..5` found many non-prefix
+  uniquely-decodable codebooks, but no UD Kraft sum above `1`. Overfull examples
+  such as `0,1,00` are not uniquely decodable.
+- `H190-whole_layer_min_description.py` tested the broad whole-layer canonical
+  minimum-description loophole by enumerating every small `N`-bit output and
+  every exact V1/J3D1 witness up to `Wmax`. The unparseable oracle shows tiny
+  gains (`N=16,Wmax=16`: `+0.008347` bits) by omitting the raw-vs-witness
+  channel, but the paid one-bit mode version stays negative (`-0.991653` bits).
+- `BEST_SURVIVING_SPEC.md` records the current constructive result: H183 is a
+  fully paid stateless generated/reachable codec, while H195 is the sharpest
+  latest arbitrary-uniform nonzero-witness near-tie.
+- `H191-kraft_reserved_raw_fallback.py` tightened H190's one-bit mode by using
+  leftover Kraft mass for raw fallback. The best nontrivial fractional miss in
+  the default sweep is only `-0.007365` bits/layer, but still negative; the
+  missing bill is `N - log2(1-q)` fallback length.
+- `H192-normalized_mixture_bitsback.py` tested the arithmetic/ANS/bits-back
+  version by normalizing raw and witness distributions. The exact leftover
+  point `N=16,Wmax=16,lambda=q=0.076172` has gain `-0.063559`; nonzero lambda
+  approaches a tie only as lambda approaches zero.
+- `H193-syntax_ready_transfer.py` moved from local mode coding to public
+  syntax-derived readiness. Ready-state rows stay negative on arbitrary uniform
+  targets (`N=16,Wmax=16,short,raw/canonpart`: `gainU=-0.000198`) even when
+  they have source-shaped inside gain. Closed partitions get closer
+  (`N=16,Wmax=8,t=1`: `gainU=-0.000113`) only after support collapses to
+  `9/65536`.
+- `H194-finite_state_language_transform.py` tested public reversible
+  finite-state syntax transforms. Transform rows can show large apparent gains
+  versus expanded syntax, but real gain versus original input stays negative:
+  `maxrun2,N=8,m=11,W=4,semantic_reclaim` has `realGain=-0.000721`, and the
+  bounded balanced edge `primdyck4,N=8,m=18,W=16,semantic_reclaim` reaches only
+  `realGain=-0.000000013` by nearly turning witness mass off.
+- `H195-witness_mass_smoothing.py` tested the strongest public-salt smoothing
+  version of the leftover-Kraft branch. Paid public lanes really do preserve
+  nonzero witness mass and fill support, but they only approach a uniform-law
+  tie: `N=8,Wmax=8,lanes=4096,all` has `q=0.050781`, support `256/256`, and
+  `gain=-0.000005239`; `N=12,Wmax=8,lanes=512,all` has support `4096/4096` and
+  `gain=-0.000517`. The bill is `E_U[-log2 Q(X)] = N + D(U||Q)`.
+- `H196-self_induced_source_law.py` tested whether recursion can make the next
+  layer distributed like the H195 witness/fallback law `Q`. It can create
+  apparent gain, but the source-law tax cancels it exactly: for
+  `N=8,Wmax=8,lanes=4096,beta=1`, apparent gain is `+0.000005242`, source tax
+  is `+0.000005242`, and paid net is `0`; stronger bias goes negative by
+  `D(P||Q)`.
+- `H197-bounded_referee_overfull.py` tested ambiguous overfull witness families
+  plus exact selectors or checksum/referees. Exact coalescence ties when the
+  missing selector is paid; 99% checksum uniqueness adds `6.636612` bits. In the
+  H195 hidden-lane case, `Wmax=8,lanes=32` has apparent surplus `0.700440` but
+  omitted lane selector cost `5`, so exact net is `-4.299560`.
+- `H198-native_developmental_tree.py` made the generated positive control
+  Telomere-native: a stored root record recursively unfolds into seed-bearing
+  records whose leaves emit phenotype atoms. The row
+  `G=16,C=8,B=32,A=5,P=6` has `out_bits=500000`, paid `35`, inside generated
+  gain `499965`, all passes shrinking with min step gain `59`, and optimistic
+  arbitrary-uniform net `-19`; with fixed public pass count, paid drops to `27`
+  and uniform net to `-11`. Exact small support checking caught the support bill:
+  `G=8,C=8,B=16,A=2,P=2` has only `254/256` unique phenotypes, so observed
+  uniform net is `-16.011315`.
+- `H199-generated_residual_attachment.py` tested direct arbitrary residuals
+  around H198 generated phenotypes. Exact Hamming-ball residuals increase
+  coverage but do not beat pair-count accounting: `N=16,G=4,paid=17,r=8` reaches
+  full `65536/65536` coverage but nets `-16.258676`; `N=32,G=4,paid=12,P=2`
+  with fixed pass count has only `15/16` unique generated phenotypes and best
+  net `-8.093109`. The large H198 bound remains `G-paid=-11`.
+- `H200-nearest_generated_cover_ledger.py` tested the high-coverage nearest-root
+  version analytically. At `N=500000,m=16,coverage~=0.99`, a perfect paid-index
+  lower bound still expands by `+2.184448` bits under Kraft fallback; native
+  fixed-pass H198 expands by `+13.070864`, and stored-pass H198 by
+  `+20.990798`. Apparent `free_index` wins are overfull hidden selectors.
+- `H201-multiroot_superposition.py` tested generated residuals made from XORs
+  of multiple H198 phenotypes. Exact sparse rows tie only under an ideal paid
+  selected-root rank and lose under native records: `G=4,C=8,B=8,A=2,P=1,k=4`
+  has `xor_support=1820`, `selection_log2=10.829723`, `paid_index_net=0`, and
+  `native_net=-57.170277`. The full-span diagnostic for `N=32` ties only inside
+  a `2^15` support class, leaving a 17-bit source gap; the large H198 bound has
+  rank at most `65536` and support gap `434464`.
+- `H202-recombination_crossover_ledger.py` tested biological-style
+  recombination of H198 parent trees. Exact tiny rows enumerate parent roots,
+  breakpoints, and segment-parent paths; `G=3,C=8,B=8,A=2,P=2,p=2,t=1` has
+  `support_log2=7.459432`, `selection_bits=8.584963`,
+  `paid_index_net=-1.125531`, and `native_net=-23.125531`. In the large
+  `N=500000,G=16,A=5,P=6` H198 bound, adding crossover points grows support and
+  decoder rank together: `p=2,t=32` has `support_bound=361.098145` but
+  `native_fixed_net=-21`; `p=4,t=32` has `support_bound=444.816945` but
+  `native_fixed_net=-41`.
+- `H203-derived_crossover_schedule.py` removed the H202 crossover-rank field by
+  deriving one schedule from each parent-root tuple. This makes the schedule
+  decoder-known but bounds support by the parent tuple rank: exact
+  `G=3,C=8,B=8,A=2,P=2,p=2,t=1` has `parent_tuple_bits=6`,
+  `support_log2=5.930737`, and `native_fixed_net=-15.069263`; the large
+  `N=500000,G=16,A=5,P=6` bound is independent of crossover count at
+  `support_bound=32,native_fixed_net=-21` for two parents and
+  `support_bound=64,native_fixed_net=-41` for four parents.
+- `H204-public_orbit_selection.py` tested a public orbit of recombination
+  schedules with a visible accept/reject rule. Canonical first-accepted
+  selection is free but support-thinning; indexed selection uses the orbit only
+  by paying accepted-index entropy. Exact `G=3,B=8,A=2,P=2,p=2,t=1,S=16,z=1`
+  has `canonical_paid_net=-0.540568` and `indexed_paid_net=-2.571236`.
+- `H205-visible_population_law.py` implemented the inherited visible-population
+  generated lineage. The strong row `M=32,G=16,C=8,B=32,A=5,P=6` has
+  `out_bits=16000000`, `paid_bits=833`, `inside_generated_gain=15999167`,
+  `min_pass_step_gain=1888`, and `all_passes_shrink=True`; arbitrary-uniform
+  upper net remains `-321`, exactly `M*G - paid`.
+- `H206-visible_population_overhead_bound.py` optimized the H205
+  arbitrary-uniform upper bound under exact current V1/J3D1 root-record costs.
+  The best scanned overall row is `M=1,A=2,G=1` at `uniform_net=-7`; the best
+  nontrivial high-growth `A=5` row is `M=1,A=5,G=1` at `uniform_net=-8`.
+- `H207-packed_root_population.py` tested the ideal root-record-language
+  attack: pack visible population roots as exactly `M*G` bits. Generated-only
+  no-mode rows tie after membership tax (`M=32,G=16,A=5,P=6` has
+  `paid=512`, `inside_gain=15999488`, `membership_tax=15999488`,
+  `uniform_net=0`), but any parse mode or raw fallback restores Kraft/fallback
+  expansion.
+- `H208-public_ensemble_source_law.py` tested public generated ensembles and
+  the normalized visible-population Kraft prior with raw escape. Public
+  ensembles only trade support for paid mode rank; the normalized prior gives
+  tiny uniform overhead and strong generated-source upside
+  (`H205-single-high-growth` raw overhead `0.000704613`, threshold
+  `alpha=1.409e-9`; `H205-visible-population` raw overhead `3.377e-97`,
+  threshold `2.111e-104`), but after source tax paid net is `-D(P||Q)<=0`.
+- `H209-developmental_macro_codec.py` makes the visible-population generated
+  branch an exact finite codec with raw escape. The tiny default enumerates all
+  `256` outputs and round-trips; packed roots gain `+4` bits on the reachable
+  class but lose `-1` after membership/raw accounting. The large symbolic
+  `M=32,G=16,A=5,P=6,N=16000000` native row still gains `15999167` bits inside
+  the generated class, with arbitrary-uniform net `-321`.
+- `H210-position_channel_converse.py` prices final-board/position-derived salt
+  channels. Dense boards can be cheap (`R=1000,Q=1111,rho=0.900` has
+  `occ/R=0.516089`), but a `P=64` birth/salt label needs `6` bits/record and
+  leaves `5483.911082` residual bits. Half-dense `R=1000,Q=2000,P=4` is almost
+  exactly a 2-bit/record finite note (`occ/R=1.994191`) but not a free
+  many-pass channel.
+- `H211-honest_induced_prior_conservation.py` enumerates the actual emitted
+  token law after a deterministic honest encoder. For `N=8,Wmax=8`,
+  `H_emit=8`, mean emitted length is `8.996094`, and the oracle prior
+  `Q=P_emit` ties at paid net `0`; the actual code prior loses by KL
+  (`paidNet=-0.001718`). Self-induced shape can recover expansion, not create
+  arbitrary-uniform recursive gain.
+- `H212-bounded_slack_lookahead.py` tests the strongest non-greedy witness
+  primitive that is not automatically a hidden selector: the chosen seed is the
+  stored record, so its digest tail is decoder-visible. In the default
+  `B=8,A=1,Wmax=8` sample, equal-cost choice with `S=2,credit=2` lifts tail
+  success from `0.512528` to `0.578588` at zero slack; `slack=1` lifts it to
+  `0.637813` while paying `0.059226` bits. This is a real steering primitive,
+  but the future credit must come from a paid public fertility/source law.
+
 Known verification blockers not introduced by this report:
 
 ```text
@@ -2933,6 +3255,83 @@ python -c "from model_analysis.birth_channel_research.arbitrary_freshness_kernel
 python -c "from model_analysis.birth_channel_research.arbitrary_freshness_kernels import neutral_breakthrough_requirement_demo; neutral_breakthrough_requirement_demo()"
 python -c "from model_analysis.birth_channel_research.arbitrary_freshness_kernels import neutral_bundle_amplifier_surface_demo; neutral_bundle_amplifier_surface_demo()"
 python -m py_compile model_analysis\birth_channel_research\arbitrary_freshness_kernels.py
+python -m py_compile model_analysis\birth_channel_research\H181-finite_referee_survivor_capacity.py
+python model_analysis\birth_channel_research\H181-finite_referee_survivor_capacity.py --branch-factor 2,4 --records 8,32 --passes 1,4,16 --referee-bits 8,16,32 --exact-candidates 4096 --exact-referee-bits 20 --exact-trials 2000
+python -m py_compile model_analysis\birth_channel_research\H182-transfer_matrix_population_law.py
+python model_analysis\birth_channel_research\H182-transfer_matrix_population_law.py --random-controls 1000 --random-size 4
+python -m py_compile model_analysis\birth_channel_research\H183-generated_reachable_codec.py
+python model_analysis\birth_channel_research\H183-generated_reachable_codec.py
+python -m py_compile model_analysis\birth_channel_research\H184-quotient_witness_language.py
+python model_analysis\birth_channel_research\H184-quotient_witness_language.py --payload-width 8,32,128,508 --hidden-bits 4,16,64 --records 8,32,128
+python -m py_compile model_analysis\birth_channel_research\H185-coalescence_capacity.py
+python model_analysis\birth_channel_research\H185-coalescence_capacity.py --input-bits 64,256,4096 --saved-bits 1,2,4,8 --coverage 1,0.9,0.5,0.1 --saving-per-pass 0.01,0.1,0.5,1 --passes 1,2,4,8,16,64 --target-coverage 0.9,0.5,0.1 --tiny-input-bits 12 --tiny-output-bits 8 --tiny-coverage 1
+python -m py_compile model_analysis\birth_channel_research\H186-state_tail_conservation_certificate.py
+python model_analysis\birth_channel_research\H186-state_tail_conservation_certificate.py --saving -1,0,1 --state-bits 4,8 --selector-choices 1,4,16 --public-fraction 0.5,0.1 --gap-bits 0.01,0.1,1 --passes 16,64 --gamma 1,1.01,1.1,2 --settle-one-state
+python -m py_compile model_analysis\birth_channel_research\H187-shared_macro_witness.py
+python model_analysis\birth_channel_research\H187-shared_macro_witness.py --spans 2,4,8,16 --target-bits 8,16,32 --rank-bits 4,8,12,16
+python -m py_compile model_analysis\birth_channel_research\H188-syndrome_residual_ledger.py
+python model_analysis\birth_channel_research\H188-syndrome_residual_ledger.py --target-bits 64,256,1024 --seed-bits 0,8,32 --syndrome-bits 8,16,32,64,128,256 --radius 0,1,2,4,8,16
+python -m py_compile model_analysis\birth_channel_research\H189-nonprefix_ud_kraft.py
+python model_analysis\birth_channel_research\H189-nonprefix_ud_kraft.py --max-len 4 --code-size 2 3 4 5
+python -m py_compile model_analysis\birth_channel_research\H190-whole_layer_min_description.py
+python model_analysis\birth_channel_research\H190-whole_layer_min_description.py --target-bits 8,10,12,16 --max-payload-width 4,6,8,10,12,16
+python -m py_compile model_analysis\birth_channel_research\H191-kraft_reserved_raw_fallback.py
+python model_analysis\birth_channel_research\H191-kraft_reserved_raw_fallback.py --target-bits 8,10,12,16 --max-payload-width 4,6,8,10,12,16
+python -m py_compile model_analysis\birth_channel_research\H192-normalized_mixture_bitsback.py
+python model_analysis\birth_channel_research\H192-normalized_mixture_bitsback.py --target-bits 8,12,16 --max-payload-width 4,8,16 --lam 0,0.001,0.01,0.05,0.1,0.25,0.5,0.9,1
+python -m py_compile model_analysis\birth_channel_research\H193-syntax_ready_transfer.py
+python model_analysis\birth_channel_research\H193-syntax_ready_transfer.py --target-bits 8,12,16 --max-payload-width 4,8,16 --passes 4
+python -m py_compile model_analysis\birth_channel_research\H194-finite_state_language_transform.py
+python model_analysis\birth_channel_research\H194-finite_state_language_transform.py --input-bits 8,12,16 --max-payload-width 4,8,16 --max-overhead 4
+python model_analysis\birth_channel_research\H194-finite_state_language_transform.py --input-bits 8,12 --max-payload-width 4,8,16 --max-overhead 12 --language dyck4 --language primdyck4
+python -m py_compile model_analysis\birth_channel_research\H195-witness_mass_smoothing.py
+python model_analysis\birth_channel_research\H195-witness_mass_smoothing.py
+python model_analysis\birth_channel_research\H195-witness_mass_smoothing.py --target-bits 8 --max-payload-width 8 --lanes 16,32,64,128,256,512,1024,2048,4096 --mode all
+python model_analysis\birth_channel_research\H195-witness_mass_smoothing.py --target-bits 12 --max-payload-width 8 --lanes 16,32,64,128,256,512 --mode all
+python model_analysis\birth_channel_research\H195-witness_mass_smoothing.py --target-bits 16 --max-payload-width 8 --lanes 16,64,256 --mode all
+python -m py_compile model_analysis\birth_channel_research\H196-self_induced_source_law.py
+python model_analysis\birth_channel_research\H196-self_induced_source_law.py
+python model_analysis\birth_channel_research\H196-self_induced_source_law.py --target-bits 12 --max-payload-width 8 --lanes 16,512 --beta 0,0.5,1,2
+python -m py_compile model_analysis\birth_channel_research\H197-bounded_referee_overfull.py
+python model_analysis\birth_channel_research\H197-bounded_referee_overfull.py
+python model_analysis\birth_channel_research\H197-bounded_referee_overfull.py --max-payload-width 8 --lanes 20,32 --copies 1,32 --target-unique 0.99
+python -m py_compile model_analysis\birth_channel_research\H198-native_developmental_tree.py
+python model_analysis\birth_channel_research\H198-native_developmental_tree.py --root-bits 16 --cell-bits 8 --atom-bits 32 --branch 5 --passes 6 --max-enum-roots 1024 --limit 4
+python model_analysis\birth_channel_research\H198-native_developmental_tree.py --root-bits 16 --cell-bits 8 --atom-bits 32 --branch 5 --passes 6 --fixed-pass-count --max-enum-roots 1024 --limit 4
+python model_analysis\birth_channel_research\H198-native_developmental_tree.py --root-bits 8 --cell-bits 8 --atom-bits 16 --branch 2,3 --passes 2 --max-enum-work-bits 2000000 --limit 8
+python -m py_compile model_analysis\birth_channel_research\H199-generated_residual_attachment.py
+python model_analysis\birth_channel_research\H199-generated_residual_attachment.py
+python model_analysis\birth_channel_research\H199-generated_residual_attachment.py --root-bits 4 --cell-bits 8 --atom-bits 8 --branch 2 --passes 1 --radius 0,4,8,12,16
+python model_analysis\birth_channel_research\H199-generated_residual_attachment.py --root-bits 4 --cell-bits 8 --atom-bits 8 --branch 2 --passes 2 --radius 0,1,2,3,4 --fixed-pass-count
+python -m py_compile model_analysis\birth_channel_research\H200-nearest_generated_cover_ledger.py
+python model_analysis\birth_channel_research\H200-nearest_generated_cover_ledger.py
+python model_analysis\birth_channel_research\H200-nearest_generated_cover_ledger.py --m-bits 16 --slack 2.203 --coverage 0.99
+python -m py_compile model_analysis\birth_channel_research\H201-multiroot_superposition.py
+python model_analysis\birth_channel_research\H201-multiroot_superposition.py
+python model_analysis\birth_channel_research\H201-multiroot_superposition.py --root-bits 4 --cell-bits 8 --atom-bits 8 --branch 2 --passes 2 --fixed-pass-count --k 1,2,3,4,8
+python -m py_compile model_analysis\birth_channel_research\H202-recombination_crossover_ledger.py
+python model_analysis\birth_channel_research\H202-recombination_crossover_ledger.py
+python -m py_compile model_analysis\birth_channel_research\H203-derived_crossover_schedule.py
+python model_analysis\birth_channel_research\H203-derived_crossover_schedule.py
+python -m py_compile model_analysis\birth_channel_research\H204-public_orbit_selection.py
+python model_analysis\birth_channel_research\H204-public_orbit_selection.py
+python -m py_compile model_analysis\birth_channel_research\H205-visible_population_law.py
+python model_analysis\birth_channel_research\H205-visible_population_law.py
+python -m py_compile model_analysis\birth_channel_research\H206-visible_population_overhead_bound.py
+python model_analysis\birth_channel_research\H206-visible_population_overhead_bound.py
+python -m py_compile model_analysis\birth_channel_research\H207-packed_root_population.py
+python model_analysis\birth_channel_research\H207-packed_root_population.py
+python -m py_compile model_analysis\birth_channel_research\H208-public_ensemble_source_law.py
+python model_analysis\birth_channel_research\H208-public_ensemble_source_law.py
+python -m py_compile model_analysis\birth_channel_research\H209-developmental_macro_codec.py
+python model_analysis\birth_channel_research\H209-developmental_macro_codec.py
+python -m py_compile model_analysis\birth_channel_research\H210-position_channel_converse.py
+python model_analysis\birth_channel_research\H210-position_channel_converse.py
+python -m py_compile model_analysis\birth_channel_research\H211-honest_induced_prior_conservation.py
+python model_analysis\birth_channel_research\H211-honest_induced_prior_conservation.py
+python model_analysis\birth_channel_research\H211-honest_induced_prior_conservation.py --n-bits 10 --w-max 9
+python -m py_compile model_analysis\birth_channel_research\H212-bounded_slack_lookahead.py
+python model_analysis\birth_channel_research\H212-bounded_slack_lookahead.py
 ```
 
 Two heavier default demonstrations were started and then stopped because they

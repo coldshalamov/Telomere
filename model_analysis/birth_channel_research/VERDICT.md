@@ -3687,6 +3687,399 @@ its exact Kraft cost, a custom total-cover item witness language, a genuinely
 source-shaped/fertile item distribution, or a repair channel whose price is
 lower than the H162 miss.
 
+H163 prices the first of those knobs. It reuses H162's DP with two explicitly
+labeled hypothetical arity grammars:
+
+```text
+fixed   = every arity 1..K costs ceil(log2 K) bits
+escape5 = current arity 1..5 costs remain; arity >5 costs 3 + ceil(log2(K-5))
+```
+
+The higher-K option space does not flip the sign:
+
+```text
+K   D    code     support  gain/item
+5   80   exact    0.338    -4.057877
+8   80   fixed    0.286    -4.491696
+8   80   escape5  0.344    -4.104651
+16  80   fixed    0.266    -5.235432
+16  80   escape5  0.306    -4.081291
+32  80   fixed    0.270    -5.918519
+32  80   escape5  0.310    -4.127218
+5   256  exact    0.603    -3.524344
+16  256  escape5  0.663    -3.546954
+5   512  exact    0.817    -3.476722
+16  512  escape5  0.833    -3.266563
+```
+
+`fixed` arity thickens every target item and loses the option dividend. `escape5`
+keeps cheap low arities and mostly behaves like K5; at huge D it improves
+support and narrows the miss, but it is still several bits per item negative.
+So the next higher-arity target is not "just add K"; it must be high arity plus
+a custom item witness language or another public law that lowers the selected
+record cost without hiding the cover choice.
+
+H164 prices the other live non-greedy knob: fertility-selected superposition.
+If multiple witnesses match the same current interval, the encoder can choose
+the witness whose visible record string is more fertile for the next pass. That
+choice is statelessly decodable because the decoder sees the chosen witness, but
+the value is capped by the actual number of alternatives or by a public
+fertility law.
+
+```text
+row                             strict  support  miss/item  rec/item  miss/rec   M_eq
+H162 K5 D80 N32 exact           true    0.310    4.110081   0.491532  8.361777   328.962
+H162 K5 D80 N32 mixed           false   0.384    3.472168   0.426758  8.136152   281.336
+H163 K5 D256 N32 exact          true    0.603    3.524344   0.363778  9.688172   824.955
+H163 K5 D512 N32 exact          true    0.817    3.476722   0.327168  10.626718  1581
+H163 K16 D512 N32 escape5       true    0.833    3.266563   0.293125  11.143925  2263
+```
+
+The smallest strict miss per selected record is still `8.361777` bits. If this
+were paid only by an ideal best-of-M choice, that would mean `M ~= 329`
+same-interval choices because `log2(M) = 8.361777`. Deeper search narrows the
+miss per item but uses fewer records per item, so the future-value requirement
+per selected witness rises above `11` bits in the D512 rows. Fertility selection
+is therefore live only as a measured recurrent-transfer claim: it must show
+`8-11+` bits of future value per selected record, or a public fertility score of
+comparable value against same-budget random controls.
+
+H165 measures the ordinary same-cost alternative supply behind that idea. For
+each interval, it samples the first matching source-cost bucket and credits the
+optimistic neutral-choice value:
+
+```text
+option_bits = E[log2(number of matching witnesses in winning bucket) | bucket nonempty]
+```
+
+Even with an optimistic value-aware DP that can minimize `raw_cost -
+option_bits`, the credit is tiny:
+
+```text
+K   D    code     obj    support  gain/item  opt/item  net/item  miss/rec  opt/rec  M_eq
+5   80   exact    value  0.3167   -4.1760    0.1242    -4.0518   8.3795    0.2493   1.189
+5   256  exact    value  0.6000   -3.3993    0.0772    -3.3221   9.5512    0.2169   1.162
+5   512  exact    raw    0.8625   -3.3628    0.0675    -3.2953   10.5920   0.2126   1.159
+16  512  escape5  value  0.8375   -3.2080    0.0630    -3.1450   11.0757   0.2175   1.163
+```
+
+So ordinary same-cost neutral multiplicity supplies only about `0.20-0.25`
+bits/selected-record. In the same best-of-M conversion, that is only
+`M ~= 1.15-1.19`, nowhere near the H164 bit requirement. This does not kill all
+fertility selection; it kills the
+"there are probably many equivalent seeds, choose the fertile one" version under
+uniform current V1/J3D1 accounting. The remaining version must show a real
+public recurrent fertility law by actually emitting selected witness streams and
+beating best-of-same-budget random controls.
+
+H166 writes that conservation law directly. Once public features are fixed
+(visible cost/length, arity or payload-width class, lane/seed class), a matched
+selected witness and a same-budget random witness have the same future-score
+distribution under the uniform hash law. The expected lift over that control is
+therefore zero unless a public class/law or emitted-stream recurrence changes the
+distribution.
+
+```text
+row                          support  miss/rec   obsOpt    remain   M_miss   M_obs  lift-vs-rand
+H162 K5 D80 exact            0.310    8.361777  0.249277  8.112500  328.96   1.19   0
+H163 K5 D256 exact           0.603    9.688172  0.230719  9.457453  824.96   1.17   0
+H163 K5 D512 exact           0.817    10.626718 0.234505  10.392213 1581     1.18   0
+H163 K16 D512 escape5        0.833    11.143925 0.217483  10.926442 2263     1.16   0
+```
+
+If a public high-fertility class is used, current hit supply thins by class
+fraction `f`. In the easiest strict row, the gross future lift needed becomes:
+
+```text
+f       supply tax  gross future lift needed
+0.50    1.000000    9.361777 bits/record
+0.25    2.000000    10.361777 bits/record
+0.10    3.321928    11.683705 bits/record
+0.03    5.058894    13.420671 bits/record
+0.01    6.643856    15.005633 bits/record
+```
+
+That makes the remaining live target narrow: find a public recurrent fertility
+law or emitted-stream recurrence with more than `8.1125` net bits/record in the
+easiest strict row, after supply tax and same-budget random controls.
+
+H167 tests that emitted-stream recurrence branch directly in the SPEC-style
+item-stream model. It runs pass 1 as an optimal full-cover DP, treats the
+selected emitted record costs as the next visible item stream, and then runs a
+fresh pass-2 full-cover DP. Same-cost selected content has exactly zero lift
+under the uniform hash law once visible class/cost is fixed; the only empirical
+signal left in this kernel is visible length/order versus a shuffled same-length
+control.
+
+```text
+row                         p1sup    p2|p1   shuf|p1  p1gain/i  p2delta/r  final/i    shuf/i   orderLift/i
+B8 K5 D80 exact N32         0.250000  0.000000 0.000000 -3.982813  0.000000   0.000000  0.000000  0.000000
+B8 K5 D256 exact N32        0.737500  0.101695 0.118644 -3.414725 -9.868852  -6.192708 -6.066964 -0.125744
+B8 K5 D512 exact N32        0.900000  0.430556 0.430556 -3.280382 -10.074074 -6.129032 -5.955645 -0.173387
+B8 K16 D512 escape5 N32     0.762500  0.245902 0.229508 -3.269467 -11.207407 -6.283333 -6.138393 -0.144940
+B8 K32 D512 fixed N32       0.766667  0.304348 0.282609 -3.810462 -14.312000 -7.645089 -7.519231 -0.125859
+B8 K5 D1024 exact N32       0.850000  0.235294 0.235294 -3.313419 -10.654321 -6.648438 -6.449219 -0.199219
+B8 K5 D512 exact N16        0.883333  0.613208 0.603774 -3.470519 -9.802395  -6.425962 -6.388672 -0.037290
+```
+
+So pass-2 support can be bought with search depth, but not positive drift. The
+tested selected streams are not more fertile than same-budget controls; their
+visible order is equal or slightly worse than shuffled same-length order. This
+does not close public recurrent fertility laws, but it closes the immediate
+"the emitted selected stream itself might be enough" loophole under uniform
+hashes.
+
+H168 turns the remaining public recurrent fertility law into a threshold rather
+than a slogan. It separates two ledgers:
+
+```text
+g = H164 miss/selected-record
+o = H165 same-cost option credit
+r = g - o
+tax(f) = -log2(f)
+```
+
+In restriction mode, the encoder only accepts witnesses in a public class `F`.
+That can make closure public, but it pays the class supply tax:
+
+```text
+row                         f        g        o        r       tax   need r+tax  need g+tax
+H162 K5 D80 exact       0.100000  8.361777 0.249277 8.112500 3.321928  11.434428  11.683705
+H163 K16 D512 escape5   0.100000 11.143925 0.217483 10.926442 3.321928 14.248370  14.465853
+```
+
+In population mode, no supply tax is charged, so `c_t` must be a real public
+source/output class fraction measured before selection. With actual paid future
+witness values
+
+```text
+v_F = E[paid_saving | F]
+v_O = E[paid_saving | not F]
+c* = (T - v_O) / (v_F - v_O)
+c_{t+1} = c_t p_FF + (1-c_t) p_OF
+```
+
+The simplified H168 no-tax rows set `v_O=0`, `v_F=a`, `T=r`. Starting from
+uniform `c0=f`, immediate positivity at `f=0.10` needs `a >= r/f = 81.125`
+bits/record in the easiest strict row. Smaller `a` can cross only through a
+closed/canalized attractor plus startup-bloat accounting. For example:
+
+```text
+row                         f       a       c*      min pFF  cross  cum+  result
+H162 K5 D80 exact       0.100000 16.000000 0.507031 0.902773     6    14  closed F + startup bloat
+H162 K5 D80 exact       0.100000 64.000000 0.126758 0.311094     1     1  closed F + startup bloat
+H162 K5 D80 exact       0.100000 128.000000 0.063379 0.000000    0     0  uniform start already crosses
+```
+
+The anti-hack rule is now explicit: closed fertile outputs without restriction
+tax are a hidden selector/profile. A real public law must report actual paid
+future witness value, same-visible/bottom/shuffled controls, stratum-weighted
+class tax if classes span arity or width strata, and both post-H165 and
+conservative margins.
+
+H169 runs the first concrete public-class paid-saving microscope against that
+ledger. It reuses H89's exact `B=1,N=12,K=6,D=8` domain, computes actual
+`paid_saving(x) = raw_bits - best_cover_cost(x)`, and tests only predeclared
+visible bit/syntax classes: prefixes, suffixes, Lotus-like arity prefixes,
+popcount buckets, parity/mod classes, transition/run buckets, periodic classes,
+and border/self-similarity classes. For each class it reports:
+
+```text
+f = |F| / |domain|
+tax = -log2(f)
+v_F = E[paid_saving | F]
+v_O = E[paid_saving | not F]
+net_after_tax = v_F - tax
+```
+
+The best allowed public row is:
+
+```text
+class        family  f        tax      v_F       v_O       net_after_tax
+max_run<=5   run     0.87549  0.19184 -4.76380 -6.84118  -4.955644 bits/word
+```
+
+The disallowed post-hoc oracle ceiling, which sorts by `paid_saving` itself, is
+also still negative after class tax:
+
+```text
+oracle top 25%: net_after_tax=-3.041992 bits/word
+oracle top 10%: net_after_tax=-3.22052 bits/word
+```
+
+So the easy public visible bit-shape classes do not supply the missing recurrent
+fertility law. The result is deliberately a toy `bits/word` microscope, not a
+production `bits/record` proof, but it is a useful anti-hack result: if the
+class is not decoder-visible before looking at `paid_saving`, it is a hidden
+selector; if it is visible in this H89 domain, its paid value is still negative.
+The next live scan should use more native emitted-record classes: arity
+histograms, parse counts, payload-width buckets, record-count/segmentation
+classes, and recurrence of those classes across passes.
+
+H170 runs that more native class scan over H96 emitted record strings. The class
+fraction is priced by current witness mass, not unweighted description count:
+
+```text
+f_mass = sum_{c in F} 2^-cost(c) / sum_c 2^-cost(c)
+tax = -log2(f_mass)
+v_F = E[future_paid_saving(c) | c in F, weighted by 2^-cost(c)]
+net_after_tax = v_F - tax
+```
+
+The exact H96 row has:
+
+```text
+B=1,N=5,K=3,D=3
+descriptions=52,352
+total current witness mass=3.734984694033e-04
+supply-weighted E future_paid_saving=-51.634654 bits/record-string
+```
+
+The best allowed native class is:
+
+```text
+class              family      f_mass   tax      v_F        v_O        net_after_tax
+bits_suffix3=101   bit-suffix  0.20859  2.26125 -40.94744 -54.45148  -43.208690
+```
+
+The forbidden oracle that sorts by future paid saving is also deeply negative:
+
+```text
+oracle target 0.10 actual mass 0.102: net_after_tax=-41.091462 bits/record-string
+oracle target 0.25 actual mass 0.250: net_after_tax=-41.93746 bits/record-string
+```
+
+So the current H96 emitted-record language does have visible class differences,
+but those differences are far from a positive recurrent law after witness-mass
+tax. The next version cannot merely bucket the existing record strings by arity,
+width, cost, suffix, or parse length; it needs a changed record language with a
+closed fertile sublanguage, or a different conservation loophole.
+
+H171 prices the first changed-language hope directly: design a public fertile
+class `F` by construction. If `F` has public fraction `f` and gets future boost
+`a` bits/record, that boost consumes Kraft mass:
+
+```text
+f * 2^a
+```
+
+Restriction mode must pay `tax(F)=-log2(f)`, while Kraft validity forces
+`a <= tax(F)` if any complement remains. Therefore designed fertility can at
+best repay its own class tax. The easiest post-H165 target still has:
+
+```text
+r = 8.112500 bits/selected-record
+```
+
+and the H171 table shows the same residual at every class size:
+
+```text
+f        tax       needed boost   max valid boost   best net   post margin   overfull
+0.5000   1.000000   9.112500      1.000000          0.000000   -8.112500     8.112500
+0.1000   3.321928  11.434428      3.321928          0.000000   -8.112500     8.112500
+0.0100   6.643856  14.756356      6.643856          0.000000   -8.112500     8.112500
+0.0010   9.965784  18.078284      9.965784          0.000000   -8.112500     8.112500
+```
+
+Beating the gap would require `2^8.1125 = 276.761605` Kraft mass from the fertile
+class alone. Catalyst bits are the same ledger: forcing `c` public bits gives
+`f=2^-c` and can return at most `c` future bits before the current gap is paid.
+
+Population mode remains logically distinct. If the stream is already nearly all
+inside a rare public class, pure-F positivity under Kraft needs:
+
+```text
+f < 2^-r
+```
+
+For the easiest row this is `f < 0.003613`, and H171's finite rows require
+almost perfectly closed recurrence (`min pFF` around `0.9999`) from a uniform
+start. That is still a live shape only if the recurrence is measured and its
+startup loss is paid.
+
+H172 then tests Ohm's explicit closed-item-language version. Let `W_a` be the
+total public record mass that emits `a` items into a stream that is again a
+valid input to the same grammar. The exact total-cover recurrence is:
+
+```text
+F_0 = 1
+F_n = sum_a W_a F_{n-a}
+```
+
+A fixed prefix-safe grammar has `sum_a W_a <= 1`. The asymptotic growth rate
+`lambda` satisfies:
+
+```text
+sum_a W_a lambda^-a = 1
+```
+
+Positive all-data drift needs `lambda > 1`, which implies `sum_a W_a > 1`.
+The H172 rows match that theorem:
+
+```text
+grammar                  sumW      lambda    log2lambda  valid  result
+singleton_valid          1.000000  1.000000  0.000000    true   valid break-even only
+equal_valid_K5           1.000000  1.000000  0.000000    true   valid break-even only
+underfull_K5             0.150000  0.519097 -0.945925    true   valid underfull negative drift
+slightly_overfull_K5     1.200000  1.064022  0.089529    false  overfull invalid positive mass
+```
+
+For any arity, supplying `r` missing bits per selected record requires `2^r`
+record mass. The easiest target needs `276.761605` mass; the harder
+`H163 K16 D512` row needs `1946.196951` mass. Public closure solves parseability
+but not the uniform capacity gap.
+
+H173 closes the no-tax population concentration loophole left by H171. Suppose a
+public class `F` has background fraction `f`, value `a`, and the complement has
+value `b`. If the emitted/source population fraction in `F` is `c`, then under
+roughly uniform data the concentration itself costs:
+
+```text
+D(c || f) = c log2(c/f) + (1-c) log2((1-c)/(1-f))
+```
+
+The exact binary variational identity is:
+
+```text
+c*a + (1-c)*b - D(c||f) = log2 Z - D(c||c_eq)
+Z = f*2^a + (1-f)*2^b
+c_eq = f*2^a / Z
+```
+
+So the best possible no-tax population margin is `log2 Z`. A Kraft-balanced
+law has `Z=1`, hence best net `0`, leaving the easiest post-H165 gap:
+
+```text
+best population net = 0
+post-H165 margin = -8.112500 bits/record
+conservative margin = -8.361777 bits/record
+```
+
+Representative H173 rows:
+
+```text
+f       alpha  a         b          c_eq     KL_eq    E_eq     net*
+0.1000  0.99   3.288709 -5.305176   0.977237 3.093088 3.093088 0
+0.0100  0.99   6.577418 -4.459194   0.954993 6.080688 6.080688 0
+0.0030  0.99   8.297014 -4.142898   0.943564 7.594951 7.594951 0
+0.0010  0.99   9.866126 -3.903738   0.933254 8.947047 8.947047 0
+```
+
+The recurrence check makes the hidden channel visible. For `f=0.003,alpha=0.99`,
+the raw value crosses the easiest target near `c=0.985168`, but the concentration
+cost is larger than the value:
+
+```text
+claim c   min pFF   value     KL       net       net-r
+0.943564  0.999821  7.594951  7.594951 0.000000 -8.112500
+0.985168  0.999955  8.112500  8.145231 -0.032731 -8.145231
+1.000000  1.000000  8.297014  8.380822 -0.083808 -8.196308
+```
+
+Thus population mode is not a free third channel for roughly-all uniform data.
+It is live only as a real source-shaped bias measured before selection, or as an
+honest mechanism that makes `Z>1` without hiding selector/profile/layout state.
+
 H99 prices seed parity/rejection as a readiness channel. Seed classes are legal:
 pass `t` may use class `t mod C`, and the decoder can read the class from the
 seed witness. But accepting only one class costs `log2(C)` bits of match supply.
@@ -4184,6 +4577,16 @@ P3-skeptic3-arity-refutation), and runnable toys (`B-ambiguity-bound_survivor_co
 `H160-seed_closure_transfer_matrix.py`,
 `H161-item_level_closure_economics.py`,
 `H162-item_stream_cover_dp.py`,
+`H164-fertility_selection_threshold.py`,
+`H165-fertility_option_dp.py`,
+`H166-visible_selected_conservation.py`,
+`H167-emitted_stream_recurrence.py`,
+`H168-public_fertility_law_threshold.py`,
+`H169-visible_class_savings_scan.py`,
+`H170-native_record_class_scan.py`,
+`H171-designed_fertile_sublanguage_bound.py`,
+`H172-designed_closed_item_language_bound.py`,
+`H173-population_concentration_bound.py`,
 `findings/H17-original-goal-audit.md`,
 `findings/H18-developmental-fertility-threshold.md`,
 `findings/H19-neutral-ecology-tree-kernel.md`,
@@ -4328,6 +4731,176 @@ P3-skeptic3-arity-refutation), and runnable toys (`B-ambiguity-bound_survivor_co
 `findings/H159-seed-bearing-closed-core.md`,
 `findings/H160-seed-closure-transfer-matrix.md`,
 `findings/H161-item-level-closure-economics.md`,
-`findings/H162-item-stream-cover-dp.md`).
+`findings/H162-item-stream-cover-dp.md`,
+`findings/H163-extended-arity-item-dp.md`,
+`findings/H164-fertility-selection-threshold.md`,
+`findings/H165-fertility-option-dp.md`,
+`findings/H166-visible-selected-conservation.md`,
+`findings/H167-emitted-stream-recurrence.md`,
+`findings/H168-public-fertility-law-threshold.md`,
+`findings/H169-visible-class-savings-scan.md`,
+`findings/H170-native-record-class-scan.md`,
+`findings/H171-designed-fertile-sublanguage-bound.md`,
+`findings/H172-designed-closed-item-language-bound.md`,
+`findings/H173-population-concentration-bound.md`,
+`findings/H174-final-board-salt-capacity.md`,
+`findings/H175-state-carrying-transducer.md`,
+`findings/H176-finite-state-mixed-radix-width.md`,
+`findings/H177-kraft-cover-bound.md`,
+`findings/H178-neutral-option-capacity.md`,
+`findings/H179-reachable-regime-tax.md`,
+`findings/H180-cocycle-canonical-placement.md`,
+`findings/H181-finite-referee-survivor-capacity.md`,
+`findings/H182-transfer-matrix-population-law.md`,
+`findings/H183-generated-reachable-codec.md`,
+`findings/H184-quotient-witness-language.md`,
+`findings/H185-coalescence-capacity.md`,
+`findings/H186-state-tail-conservation-certificate.md`,
+`findings/H187-shared-macro-witness.md`,
+`findings/H188-syndrome-residual-ledger.md`,
+`findings/H189-nonprefix-ud-kraft.md`,
+`findings/H190-whole-layer-min-description.md`,
+`findings/H191-kraft-reserved-raw-fallback.md`,
+`findings/H192-normalized-mixture-bitsback.md`,
+`findings/H193-syntax-ready-transfer.md`,
+`findings/H194-finite-state-language-transform.md`,
+`findings/H195-witness-mass-smoothing.md`,
+`findings/H196-self-induced-source-law.md`,
+`findings/H197-bounded-referee-overfull.md`,
+`findings/H198-native-developmental-tree.md`,
+`findings/H199-generated-residual-attachment.md`,
+`findings/H200-nearest-generated-cover-ledger.md`,
+`findings/H201-multiroot-superposition.md`,
+`findings/H202-recombination-crossover-ledger.md`,
+`findings/H203-derived-crossover-schedule.md`,
+`findings/H204-public-orbit-selection.md`,
+`findings/H205-visible-population-law.md`,
+`findings/H206-visible-population-overhead-bound.md`,
+`findings/H207-packed-root-population.md`,
+`findings/H208-public-ensemble-source-law.md`).
 Singles wall:
-`A/C/D/G-*.py`. PCTB position-tax dead end: `../proof_kernel/pctb_ledger.py`.
+`A/C/D/G-*.py`. Current continuation kernels include
+`H176-finite_state_mixed_radix_width.py`, `H177-kraft_cover_bound.py`,
+`H178-neutral_option_capacity.py`, `H179-reachable_regime_tax.py`,
+`H180-cocycle_canonical_placement.py`,
+`H181-finite_referee_survivor_capacity.py`, and
+`H182-transfer_matrix_population_law.py`,
+`H183-generated_reachable_codec.py`,
+`H184-quotient_witness_language.py`,
+`H185-coalescence_capacity.py`,
+`H186-state_tail_conservation_certificate.py`,
+`H187-shared_macro_witness.py`,
+`H188-syndrome_residual_ledger.py`,
+`H189-nonprefix_ud_kraft.py`, and
+`H190-whole_layer_min_description.py`,
+`H191-kraft_reserved_raw_fallback.py`,
+`H192-normalized_mixture_bitsback.py`, and
+`H193-syntax_ready_transfer.py`, and
+`H194-finite_state_language_transform.py`, and
+`H195-witness_mass_smoothing.py`, and
+`H196-self_induced_source_law.py`, and
+`H197-bounded_referee_overfull.py`, and
+`H198-native_developmental_tree.py`, and
+`H199-generated_residual_attachment.py`, and
+`H200-nearest_generated_cover_ledger.py`, and
+`H201-multiroot_superposition.py`, and
+`H202-recombination_crossover_ledger.py`, and
+`H203-derived_crossover_schedule.py`, and
+`H204-public_orbit_selection.py`, and
+`H205-visible_population_law.py`, and
+`H206-visible_population_overhead_bound.py`, and
+`H207-packed_root_population.py`, and
+`H208-public_ensemble_source_law.py`, and
+`H209-developmental_macro_codec.py`, and
+`H210-position_channel_converse.py`, and
+`H211-honest_induced_prior_conservation.py`, and
+`H212-bounded_slack_lookahead.py`.
+PCTB position-tax dead end: `../proof_kernel/pctb_ledger.py`.
+Living continuation log: `CONJECTURE_TEST_MUTATION_LOG.md`.
+Best surviving spec: `BEST_SURVIVING_SPEC.md`.
+
+Current continuation note:
+H181 closes finite checksum/referee pruning as a standalone hidden channel:
+reliable uniqueness costs `log2(M)` survivor bits plus safety, and structural
+filters only move the finite knee. H182 closes frozen public population laws as
+an arbitrary-content engine: valid paid row mass gives `rho(W)<=1`; positive
+rows are overfull or source/reachable restricted. H183 gives the constructive
+generated-regime positive control: stateless root unfolding compresses inside
+the generated class, while arbitrary uniform data pays the reachable-set tax.
+H184-H186 close three more apparent row-mass escapes: quotient witnesses return
+hidden member entropy as supply loss, selector/referee bits, or public width
+packing; coalescence returns as preimage residual/source tax; digest-tail and
+bits-back state remain conserved unless a separate `gamma>1` fertility law is
+supplied. H187-H189 close the newest escape attempts: shared macro-witnesses
+amortize overhead but not target-tuple supply; algebraic syndromes pay residual
+ambiguity or become source-shaped; non-prefix uniquely decodable grammars remain
+Kraft-limited, while ambiguous overfull grammars consume referee/checksum bits.
+H190 closes the whole-layer canonical-minimum variant: the free-boundary oracle
+gets tiny gains only by omitting raw-vs-witness syntax, and the paid one-bit
+mode remains about one bit negative on the enumerated rows.
+H191-H192 tighten that miss: leftover-Kraft fallback reduces the best
+nontrivial local bill to `0.007365` bits/layer, and normalized bits-back
+mixtures prove the remaining bill is `D(U||Q)`, approaching zero only as the
+witness mixture weight vanishes. H193 moves to public syntax-derived recurrence:
+ready-state geometry remains a KL/source bill (`N16,W16,short,raw/canonpart`
+gainU `-0.000198`), and closed partitions reach `-0.000113` only after support
+collapses to `9/65536`. H194 tests public finite-state language transforms:
+they can show large apparent syntax gain, but real input gain remains negative;
+the closest bounded balanced row is `primdyck4,N8,m18,W16,semantic_reclaim` at
+`-0.000000013` bits by nearly turning witness mass off. H195 tests the opposite
+edge by preserving nonzero witness mass with many paid public salt lanes:
+`N8,W8,L4096,all` has `q=0.050781`, full support, and
+`gain=-0.000005239`, but the limit is a uniform-law tie because
+`E_U[-log2 Q]=N+D(U||Q)>=N`. H196 tests whether recursion can create the
+matching source law; the best resonance `P=Q` ties exactly (`N8,W8,L4096,beta1`
+has apparent gain `+0.000005242`, source tax `+0.000005242`, paid net `0`).
+H197 tests hidden-lane/referee overfullness; `W8,L32` has apparent surplus
+`0.700440`, but the omitted lane selector is `5` bits and exact net is
+`-4.299560`. H198 makes the generated positive control Telomere-native:
+`G16,C8,B32,A5,P6` recursively shrinks inside the reachable class with generated
+gain `499965` and min per-pass step gain `59`, while arbitrary-uniform net is
+still `-19` (`-11` with fixed public pass count) after reachable-set tax. H199
+tests direct residual attachment to H198; exact Hamming residuals can reach full
+coverage (`N16,G4,r8`) but net `-16.258676`, and the large H198 row remains
+bounded by `G-paid=-11`. H200 tests nearest-generated high-coverage residuals:
+at `N500000,m16,~99% coverage`, even the paid-index lower bound expands by
+`+2.184448` bits under Kraft fallback, and native fixed H198 expands by
+`+13.070864`; free-index wins are hidden selected-root channels. H201 tests
+multi-root XOR generated residuals: sparse rows tie only under paid selected-root
+rank and native records lose (`N16,k4` native net `-57.170277`), while full
+linear spans need bitmasks and still leave support gaps (`N500000,m16` gap
+`434464`). H202 tests biological recombination/crossover of H198 trees:
+crossover rank grows exactly with support, so the large `N500000,G16,A5,P6`
+bound remains `native_fixed_net=-21` for two parents and `-41` for four
+parents regardless of crossover count. H203 derives the crossover schedule from
+the parent tuple; this removes the rank bill but also removes the support rank,
+leaving support bounded by `pG` and the same H198 native losses. H204 tests a
+public orbit plus visible selection; canonical selection thins support and
+indexed selection pays accepted-index entropy. H205 implements the inherited
+visible-population generated law: `M32,G16,A5,P6` pays `833` bits for
+`16000000` generated bits with min step gain `1888`, but arbitrary-uniform net
+is still `-321 = M*G-paid`. H206 optimizes the visible-population overhead
+bound: the best scanned arbitrary-uniform miss is `-7` bits overall and `-8`
+bits for the high-growth `A=5` branch. H207 packs root populations directly:
+the generated-only no-mode case ties at `uniform_net=0` after membership tax,
+but any mode/fallback restores Kraft expansion. H208 turns visible populations
+into a normalized prior with raw escape: uniform overhead can be tiny
+(`3.377e-97` bits for `M32,G16`), but source-shaped gains cancel after the
+source KL tax.
+
+H209 makes the visible-population branch an exact codec with raw escape: the
+tiny `N8` row round-trips all outputs and packed roots gain `+4` bits inside
+support but net `-1` after membership, while the large `M32,G16,A5,P6`
+symbolic native row gains `15999167` bits inside the generated class and
+remains `-321` for arbitrary uniform. H210 prices final-position boards
+directly: dense `R1000,Q1111,rho0.9` occupancy is only `0.516089` bits/record,
+but `P64` birth labels need `6` bits/record and leave `5483.911082` residual
+bits. H211 pushes forward the actual emitted stream law: `N8,W8` has
+`H_emit=8`, mean length `8.996094`, and oracle `Q=P_emit` ties at paid net `0`,
+so self-induced bias recovers expansion but does not create negative
+arbitrary-uniform drift. H212 tests legal non-greedy seed choice: because the
+stored seed carries its own digest tail, equal-cost lookahead can steer future
+state without a separate selector (`S2,credit2,slack0` lifts tail rate
+`0.512528 -> 0.578588`), and slack can buy more (`slack1` lifts to `0.637813`
+while paying `0.059226` bits), but the future fertility credit still has to be
+a real paid public law.
